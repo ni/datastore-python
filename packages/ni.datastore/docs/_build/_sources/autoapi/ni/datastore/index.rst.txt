@@ -1,0 +1,11 @@
+ni.datastore
+============
+
+.. py:module:: ni.datastore
+
+.. autoapi-nested-parse::
+
+   Public API for accessing the NI Data Store Service.
+
+
+
