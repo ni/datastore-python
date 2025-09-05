@@ -25,9 +25,9 @@ proj_config = toml.loads(pyproj_file.read_text())
 
 project = proj_config["tool"]["poetry"]["name"]
 company = "National Instruments"
-copyright = f"2025-%Y, {company}"
+copyright = f"2025-{datetime.datetime.now().year}, {company}"
 if datetime.datetime.now().year == 2025:
-    copyright = f"%Y, {company}"
+    copyright = f"{datetime.datetime.now().year}, {company}"
 
 
 # The version info for the project you're documenting, acts as replacement for

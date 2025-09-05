@@ -4,7 +4,7 @@ Introduction
 About
 -----
 
-The ``ni.datastore`` Python package APIs contains for publishing and retrieving data from the NI Measurement Data Store
+The ``ni.datastore`` Python package provides APIs for publishing and retrieving data from the NI Measurement Data Store
 
 NI created and supports this package.
 
