@@ -23,7 +23,7 @@ pyproj_file = root_path / "pyproject.toml"
 proj_config = toml.loads(pyproj_file.read_text())
 
 
-project = proj_config["tool"]["poetry"]["name"]
+project = proj_config["project"]["name"]
 company = "National Instruments"
 copyright = f"2025-{datetime.datetime.now().year}, {company}"
 if datetime.datetime.now().year == 2025:
@@ -34,9 +34,9 @@ if datetime.datetime.now().year == 2025:
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
-version = proj_config["tool"]["poetry"]["version"]
+version = proj_config["project"]["version"]
 release = ".".join(version.split(".")[:2])
-description = proj_config["tool"]["poetry"]["description"]
+description = proj_config["project"]["description"]
 
 
 htmlhelp_basename = f"{project}doc"
@@ -68,7 +68,7 @@ def setup(sphinx):
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "design/*"]
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),

@@ -5,8 +5,8 @@ license = "MIT"
 description = "APIs for publishing and retrieving data from the NI Measurement Data Store"
 authors = [{name = "NI", email = "opensource@ni.com"}]
 maintainers = [
-  {name = "Joe Friedrichsen", email = "joe.friedrichsen@emerson.com"},
-  {name = "Brad Keryan", email = "brad.keryan@emerson.com"}
+  {name = "Johann Scholtz", email = "johann.scholtz@emerson.com"},
+  {name = "Joel Dixon", email = "joel.dixon@emerson.com"}
 ]
 readme = "README.md"
 repository = "https://github.com/ni/datastore-python"
