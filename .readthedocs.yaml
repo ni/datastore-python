@@ -10,7 +10,7 @@ build:
     post_create_environment:
       - pip install poetry==2.1.4
     post_install:
-      - VIRTUAL_ENV=$READTHEDOCS_VIRTUALENV_PATH poetry -C packages/ni.datastore install --only main,docs
+      - VIRTUAL_ENV=$READTHEDOCS_VIRTUALENV_PATH poetry -C . install --only main,docs
 
 sphinx:
-  configuration: packages/ni.datastore/docs/conf.py
+  configuration: ./docs/conf.py
