@@ -15,3 +15,8 @@ jobs:
       with:
         package-name: ni.datastore
         package-base-path: .
+  check_docs:
+    name: Check docs for ni.datastore
+    uses: ./.github/workflows/check_docs.yml
+    with:
+      package-name: ni.datastore
