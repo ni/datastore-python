@@ -14,3 +14,9 @@ jobs:
     steps:
       - name: CI Inactive
         run: echo "This CI is inactive. Please activate it by removing this job."
+  check_analyzers:
+      name: Check analyzers for ni.datastore
+      uses: ./.github/workflows/check_analyzers.yml
+      with:
+        package-name: ni.datastore
+        package-base-path: .
