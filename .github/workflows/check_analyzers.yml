@@ -66,10 +66,10 @@ jobs:
         with:
           python-platform: Linux
           version: PATH
-          working-directory: ./${{ inputs.package-base-path }}/${{ inputs.package-name }}
+          working-directory: .
       - name: Pyright static analysis (Windows)
         uses: jakebailey/pyright-action@b5d50e5cde6547546a5c4ac92e416a8c2c1a1dfe # v2.3.2
         with:
           python-platform: Windows
           version: PATH
-          working-directory: ./${{ inputs.package-base-path }}/${{ inputs.package-name }}
+          working-directory: .
