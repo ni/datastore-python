@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from ni.datastore import Client
-
 
 def test__datastore_client() -> None:
     assert True
