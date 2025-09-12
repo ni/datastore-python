@@ -1,0 +1,14 @@
+[project]
+name = "publish_and_read"
+version = "0.1.0"
+description = "Showcases publishing various kinds of data and reading it back"
+authors = [
+    {name = "Johann Scholtz", email = "johann.scholtz@emerson.com"},
+    {name = "Joel Dixon", email = "joel.dixon@emerson.com"}
+]
+requires-python = ">=3.9"
+dependencies = []
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
