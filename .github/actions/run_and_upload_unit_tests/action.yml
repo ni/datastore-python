@@ -1,35 +1,27 @@
 name: 'Run and upload unit tests'
 description: 'Run unit tests using pytest and upload the results as an artifact.'
-inputs:
-  package-name:
-    description: 'The name of the package to run tests for.'
-    required: true
-  package-basepath:
-    description: 'Relative path to the parent directory of the package.'
-    required: false
-    default: 'packages'
 runs:
   using: "composite"
   steps:
     - name: Get OS version
       run: echo "osVersion=$ImageOS" >> "$GITHUB_ENV"
       shell: bash
-    - name: Cache ${{ inputs.package-name }} virtualenv
+    - name: Cache ni.datastore virtualenv
       uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
       with:
         path: ./.venv
-        key: ${{ inputs.package-name }}-${{ runner.os }}-py${{ env.pythonVersion }}-${{ hashFiles(format('{0}/{1}/poetry.lock', inputs.package-basepath, inputs.package-name)) }}
-    - name: Install ${{ inputs.package-name }}
+        key: ni.datastore-${{ runner.os }}-py${{ env.pythonVersion }}-${{ hashFiles('./poetry.lock') }}
+    - name: Install ni.datastore
       run: poetry install -v
       working-directory: .
       shell: bash
-    - name: Run ${{ inputs.package-name }} unit tests and code coverage
-      run: poetry run pytest ./tests/unit -v --cov=${{ inputs.package-name }} --junitxml=test_results/${{ inputs.package-name }}-${{ env.osVersion }}-py${{ env.pythonVersion }}.xml
+    - name: Run ni.datastore unit tests and code coverage
+      run: poetry run pytest ./tests/unit -v --cov=ni.datastore --junitxml=test_results/ni.datastore-${{ env.osVersion }}-py${{ env.pythonVersion }}.xml
       working-directory: .
       shell: bash
-    - name: Upload ${{ inputs.package-name }} test results
+    - name: Upload ni.datastore test results
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
       with:
-        name: test_results_unit_${{ inputs.package-name }}_${{ env.osVersion }}_py${{ env.pythonVersion }}
+        name: test_results_unit_ni.datastore_${{ env.osVersion }}_py${{ env.pythonVersion }}
         path: ${{ github.workspace }}/test_results/*.xml
       if: always()

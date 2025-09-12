@@ -3,16 +3,6 @@ name: Run unit tests
 on:
   workflow_call:
     inputs:
-      package-name:
-        description: 'The name of the package folder to check.'
-        default: ''
-        required: true
-        type: string
-      package-basepath:
-        description: 'The base path of the package to check, relative to the repo root.'
-        default: ''
-        required: true
-        type: string
       python-version:
         description: 'The version of Python to use'
         default: ''
@@ -25,12 +15,8 @@ on:
 
 jobs:
   run_unit_tests:
-    name: Run unit tests for ${{ inputs.package-name }} with ${{ inputs.python-version }} on ${{ inputs.os }}
+    name: Run unit tests for ni.datastore with ${{ inputs.python-version }} on ${{ inputs.os }}
     runs-on: ${{ inputs.os }}
-    defaults:
-      run:
-        # Set the working-directory for all steps in this job.
-        working-directory: ${{ github.workspace }}/${{ inputs.package-basepath }}/${{ inputs.package-name }}
     strategy:
       # Fail-fast skews the pass/fail ratio and seems to make pytest produce
       # incomplete JUnit XML results.
@@ -47,8 +33,5 @@ jobs:
           python-version: ${{ inputs.python-version }}
       - name: Set up Poetry
         uses: ni/python-actions/setup-poetry@f0276f7f58868ec0d0d1a86377287c9e6fe0c6e7 # v0.5.0
-      - name: Run and upload unit tests for ${{ inputs.package-name }}
+      - name: Run and upload unit tests for ni.datastore
         uses: ./.github/actions/run_and_upload_unit_tests
-        with:
-          package-name: ${{ inputs.package-name }}
-          package-basepath: ${{ inputs.package-basepath }}

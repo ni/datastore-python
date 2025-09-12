@@ -2,16 +2,11 @@ name: Check docs
 
 on:
   workflow_call:
-    inputs:
-      package-name:
-        description: 'The name of the package to check.'
-        default: ''
-        required: true
-        type: string
+  workflow_dispatch:
 
 jobs:
   check_docs:
-    name: Check docs for ${{ inputs.package-name }}
+    name: Check docs for ni.datastore
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -31,7 +26,7 @@ jobs:
         uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
         with:
           path: .venv
-          key: ${{ inputs.package-name }}-with-docs-${{ runner.os }}-py${{ steps.setup-python.outputs.python-version }}-${{ hashFiles(format('packages/{0}/poetry.lock', inputs.package-name)) }}
+          key: ni.datastore-with-docs-${{ runner.os }}-py${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('./poetry.lock') }}
       - name: Install nitypes (with docs)
         run: poetry install -v --only main,docs
       - name: Generate docs
@@ -39,5 +34,5 @@ jobs:
       - name: Upload docs artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: ${{ inputs.package-name }}-docs
+          name: ni.datastore-docs
           path: ./docs/_build/
