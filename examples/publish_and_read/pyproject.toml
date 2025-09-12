@@ -6,9 +6,15 @@ authors = [
     {name = "Johann Scholtz", email = "johann.scholtz@emerson.com"},
     {name = "Joel Dixon", email = "joel.dixon@emerson.com"}
 ]
-requires-python = ">=3.9"
-dependencies = []
+requires-python = "^3.9"
+dependencies = [
+    "typing-extensions (>=4.15.0,<5.0.0)"
+]
 
 [build-system]
 requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[tool.poetry.group.dev.dependencies]
+ni-datastore = {path = "../..", develop = true}
+ni-protobuf-types = "*"
