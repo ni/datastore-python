@@ -1,4 +1,4 @@
-"""Contains tests to validate the discovery_client.py."""
+"""Contains tests to validate the datastore client functionality."""
 
 from __future__ import annotations
 
