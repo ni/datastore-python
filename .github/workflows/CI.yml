@@ -9,8 +9,19 @@ on:
   workflow_dispatch:
 
 jobs:
-  todo_make_a_ci:
-    runs-on: ubuntu-latest
-    steps:
-      - name: CI Inactive
-        run: echo "This CI is inactive. Please activate it by removing this job."
+  check_analyzers:
+      name: Check analyzers for ni.datastore
+      uses: ./.github/workflows/check_ni_datastore.yml
+  check_docs:
+    name: Check docs for ni.datastore
+    uses: ./.github/workflows/check_docs.yml
+  run_unit_tests:
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+        python-version: [3.9, '3.10', 3.11, 3.12, 3.13]
+    name: Run unit tests
+    uses: ./.github/workflows/run_unit_tests.yml
+    with:
+      python-version: ${{ matrix.python-version }}
+      os: ${{ matrix.os }}
