@@ -24,7 +24,7 @@ runs:
       working-directory: .
       shell: bash
     - name: Run ${{ inputs.package-name }} unit tests and code coverage
-      run: poetry run pytest ./tests/unit -v --cov=${{ inputs.package-name }} --junitxml=test_results/${{ inputs.package-name }}-${{ matrix.os }}-py${{ matrix.python-version }}.xml
+      run: poetry run pytest ./tests/unit -v --cov=${{ inputs.package-name }} --junitxml=test_results/${{ inputs.package-name }}-${{ env.osVersion }}-py${{ env.pythonVersion }}.xml
       working-directory: .
       shell: bash
     - name: Upload ${{ inputs.package-name }} test results
