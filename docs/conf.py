@@ -79,10 +79,6 @@ exclude_patterns = [
     ".DS_Store",
 ]
 
-suppress_warnings = [
-    "docutils",
-]
-
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "protobuf": ("https://googleapis.dev/python/protobuf/latest/", None),
