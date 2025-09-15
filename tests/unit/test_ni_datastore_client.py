@@ -1,15 +1,11 @@
 """Contains tests to validate the datastore client functionality."""
+
 from __future__ import annotations
-
-import pytest
-
-from nitypes.bintime import DateTime
-from ni.datastore.client import Client
-from ni.measurements.data.v1.data_store_pb2 import Outcome, ErrorInformation
 
 
 def test__datastore_client() -> None:
     assert True
+
 
 # Not Implemented in client.py
 # @pytest.mark.parametrize("value", [True, False])
