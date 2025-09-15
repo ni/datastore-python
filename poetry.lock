@@ -482,6 +482,70 @@ pycodestyle = "*"
 setuptools = "*"
 
 [[package]]
+name = "grpcio"
+version = "1.74.0"
+description = "HTTP/2-based RPC framework"
+optional = false
+python-versions = ">=3.9"
+groups = ["main"]
+files = [
+    {file = "grpcio-1.74.0-cp310-cp310-linux_armv7l.whl", hash = "sha256:85bd5cdf4ed7b2d6438871adf6afff9af7096486fcf51818a81b77ef4dd30907"},
+    {file = "grpcio-1.74.0-cp310-cp310-macosx_11_0_universal2.whl", hash = "sha256:68c8ebcca945efff9d86d8d6d7bfb0841cf0071024417e2d7f45c5e46b5b08eb"},
+    {file = "grpcio-1.74.0-cp310-cp310-manylinux_2_17_aarch64.whl", hash = "sha256:e154d230dc1bbbd78ad2fdc3039fa50ad7ffcf438e4eb2fa30bce223a70c7486"},
+    {file = "grpcio-1.74.0-cp310-cp310-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:e8978003816c7b9eabe217f88c78bc26adc8f9304bf6a594b02e5a49b2ef9c11"},
+    {file = "grpcio-1.74.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:c3d7bd6e3929fd2ea7fbc3f562e4987229ead70c9ae5f01501a46701e08f1ad9"},
+    {file = "grpcio-1.74.0-cp310-cp310-musllinux_1_1_aarch64.whl", hash = "sha256:136b53c91ac1d02c8c24201bfdeb56f8b3ac3278668cbb8e0ba49c88069e1bdc"},
+    {file = "grpcio-1.74.0-cp310-cp310-musllinux_1_1_i686.whl", hash = "sha256:fe0f540750a13fd8e5da4b3eaba91a785eea8dca5ccd2bc2ffe978caa403090e"},
+    {file = "grpcio-1.74.0-cp310-cp310-musllinux_1_1_x86_64.whl", hash = "sha256:4e4181bfc24413d1e3a37a0b7889bea68d973d4b45dd2bc68bb766c140718f82"},
+    {file = "grpcio-1.74.0-cp310-cp310-win32.whl", hash = "sha256:1733969040989f7acc3d94c22f55b4a9501a30f6aaacdbccfaba0a3ffb255ab7"},
+    {file = "grpcio-1.74.0-cp310-cp310-win_amd64.whl", hash = "sha256:9e912d3c993a29df6c627459af58975b2e5c897d93287939b9d5065f000249b5"},
+    {file = "grpcio-1.74.0-cp311-cp311-linux_armv7l.whl", hash = "sha256:69e1a8180868a2576f02356565f16635b99088da7df3d45aaa7e24e73a054e31"},
+    {file = "grpcio-1.74.0-cp311-cp311-macosx_11_0_universal2.whl", hash = "sha256:8efe72fde5500f47aca1ef59495cb59c885afe04ac89dd11d810f2de87d935d4"},
+    {file = "grpcio-1.74.0-cp311-cp311-manylinux_2_17_aarch64.whl", hash = "sha256:a8f0302f9ac4e9923f98d8e243939a6fb627cd048f5cd38595c97e38020dffce"},
+    {file = "grpcio-1.74.0-cp311-cp311-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:2f609a39f62a6f6f05c7512746798282546358a37ea93c1fcbadf8b2fed162e3"},
+    {file = "grpcio-1.74.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:c98e0b7434a7fa4e3e63f250456eaef52499fba5ae661c58cc5b5477d11e7182"},
+    {file = "grpcio-1.74.0-cp311-cp311-musllinux_1_1_aarch64.whl", hash = "sha256:662456c4513e298db6d7bd9c3b8df6f75f8752f0ba01fb653e252ed4a59b5a5d"},
+    {file = "grpcio-1.74.0-cp311-cp311-musllinux_1_1_i686.whl", hash = "sha256:3d14e3c4d65e19d8430a4e28ceb71ace4728776fd6c3ce34016947474479683f"},
+    {file = "grpcio-1.74.0-cp311-cp311-musllinux_1_1_x86_64.whl", hash = "sha256:1bf949792cee20d2078323a9b02bacbbae002b9e3b9e2433f2741c15bdeba1c4"},
+    {file = "grpcio-1.74.0-cp311-cp311-win32.whl", hash = "sha256:55b453812fa7c7ce2f5c88be3018fb4a490519b6ce80788d5913f3f9d7da8c7b"},
+    {file = "grpcio-1.74.0-cp311-cp311-win_amd64.whl", hash = "sha256:86ad489db097141a907c559988c29718719aa3e13370d40e20506f11b4de0d11"},
+    {file = "grpcio-1.74.0-cp312-cp312-linux_armv7l.whl", hash = "sha256:8533e6e9c5bd630ca98062e3a1326249e6ada07d05acf191a77bc33f8948f3d8"},
+    {file = "grpcio-1.74.0-cp312-cp312-macosx_11_0_universal2.whl", hash = "sha256:2918948864fec2a11721d91568effffbe0a02b23ecd57f281391d986847982f6"},
+    {file = "grpcio-1.74.0-cp312-cp312-manylinux_2_17_aarch64.whl", hash = "sha256:60d2d48b0580e70d2e1954d0d19fa3c2e60dd7cbed826aca104fff518310d1c5"},
+    {file = "grpcio-1.74.0-cp312-cp312-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:3601274bc0523f6dc07666c0e01682c94472402ac2fd1226fd96e079863bfa49"},
+    {file = "grpcio-1.74.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:176d60a5168d7948539def20b2a3adcce67d72454d9ae05969a2e73f3a0feee7"},
+    {file = "grpcio-1.74.0-cp312-cp312-musllinux_1_1_aarch64.whl", hash = "sha256:e759f9e8bc908aaae0412642afe5416c9f983a80499448fcc7fab8692ae044c3"},
+    {file = "grpcio-1.74.0-cp312-cp312-musllinux_1_1_i686.whl", hash = "sha256:9e7c4389771855a92934b2846bd807fc25a3dfa820fd912fe6bd8136026b2707"},
+    {file = "grpcio-1.74.0-cp312-cp312-musllinux_1_1_x86_64.whl", hash = "sha256:cce634b10aeab37010449124814b05a62fb5f18928ca878f1bf4750d1f0c815b"},
+    {file = "grpcio-1.74.0-cp312-cp312-win32.whl", hash = "sha256:885912559974df35d92219e2dc98f51a16a48395f37b92865ad45186f294096c"},
+    {file = "grpcio-1.74.0-cp312-cp312-win_amd64.whl", hash = "sha256:42f8fee287427b94be63d916c90399ed310ed10aadbf9e2e5538b3e497d269bc"},
+    {file = "grpcio-1.74.0-cp313-cp313-linux_armv7l.whl", hash = "sha256:2bc2d7d8d184e2362b53905cb1708c84cb16354771c04b490485fa07ce3a1d89"},
+    {file = "grpcio-1.74.0-cp313-cp313-macosx_11_0_universal2.whl", hash = "sha256:c14e803037e572c177ba54a3e090d6eb12efd795d49327c5ee2b3bddb836bf01"},
+    {file = "grpcio-1.74.0-cp313-cp313-manylinux_2_17_aarch64.whl", hash = "sha256:f6ec94f0e50eb8fa1744a731088b966427575e40c2944a980049798b127a687e"},
+    {file = "grpcio-1.74.0-cp313-cp313-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:566b9395b90cc3d0d0c6404bc8572c7c18786ede549cdb540ae27b58afe0fb91"},
+    {file = "grpcio-1.74.0-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:e1ea6176d7dfd5b941ea01c2ec34de9531ba494d541fe2057c904e601879f249"},
+    {file = "grpcio-1.74.0-cp313-cp313-musllinux_1_1_aarch64.whl", hash = "sha256:64229c1e9cea079420527fa8ac45d80fc1e8d3f94deaa35643c381fa8d98f362"},
+    {file = "grpcio-1.74.0-cp313-cp313-musllinux_1_1_i686.whl", hash = "sha256:0f87bddd6e27fc776aacf7ebfec367b6d49cad0455123951e4488ea99d9b9b8f"},
+    {file = "grpcio-1.74.0-cp313-cp313-musllinux_1_1_x86_64.whl", hash = "sha256:3b03d8f2a07f0fea8c8f74deb59f8352b770e3900d143b3d1475effcb08eec20"},
+    {file = "grpcio-1.74.0-cp313-cp313-win32.whl", hash = "sha256:b6a73b2ba83e663b2480a90b82fdae6a7aa6427f62bf43b29912c0cfd1aa2bfa"},
+    {file = "grpcio-1.74.0-cp313-cp313-win_amd64.whl", hash = "sha256:fd3c71aeee838299c5887230b8a1822795325ddfea635edd82954c1eaa831e24"},
+    {file = "grpcio-1.74.0-cp39-cp39-linux_armv7l.whl", hash = "sha256:4bc5fca10aaf74779081e16c2bcc3d5ec643ffd528d9e7b1c9039000ead73bae"},
+    {file = "grpcio-1.74.0-cp39-cp39-macosx_11_0_universal2.whl", hash = "sha256:6bab67d15ad617aff094c382c882e0177637da73cbc5532d52c07b4ee887a87b"},
+    {file = "grpcio-1.74.0-cp39-cp39-manylinux_2_17_aarch64.whl", hash = "sha256:655726919b75ab3c34cdad39da5c530ac6fa32696fb23119e36b64adcfca174a"},
+    {file = "grpcio-1.74.0-cp39-cp39-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:1a2b06afe2e50ebfd46247ac3ba60cac523f54ec7792ae9ba6073c12daf26f0a"},
+    {file = "grpcio-1.74.0-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:5f251c355167b2360537cf17bea2cf0197995e551ab9da6a0a59b3da5e8704f9"},
+    {file = "grpcio-1.74.0-cp39-cp39-musllinux_1_1_aarch64.whl", hash = "sha256:8f7b5882fb50632ab1e48cb3122d6df55b9afabc265582808036b6e51b9fd6b7"},
+    {file = "grpcio-1.74.0-cp39-cp39-musllinux_1_1_i686.whl", hash = "sha256:834988b6c34515545b3edd13e902c1acdd9f2465d386ea5143fb558f153a7176"},
+    {file = "grpcio-1.74.0-cp39-cp39-musllinux_1_1_x86_64.whl", hash = "sha256:22b834cef33429ca6cc28303c9c327ba9a3fafecbf62fae17e9a7b7163cc43ac"},
+    {file = "grpcio-1.74.0-cp39-cp39-win32.whl", hash = "sha256:7d95d71ff35291bab3f1c52f52f474c632db26ea12700c2ff0ea0532cb0b5854"},
+    {file = "grpcio-1.74.0-cp39-cp39-win_amd64.whl", hash = "sha256:ecde9ab49f58433abe02f9ed076c7b5be839cf0153883a6d23995937a82392fa"},
+    {file = "grpcio-1.74.0.tar.gz", hash = "sha256:80d1f4fbb35b0742d3e3d3bb654b7381cd5f015f8497279a1e9c21ba623e01b1"},
+]
+
+[package.extras]
+protobuf = ["grpcio-tools (>=1.74.0)"]
+
+[[package]]
 name = "hightime"
 version = "0.2.2"
 description = "Hightime Python API"
@@ -812,6 +876,22 @@ files = [
 ]
 
 [[package]]
+name = "ni-datamonikers-v1-client"
+version = "0.1.0.dev0"
+description = "gRPC Client for NI Data Moniker Service"
+optional = false
+python-versions = "<4.0,>=3.9"
+groups = ["main"]
+files = [
+    {file = "ni_datamonikers_v1_client-0.1.0.dev0-py3-none-any.whl", hash = "sha256:1491badadb77782169e86e51f35cc4a216ed1b1272ff59bc8893b31904f98a58"},
+    {file = "ni_datamonikers_v1_client-0.1.0.dev0.tar.gz", hash = "sha256:757f452b0357ca9e17af8de9fc54cc552e2283f9a21ddcff59a031b977dbb904"},
+]
+
+[package.dependencies]
+ni-datamonikers-v1-proto = ">=0.1.0.dev0"
+ni-grpc-extensions = ">=0.1.0.dev0"
+
+[[package]]
 name = "ni-datamonikers-v1-proto"
 version = "0.1.0.dev0"
 description = "Protobuf data types and service stub for NI data moniker gRPC APIs"
@@ -827,33 +907,114 @@ files = [
 protobuf = ">=4.21"
 
 [[package]]
-name = "ni-measurements-data-v1-proto"
+name = "ni-grpc-extensions"
+version = "0.1.0.dev1"
+description = "gRPC Extensions"
+optional = false
+python-versions = "<4.0,>=3.9"
+groups = ["main"]
+files = [
+    {file = "ni_grpc_extensions-0.1.0.dev1-py3-none-any.whl", hash = "sha256:171a16303a2cfcbd2f29ad5df448bf6b89b399be3ba52fc0c2e755c2e7075075"},
+    {file = "ni_grpc_extensions-0.1.0.dev1.tar.gz", hash = "sha256:99af79ab9054b15b8682c9540ea4e474236bfaab0b271b42731ba9fd2c5bb4c7"},
+]
+
+[package.dependencies]
+grpcio = ">=1.49.0,<2.0"
+traceloggingdynamic = {version = ">=1.0", markers = "sys_platform == \"win32\""}
+
+[[package]]
+name = "ni-measurementlink-discovery-v1-client"
 version = "0.1.0.dev0"
+description = "gRPC Client for NI Discovery Service"
+optional = false
+python-versions = "<4.0,>=3.9"
+groups = ["main"]
+files = [
+    {file = "ni_measurementlink_discovery_v1_client-0.1.0.dev0-py3-none-any.whl", hash = "sha256:b27abeddb3465e2be3a8142f0884eaeabff82d89040a76d026501d8527064167"},
+    {file = "ni_measurementlink_discovery_v1_client-0.1.0.dev0.tar.gz", hash = "sha256:b964d48bc7942fc1eb6bcc5b03ce1a3fb031e9fa19d7d1a92c3c85b92fc44c17"},
+]
+
+[package.dependencies]
+grpcio = ">=1.49.0,<2.0"
+ni-grpc-extensions = ">=0.1.0.dev0"
+ni-measurementlink-discovery-v1-proto = ">=0.1.0.dev0"
+pywin32 = {version = ">=303", markers = "sys_platform == \"win32\""}
+
+[[package]]
+name = "ni-measurementlink-discovery-v1-proto"
+version = "0.1.0.dev1"
+description = "Protobuf data types for NI discovery gRPC APIs"
+optional = false
+python-versions = "<4.0,>=3.9"
+groups = ["main"]
+files = [
+    {file = "ni_measurementlink_discovery_v1_proto-0.1.0.dev1-py3-none-any.whl", hash = "sha256:2525e5c2975b6c3b5d0127a55c974a077a56d35e42ae1203c6063770b87e3062"},
+    {file = "ni_measurementlink_discovery_v1_proto-0.1.0.dev1.tar.gz", hash = "sha256:75ebca4560d1e58d8ba585d6b1b8ea9923327d3ed5cc2cb6b9d8cc8d8931aa4e"},
+]
+
+[package.dependencies]
+protobuf = ">=4.21"
+
+[[package]]
+name = "ni-measurements-data-v1-client"
+version = "0.1.0.dev0"
+description = "gRPC Client for NI Data Store Service"
+optional = false
+python-versions = "<4.0,>=3.9"
+groups = ["main"]
+files = [
+    {file = "ni_measurements_data_v1_client-0.1.0.dev0-py3-none-any.whl", hash = "sha256:5ce6933fc60d33ebb7d8b9abd205137323bfa4b0df2f5a578321632dd4edc0ff"},
+    {file = "ni_measurements_data_v1_client-0.1.0.dev0.tar.gz", hash = "sha256:88d2ac07f303d9a11e0db91af02aab961951b7684065ec7c586ce141c066e4a6"},
+]
+
+[package.dependencies]
+ni-measurementlink-discovery-v1-client = ">=0.1.0.dev0"
+ni-measurements-data-v1-proto = ">=0.1.0.dev1"
+
+[[package]]
+name = "ni-measurements-data-v1-proto"
+version = "0.1.0.dev1"
 description = "Protobuf data types and service stubs for NI data store gRPC APIs"
 optional = false
 python-versions = "<4.0,>=3.9"
 groups = ["main"]
 files = [
-    {file = "ni_measurements_data_v1_proto-0.1.0.dev0-py3-none-any.whl", hash = "sha256:7f650bde80e276195ec155d1925f06a12e60a96828c9ed8712ab85e999b6109e"},
-    {file = "ni_measurements_data_v1_proto-0.1.0.dev0.tar.gz", hash = "sha256:206430bd5f2cafd21e69296027159dd03c11e6f9750ced2ee7ee3e71ea10f2b3"},
+    {file = "ni_measurements_data_v1_proto-0.1.0.dev1-py3-none-any.whl", hash = "sha256:7a6d3b2e94ef7ced6ba29d6203498da96e226840cacfe8a5a5ea24040b08ec75"},
+    {file = "ni_measurements_data_v1_proto-0.1.0.dev1.tar.gz", hash = "sha256:b78440a8cee40c09dcf8805e613c4866a7d4397422903a8edca9c7df98e34d9a"},
 ]
 
 [package.dependencies]
 ni-datamonikers-v1-proto = ">=0.1.0.dev0"
-ni-measurements-metadata-v1-proto = ">=0.1.0.dev0"
+ni-measurements-metadata-v1-proto = ">=0.1.0.dev1"
 ni-protobuf-types = ">=0.1.0.dev3"
 protobuf = ">=4.21"
 
 [[package]]
-name = "ni-measurements-metadata-v1-proto"
+name = "ni-measurements-metadata-v1-client"
 version = "0.1.0.dev0"
+description = "gRPC Client for NI Metadata Store Service"
+optional = false
+python-versions = "<4.0,>=3.9"
+groups = ["main"]
+files = [
+    {file = "ni_measurements_metadata_v1_client-0.1.0.dev0-py3-none-any.whl", hash = "sha256:42d4c11d6ac717b2dfca5e57d2136024202f689716f230eae2664b7ac670c424"},
+    {file = "ni_measurements_metadata_v1_client-0.1.0.dev0.tar.gz", hash = "sha256:4b5c3aa2d59d437e7f9d2577d79d9430cfd00955f88e855b1d1a9c75ea8a0228"},
+]
+
+[package.dependencies]
+ni-measurementlink-discovery-v1-client = ">=0.1.0.dev0"
+ni-measurements-metadata-v1-proto = ">=0.1.0.dev1"
+
+[[package]]
+name = "ni-measurements-metadata-v1-proto"
+version = "0.1.0.dev1"
 description = "Protobuf data types and service stub for NI metadata store gRPC APIs"
 optional = false
 python-versions = "<4.0,>=3.9"
 groups = ["main"]
 files = [
-    {file = "ni_measurements_metadata_v1_proto-0.1.0.dev0-py3-none-any.whl", hash = "sha256:cab8ae264cd33ea16758f37b72efa5d1dc4ee06d635be7c5225de54c420b5641"},
-    {file = "ni_measurements_metadata_v1_proto-0.1.0.dev0.tar.gz", hash = "sha256:37768f4187d76f508ebbbcd178b8754ea587e6eddff5bcc15f1685732c008854"},
+    {file = "ni_measurements_metadata_v1_proto-0.1.0.dev1-py3-none-any.whl", hash = "sha256:1300d9dd6ba335355692d013342dce516405578519c7548c03a57442c8be2ce6"},
+    {file = "ni_measurements_metadata_v1_proto-0.1.0.dev1.tar.gz", hash = "sha256:8c05c2715dc34e21cfae3bf95ea1a07dd1c35f1203ddfdede488e385009df1dc"},
 ]
 
 [package.dependencies]
@@ -1441,6 +1602,37 @@ pytest = ">=6.2.5"
 dev = ["pre-commit", "pytest-asyncio", "tox"]
 
 [[package]]
+name = "pywin32"
+version = "311"
+description = "Python for Window Extensions"
+optional = false
+python-versions = "*"
+groups = ["main"]
+markers = "sys_platform == \"win32\""
+files = [
+    {file = "pywin32-311-cp310-cp310-win32.whl", hash = "sha256:d03ff496d2a0cd4a5893504789d4a15399133fe82517455e78bad62efbb7f0a3"},
+    {file = "pywin32-311-cp310-cp310-win_amd64.whl", hash = "sha256:797c2772017851984b97180b0bebe4b620bb86328e8a884bb626156295a63b3b"},
+    {file = "pywin32-311-cp310-cp310-win_arm64.whl", hash = "sha256:0502d1facf1fed4839a9a51ccbcc63d952cf318f78ffc00a7e78528ac27d7a2b"},
+    {file = "pywin32-311-cp311-cp311-win32.whl", hash = "sha256:184eb5e436dea364dcd3d2316d577d625c0351bf237c4e9a5fabbcfa5a58b151"},
+    {file = "pywin32-311-cp311-cp311-win_amd64.whl", hash = "sha256:3ce80b34b22b17ccbd937a6e78e7225d80c52f5ab9940fe0506a1a16f3dab503"},
+    {file = "pywin32-311-cp311-cp311-win_arm64.whl", hash = "sha256:a733f1388e1a842abb67ffa8e7aad0e70ac519e09b0f6a784e65a136ec7cefd2"},
+    {file = "pywin32-311-cp312-cp312-win32.whl", hash = "sha256:750ec6e621af2b948540032557b10a2d43b0cee2ae9758c54154d711cc852d31"},
+    {file = "pywin32-311-cp312-cp312-win_amd64.whl", hash = "sha256:b8c095edad5c211ff31c05223658e71bf7116daa0ecf3ad85f3201ea3190d067"},
+    {file = "pywin32-311-cp312-cp312-win_arm64.whl", hash = "sha256:e286f46a9a39c4a18b319c28f59b61de793654af2f395c102b4f819e584b5852"},
+    {file = "pywin32-311-cp313-cp313-win32.whl", hash = "sha256:f95ba5a847cba10dd8c4d8fefa9f2a6cf283b8b88ed6178fa8a6c1ab16054d0d"},
+    {file = "pywin32-311-cp313-cp313-win_amd64.whl", hash = "sha256:718a38f7e5b058e76aee1c56ddd06908116d35147e133427e59a3983f703a20d"},
+    {file = "pywin32-311-cp313-cp313-win_arm64.whl", hash = "sha256:7b4075d959648406202d92a2310cb990fea19b535c7f4a78d3f5e10b926eeb8a"},
+    {file = "pywin32-311-cp314-cp314-win32.whl", hash = "sha256:b7a2c10b93f8986666d0c803ee19b5990885872a7de910fc460f9b0c2fbf92ee"},
+    {file = "pywin32-311-cp314-cp314-win_amd64.whl", hash = "sha256:3aca44c046bd2ed8c90de9cb8427f581c479e594e99b5c0bb19b29c10fd6cb87"},
+    {file = "pywin32-311-cp314-cp314-win_arm64.whl", hash = "sha256:a508e2d9025764a8270f93111a970e1d0fbfc33f4153b388bb649b7eec4f9b42"},
+    {file = "pywin32-311-cp38-cp38-win32.whl", hash = "sha256:6c6f2969607b5023b0d9ce2541f8d2cbb01c4f46bc87456017cf63b73f1e2d8c"},
+    {file = "pywin32-311-cp38-cp38-win_amd64.whl", hash = "sha256:c8015b09fb9a5e188f83b7b04de91ddca4658cee2ae6f3bc483f0b21a77ef6cd"},
+    {file = "pywin32-311-cp39-cp39-win32.whl", hash = "sha256:aba8f82d551a942cb20d4a83413ccbac30790b50efb89a75e4f586ac0bb8056b"},
+    {file = "pywin32-311-cp39-cp39-win_amd64.whl", hash = "sha256:e0c4cfb0621281fe40387df582097fd796e80430597cb9944f0ae70447bacd91"},
+    {file = "pywin32-311-cp39-cp39-win_arm64.whl", hash = "sha256:62ea666235135fee79bb154e695f3ff67370afefd71bd7fea7512fc70ef31e3d"},
+]
+
+[[package]]
 name = "pyyaml"
 version = "6.0.2"
 description = "YAML parser and emitter for Python"
@@ -1951,6 +2143,19 @@ files = [
 ]
 
 [[package]]
+name = "traceloggingdynamic"
+version = "1.0.1"
+description = "Generates Event Tracing for Windows events using TraceLogging"
+optional = false
+python-versions = ">=3.6"
+groups = ["main"]
+markers = "sys_platform == \"win32\""
+files = [
+    {file = "traceloggingdynamic-1.0.1-py3-none-any.whl", hash = "sha256:0e19da491a8960725b3622366487ae35f49d8f595bb2e4e5ce1795eb5928db7c"},
+    {file = "traceloggingdynamic-1.0.1.tar.gz", hash = "sha256:d9dd4b291dd04c15e34181eed06f73fdf4ffa7b1f895b78217163def48ab1a52"},
+]
+
+[[package]]
 name = "types-grpcio"
 version = "1.0.0.20250703"
 description = "Typing stubs for grpcio"
@@ -2029,4 +2234,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9"
-content-hash = "ea4c9357b2eb06f4429fe68a17dc9a6dfe7e426deacb37704f079f5eeec4017f"
+content-hash = "1904e27f5181893a7471255562cc5c5f5f858b12f9097b2060b7725036d63122"
