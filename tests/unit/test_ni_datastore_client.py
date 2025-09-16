@@ -110,7 +110,7 @@ def test__publish_analog_waveform_data__calls_datastoreclient(
     assert request.test_adapter_ids == []
 
 
-def test__read_boolean_data__calls_monikerclient(mocked_moniker_client: Mock) -> None:
+def test__read_measurement_data__calls_monikerclient(mocked_moniker_client: Mock) -> None:
     client = Client(moniker_client=mocked_moniker_client)
     moniker = Moniker()
     moniker.data_instance = 12
