@@ -1,8 +1,10 @@
 """Datastore client for publishing and reading data."""
+
 from __future__ import annotations
 
 from collections.abc import Iterable
 from typing import Type, TypeVar, cast
+
 import numpy as np
 from ni.datamonikers.v1.client import MonikerClient
 from ni.datamonikers.v1.data_moniker_pb2 import Moniker
@@ -23,6 +25,7 @@ from nitypes.waveform import AnalogWaveform
 
 TRead = TypeVar("TRead")
 TWrite = TypeVar("TWrite")
+
 
 class Client:
     """Datastore client for publishing and reading data."""
@@ -50,7 +53,7 @@ class Client:
         name: str,
         notes: str,
         timestamp: DateTime,
-        data: object, # More strongly typed Union[bool, AnalogWaveform] can be used if needed
+        data: object,  # More strongly typed Union[bool, AnalogWaveform] can be used if needed
         outcome: Outcome.ValueType,
         error_info: ErrorInformation,
         hardware_item_ids: Iterable[str] = tuple(),
@@ -75,7 +78,9 @@ class Client:
         elif isinstance(data, AnalogWaveform):
             # Assuming data is of type AnalogWaveform
             analog_waveform = cast(AnalogWaveform[np.float64], data)
-            publish_request.double_analog_waveform.CopyFrom(float64_analog_waveform_to_protobuf(analog_waveform))
+            publish_request.double_analog_waveform.CopyFrom(
+                float64_analog_waveform_to_protobuf(analog_waveform)
+            )
 
         publish_response = self._data_store_client.publish_measurement(publish_request)
         return publish_response.published_measurement

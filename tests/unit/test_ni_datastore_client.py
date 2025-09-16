@@ -17,13 +17,13 @@ from ni.measurements.data.v1.data_store_pb2 import (
 )
 from ni.measurements.data.v1.data_store_service_pb2 import (
     PublishMeasurementRequest,
-    PublishMeasurementResponse
+    PublishMeasurementResponse,
 )
+from ni.protobuf.types.vector_pb2 import Vector
 from ni.protobuf.types.waveform_conversion import float64_analog_waveform_to_protobuf
 from ni.protobuf.types.waveform_pb2 import DoubleAnalogWaveform
-from ni.protobuf.types.vector_pb2 import Vector
-from nitypes.waveform import AnalogWaveform
 from nitypes.bintime import DateTime
+from nitypes.waveform import AnalogWaveform
 from pytest_mock import MockerFixture
 
 
@@ -68,7 +68,7 @@ def test__publish_boolean_data__calls_datastoreclient(
 
 
 def test__publish_analog_waveform_data__calls_datastoreclient(
-    mocked_datastore_client: Mock
+    mocked_datastore_client: Mock,
 ) -> None:
     timestamp = DateTime.now(tz=dt.timezone.utc)
     published_measurement = PublishedMeasurement()
@@ -110,15 +110,13 @@ def test__publish_analog_waveform_data__calls_datastoreclient(
     assert request.test_adapter_ids == []
 
 
-def test__read_boolean_data__calls_monikerclient(
-    mocked_moniker_client: Mock
-) -> None:
+def test__read_boolean_data__calls_monikerclient(mocked_moniker_client: Mock) -> None:
     client = Client(moniker_client=mocked_moniker_client)
     moniker = Moniker()
     moniker.data_instance = 12
     moniker.data_source = "ABCD123"
     moniker.service_location = "localhost:50051"
-    client.read_measurement_data(moniker, type[Vector])
+    client.read_measurement_data(moniker, Vector)
     mocked_moniker_client.read_from_moniker.return_value = ReadFromMonikerResult()
 
     args, __ = mocked_moniker_client.read_from_moniker.call_args
@@ -141,9 +139,7 @@ def mocked_datastore_client(mocker: MockerFixture) -> Any:
 
 @pytest.fixture
 def mocked_moniker_client(mocker: MockerFixture) -> Any:
-    mock_moniker_client = mocker.patch(
-        "ni.datamonikers.v1.client.MonikerClient", autospec=True
-    )
+    mock_moniker_client = mocker.patch("ni.datamonikers.v1.client.MonikerClient", autospec=True)
     # Set up the mock's publish method
     mock_moniker_instance = mock_moniker_client.return_value
     return mock_moniker_instance
