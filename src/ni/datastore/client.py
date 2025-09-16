@@ -1,6 +1,6 @@
 """Datastore client for publishing and reading data."""
 
-from typing import Optional
+from typing import Optional, Type, TypeVar, cast
 
 from ni.datamonikers.v1.data_moniker_pb2 import Moniker
 from ni.measurements.data.v1.client import DataStoreClient
@@ -16,6 +16,8 @@ from ni.protobuf.types.precision_timestamp_conversion import (
 )
 from nitypes.bintime import DateTime
 
+TRead = TypeVar("TRead")
+TWrite = TypeVar("TWrite")
 
 class Client:
     """Datastore client for publishing and reading data."""
@@ -40,7 +42,7 @@ class Client:
         name: str,
         notes: str,
         timestamp: DateTime,
-        data: object,  # More strongly typed Union[bool, AnalogWaveform] can be used if needed
+        data: object, # More strongly typed Union[bool, AnalogWaveform] can be used if needed
         outcome: Outcome.ValueType,
         error_info: ErrorInformation,
         hardware_item_ids: list[str],
@@ -66,9 +68,9 @@ class Client:
         publish_response = self._data_store_client.publish_measurement(publish_request)
         return publish_response.published_measurement
 
-    def read_measurement_data(self, moniker: Moniker) -> object:
+    def read_measurement_data(self, moniker: Moniker, expected_type: Type[TRead]) -> TRead:
         """Read measurement data from the datastore."""
-        return True
+        return cast(TRead, True)
 
     def create_step(
         self,
