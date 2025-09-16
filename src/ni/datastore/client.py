@@ -1,5 +1,7 @@
 """Datastore client for publishing and reading data."""
 
+from typing import Optional
+
 from ni.datamonikers.v1.data_moniker_pb2 import Moniker
 from ni.measurements.data.v1.client import DataStoreClient
 from ni.measurements.data.v1.data_store_pb2 import (
@@ -25,8 +27,8 @@ class Client:
 
     def __init__(
         self,
-        data_store_client: DataStoreClient | None = None,
-        metadata_store_client: MetadataStoreClient | None = None,
+        data_store_client: Optional[DataStoreClient] = None,
+        metadata_store_client: Optional[MetadataStoreClient] = None,
     ) -> None:
         """Initialize the Client."""
         self._data_store_client = data_store_client or DataStoreClient()
