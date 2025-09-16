@@ -1,7 +1,10 @@
 """Datastore client for publishing and reading data."""
+from __future__ import annotations
 
-from typing import Optional, Type, TypeVar, cast
-
+from collections.abc import Iterable
+from typing import Type, TypeVar, cast
+import numpy as np
+from ni.datamonikers.v1.client import MonikerClient
 from ni.datamonikers.v1.data_moniker_pb2 import Moniker
 from ni.measurements.data.v1.client import DataStoreClient
 from ni.measurements.data.v1.data_store_pb2 import (
@@ -14,7 +17,9 @@ from ni.measurements.metadata.v1.client import MetadataStoreClient
 from ni.protobuf.types.precision_timestamp_conversion import (
     bintime_datetime_to_protobuf,
 )
+from ni.protobuf.types.waveform_conversion import float64_analog_waveform_to_protobuf
 from nitypes.bintime import DateTime
+from nitypes.waveform import AnalogWaveform
 
 TRead = TypeVar("TRead")
 TWrite = TypeVar("TWrite")
@@ -26,15 +31,18 @@ class Client:
 
     _data_store_client: DataStoreClient
     _metadata_store_client: MetadataStoreClient
+    _moniker_client: MonikerClient
 
     def __init__(
         self,
-        data_store_client: Optional[DataStoreClient] = None,
-        metadata_store_client: Optional[MetadataStoreClient] = None,
+        data_store_client: DataStoreClient | None = None,
+        metadata_store_client: MetadataStoreClient | None = None,
+        moniker_client: MonikerClient | None = None,
     ) -> None:
         """Initialize the Client."""
         self._data_store_client = data_store_client or DataStoreClient()
         self._metadata_store_client = metadata_store_client or MetadataStoreClient()
+        self._moniker_client = moniker_client or MonikerClient(service_location="dummy")
 
     def publish_measurement_data(
         self,
@@ -45,9 +53,9 @@ class Client:
         data: object, # More strongly typed Union[bool, AnalogWaveform] can be used if needed
         outcome: Outcome.ValueType,
         error_info: ErrorInformation,
-        hardware_item_ids: list[str],
-        software_item_ids: list[str],
-        test_adapter_ids: list[str],
+        hardware_item_ids: Iterable[str] = tuple(),
+        software_item_ids: Iterable[str] = tuple(),
+        test_adapter_ids: Iterable[str] = tuple(),
     ) -> PublishedMeasurement:
         """Publish measurement data to the datastore."""
         publish_request = PublishMeasurementRequest(
@@ -64,13 +72,19 @@ class Client:
 
         if isinstance(data, bool):
             publish_request.scalar.bool_value = data
+        elif isinstance(data, AnalogWaveform):
+            # Assuming data is of type AnalogWaveform
+            analog_waveform = cast(AnalogWaveform[np.float64], data)
+            publish_request.double_analog_waveform.CopyFrom(float64_analog_waveform_to_protobuf(analog_waveform))
 
         publish_response = self._data_store_client.publish_measurement(publish_request)
         return publish_response.published_measurement
 
     def read_measurement_data(self, moniker: Moniker, expected_type: Type[TRead]) -> TRead:
         """Read measurement data from the datastore."""
-        return cast(TRead, True)
+        self._moniker_client._service_location = moniker.service_location
+        result = self._moniker_client.read_from_moniker(moniker)
+        return cast(TRead, result.value)
 
     def create_step(
         self,
