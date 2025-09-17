@@ -596,35 +596,32 @@ class Client:
         elif isinstance(value, Vector):
             publish_request.vector.CopyFrom(vector_to_protobuf(value))
         elif isinstance(value, AnalogWaveform):
-            analog_waveform = cast(AnalogWaveform, value)
-            if analog_waveform.dtype == np.float64:
+            if value.dtype == np.float64:
                 publish_request.double_analog_waveform.CopyFrom(
-                    float64_analog_waveform_to_protobuf(analog_waveform)
+                    float64_analog_waveform_to_protobuf(value)
                 )
-            elif analog_waveform.dtype == np.int16:
+            elif value.dtype == np.int16:
                 publish_request.i16_analog_waveform.CopyFrom(
-                    int16_analog_waveform_to_protobuf(analog_waveform)
+                    int16_analog_waveform_to_protobuf(value)
                 )
             else:
-                raise TypeError(f"Unsupported AnalogWaveform dtype: {analog_waveform.dtype}")
+                raise TypeError(f"Unsupported AnalogWaveform dtype: {value.dtype}")
         elif isinstance(value, ComplexWaveform):
-            complex_waveform = cast(ComplexWaveform, value)
-            if complex_waveform.dtype == np.complex128:
+            if value.dtype == np.complex128:
                 publish_request.double_complex_waveform.CopyFrom(
-                    float64_complex_waveform_to_protobuf(complex_waveform)
+                    float64_complex_waveform_to_protobuf(value)
                 )
-            elif complex_waveform.dtype == ComplexInt32Base:
+            elif value.dtype == ComplexInt32Base:
                 publish_request.i16_complex_waveform.CopyFrom(
-                    int16_complex_waveform_to_protobuf(complex_waveform)
+                    int16_complex_waveform_to_protobuf(value)
                 )
             else:
-                raise TypeError(f"Unsupported ComplexWaveform dtype: {complex_waveform.dtype}")
+                raise TypeError(f"Unsupported ComplexWaveform dtype: {value.dtype}")
         elif isinstance(value, Spectrum):
-            spectrum = cast(Spectrum, value)
-            if spectrum.dtype == np.float64:
-                publish_request.double_spectrum.CopyFrom(float64_spectrum_to_protobuf(spectrum))
+            if value.dtype == np.float64:
+                publish_request.double_spectrum.CopyFrom(float64_spectrum_to_protobuf(value))
             else:
-                raise TypeError(f"Unsupported Spectrum dtype: {spectrum.dtype}")
+                raise TypeError(f"Unsupported Spectrum dtype: {value.dtype}")
         elif isinstance(value, DigitalWaveform):
             publish_request.digital_waveform.CopyFrom(digital_waveform_to_protobuf(value))
         else:
