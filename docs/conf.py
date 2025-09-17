@@ -53,6 +53,11 @@ autoapi_type = "python"
 autodoc_typehints = "description"
 autoapi_file_patterns = ["*.pyi", "*.py"]
 
+# Optional: suppress warnings globally
+suppress_warnings = [
+    "autoapi.python_import_resolution"
+]
+
 
 def process_docstring(app, what, name, obj, options, lines):
     """Make edits to docstrings as necessary"""
@@ -68,7 +73,11 @@ def setup(sphinx):
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "design/*"]
+exclude_patterns = [
+    "_build",
+    "Thumbs.db",
+    ".DS_Store",
+]
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
