@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 from threading import Lock
-from typing import Type, TypeVar, cast
+from typing import Type, TypeVar
 from urllib.parse import urlparse
 
 import numpy as np
