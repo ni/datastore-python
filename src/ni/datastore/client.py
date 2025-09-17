@@ -20,8 +20,11 @@ from ni.protobuf.types.precision_timestamp_conversion import (
     bintime_datetime_to_protobuf,
 )
 from ni.protobuf.types.waveform_conversion import float64_analog_waveform_to_protobuf
+from ni.protobuf.types.waveform_pb2 import DoubleAnalogWaveform
 from nitypes.bintime import DateTime
 from nitypes.waveform import AnalogWaveform
+
+from ni.datastore.conversion.convert import from_any, to_protobuf_message
 
 TRead = TypeVar("TRead")
 TWrite = TypeVar("TWrite")
@@ -73,14 +76,18 @@ class Client:
             test_adapter_ids=test_adapter_ids,
         )
 
+        # Perform the actual conversion. For built-in types, this will return a Message,
+        # not the actual data value, so we're basically ignoring the output of this method.
+        protobuf_message = to_protobuf_message(data)
         if isinstance(data, bool):
+            # For the built-in type case, datastore just assigns to the scalar.bool_value field.
+            # We won't use the value of protobuf_message in this case.
             publish_request.scalar.bool_value = data
         elif isinstance(data, AnalogWaveform):
             # Assuming data is of type AnalogWaveform
-            analog_waveform = cast(AnalogWaveform[np.float64], data)
-            publish_request.double_analog_waveform.CopyFrom(
-                float64_analog_waveform_to_protobuf(analog_waveform)
-            )
+            # Now we have to assign to publish_request.analog_waveform. I had to add the cast here
+            # to satisfy CopyFrom. Maybe there's another way to assign it?
+            publish_request.double_analog_waveform.CopyFrom(cast(DoubleAnalogWaveform, protobuf_message))
 
         publish_response = self._data_store_client.publish_measurement(publish_request)
         return publish_response.published_measurement
@@ -95,9 +102,11 @@ class Client:
             moniker = moniker_source.moniker
         self._moniker_client._service_location = moniker.service_location
         result = self._moniker_client.read_from_moniker(moniker)
-        if not isinstance(result.value, expected_type):
+        python_value = from_any(result.value)
+        if not isinstance(python_value, expected_type):
             raise TypeError(f"Expected type {expected_type}, got {type(result.value)}")
-        return result.value
+
+        return python_value
 
     def create_step(
         self,
