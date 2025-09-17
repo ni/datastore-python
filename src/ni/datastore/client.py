@@ -17,12 +17,21 @@ from ni.measurements.data.v1.data_store_pb2 import (
     Outcome,
     PublishedCondition,
     PublishedMeasurement,
+    Step,
+    TestResult,
 )
 from ni.measurements.data.v1.data_store_service_pb2 import (
+    CreateStepRequest,
+    CreateTestResultRequest,
+    GetStepRequest,
+    GetTestResultRequest,
     PublishConditionBatchRequest,
     PublishConditionRequest,
     PublishMeasurementBatchRequest,
     PublishMeasurementRequest,
+    QueryConditionsRequest,
+    QueryMeasurementsRequest,
+    QueryStepsRequest
 )
 from ni.measurements.metadata.v1.client import MetadataStoreClient
 from ni.protobuf.types.precision_timestamp_conversion import (
@@ -206,29 +215,51 @@ class Client:
 
     def create_step(
         self,
-        step_name: str,
-        step_type: str,
-        notes: str,
-        start_time: DateTime,
-        end_time: DateTime,
-        test_result_id: str = "",
+        step: Step
     ) -> str:
-        """Create a test step in the datastore."""
-        return "step_id"
+        """Create a step in the datastore."""
+        create_request = CreateStepRequest(step=step)
+        create_response = self._data_store_client.create_step(create_request)
+        return create_response.step_id
+    
+    def get_step(self, step_id: str) -> Step:
+        """Get a step from the data store."""
+        get_request = GetStepRequest(step_id=step_id)
+        get_response = self._data_store_client.get_step(get_request)
+        return get_response.step
 
     def create_test_result(
         self,
-        test_name: str,
-        uut_instance_id: str = "",
-        operator_id: str = "",
-        test_station_id: str = "",
-        test_description_id: str = "",
-        software_item_ids: list[str] = [],
-        hardware_item_ids: list[str] = [],
-        test_adapter_ids: list[str] = [],
+        test_result: TestResult
     ) -> str:
-        """Create a test result in the datastore."""
-        return "test_result_id"
+        """Create a test result in the data store."""
+        create_request = CreateTestResultRequest(test_result=test_result)
+        create_response = self._data_store_client.create_test_result(create_request)
+        return create_response.test_result_id
+    
+    def get_test_result(self, test_result_id: str) -> TestResult:
+        """Get a test result from the data store."""
+        get_request = GetTestResultRequest(test_result_id=test_result_id)
+        get_response = self._data_store_client.get_test_result(get_request)
+        return get_response.test_result
+    
+    def query_conditions(self, odata_query: str) -> Iterable[PublishedCondition]:
+        """Query conditions from the data store."""
+        query_request = QueryConditionsRequest(odata_query=odata_query)
+        query_response = self._data_store_client.query_conditions(query_request)
+        return query_response.published_conditions
+    
+    def query_measurements(self, odata_query: str) -> Iterable[PublishedMeasurement]:
+        """Query measurements from the data store."""
+        query_request = QueryMeasurementsRequest(odata_query=odata_query)
+        query_response = self._data_store_client.query_measurements(query_request)
+        return query_response.published_measurements
+    
+    def query_steps(self, odata_query: str) -> Iterable[Step]:
+        """Query steps from the data store."""
+        query_request = QueryStepsRequest(odata_query=odata_query)
+        query_response = self._data_store_client.query_steps(query_request)
+        return query_response.steps
 
     def _get_moniker_client(self, service_location: str) -> MonikerClient:
         parsed_location = urlparse(service_location).netloc
