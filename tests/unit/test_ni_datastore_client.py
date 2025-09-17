@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import datetime as dt
 import unittest.mock
-from typing import Any, cast
+from typing import cast
 from unittest.mock import Mock
-
+from google.protobuf.any_pb2 import Any
 import pytest
 from ni.datamonikers.v1.data_moniker_pb2 import Moniker, ReadFromMonikerResult
 from ni.datastore.client import Client
@@ -116,8 +116,8 @@ def test__read_measurement_data__calls_monikerclient(mocked_moniker_client: Mock
     moniker.data_instance = 12
     moniker.data_source = "ABCD123"
     moniker.service_location = "localhost:50051"
-    client.read_measurement_data(moniker, Vector)
     mocked_moniker_client.read_from_moniker.return_value = ReadFromMonikerResult()
+    client.read_measurement_data(moniker, Any)
 
     args, __ = mocked_moniker_client.read_from_moniker.call_args
     requested_moniker = cast(Moniker, args[0])
