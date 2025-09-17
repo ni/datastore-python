@@ -31,17 +31,17 @@ def test__publish_boolean_data__calls_datastoreclient(
 ) -> None:
     timestamp = DateTime.now(tz=dt.timezone.utc)
     client = Client(data_store_client=mocked_datastore_client)
-    client.publish_measurement_data(
-        "step_id",
+    client.publish_measurement(
         "name",
-        "notes",
-        timestamp,
         value,
+        "step_id",
+        timestamp,
         Outcome.OUTCOME_PASSED,
         ErrorInformation(),
         [],
         [],
         [],
+        "notes",
     )
     args, __ = mocked_datastore_client.publish_measurement.call_args
     request = args[0]  # The PublishMeasurementRequest object
@@ -68,18 +68,18 @@ def test__publish_analog_waveform_data__calls_datastoreclient(
     expected_protobuf_waveform = DoubleAnalogWaveform()
     expected_protobuf_waveform.CopyFrom(float64_analog_waveform_to_protobuf(analog_waveform))
     client = Client(data_store_client=mocked_datastore_client)
-    # Now, when client.publish_measurement_data calls foo.MyClass().publish(), it will use the mock
-    client.publish_measurement_data(
-        "step_id",
+    # Now, when client.publish_measurement calls foo.MyClass().publish(), it will use the mock
+    client.publish_measurement(
         "name",
-        "notes",
-        timestamp,
         analog_waveform,
+        "step_id",
+        timestamp,
         Outcome.OUTCOME_PASSED,
         ErrorInformation(),
         [],
         [],
         [],
+        "notes",
     )
     args, __ = mocked_datastore_client.publish_measurement.call_args
     request = cast(PublishMeasurementRequest, args[0])  # The PublishMeasurementRequest object
@@ -98,17 +98,22 @@ def test__publish_analog_waveform_data__calls_datastoreclient(
 
 
 def test__read_measurement_data__calls_monikerclient(mocked_moniker_client: Mock) -> None:
-    client = Client(moniker_client=mocked_moniker_client)
+
+    client = Client(moniker_clients={"localhost:50051": mocked_moniker_client})
     moniker = Moniker()
     moniker.data_instance = 12
     moniker.data_source = "ABCD123"
-    moniker.service_location = "localhost:50051"
-    mocked_moniker_client.read_from_moniker.return_value = ReadFromMonikerResult()
-    client.read_measurement_data(moniker, gpAny)
+    moniker.service_location = "http://localhost:50051"
+    result = ReadFromMonikerResult()
+    value_to_read = gpAny()
+    value_to_read.Pack(DoubleAnalogWaveform())
+    result.value.CopyFrom(value_to_read)
+    mocked_moniker_client.read_from_moniker.return_value = result
+
+    client.read(moniker, AnalogWaveform)
 
     args, __ = mocked_moniker_client.read_from_moniker.call_args
     requested_moniker = cast(Moniker, args[0])
-
     assert requested_moniker.service_location == moniker.service_location
     assert requested_moniker.data_instance == moniker.data_instance
     assert requested_moniker.data_source == moniker.data_source
