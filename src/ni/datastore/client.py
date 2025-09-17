@@ -31,9 +31,57 @@ from ni.measurements.data.v1.data_store_service_pb2 import (
     PublishMeasurementRequest,
     QueryConditionsRequest,
     QueryMeasurementsRequest,
-    QueryStepsRequest
+    QueryStepsRequest,
 )
 from ni.measurements.metadata.v1.client import MetadataStoreClient
+from ni.measurements.metadata.v1.metadata_store_pb2 import (
+    Alias,
+    ExtensionSchema,
+    HardwareItem,
+    Operator,
+    SoftwareItem,
+    Test,
+    TestAdapter,
+    TestDescription,
+    TestStation,
+    Uut,
+    UutInstance,
+)
+from ni.measurements.metadata.v1.metadata_store_service_pb2 import (
+    CreateAliasRequest,
+    CreateHardwareItemRequest,
+    CreateOperatorRequest,
+    CreateSoftwareItemRequest,
+    CreateTestAdapterRequest,
+    CreateTestDescriptionRequest,
+    CreateTestRequest,
+    CreateTestStationRequest,
+    CreateUutInstanceRequest,
+    CreateUutRequest,
+    DeleteAliasRequest,
+    GetAliasRequest,
+    GetHardwareItemRequest,
+    GetOperatorRequest,
+    GetSoftwareItemRequest,
+    GetTestAdapterRequest,
+    GetTestDescriptionRequest,
+    GetTestRequest,
+    GetTestStationRequest,
+    GetUutInstanceRequest,
+    GetUutRequest,
+    ListSchemasRequest,
+    QueryAliasesRequest,
+    QueryHardwareItemsRequest,
+    QueryOperatorsRequest,
+    QuerySoftwareItemsRequest,
+    QueryTestAdaptersRequest,
+    QueryTestDescriptionsRequest,
+    QueryTestsRequest,
+    QueryTestStationsRequest,
+    QueryUutInstancesRequest,
+    QueryUutsRequest,
+    RegisterSchemaRequest,
+)
 from ni.protobuf.types.precision_timestamp_conversion import (
     bintime_datetime_to_protobuf,
 )
@@ -213,53 +261,280 @@ class Client:
             raise TypeError(f"Expected type {expected_type}, got {type(converted_data)}")
         return converted_data
 
-    def create_step(
-        self,
-        step: Step
-    ) -> str:
+    def create_step(self, step: Step) -> str:
         """Create a step in the datastore."""
         create_request = CreateStepRequest(step=step)
         create_response = self._data_store_client.create_step(create_request)
         return create_response.step_id
-    
+
     def get_step(self, step_id: str) -> Step:
         """Get a step from the data store."""
         get_request = GetStepRequest(step_id=step_id)
         get_response = self._data_store_client.get_step(get_request)
         return get_response.step
 
-    def create_test_result(
-        self,
-        test_result: TestResult
-    ) -> str:
+    def create_test_result(self, test_result: TestResult) -> str:
         """Create a test result in the data store."""
         create_request = CreateTestResultRequest(test_result=test_result)
         create_response = self._data_store_client.create_test_result(create_request)
         return create_response.test_result_id
-    
+
     def get_test_result(self, test_result_id: str) -> TestResult:
         """Get a test result from the data store."""
         get_request = GetTestResultRequest(test_result_id=test_result_id)
         get_response = self._data_store_client.get_test_result(get_request)
         return get_response.test_result
-    
+
     def query_conditions(self, odata_query: str) -> Iterable[PublishedCondition]:
         """Query conditions from the data store."""
         query_request = QueryConditionsRequest(odata_query=odata_query)
         query_response = self._data_store_client.query_conditions(query_request)
         return query_response.published_conditions
-    
+
     def query_measurements(self, odata_query: str) -> Iterable[PublishedMeasurement]:
         """Query measurements from the data store."""
         query_request = QueryMeasurementsRequest(odata_query=odata_query)
         query_response = self._data_store_client.query_measurements(query_request)
         return query_response.published_measurements
-    
+
     def query_steps(self, odata_query: str) -> Iterable[Step]:
         """Query steps from the data store."""
         query_request = QueryStepsRequest(odata_query=odata_query)
         query_response = self._data_store_client.query_steps(query_request)
         return query_response.steps
+
+    # MetadataStoreService methods below
+
+    def create_uut_instance(self, uut_instance: UutInstance) -> str:
+        """Create a UUT instance in the metadata store."""
+        create_request = CreateUutInstanceRequest(uut_instance=uut_instance)
+        create_response = self._metadata_store_client.create_uut_instance(create_request)
+        return create_response.uut_instance_id
+
+    def get_uut_instance(self, uut_instance_id: str) -> UutInstance:
+        """Get a UUT instance from the metadata store."""
+        get_request = GetUutInstanceRequest(uut_instance_id=uut_instance_id)
+        get_response = self._metadata_store_client.get_uut_instance(get_request)
+        return get_response.uut_instance
+
+    def query_uut_instances(self, odata_query: str) -> Iterable[UutInstance]:
+        """Query UUT instances from the metadata store."""
+        query_request = QueryUutInstancesRequest(odata_query=odata_query)
+        query_response = self._metadata_store_client.query_uut_instances(query_request)
+        return query_response.uut_instances
+
+    def create_uut(self, uut: Uut) -> str:
+        """Create a UUT in the metadata store."""
+        create_request = CreateUutRequest(uut=uut)
+        create_response = self._metadata_store_client.create_uut(create_request)
+        return create_response.uut_id
+
+    def get_uut(self, uut_id: str) -> Uut:
+        """Get a UUT from the metadata store."""
+        get_request = GetUutRequest(uut_id=uut_id)
+        get_response = self._metadata_store_client.get_uut(get_request)
+        return get_response.uut
+
+    def query_uuts(self, odata_query: str) -> Iterable[Uut]:
+        """Query UUTs from the metadata store."""
+        query_request = QueryUutsRequest(odata_query=odata_query)
+        query_response = self._metadata_store_client.query_uuts(query_request)
+        return query_response.uuts
+
+    def create_operator(self, operator: Operator) -> str:
+        """Create an operator in the metadata store."""
+        create_request = CreateOperatorRequest(operator=operator)
+        create_response = self._metadata_store_client.create_operator(create_request)
+        return create_response.operator_id
+
+    def get_operator(self, operator_id: str) -> Operator:
+        """Get an operator from the metadata store."""
+        get_request = GetOperatorRequest(operator_id=operator_id)
+        get_response = self._metadata_store_client.get_operator(get_request)
+        return get_response.operator
+
+    def query_operators(self, odata_query: str) -> Iterable[Operator]:
+        """Query operators from the metadata store."""
+        query_request = QueryOperatorsRequest(odata_query=odata_query)
+        query_response = self._metadata_store_client.query_operators(query_request)
+        return query_response.operators
+
+    def create_test_description(self, test_description: TestDescription) -> str:
+        """Create a test description in the metadata store."""
+        create_request = CreateTestDescriptionRequest(test_description=test_description)
+        create_response = self._metadata_store_client.create_test_description(create_request)
+        return create_response.test_description_id
+
+    def get_test_description(self, test_description_id: str) -> TestDescription:
+        """Get a test description from the metadata store."""
+        get_request = GetTestDescriptionRequest(test_description_id=test_description_id)
+        get_response = self._metadata_store_client.get_test_description(get_request)
+        return get_response.test_description
+
+    def query_test_descriptions(self, odata_query: str) -> Iterable[TestDescription]:
+        """Query test descriptions from the metadata store."""
+        query_request = QueryTestDescriptionsRequest(odata_query=odata_query)
+        query_response = self._metadata_store_client.query_test_descriptions(query_request)
+        return query_response.test_descriptions
+
+    def create_test(self, test: Test) -> str:
+        """Create a test in the metadata store."""
+        create_request = CreateTestRequest(test=test)
+        create_response = self._metadata_store_client.create_test(create_request)
+        return create_response.test_id
+
+    def get_test(self, test_id: str) -> Test:
+        """Get a test from the metadata store."""
+        get_request = GetTestRequest(test_id=test_id)
+        get_response = self._metadata_store_client.get_test(get_request)
+        return get_response.test
+
+    def query_tests(self, odata_query: str) -> Iterable[Test]:
+        """Query tests from the metadata store."""
+        query_request = QueryTestsRequest(odata_query=odata_query)
+        query_response = self._metadata_store_client.query_tests(query_request)
+        return query_response.tests
+
+    def create_test_station(self, test_station: TestStation) -> str:
+        """Create a test station in the metadata store."""
+        create_request = CreateTestStationRequest(test_station=test_station)
+        create_response = self._metadata_store_client.create_test_station(create_request)
+        return create_response.test_station_id
+
+    def get_test_station(self, test_station_id: str) -> TestStation:
+        """Get a test station from the metadata store."""
+        get_request = GetTestStationRequest(test_station_id=test_station_id)
+        get_response = self._metadata_store_client.get_test_station(get_request)
+        return get_response.test_station
+
+    def query_test_stations(self, odata_query: str) -> Iterable[TestStation]:
+        """Query test stations from the metadata store."""
+        query_request = QueryTestStationsRequest(odata_query=odata_query)
+        query_response = self._metadata_store_client.query_test_stations(query_request)
+        return query_response.test_stations
+
+    def create_hardware_item(self, hardware_item: HardwareItem) -> str:
+        """Create a hardware item in the metadata store."""
+        create_request = CreateHardwareItemRequest(hardware_item=hardware_item)
+        create_response = self._metadata_store_client.create_hardware_item(create_request)
+        return create_response.hardware_item_id
+
+    def get_hardware_item(self, hardware_item_id: str) -> HardwareItem:
+        """Get a hardware item from the metadata store."""
+        get_request = GetHardwareItemRequest(hardware_item_id=hardware_item_id)
+        get_response = self._metadata_store_client.get_hardware_item(get_request)
+        return get_response.hardware_item
+
+    def query_hardware_items(self, odata_query: str) -> Iterable[HardwareItem]:
+        """Query hardware items from the metadata store."""
+        query_request = QueryHardwareItemsRequest(odata_query=odata_query)
+        query_response = self._metadata_store_client.query_hardware_items(query_request)
+        return query_response.hardware_items
+
+    def create_software_item(self, software_item: SoftwareItem) -> str:
+        """Create a software item in the metadata store."""
+        create_request = CreateSoftwareItemRequest(software_item=software_item)
+        create_response = self._metadata_store_client.create_software_item(create_request)
+        return create_response.software_item_id
+
+    def get_software_item(self, software_item_id: str) -> SoftwareItem:
+        """Get a software item from the metadata store."""
+        get_request = GetSoftwareItemRequest(software_item_id=software_item_id)
+        get_response = self._metadata_store_client.get_software_item(get_request)
+        return get_response.software_item
+
+    def query_software_items(self, odata_query: str) -> Iterable[SoftwareItem]:
+        """Query software items from the metadata store."""
+        query_request = QuerySoftwareItemsRequest(odata_query=odata_query)
+        query_response = self._metadata_store_client.query_software_items(query_request)
+        return query_response.software_items
+
+    def create_test_adapter(self, test_adapter: TestAdapter) -> str:
+        """Create a test adapter in the metadata store."""
+        create_request = CreateTestAdapterRequest(test_adapter=test_adapter)
+        create_response = self._metadata_store_client.create_test_adapter(create_request)
+        return create_response.test_adapter_id
+
+    def get_test_adapter(self, test_adapter_id: str) -> TestAdapter:
+        """Get a test adapter from the metadata store."""
+        get_request = GetTestAdapterRequest(test_adapter_id=test_adapter_id)
+        get_response = self._metadata_store_client.get_test_adapter(get_request)
+        return get_response.test_adapter
+
+    def query_test_adapters(self, odata_query: str) -> Iterable[TestAdapter]:
+        """Query test adapters from the metadata store."""
+        query_request = QueryTestAdaptersRequest(odata_query=odata_query)
+        query_response = self._metadata_store_client.query_test_adapters(query_request)
+        return query_response.test_adapters
+
+    # TODO: Also support providing a file path?
+    def register_schema(self, schema: str) -> str:
+        """Register a schema in the metadata store."""
+        register_request = RegisterSchemaRequest(schema=schema)
+        register_response = self._metadata_store_client.register_schema(register_request)
+        return register_response.schema_id
+
+    def list_schemas(self) -> Iterable[ExtensionSchema]:
+        """List all schemas in the metadata store."""
+        list_request = ListSchemasRequest()
+        list_response = self._metadata_store_client.list_schemas(list_request)
+        return list_response.schemas
+
+    def create_alias(
+        self,
+        alias_name: str,
+        alias_target: (
+            UutInstance
+            | Uut
+            | HardwareItem
+            | SoftwareItem
+            | Operator
+            | TestDescription
+            | Test
+            | TestAdapter
+            | TestStation
+        ),
+    ) -> Alias:
+        """Create an alias in the metadata store."""
+        create_request = CreateAliasRequest(alias_name=alias_name)
+        if isinstance(alias_target, UutInstance):
+            create_request.uut_instance.CopyFrom(alias_target)
+        elif isinstance(alias_target, Uut):
+            create_request.uut.CopyFrom(alias_target)
+        elif isinstance(alias_target, HardwareItem):
+            create_request.hardware_item.CopyFrom(alias_target)
+        elif isinstance(alias_target, SoftwareItem):
+            create_request.software_item.CopyFrom(alias_target)
+        elif isinstance(alias_target, Operator):
+            create_request.operator.CopyFrom(alias_target)
+        elif isinstance(alias_target, TestDescription):
+            create_request.test_description.CopyFrom(alias_target)
+        elif isinstance(alias_target, Test):
+            create_request.test.CopyFrom(alias_target)
+        elif isinstance(alias_target, TestAdapter):
+            create_request.test_adapter.CopyFrom(alias_target)
+        elif isinstance(alias_target, TestStation):
+            create_request.test_station.CopyFrom(alias_target)
+        response = self._metadata_store_client.create_alias(create_request)
+        return response.alias
+
+    def get_alias(self, alias_name: str) -> Alias:
+        """Get an alias from the metadata store."""
+        get_request = GetAliasRequest(alias_name=alias_name)
+        get_response = self._metadata_store_client.get_alias(get_request)
+        return get_response.alias
+
+    def delete_alias(self, alias_name: str) -> bool:
+        """Delete an alias from the metadata store."""
+        delete_request = DeleteAliasRequest(alias_name=alias_name)
+        delete_response = self._metadata_store_client.delete_alias(delete_request)
+        return delete_response.unregistered
+
+    def query_aliases(self, odata_query: str) -> Iterable[Alias]:
+        """Query aliases from the metadata store."""
+        query_request = QueryAliasesRequest(odata_query=odata_query)
+        query_response = self._metadata_store_client.query_aliases(query_request)
+        return query_response.aliases
 
     def _get_moniker_client(self, service_location: str) -> MonikerClient:
         parsed_location = urlparse(service_location).netloc
