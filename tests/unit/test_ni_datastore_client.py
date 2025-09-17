@@ -4,22 +4,20 @@ from __future__ import annotations
 
 import datetime as dt
 import unittest.mock
-from typing import cast
+from typing import Any, cast
 from unittest.mock import Mock
-from google.protobuf.any_pb2 import Any
+
 import pytest
+from google.protobuf.any_pb2 import Any as gpAny
 from ni.datamonikers.v1.data_moniker_pb2 import Moniker, ReadFromMonikerResult
 from ni.datastore.client import Client
 from ni.measurements.data.v1.data_store_pb2 import (
     ErrorInformation,
     Outcome,
-    PublishedMeasurement,
 )
 from ni.measurements.data.v1.data_store_service_pb2 import (
     PublishMeasurementRequest,
-    PublishMeasurementResponse,
 )
-from ni.protobuf.types.vector_pb2 import Vector
 from ni.protobuf.types.waveform_conversion import float64_analog_waveform_to_protobuf
 from ni.protobuf.types.waveform_pb2 import DoubleAnalogWaveform
 from nitypes.bintime import DateTime
@@ -32,13 +30,7 @@ def test__publish_boolean_data__calls_datastoreclient(
     mocked_datastore_client: Mock, value: bool
 ) -> None:
     timestamp = DateTime.now(tz=dt.timezone.utc)
-    published_measurement = PublishedMeasurement()
-    publish_measurement_response = PublishMeasurementResponse(
-        published_measurement=published_measurement
-    )
-    mocked_datastore_client.publish_measurement.return_value = publish_measurement_response
     client = Client(data_store_client=mocked_datastore_client)
-    # Now, when client.publish_measurement_data calls foo.MyClass().publish(), it will use the mock
     client.publish_measurement_data(
         "step_id",
         "name",
@@ -71,11 +63,6 @@ def test__publish_analog_waveform_data__calls_datastoreclient(
     mocked_datastore_client: Mock,
 ) -> None:
     timestamp = DateTime.now(tz=dt.timezone.utc)
-    published_measurement = PublishedMeasurement()
-    publish_measurement_response = PublishMeasurementResponse(
-        published_measurement=published_measurement
-    )
-    mocked_datastore_client.publish_measurement.return_value = publish_measurement_response
     waveform_values = [1.0, 2.0, 3.0]
     analog_waveform = AnalogWaveform.from_array_1d(waveform_values, dtype=float)
     expected_protobuf_waveform = DoubleAnalogWaveform()
@@ -117,7 +104,7 @@ def test__read_measurement_data__calls_monikerclient(mocked_moniker_client: Mock
     moniker.data_source = "ABCD123"
     moniker.service_location = "localhost:50051"
     mocked_moniker_client.read_from_moniker.return_value = ReadFromMonikerResult()
-    client.read_measurement_data(moniker, Any)
+    client.read_measurement_data(moniker, gpAny)
 
     args, __ = mocked_moniker_client.read_from_moniker.call_args
     requested_moniker = cast(Moniker, args[0])

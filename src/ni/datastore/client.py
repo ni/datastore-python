@@ -85,7 +85,9 @@ class Client:
         publish_response = self._data_store_client.publish_measurement(publish_request)
         return publish_response.published_measurement
 
-    def read_measurement_data(self, moniker_source: Moniker | PublishedMeasurement, expected_type: Type[TRead]) -> TRead:
+    def read_measurement_data(
+        self, moniker_source: Moniker | PublishedMeasurement, expected_type: Type[TRead]
+    ) -> TRead:
         """Read measurement data from the datastore."""
         if isinstance(moniker_source, Moniker):
             moniker = moniker_source
