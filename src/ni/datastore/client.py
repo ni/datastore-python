@@ -646,29 +646,29 @@ class Client:
 
         data_type_prefix = "type.googleapis.com/"
         if data_type_url == data_type_prefix + DoubleAnalogWaveform.DESCRIPTOR.full_name:
-            waveform = DoubleAnalogWaveform()
-            read_value.Unpack(waveform)
-            return waveform
+            double_analog_waveform = DoubleAnalogWaveform()
+            read_value.Unpack(double_analog_waveform)
+            return double_analog_waveform
         elif data_type_url == data_type_prefix + I16AnalogWaveform.DESCRIPTOR.full_name:
-            waveform = I16AnalogWaveform()
-            read_value.Unpack(waveform)
-            return waveform
+            i16_analog_waveform = I16AnalogWaveform()
+            read_value.Unpack(i16_analog_waveform)
+            return i16_analog_waveform
         elif data_type_url == data_type_prefix + DoubleComplexWaveform.DESCRIPTOR.full_name:
-            waveform = DoubleComplexWaveform()
-            read_value.Unpack(waveform)
-            return waveform
+            double_complex_waveform = DoubleComplexWaveform()
+            read_value.Unpack(double_complex_waveform)
+            return double_complex_waveform
         elif data_type_url == data_type_prefix + I16ComplexWaveform.DESCRIPTOR.full_name:
-            waveform = I16ComplexWaveform()
-            read_value.Unpack(waveform)
-            return waveform
+            i16_complex_waveform = I16ComplexWaveform()
+            read_value.Unpack(i16_complex_waveform)
+            return i16_complex_waveform
         elif data_type_url == data_type_prefix + DoubleSpectrum.DESCRIPTOR.full_name:
             spectrum = DoubleSpectrum()
             read_value.Unpack(spectrum)
             return spectrum
         elif data_type_url == data_type_prefix + DigitalWaveformProto.DESCRIPTOR.full_name:
-            waveform = DigitalWaveformProto()
-            read_value.Unpack(waveform)
-            return waveform
+            digital_waveform = DigitalWaveformProto()
+            read_value.Unpack(digital_waveform)
+            return digital_waveform
         elif data_type_url == data_type_prefix + DoubleXYData.DESCRIPTOR.full_name:
             xydata = DoubleXYData()
             read_value.Unpack(xydata)
