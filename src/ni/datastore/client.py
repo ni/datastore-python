@@ -231,7 +231,7 @@ class Client:
             step_id=step_id,
             timestamp=[hightime_datetime_to_protobuf(ts) for ts in timestamps],
             outcome=outcomes,
-            error_information=list(error_information),
+            error_information=error_information,
             hardware_item_ids=hardware_item_ids,
             test_adapter_ids=test_adapter_ids,
             software_item_ids=software_item_ids,
