@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from collections.abc import Iterable
 from threading import Lock
 from typing import Type, TypeVar, overload
@@ -118,6 +119,8 @@ from nitypes.vector import Vector
 from nitypes.waveform import AnalogWaveform, ComplexWaveform, DigitalWaveform, Spectrum
 
 TRead = TypeVar("TRead")
+
+_logger = logging.getLogger(__name__)
 
 
 class Client:
@@ -309,8 +312,6 @@ class Client:
         query_request = QueryStepsRequest(odata_query=odata_query)
         query_response = self._data_store_client.query_steps(query_request)
         return query_response.steps
-
-    # MetadataStoreService methods below
 
     def create_uut_instance(self, uut_instance: UutInstance) -> str:
         """Create a UUT instance in the metadata store."""
@@ -707,6 +708,9 @@ class Client:
         elif isinstance(unpacked_data, DigitalWaveformProto):
             return digital_waveform_from_protobuf(unpacked_data)
         elif isinstance(unpacked_data, DoubleXYData):
+            _logger.warning(
+                "DoubleXYData conversion is not yet implemented. Returning the raw protobuf object."
+            )
             return unpacked_data  # TODO: Implement conversion to proper XYData type
         elif isinstance(unpacked_data, VectorProto):
             return vector_from_protobuf(unpacked_data)
