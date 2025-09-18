@@ -126,25 +126,25 @@ class Client:
     __slots__ = (
         "_data_store_client",
         "_metadata_store_client",
-        "_moniker_clients",
+        "_moniker_clients_by_service_location",
         "_moniker_clients_lock",
     )
 
     _data_store_client: DataStoreClient
     _metadata_store_client: MetadataStoreClient
-    _moniker_clients: dict[str, MonikerClient]
+    _moniker_clients_by_service_location: dict[str, MonikerClient]
     _moniker_clients_lock: Lock
 
     def __init__(
         self,
         data_store_client: DataStoreClient | None = None,
         metadata_store_client: MetadataStoreClient | None = None,
-        moniker_clients: dict[str, MonikerClient] | None = None,
+        moniker_clients_by_service_location: dict[str, MonikerClient] | None = None,
     ) -> None:
         """Initialize the Client."""
         self._data_store_client = data_store_client or DataStoreClient()
         self._metadata_store_client = metadata_store_client or MetadataStoreClient()
-        self._moniker_clients = moniker_clients or {}
+        self._moniker_clients_by_service_location = moniker_clients_by_service_location or {}
         self._moniker_clients_lock = Lock()
 
     def publish_condition(
@@ -544,14 +544,13 @@ class Client:
         return query_response.aliases
 
     def _get_moniker_client(self, service_location: str) -> MonikerClient:
-        parsed_location = urlparse(service_location).netloc
-
+        parsed_service_location = urlparse(service_location).netloc
         with self._moniker_clients_lock:
-            if parsed_location not in self._moniker_clients:
-                self._moniker_clients[parsed_location] = MonikerClient(
-                    service_location=parsed_location
+            if parsed_service_location not in self._moniker_clients_by_service_location:
+                self._moniker_clients_by_service_location[parsed_service_location] = MonikerClient(
+                    service_location=parsed_service_location
                 )
-            return self._moniker_clients[parsed_location]
+            return self._moniker_clients_by_service_location[parsed_service_location]
 
     # TODO: We may wish to separate out some of the conversion code below.
     def _populate_publish_condition_request_value(

@@ -99,7 +99,7 @@ def test___publish_analog_waveform_data___calls_datastoreclient(
 
 def test___read_data___calls_monikerclient(mocked_moniker_client: Mock) -> None:
 
-    client = Client(moniker_clients={"localhost:50051": mocked_moniker_client})
+    client = Client(moniker_clients_by_service_location={"localhost:50051": mocked_moniker_client})
     moniker = Moniker()
     moniker.data_instance = 12
     moniker.data_source = "ABCD123"
