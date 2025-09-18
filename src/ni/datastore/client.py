@@ -6,7 +6,7 @@ import logging
 from collections.abc import Iterable
 from datetime import timezone
 from threading import Lock
-from typing import Type, TypeVar, overload
+from typing import Type, TypeVar, overload, cast
 from urllib.parse import urlparse
 
 import numpy as np
@@ -565,7 +565,7 @@ class Client:
         if no_client_timestamp_provided:
             publish_time = bintime_datetime_to_protobuf(DateTime.now(timezone.utc))
         else:
-            publish_time = bintime_datetime_to_protobuf(client_provided_timestamp)
+            publish_time = bintime_datetime_to_protobuf(cast(DateTime, client_provided_timestamp))
 
         waveform_t0: PrecisionTimestamp | None = None
         value_case = publish_request.WhichOneof("value")
