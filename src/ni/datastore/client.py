@@ -570,7 +570,7 @@ class Client:
             publish_request.scalar.CopyFrom(scalar_to_protobuf(value))
         else:
             raise TypeError(
-                f"Unsupported condition value type: {type(value)}. Please consult the docummentation."
+                f"Unsupported condition value type: {type(value)}. Please consult the documentation."
             )
 
     def _populate_publish_condition_batch_request_values(
@@ -581,7 +581,7 @@ class Client:
             publish_request.scalar_values.CopyFrom(vector_to_protobuf(values))
         else:
             raise TypeError(
-                f"Unsupported condition values type: {type(values)}. Please consult the docummentation."
+                f"Unsupported condition values type: {type(values)}. Please consult the documentation."
             )
 
     def _populate_publish_measurement_request_value(
@@ -632,7 +632,7 @@ class Client:
             publish_request.digital_waveform.CopyFrom(digital_waveform_to_protobuf(value))
         else:
             raise TypeError(
-                f"Unsupported measurement value type: {type(value)}. Please consult the docummentation."
+                f"Unsupported measurement value type: {type(value)}. Please consult the documentation."
             )
         # TODO: Implement conversion from proper XYData type
 
@@ -644,7 +644,7 @@ class Client:
             publish_request.scalar_values.CopyFrom(vector_to_protobuf(values))
         else:
             raise TypeError(
-                f"Unsupported measurement values type: {type(values)}. Please consult the docummentation."
+                f"Unsupported measurement values type: {type(values)}. Please consult the documentation."
             )
 
     def _unpack_data(self, read_value: Any) -> object:
