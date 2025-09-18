@@ -2,15 +2,16 @@
 
 from __future__ import annotations
 
+import datetime as std_datetime
 import logging
 from collections.abc import Iterable
-from datetime import timezone
 from threading import Lock
-from typing import Type, TypeVar, overload, cast
+from typing import Type, TypeVar, cast, overload
 from urllib.parse import urlparse
 
 import numpy as np
 from google.protobuf.any_pb2 import Any
+from hightime import datetime
 from ni.datamonikers.v1.client import MonikerClient
 from ni.datamonikers.v1.data_moniker_pb2 import Moniker
 from ni.measurements.data.v1.client import DataStoreClient
@@ -85,7 +86,7 @@ from ni.measurements.metadata.v1.metadata_store_service_pb2 import (
     RegisterSchemaRequest,
 )
 from ni.protobuf.types.precision_timestamp_conversion import (
-    bintime_datetime_to_protobuf,
+    hightime_datetime_to_protobuf,
 )
 from ni.protobuf.types.precision_timestamp_pb2 import PrecisionTimestamp
 from ni.protobuf.types.scalar_conversion import scalar_to_protobuf
@@ -114,7 +115,6 @@ from ni.protobuf.types.waveform_pb2 import (
     I16ComplexWaveform,
 )
 from ni.protobuf.types.xydata_pb2 import DoubleXYData
-from nitypes.bintime import DateTime
 from nitypes.complex import ComplexInt32Base
 from nitypes.scalar import Scalar
 from nitypes.vector import Vector
@@ -187,7 +187,7 @@ class Client:
         measurement_name: str,
         value: object,  # More strongly typed Union[bool, AnalogWaveform] can be used if needed
         step_id: str,
-        timestamp: DateTime | None = None,
+        timestamp: datetime | None = None,
         outcome: Outcome.ValueType = Outcome.OUTCOME_UNSPECIFIED,
         error_information: ErrorInformation | None = None,
         hardware_item_ids: Iterable[str] = tuple(),
@@ -218,7 +218,7 @@ class Client:
         measurement_name: str,
         values: object,
         step_id: str,
-        timestamps: Iterable[DateTime] = tuple(),
+        timestamps: Iterable[datetime] = tuple(),
         outcomes: Iterable[Outcome.ValueType] = tuple(),
         error_information: Iterable[ErrorInformation] = tuple(),
         hardware_item_ids: Iterable[str] = tuple(),
@@ -229,7 +229,7 @@ class Client:
         publish_request = PublishMeasurementBatchRequest(
             measurement_name=measurement_name,
             step_id=step_id,
-            timestamp=[bintime_datetime_to_protobuf(ts) for ts in timestamps],
+            timestamp=[hightime_datetime_to_protobuf(ts) for ts in timestamps],
             outcome=outcomes,
             error_information=list(error_information),
             hardware_item_ids=hardware_item_ids,
@@ -559,13 +559,13 @@ class Client:
 
     @staticmethod
     def _get_publish_measurement_timestamp(
-        publish_request: PublishMeasurementRequest, client_provided_timestamp: DateTime | None
+        publish_request: PublishMeasurementRequest, client_provided_timestamp: datetime | None
     ) -> PrecisionTimestamp:
         no_client_timestamp_provided = client_provided_timestamp is None
         if no_client_timestamp_provided:
-            publish_time = bintime_datetime_to_protobuf(DateTime.now(timezone.utc))
+            publish_time = hightime_datetime_to_protobuf(datetime.now(std_datetime.timezone.utc))
         else:
-            publish_time = bintime_datetime_to_protobuf(cast(DateTime, client_provided_timestamp))
+            publish_time = hightime_datetime_to_protobuf(cast(datetime, client_provided_timestamp))
 
         waveform_t0: PrecisionTimestamp | None = None
         value_case = publish_request.WhichOneof("value")
