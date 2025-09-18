@@ -553,8 +553,9 @@ class Client:
             return self._moniker_clients_by_service_location[parsed_service_location]
 
     # TODO: We may wish to separate out some of the conversion code below.
+    @staticmethod
     def _populate_publish_condition_request_value(
-        self, publish_request: PublishConditionRequest, value: object
+        publish_request: PublishConditionRequest, value: object
     ) -> None:
         # TODO: Determine whether we wish to support primitive types such as float
         # TODO: or require wrapping in a Scalar.
@@ -573,8 +574,9 @@ class Client:
                 f"Unsupported condition value type: {type(value)}. Please consult the documentation."
             )
 
+    @staticmethod
     def _populate_publish_condition_batch_request_values(
-        self, publish_request: PublishConditionBatchRequest, values: object
+        publish_request: PublishConditionBatchRequest, values: object
     ) -> None:
         # TODO: Determine whether we wish to support primitive types such as a list of float
         if isinstance(values, Vector):
@@ -584,8 +586,9 @@ class Client:
                 f"Unsupported condition values type: {type(values)}. Please consult the documentation."
             )
 
+    @staticmethod
     def _populate_publish_measurement_request_value(
-        self, publish_request: PublishMeasurementRequest, value: object
+        publish_request: PublishMeasurementRequest, value: object
     ) -> None:
         # TODO: Determine whether we wish to support primitive types such as float
         # TODO: or require wrapping in a Scalar.
@@ -636,8 +639,9 @@ class Client:
             )
         # TODO: Implement conversion from proper XYData type
 
+    @staticmethod
     def _populate_publish_measurement_batch_request_values(
-        self, publish_request: PublishMeasurementBatchRequest, values: object
+        publish_request: PublishMeasurementBatchRequest, values: object
     ) -> None:
         # TODO: Determine whether we wish to support primitive types such as a list of float
         if isinstance(values, Vector):
@@ -647,7 +651,8 @@ class Client:
                 f"Unsupported measurement values type: {type(values)}. Please consult the documentation."
             )
 
-    def _unpack_data(self, read_value: Any) -> object:
+    @staticmethod
+    def _unpack_data(read_value: Any) -> object:
         data_type_url = read_value.type_url
 
         data_type_prefix = "type.googleapis.com/"
@@ -687,7 +692,8 @@ class Client:
         else:
             raise TypeError(f"Unsupported data type URL: {data_type_url}")
 
-    def _convert_from_protobuf(self, unpacked_data: object) -> object:
+    @staticmethod
+    def _convert_from_protobuf(unpacked_data: object) -> object:
         if isinstance(unpacked_data, DoubleAnalogWaveform):
             return float64_analog_waveform_from_protobuf(unpacked_data)
         elif isinstance(unpacked_data, I16AnalogWaveform):
