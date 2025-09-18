@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Iterable
+from datetime import timezone
 from threading import Lock
 from typing import Type, TypeVar, overload
 from urllib.parse import urlparse
@@ -86,6 +87,7 @@ from ni.measurements.metadata.v1.metadata_store_service_pb2 import (
 from ni.protobuf.types.precision_timestamp_conversion import (
     bintime_datetime_to_protobuf,
 )
+from ni.protobuf.types.precision_timestamp_pb2 import PrecisionTimestamp
 from ni.protobuf.types.scalar_conversion import scalar_to_protobuf
 from ni.protobuf.types.vector_conversion import vector_from_protobuf, vector_to_protobuf
 from ni.protobuf.types.vector_pb2 import Vector as VectorProto
@@ -185,7 +187,7 @@ class Client:
         measurement_name: str,
         value: object,  # More strongly typed Union[bool, AnalogWaveform] can be used if needed
         step_id: str,
-        timestamp: DateTime,
+        timestamp: DateTime | None = None,
         outcome: Outcome.ValueType = Outcome.OUTCOME_UNSPECIFIED,
         error_information: ErrorInformation | None = None,
         hardware_item_ids: Iterable[str] = tuple(),
@@ -197,7 +199,6 @@ class Client:
         publish_request = PublishMeasurementRequest(
             measurement_name=measurement_name,
             step_id=step_id,
-            timestamp=bintime_datetime_to_protobuf(timestamp),
             outcome=outcome,
             error_information=error_information,
             hardware_item_ids=hardware_item_ids,
@@ -206,6 +207,9 @@ class Client:
             notes=notes,
         )
         self._populate_publish_measurement_request_value(publish_request, value)
+        publish_request.timestamp.CopyFrom(
+            self._get_publish_measurement_timestamp(publish_request, timestamp)
+        )
         publish_response = self._data_store_client.publish_measurement(publish_request)
         return publish_response.published_measurement
 
@@ -552,6 +556,41 @@ class Client:
                     service_location=parsed_service_location
                 )
             return self._moniker_clients_by_service_location[parsed_service_location]
+
+    @staticmethod
+    def _get_publish_measurement_timestamp(
+        publish_request: PublishMeasurementRequest, client_provided_timestamp: DateTime | None
+    ) -> PrecisionTimestamp:
+        no_client_timestamp_provided = client_provided_timestamp is None
+        if no_client_timestamp_provided:
+            publish_time = bintime_datetime_to_protobuf(DateTime.now(timezone.utc))
+        else:
+            publish_time = bintime_datetime_to_protobuf(client_provided_timestamp)
+
+        waveform_t0: PrecisionTimestamp | None = None
+        value_case = publish_request.WhichOneof("value")
+        if value_case == "double_analog_waveform":
+            waveform_t0 = publish_request.double_analog_waveform.t0
+        elif value_case == "i16_analog_waveform":
+            waveform_t0 = publish_request.i16_analog_waveform.t0
+        elif value_case == "double_complex_waveform":
+            waveform_t0 = publish_request.double_complex_waveform.t0
+        elif value_case == "i16_complex_waveform":
+            waveform_t0 = publish_request.i16_complex_waveform.t0
+        elif value_case == "digital_waveform":
+            waveform_t0 = publish_request.digital_waveform.t0
+
+        # If an initialized waveform t0 value is present
+        if waveform_t0 is not None and waveform_t0 != PrecisionTimestamp():
+            if no_client_timestamp_provided:
+                # If the client did not provide a timestamp, use the waveform t0 value
+                publish_time = waveform_t0
+            elif publish_time != waveform_t0:
+                raise ValueError(
+                    "The provided timestamp does not match the waveform t0. Please provide a matching timestamp or "
+                    "omit the timestamp to use the waveform t0."
+                )
+        return publish_time
 
     # TODO: We may wish to separate out some of the conversion code below.
     @staticmethod
