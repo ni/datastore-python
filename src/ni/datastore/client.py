@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 from threading import Lock
-from typing import Type, TypeVar
+from typing import Type, TypeVar, overload
 from urllib.parse import urlparse
 
 import numpy as np
@@ -183,20 +183,14 @@ class Client:
         value: object,  # More strongly typed Union[bool, AnalogWaveform] can be used if needed
         step_id: str,
         timestamp: DateTime,
-        outcome: Outcome.ValueType | None = None,
+        outcome: Outcome.ValueType = Outcome.OUTCOME_UNSPECIFIED,
         error_information: ErrorInformation | None = None,
         hardware_item_ids: Iterable[str] = tuple(),
         test_adapter_ids: Iterable[str] = tuple(),
         software_item_ids: Iterable[str] = tuple(),
-        notes: str | None = None,
+        notes: str = "",
     ) -> PublishedMeasurement:
         """Publish a measurement value to the data store."""
-        if outcome is None:
-            outcome = Outcome.OUTCOME_UNSPECIFIED
-
-        if notes is None:
-            notes = ""
-
         publish_request = PublishMeasurementRequest(
             measurement_name=measurement_name,
             step_id=step_id,
@@ -239,11 +233,24 @@ class Client:
         publish_response = self._data_store_client.publish_measurement_batch(publish_request)
         return publish_response.published_measurements
 
-    def read(
+    @overload
+    def read_data(
         self,
         moniker_source: Moniker | PublishedMeasurement | PublishedCondition,
         expected_type: Type[TRead],
-    ) -> TRead:
+    ) -> TRead: ...
+
+    @overload
+    def read_data(
+        self,
+        moniker_source: Moniker | PublishedMeasurement | PublishedCondition,
+    ) -> object: ...
+
+    def read_data(
+        self,
+        moniker_source: Moniker | PublishedMeasurement | PublishedCondition,
+        expected_type: Type[TRead] | None = None,
+    ) -> TRead | object:
         """Read data published to the data store."""
         if isinstance(moniker_source, Moniker):
             moniker = moniker_source
@@ -257,7 +264,7 @@ class Client:
 
         unpacked_data = self._unpack_data(read_result.value)
         converted_data = self._convert_from_protobuf(unpacked_data)
-        if not isinstance(converted_data, expected_type):
+        if expected_type is not None and not isinstance(converted_data, expected_type):
             raise TypeError(f"Expected type {expected_type}, got {type(converted_data)}")
         return converted_data
 

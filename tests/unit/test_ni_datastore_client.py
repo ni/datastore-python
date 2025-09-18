@@ -26,7 +26,7 @@ from pytest_mock import MockerFixture
 
 
 @pytest.mark.parametrize("value", [True, False])
-def test__publish_boolean_data__calls_datastoreclient(
+def test___publish_boolean_data___calls_datastoreclient(
     mocked_datastore_client: Mock, value: bool
 ) -> None:
     timestamp = DateTime.now(tz=dt.timezone.utc)
@@ -59,7 +59,7 @@ def test__publish_boolean_data__calls_datastoreclient(
     assert request.test_adapter_ids == []
 
 
-def test__publish_analog_waveform_data__calls_datastoreclient(
+def test___publish_analog_waveform_data___calls_datastoreclient(
     mocked_datastore_client: Mock,
 ) -> None:
     timestamp = DateTime.now(tz=dt.timezone.utc)
@@ -97,7 +97,7 @@ def test__publish_analog_waveform_data__calls_datastoreclient(
     assert request.test_adapter_ids == []
 
 
-def test__read_measurement_data__calls_monikerclient(mocked_moniker_client: Mock) -> None:
+def test___read_data___calls_monikerclient(mocked_moniker_client: Mock) -> None:
 
     client = Client(moniker_clients={"localhost:50051": mocked_moniker_client})
     moniker = Moniker()
@@ -110,7 +110,7 @@ def test__read_measurement_data__calls_monikerclient(mocked_moniker_client: Mock
     result.value.CopyFrom(value_to_read)
     mocked_moniker_client.read_from_moniker.return_value = result
 
-    client.read(moniker, AnalogWaveform)
+    client.read_data(moniker, AnalogWaveform)
 
     args, __ = mocked_moniker_client.read_from_moniker.call_args
     requested_moniker = cast(Moniker, args[0])
