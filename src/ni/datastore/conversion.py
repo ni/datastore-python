@@ -84,36 +84,40 @@ def convert_from_protobuf(protobuf_any: any_pb2.Any) -> object:
 
 
 def populate_publish_condition_request_value(
-    self,
     publish_request: PublishConditionRequest,
     value: object,
 ) -> None:
     """Populate publish condition request value."""
     # TODO: Inspect python type and choose correct converter.
+    converter = _PUBLISH_CONVERTERS_BY_PYTHON_TYPE["Dummy"]
+    converter.populate_publish_condition_request_value(publish_request, value)
 
 
 def populate_publish_condition_batch_request_values(
-    self,
     publish_request: PublishConditionBatchRequest,
     values: object,
 ) -> None:
     """Populate publish condition batch request value."""
     # TODO: Inspect python type and choose correct converter.
+    converter = _PUBLISH_BATCH_CONVERTERS_BY_PYTHON_TYPE["Dummy"]
+    converter.populate_publish_condition_batch_request_values(publish_request, values)
 
 
 def populate_publish_measurement_request_value(
-    self,
     publish_request: PublishMeasurementRequest,
     value: object,
 ) -> None:
     """Populate publish measurement request value."""
     # TODO: Inspect python type and choose correct converter.
+    converter = _PUBLISH_CONVERTERS_BY_PYTHON_TYPE["Dummy"]
+    converter.populate_publish_measurement_request_value(publish_request, value)
 
 
 def populate_publish_measurement_batch_request_values(
-    self,
     publish_request: PublishMeasurementBatchRequest,
     values: object,
 ) -> None:
     """Populate publish measurement batch request values."""
     # TODO: Inspect python type and choose correct converter.
+    converter = _PUBLISH_BATCH_CONVERTERS_BY_PYTHON_TYPE["Dummy"]
+    converter.populate_publish_measurement_batch_request_values(publish_request, values)
