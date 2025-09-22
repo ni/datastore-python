@@ -3,17 +3,15 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Generic, TypeVar
+from typing import Any, Generic, TypeVar
 
 import numpy as np
-
 from ni.measurements.data.v1.data_store_service_pb2 import (
     PublishConditionBatchRequest,
     PublishConditionRequest,
     PublishMeasurementBatchRequest,
     PublishMeasurementRequest,
 )
-
 from ni.protobuf.types.scalar_conversion import scalar_to_protobuf
 from ni.protobuf.types.vector_conversion import vector_to_protobuf
 from ni.protobuf.types.waveform_conversion import (
@@ -24,7 +22,7 @@ from ni.protobuf.types.waveform_conversion import (
     int16_analog_waveform_to_protobuf,
     int16_complex_waveform_to_protobuf,
 )
-from nitypes.complex import ComplexInt32Base
+from nitypes.complex import ComplexInt32DType
 from nitypes.scalar import Scalar
 from nitypes.vector import Vector
 from nitypes.waveform import AnalogWaveform, ComplexWaveform, DigitalWaveform, Spectrum
@@ -193,7 +191,7 @@ class StringPublishConverter(PublishConverter[str]):
         publish_request.scalar.string_value = value
 
 
-class ScalarPublishConverter(PublishConverter[Scalar]):
+class ScalarPublishConverter(PublishConverter[Scalar[Any]]):
     """A converter for boolean types."""
 
     @property
@@ -204,7 +202,7 @@ class ScalarPublishConverter(PublishConverter[Scalar]):
     def populate_publish_condition_request_value(
         self,
         publish_request: PublishConditionRequest,
-        value: Scalar,
+        value: Scalar[Any],
     ) -> None:
         """Populate publish condition request value."""
         publish_request.scalar.CopyFrom(scalar_to_protobuf(value))
@@ -212,13 +210,13 @@ class ScalarPublishConverter(PublishConverter[Scalar]):
     def populate_publish_measurement_request_value(
         self,
         publish_request: PublishMeasurementRequest,
-        value: Scalar,
+        value: Scalar[Any],
     ) -> None:
         """Populate publish measurement request value."""
         publish_request.scalar.CopyFrom(scalar_to_protobuf(value))
 
 
-class VectorPublishConverter(PublishConverter[Vector]):
+class VectorPublishConverter(PublishConverter[Vector[Any]]):
     """A converter for boolean types."""
 
     @property
@@ -229,7 +227,7 @@ class VectorPublishConverter(PublishConverter[Vector]):
     def populate_publish_condition_request_value(
         self,
         publish_request: PublishConditionRequest,
-        value: Vector,
+        value: Vector[Any],
     ) -> None:
         """Populate publish condition request value."""
         raise TypeError("Invalid condition request value type: Vector")
@@ -237,13 +235,13 @@ class VectorPublishConverter(PublishConverter[Vector]):
     def populate_publish_measurement_request_value(
         self,
         publish_request: PublishMeasurementRequest,
-        value: Vector,
+        value: Vector[Any],
     ) -> None:
         """Populate publish measurement request value."""
         publish_request.vector.CopyFrom(vector_to_protobuf(value))
 
 
-class VectorPublishBatchConverter(PublishBatchConverter[Vector]):
+class VectorPublishBatchConverter(PublishBatchConverter[Vector[Any]]):
     """A converter for boolean types."""
 
     @property
@@ -254,7 +252,7 @@ class VectorPublishBatchConverter(PublishBatchConverter[Vector]):
     def populate_publish_condition_batch_request_values(
         self,
         publish_request: PublishConditionBatchRequest,
-        values: Vector,
+        values: Vector[Any],
     ) -> None:
         """Populate publish condition batch request value."""
         publish_request.scalar_values.CopyFrom(vector_to_protobuf(values))
@@ -262,13 +260,13 @@ class VectorPublishBatchConverter(PublishBatchConverter[Vector]):
     def populate_publish_measurement_batch_request_values(
         self,
         publish_request: PublishMeasurementBatchRequest,
-        values: Vector,
+        values: Vector[Any],
     ) -> None:
         """Populate publish measurement batch request values."""
         publish_request.scalar_values.CopyFrom(vector_to_protobuf(values))
 
 
-class AnalogWaveformPublishConverter(PublishConverter[AnalogWaveform]):
+class AnalogWaveformPublishConverter(PublishConverter[AnalogWaveform[Any]]):
     """A converter for boolean types."""
 
     @property
@@ -279,7 +277,7 @@ class AnalogWaveformPublishConverter(PublishConverter[AnalogWaveform]):
     def populate_publish_condition_request_value(
         self,
         publish_request: PublishConditionRequest,
-        value: AnalogWaveform,
+        value: AnalogWaveform[Any],
     ) -> None:
         """Populate publish condition request value."""
         raise TypeError("Invalid condition request value type: AnalogWaveform")
@@ -287,7 +285,7 @@ class AnalogWaveformPublishConverter(PublishConverter[AnalogWaveform]):
     def populate_publish_measurement_request_value(
         self,
         publish_request: PublishMeasurementRequest,
-        value: AnalogWaveform,
+        value: AnalogWaveform[Any],
     ) -> None:
         """Populate publish measurement request value."""
         if value.dtype == np.float64:
@@ -302,7 +300,7 @@ class AnalogWaveformPublishConverter(PublishConverter[AnalogWaveform]):
             raise TypeError(f"Unsupported AnalogWaveform dtype: {value.dtype}")
 
 
-class ComplexWaveformPublishConverter(PublishConverter[ComplexWaveform]):
+class ComplexWaveformPublishConverter(PublishConverter[ComplexWaveform[Any]]):
     """A converter for boolean types."""
 
     @property
@@ -313,7 +311,7 @@ class ComplexWaveformPublishConverter(PublishConverter[ComplexWaveform]):
     def populate_publish_condition_request_value(
         self,
         publish_request: PublishConditionRequest,
-        value: ComplexWaveform,
+        value: ComplexWaveform[Any],
     ) -> None:
         """Populate publish condition request value."""
         raise TypeError("Invalid condition request value type: AnalogWaveform")
@@ -321,14 +319,14 @@ class ComplexWaveformPublishConverter(PublishConverter[ComplexWaveform]):
     def populate_publish_measurement_request_value(
         self,
         publish_request: PublishMeasurementRequest,
-        value: ComplexWaveform,
+        value: ComplexWaveform[Any],
     ) -> None:
         """Populate publish measurement request value."""
         if value.dtype == np.complex128:
             publish_request.double_complex_waveform.CopyFrom(
                 float64_complex_waveform_to_protobuf(value)
             )
-        elif value.dtype == ComplexInt32Base:
+        elif value.dtype == ComplexInt32DType:
             publish_request.i16_complex_waveform.CopyFrom(
                 int16_complex_waveform_to_protobuf(value)
             )
@@ -336,7 +334,7 @@ class ComplexWaveformPublishConverter(PublishConverter[ComplexWaveform]):
             raise TypeError(f"Unsupported ComplexWaveform dtype: {value.dtype}")
 
 
-class SpectrumPublishConverter(PublishConverter[Spectrum]):
+class SpectrumPublishConverter(PublishConverter[Spectrum[Any]]):
     """A converter for boolean types."""
 
     @property
@@ -347,7 +345,7 @@ class SpectrumPublishConverter(PublishConverter[Spectrum]):
     def populate_publish_condition_request_value(
         self,
         publish_request: PublishConditionRequest,
-        value: Spectrum,
+        value: Spectrum[Any],
     ) -> None:
         """Populate publish condition request value."""
         raise TypeError("Invalid condition request value type: Spectrum")
@@ -355,7 +353,7 @@ class SpectrumPublishConverter(PublishConverter[Spectrum]):
     def populate_publish_measurement_request_value(
         self,
         publish_request: PublishMeasurementRequest,
-        value: Spectrum,
+        value: Spectrum[Any],
     ) -> None:
         """Populate publish measurement request value."""
         if value.dtype == np.float64:
@@ -364,7 +362,7 @@ class SpectrumPublishConverter(PublishConverter[Spectrum]):
             raise TypeError(f"Unsupported Spectrum dtype: {value.dtype}")
 
 
-class DigitalWaveformPublishConverter(PublishConverter[DigitalWaveform]):
+class DigitalWaveformPublishConverter(PublishConverter[DigitalWaveform[Any]]):
     """A converter for boolean types."""
 
     @property
@@ -375,7 +373,7 @@ class DigitalWaveformPublishConverter(PublishConverter[DigitalWaveform]):
     def populate_publish_condition_request_value(
         self,
         publish_request: PublishConditionRequest,
-        value: DigitalWaveform,
+        value: DigitalWaveform[Any],
     ) -> None:
         """Populate publish condition request value."""
         raise TypeError("Invalid condition request value type: DigitalWaveform")
@@ -383,7 +381,7 @@ class DigitalWaveformPublishConverter(PublishConverter[DigitalWaveform]):
     def populate_publish_measurement_request_value(
         self,
         publish_request: PublishMeasurementRequest,
-        value: DigitalWaveform,
+        value: DigitalWaveform[Any],
     ) -> None:
         """Populate publish measurement request value."""
         publish_request.digital_waveform.CopyFrom(digital_waveform_to_protobuf(value))

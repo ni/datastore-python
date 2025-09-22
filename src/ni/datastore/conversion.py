@@ -2,12 +2,9 @@
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
-from collections.abc import Collection
-from typing import Generic, Type, TypeVar
+from typing import Any
 
 from google.protobuf import any_pb2
-
 from ni.measurements.data.v1.data_store_service_pb2 import (
     PublishConditionBatchRequest,
     PublishConditionRequest,
@@ -16,54 +13,57 @@ from ni.measurements.data.v1.data_store_service_pb2 import (
 )
 
 from ni.datastore.publish_converters import (
-    BoolPublishConverter,
     AnalogWaveformPublishConverter,
+    BoolPublishConverter,
     ComplexWaveformPublishConverter,
     DigitalWaveformPublishConverter,
-    IntPublishConverter,
     FloatPublishConverter,
+    IntPublishConverter,
+    PublishBatchConverter,
+    PublishConverter,
     ScalarPublishConverter,
+    SpectrumPublishConverter,
+    StringPublishConverter,
     VectorPublishConverter,
     VectorPublishBatchConverter,
-    SpectrumPublishConverter,
-    PublishConverter,
-    PublishBatchConverter,
 )
-
 from ni.datastore.read_converters import (
+    DigitalWaveformReadConverter,
     DoubleAnalogWaveformReadConverter,
     DoubleComplexWaveformReadConverter,
     DoubleSpectrumReadConverter,
-    DigitalWaveformReadConverter,
     I16AnalogWaveformReadConverter,
     I16ComplexWaveformReadConverter,
     ReadConverter,
+    ScalarReadConverter,
     VectorReadConverter,
 )
 
-_PUBLISH_CONVERTERS: list[PublishConverter] = [
+_PUBLISH_CONVERTERS: list[PublishConverter[Any]] = [
     BoolPublishConverter(),
     AnalogWaveformPublishConverter(),
     ComplexWaveformPublishConverter(),
     DigitalWaveformPublishConverter(),
     IntPublishConverter(),
     FloatPublishConverter(),
+    StringPublishConverter(),
     ScalarPublishConverter(),
     VectorPublishConverter(),
     SpectrumPublishConverter(),
 ]
 
-_PUBLISH_BATCH_CONVERTERS: list[PublishBatchConverter] = [
+_PUBLISH_BATCH_CONVERTERS: list[PublishBatchConverter[Any]] = [
     VectorPublishBatchConverter(),
 ]
 
-_READ_CONVERTERS: list[ReadConverter] = [
+_READ_CONVERTERS: list[ReadConverter[Any]] = [
     DoubleAnalogWaveformReadConverter(),
     DoubleComplexWaveformReadConverter(),
     DoubleSpectrumReadConverter(),
     DigitalWaveformReadConverter(),
     I16AnalogWaveformReadConverter(),
     I16ComplexWaveformReadConverter(),
+    ScalarReadConverter(),
     VectorReadConverter(),
 ]
 
@@ -88,8 +88,7 @@ def populate_publish_condition_request_value(
     value: object,
 ) -> None:
     """Populate publish condition request value."""
-    # TODO: Inspect python type and choose correct converter.
-    converter = _PUBLISH_CONVERTERS_BY_PYTHON_TYPE["Dummy"]
+    converter = _get_publish_converter(value)
     converter.populate_publish_condition_request_value(publish_request, value)
 
 
@@ -98,8 +97,7 @@ def populate_publish_condition_batch_request_values(
     values: object,
 ) -> None:
     """Populate publish condition batch request value."""
-    # TODO: Inspect python type and choose correct converter.
-    converter = _PUBLISH_BATCH_CONVERTERS_BY_PYTHON_TYPE["Dummy"]
+    converter = _get_publish_batch_converter(values)
     converter.populate_publish_condition_batch_request_values(publish_request, values)
 
 
@@ -108,8 +106,7 @@ def populate_publish_measurement_request_value(
     value: object,
 ) -> None:
     """Populate publish measurement request value."""
-    # TODO: Inspect python type and choose correct converter.
-    converter = _PUBLISH_CONVERTERS_BY_PYTHON_TYPE["Dummy"]
+    converter = _get_publish_converter(value)
     converter.populate_publish_measurement_request_value(publish_request, value)
 
 
@@ -118,6 +115,24 @@ def populate_publish_measurement_batch_request_values(
     values: object,
 ) -> None:
     """Populate publish measurement batch request values."""
-    # TODO: Inspect python type and choose correct converter.
-    converter = _PUBLISH_BATCH_CONVERTERS_BY_PYTHON_TYPE["Dummy"]
+    converter = _get_publish_batch_converter(values)
     converter.populate_publish_measurement_batch_request_values(publish_request, values)
+
+
+def _get_publish_converter(python_value: object) -> PublishConverter[Any]:
+    type_string = _get_type_string(python_value)
+    if type_string not in _PUBLISH_CONVERTERS_BY_PYTHON_TYPE.keys():
+        raise TypeError(f"Invalid publish converter type string: {type_string}")
+    return _PUBLISH_CONVERTERS_BY_PYTHON_TYPE[type_string]
+
+
+def _get_publish_batch_converter(python_value: object) -> PublishBatchConverter[Any]:
+    type_string = _get_type_string(python_value)
+    if type_string not in _PUBLISH_BATCH_CONVERTERS_BY_PYTHON_TYPE.keys():
+        raise TypeError(f"Invalid publish converter type string: {type_string}")
+    return _PUBLISH_BATCH_CONVERTERS_BY_PYTHON_TYPE[type_string]
+
+
+def _get_type_string(python_value: object) -> str:
+    value_type = type(python_value)
+    return f"{value_type.__module__}.{value_type.__name__}"

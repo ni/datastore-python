@@ -3,15 +3,12 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections.abc import Collection
 from typing import Generic, Type, TypeVar
 
 from google.protobuf import any_pb2
 from google.protobuf.message import Message
-
-import numpy as np
-from google.protobuf.any_pb2 import Any
-
+from ni.protobuf.types.scalar_conversion import scalar_from_protobuf
+from ni.protobuf.types.scalar_pb2 import Scalar as ScalarProto
 from ni.protobuf.types.vector_conversion import vector_from_protobuf
 from ni.protobuf.types.vector_pb2 import Vector as VectorProto
 from ni.protobuf.types.waveform_conversion import (
@@ -30,68 +27,6 @@ from ni.protobuf.types.waveform_pb2 import (
     I16AnalogWaveform,
     I16ComplexWaveform,
 )
-from ni.protobuf.types.xydata_pb2 import DoubleXYData
-
-
-def unpack_data(read_value: Any) -> object:
-    data_type_url = read_value.type_url
-
-    data_type_prefix = "type.googleapis.com/"
-    if data_type_url == data_type_prefix + DoubleAnalogWaveform.DESCRIPTOR.full_name:
-        double_analog_waveform = DoubleAnalogWaveform()
-        read_value.Unpack(double_analog_waveform)
-        return double_analog_waveform
-    elif data_type_url == data_type_prefix + I16AnalogWaveform.DESCRIPTOR.full_name:
-        i16_analog_waveform = I16AnalogWaveform()
-        read_value.Unpack(i16_analog_waveform)
-        return i16_analog_waveform
-    elif data_type_url == data_type_prefix + DoubleComplexWaveform.DESCRIPTOR.full_name:
-        double_complex_waveform = DoubleComplexWaveform()
-        read_value.Unpack(double_complex_waveform)
-        return double_complex_waveform
-    elif data_type_url == data_type_prefix + I16ComplexWaveform.DESCRIPTOR.full_name:
-        i16_complex_waveform = I16ComplexWaveform()
-        read_value.Unpack(i16_complex_waveform)
-        return i16_complex_waveform
-    elif data_type_url == data_type_prefix + DoubleSpectrum.DESCRIPTOR.full_name:
-        spectrum = DoubleSpectrum()
-        read_value.Unpack(spectrum)
-        return spectrum
-    elif data_type_url == data_type_prefix + DigitalWaveformProto.DESCRIPTOR.full_name:
-        digital_waveform = DigitalWaveformProto()
-        read_value.Unpack(digital_waveform)
-        return digital_waveform
-    elif data_type_url == data_type_prefix + DoubleXYData.DESCRIPTOR.full_name:
-        xydata = DoubleXYData()
-        read_value.Unpack(xydata)
-        return xydata
-    elif data_type_url == data_type_prefix + VectorProto.DESCRIPTOR.full_name:
-        vector = VectorProto()
-        read_value.Unpack(vector)
-        return vector
-
-    else:
-        raise TypeError(f"Unsupported data type URL: {data_type_url}")
-
-def convert_from_protobuf(unpacked_data: object) -> object:
-    if isinstance(unpacked_data, DoubleAnalogWaveform):
-        return float64_analog_waveform_from_protobuf(unpacked_data)
-    elif isinstance(unpacked_data, I16AnalogWaveform):
-        return int16_analog_waveform_from_protobuf(unpacked_data)
-    elif isinstance(unpacked_data, DoubleComplexWaveform):
-        return float64_complex_waveform_from_protobuf(unpacked_data)
-    elif isinstance(unpacked_data, I16ComplexWaveform):
-        return int16_complex_waveform_from_protobuf(unpacked_data)
-    elif isinstance(unpacked_data, DoubleSpectrum):
-        return float64_spectrum_from_protobuf(unpacked_data)
-    elif isinstance(unpacked_data, DigitalWaveformProto):
-        return digital_waveform_from_protobuf(unpacked_data)
-    elif isinstance(unpacked_data, DoubleXYData):
-        return unpacked_data  # TODO: Implement conversion to proper XYData type
-    elif isinstance(unpacked_data, VectorProto):
-        return vector_from_protobuf(unpacked_data)
-    else:
-        raise TypeError(f"Unsupported unpacked data type: {type(unpacked_data)}")
 
 
 _TProtobufType = TypeVar("_TProtobufType", bound=Message)
@@ -199,6 +134,19 @@ class DigitalWaveformReadConverter(ReadConverter[DigitalWaveformProto]):
     def to_python_value(self, protobuf_message: DigitalWaveformProto) -> object:
         """Convert the protobuf message to a Python DoubleAnalogWaveform."""
         return digital_waveform_from_protobuf(protobuf_message)
+
+
+class ScalarReadConverter(ReadConverter[ScalarProto]):
+    """A converter for DoubleAnalogWaveform types."""
+
+    @property
+    def protobuf_message(self) -> Type[ScalarProto]:
+        """The type-specific protobuf message for the Python type."""
+        return ScalarProto
+
+    def to_python_value(self, protobuf_message: ScalarProto) -> object:
+        """Convert the protobuf message to a Python DoubleAnalogWaveform."""
+        return scalar_from_protobuf(protobuf_message)
 
 
 class VectorReadConverter(ReadConverter[VectorProto]):
