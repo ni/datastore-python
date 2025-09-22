@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/sample.schema.json",
+  "title": "default test schema",
+  "description": "A schema for the metadata of test measurements",
+  "type": "object",
+  "properties": {
+    "session": {
+      "type": "object",
+      "properties": {
+        "session_file_path": {
+          "type": "string"
+        }
+      }
+    },
+    "operator": {
+      "type": "object",
+      "properties": {
+        "badge_number": {
+          "type": "string"
+        }
+      },
+      "required": ["badge_number"]
+    },
+    "test_station": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^TestStation_\\d+$"
+        },
+        "location": {
+          "type": "string",
+          "enum": ["USA", "Canada", "Mexico"]
+        }
+      }
+    },
+    "software": {
+      "type": "object",
+      "properties": {
+        "license": {
+          "type": "string",
+          "pattern": "^LIC_\\w+$"
+        }
+      }
+    }
+  }
+}
