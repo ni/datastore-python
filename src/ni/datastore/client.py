@@ -2,13 +2,16 @@
 
 from __future__ import annotations
 
+import datetime as std_datetime
+import logging
 from collections.abc import Iterable
 from threading import Lock
-from typing import Type, TypeVar
+from typing import Type, TypeVar, cast, overload
 from urllib.parse import urlparse
 
 import numpy as np
 from google.protobuf.any_pb2 import Any
+from hightime import datetime
 from ni.datamonikers.v1.client import MonikerClient
 from ni.datamonikers.v1.data_moniker_pb2 import Moniker
 from ni.measurements.data.v1.client import DataStoreClient
@@ -83,8 +86,9 @@ from ni.measurements.metadata.v1.metadata_store_service_pb2 import (
     RegisterSchemaRequest,
 )
 from ni.protobuf.types.precision_timestamp_conversion import (
-    bintime_datetime_to_protobuf,
+    hightime_datetime_to_protobuf,
 )
+from ni.protobuf.types.precision_timestamp_pb2 import PrecisionTimestamp
 from ni.protobuf.types.scalar_conversion import scalar_to_protobuf
 from ni.protobuf.types.vector_conversion import vector_from_protobuf, vector_to_protobuf
 from ni.protobuf.types.vector_pb2 import Vector as VectorProto
@@ -111,13 +115,14 @@ from ni.protobuf.types.waveform_pb2 import (
     I16ComplexWaveform,
 )
 from ni.protobuf.types.xydata_pb2 import DoubleXYData
-from nitypes.bintime import DateTime
 from nitypes.complex import ComplexInt32Base
 from nitypes.scalar import Scalar
 from nitypes.vector import Vector
 from nitypes.waveform import AnalogWaveform, ComplexWaveform, DigitalWaveform, Spectrum
 
 TRead = TypeVar("TRead")
+
+_logger = logging.getLogger(__name__)
 
 
 class Client:
@@ -126,25 +131,25 @@ class Client:
     __slots__ = (
         "_data_store_client",
         "_metadata_store_client",
-        "_moniker_clients",
+        "_moniker_clients_by_service_location",
         "_moniker_clients_lock",
     )
 
     _data_store_client: DataStoreClient
     _metadata_store_client: MetadataStoreClient
-    _moniker_clients: dict[str, MonikerClient]
+    _moniker_clients_by_service_location: dict[str, MonikerClient]
     _moniker_clients_lock: Lock
 
     def __init__(
         self,
         data_store_client: DataStoreClient | None = None,
         metadata_store_client: MetadataStoreClient | None = None,
-        moniker_clients: dict[str, MonikerClient] | None = None,
+        moniker_clients_by_service_location: dict[str, MonikerClient] | None = None,
     ) -> None:
         """Initialize the Client."""
         self._data_store_client = data_store_client or DataStoreClient()
         self._metadata_store_client = metadata_store_client or MetadataStoreClient()
-        self._moniker_clients = moniker_clients or {}
+        self._moniker_clients_by_service_location = moniker_clients_by_service_location or {}
         self._moniker_clients_lock = Lock()
 
     def publish_condition(
@@ -182,25 +187,18 @@ class Client:
         measurement_name: str,
         value: object,  # More strongly typed Union[bool, AnalogWaveform] can be used if needed
         step_id: str,
-        timestamp: DateTime,
-        outcome: Outcome.ValueType | None = None,
+        timestamp: datetime | None = None,
+        outcome: Outcome.ValueType = Outcome.OUTCOME_UNSPECIFIED,
         error_information: ErrorInformation | None = None,
         hardware_item_ids: Iterable[str] = tuple(),
         test_adapter_ids: Iterable[str] = tuple(),
         software_item_ids: Iterable[str] = tuple(),
-        notes: str | None = None,
+        notes: str = "",
     ) -> PublishedMeasurement:
         """Publish a measurement value to the data store."""
-        if outcome is None:
-            outcome = Outcome.OUTCOME_UNSPECIFIED
-
-        if notes is None:
-            notes = ""
-
         publish_request = PublishMeasurementRequest(
             measurement_name=measurement_name,
             step_id=step_id,
-            timestamp=bintime_datetime_to_protobuf(timestamp),
             outcome=outcome,
             error_information=error_information,
             hardware_item_ids=hardware_item_ids,
@@ -209,6 +207,9 @@ class Client:
             notes=notes,
         )
         self._populate_publish_measurement_request_value(publish_request, value)
+        publish_request.timestamp.CopyFrom(
+            self._get_publish_measurement_timestamp(publish_request, timestamp)
+        )
         publish_response = self._data_store_client.publish_measurement(publish_request)
         return publish_response.published_measurement
 
@@ -217,7 +218,7 @@ class Client:
         measurement_name: str,
         values: object,
         step_id: str,
-        timestamps: Iterable[DateTime] = tuple(),
+        timestamps: Iterable[datetime] = tuple(),
         outcomes: Iterable[Outcome.ValueType] = tuple(),
         error_information: Iterable[ErrorInformation] = tuple(),
         hardware_item_ids: Iterable[str] = tuple(),
@@ -228,9 +229,9 @@ class Client:
         publish_request = PublishMeasurementBatchRequest(
             measurement_name=measurement_name,
             step_id=step_id,
-            timestamp=[bintime_datetime_to_protobuf(ts) for ts in timestamps],
+            timestamp=[hightime_datetime_to_protobuf(ts) for ts in timestamps],
             outcome=outcomes,
-            error_information=list(error_information),
+            error_information=error_information,
             hardware_item_ids=hardware_item_ids,
             test_adapter_ids=test_adapter_ids,
             software_item_ids=software_item_ids,
@@ -239,11 +240,24 @@ class Client:
         publish_response = self._data_store_client.publish_measurement_batch(publish_request)
         return publish_response.published_measurements
 
-    def read(
+    @overload
+    def read_data(
         self,
         moniker_source: Moniker | PublishedMeasurement | PublishedCondition,
         expected_type: Type[TRead],
-    ) -> TRead:
+    ) -> TRead: ...
+
+    @overload
+    def read_data(
+        self,
+        moniker_source: Moniker | PublishedMeasurement | PublishedCondition,
+    ) -> object: ...
+
+    def read_data(
+        self,
+        moniker_source: Moniker | PublishedMeasurement | PublishedCondition,
+        expected_type: Type[TRead] | None = None,
+    ) -> TRead | object:
         """Read data published to the data store."""
         if isinstance(moniker_source, Moniker):
             moniker = moniker_source
@@ -257,7 +271,7 @@ class Client:
 
         unpacked_data = self._unpack_data(read_result.value)
         converted_data = self._convert_from_protobuf(unpacked_data)
-        if not isinstance(converted_data, expected_type):
+        if expected_type is not None and not isinstance(converted_data, expected_type):
             raise TypeError(f"Expected type {expected_type}, got {type(converted_data)}")
         return converted_data
 
@@ -302,8 +316,6 @@ class Client:
         query_request = QueryStepsRequest(odata_query=odata_query)
         query_response = self._data_store_client.query_steps(query_request)
         return query_response.steps
-
-    # MetadataStoreService methods below
 
     def create_uut_instance(self, uut_instance: UutInstance) -> str:
         """Create a UUT instance in the metadata store."""
@@ -537,18 +549,53 @@ class Client:
         return query_response.aliases
 
     def _get_moniker_client(self, service_location: str) -> MonikerClient:
-        parsed_location = urlparse(service_location).netloc
-
+        parsed_service_location = urlparse(service_location).netloc
         with self._moniker_clients_lock:
-            if parsed_location not in self._moniker_clients:
-                self._moniker_clients[parsed_location] = MonikerClient(
-                    service_location=parsed_location
+            if parsed_service_location not in self._moniker_clients_by_service_location:
+                self._moniker_clients_by_service_location[parsed_service_location] = MonikerClient(
+                    service_location=parsed_service_location
                 )
-            return self._moniker_clients[parsed_location]
+            return self._moniker_clients_by_service_location[parsed_service_location]
+
+    @staticmethod
+    def _get_publish_measurement_timestamp(
+        publish_request: PublishMeasurementRequest, client_provided_timestamp: datetime | None
+    ) -> PrecisionTimestamp:
+        no_client_timestamp_provided = client_provided_timestamp is None
+        if no_client_timestamp_provided:
+            publish_time = hightime_datetime_to_protobuf(datetime.now(std_datetime.timezone.utc))
+        else:
+            publish_time = hightime_datetime_to_protobuf(cast(datetime, client_provided_timestamp))
+
+        waveform_t0: PrecisionTimestamp | None = None
+        value_case = publish_request.WhichOneof("value")
+        if value_case == "double_analog_waveform":
+            waveform_t0 = publish_request.double_analog_waveform.t0
+        elif value_case == "i16_analog_waveform":
+            waveform_t0 = publish_request.i16_analog_waveform.t0
+        elif value_case == "double_complex_waveform":
+            waveform_t0 = publish_request.double_complex_waveform.t0
+        elif value_case == "i16_complex_waveform":
+            waveform_t0 = publish_request.i16_complex_waveform.t0
+        elif value_case == "digital_waveform":
+            waveform_t0 = publish_request.digital_waveform.t0
+
+        # If an initialized waveform t0 value is present
+        if waveform_t0 is not None and waveform_t0 != PrecisionTimestamp():
+            if no_client_timestamp_provided:
+                # If the client did not provide a timestamp, use the waveform t0 value
+                publish_time = waveform_t0
+            elif publish_time != waveform_t0:
+                raise ValueError(
+                    "The provided timestamp does not match the waveform t0. Please provide a matching timestamp or "
+                    "omit the timestamp to use the waveform t0."
+                )
+        return publish_time
 
     # TODO: We may wish to separate out some of the conversion code below.
+    @staticmethod
     def _populate_publish_condition_request_value(
-        self, publish_request: PublishConditionRequest, value: object
+        publish_request: PublishConditionRequest, value: object
     ) -> None:
         # TODO: Determine whether we wish to support primitive types such as float
         # TODO: or require wrapping in a Scalar.
@@ -564,22 +611,24 @@ class Client:
             publish_request.scalar.CopyFrom(scalar_to_protobuf(value))
         else:
             raise TypeError(
-                f"Unsupported condition value type: {type(value)}. Please consult the docummentation."
+                f"Unsupported condition value type: {type(value)}. Please consult the documentation."
             )
 
+    @staticmethod
     def _populate_publish_condition_batch_request_values(
-        self, publish_request: PublishConditionBatchRequest, values: object
+        publish_request: PublishConditionBatchRequest, values: object
     ) -> None:
         # TODO: Determine whether we wish to support primitive types such as a list of float
         if isinstance(values, Vector):
             publish_request.scalar_values.CopyFrom(vector_to_protobuf(values))
         else:
             raise TypeError(
-                f"Unsupported condition values type: {type(values)}. Please consult the docummentation."
+                f"Unsupported condition values type: {type(values)}. Please consult the documentation."
             )
 
+    @staticmethod
     def _populate_publish_measurement_request_value(
-        self, publish_request: PublishMeasurementRequest, value: object
+        publish_request: PublishMeasurementRequest, value: object
     ) -> None:
         # TODO: Determine whether we wish to support primitive types such as float
         # TODO: or require wrapping in a Scalar.
@@ -626,22 +675,24 @@ class Client:
             publish_request.digital_waveform.CopyFrom(digital_waveform_to_protobuf(value))
         else:
             raise TypeError(
-                f"Unsupported measurement value type: {type(value)}. Please consult the docummentation."
+                f"Unsupported measurement value type: {type(value)}. Please consult the documentation."
             )
         # TODO: Implement conversion from proper XYData type
 
+    @staticmethod
     def _populate_publish_measurement_batch_request_values(
-        self, publish_request: PublishMeasurementBatchRequest, values: object
+        publish_request: PublishMeasurementBatchRequest, values: object
     ) -> None:
         # TODO: Determine whether we wish to support primitive types such as a list of float
         if isinstance(values, Vector):
             publish_request.scalar_values.CopyFrom(vector_to_protobuf(values))
         else:
             raise TypeError(
-                f"Unsupported measurement values type: {type(values)}. Please consult the docummentation."
+                f"Unsupported measurement values type: {type(values)}. Please consult the documentation."
             )
 
-    def _unpack_data(self, read_value: Any) -> object:
+    @staticmethod
+    def _unpack_data(read_value: Any) -> object:
         data_type_url = read_value.type_url
 
         data_type_prefix = "type.googleapis.com/"
@@ -681,7 +732,8 @@ class Client:
         else:
             raise TypeError(f"Unsupported data type URL: {data_type_url}")
 
-    def _convert_from_protobuf(self, unpacked_data: object) -> object:
+    @staticmethod
+    def _convert_from_protobuf(unpacked_data: object) -> object:
         if isinstance(unpacked_data, DoubleAnalogWaveform):
             return float64_analog_waveform_from_protobuf(unpacked_data)
         elif isinstance(unpacked_data, I16AnalogWaveform):
@@ -695,6 +747,9 @@ class Client:
         elif isinstance(unpacked_data, DigitalWaveformProto):
             return digital_waveform_from_protobuf(unpacked_data)
         elif isinstance(unpacked_data, DoubleXYData):
+            _logger.warning(
+                "DoubleXYData conversion is not yet implemented. Returning the raw protobuf object."
+            )
             return unpacked_data  # TODO: Implement conversion to proper XYData type
         elif isinstance(unpacked_data, VectorProto):
             return vector_from_protobuf(unpacked_data)
