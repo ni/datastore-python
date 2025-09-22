@@ -547,13 +547,14 @@ protobuf = ["grpcio-tools (>=1.74.0)"]
 
 [[package]]
 name = "hightime"
-version = "0.2.2"
+version = "0.3.0.dev1"
 description = "Hightime Python API"
 optional = false
-python-versions = "*"
+python-versions = "<4.0,>=3.9"
 groups = ["main"]
 files = [
-    {file = "hightime-0.2.2-py3-none-any.whl", hash = "sha256:5109a449bb3a75dbf305147777de71634c91b943d47cfbee18ed2f34a8307e0b"},
+    {file = "hightime-0.3.0.dev1-py3-none-any.whl", hash = "sha256:33b05864264655929f6ecaade8a1f27070f1e3a2028e304e051825cbe6a505c9"},
+    {file = "hightime-0.3.0.dev1.tar.gz", hash = "sha256:e1ad569c034b61be5b906a5dc4b226af6b6fe4985f2550edc8b575a4df5fdaf0"},
 ]
 
 [[package]]
@@ -2234,4 +2235,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9"
-content-hash = "9c5f6acfde6ed440b06801732ccf6258c8eab872f5f5dcd6cc78682603b10b56"
+content-hash = "eb6e7cbe335c2a093e68466afa895805b762275299e53f848871db5204710ca0"
