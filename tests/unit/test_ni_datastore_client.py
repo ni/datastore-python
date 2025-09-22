@@ -18,6 +18,9 @@ from ni.measurements.data.v1.data_store_pb2 import (
     Outcome,
 )
 from ni.measurements.data.v1.data_store_service_pb2 import (
+    PublishConditionBatchRequest,
+    PublishConditionRequest,
+    PublishMeasurementBatchRequest,
     PublishMeasurementRequest,
 )
 from ni.protobuf.types.precision_timestamp_conversion import (
@@ -25,6 +28,7 @@ from ni.protobuf.types.precision_timestamp_conversion import (
 )
 from ni.protobuf.types.waveform_conversion import float64_analog_waveform_to_protobuf
 from ni.protobuf.types.waveform_pb2 import DoubleAnalogWaveform
+from nitypes.vector import Vector
 from nitypes.waveform import AnalogWaveform, Timing
 from pytest_mock import MockerFixture
 
@@ -154,6 +158,82 @@ def test___publish_analog_waveform_data_with_mismatched_timestamp_parameter___ra
     mismatched_timestamp = timestamp + std_datetime.timedelta(seconds=1)
     with pytest.raises(ValueError):
         client.publish_measurement("name", analog_waveform, "step_id", mismatched_timestamp)
+
+
+def test___publish_measurement_batch___calls_datastoreclient(
+    mocked_datastore_client: Mock,
+) -> None:
+    timestamp = datetime.now(tz=std_datetime.timezone.utc)
+    client = Client(data_store_client=mocked_datastore_client)
+    client.publish_measurement_batch(
+        measurement_name="name",
+        values=Vector(values=[1.0, 2.0, 3.0], units="BatchUnits"),
+        step_id="step_id",
+        timestamps=[timestamp],
+        outcomes=[Outcome.OUTCOME_PASSED],
+        error_information=[ErrorInformation()],
+        hardware_item_ids=[],
+        test_adapter_ids=[],
+        software_item_ids=[],
+    )
+
+    args, __ = mocked_datastore_client.publish_measurement_batch.call_args
+    request = cast(PublishMeasurementBatchRequest, args[0])
+
+    # Now assert on its fields
+    assert request.step_id == "step_id"
+    assert request.measurement_name == "name"
+    assert request.timestamp == [hightime_datetime_to_protobuf(timestamp)]
+    assert request.scalar_values.double_array.values == [1.0, 2.0, 3.0]
+    assert request.scalar_values.attributes["NI_UnitDescription"].string_value == "BatchUnits"
+    assert request.outcome == [Outcome.OUTCOME_PASSED]
+    assert request.error_information == [ErrorInformation()]
+    assert request.hardware_item_ids == []
+    assert request.software_item_ids == []
+    assert request.test_adapter_ids == []
+
+
+def test___publish_condition___calls_datastoreclient(
+    mocked_datastore_client: Mock,
+) -> None:
+    client = Client(data_store_client=mocked_datastore_client)
+    _ = client.publish_condition(
+        condition_name="TestCondition",
+        type="ConditionType",
+        value=123,
+        step_id="MyStep",
+    )
+
+    args, __ = mocked_datastore_client.publish_condition.call_args
+    request = cast(PublishConditionRequest, args[0])
+
+    # Now assert on its fields
+    assert request.step_id == "MyStep"
+    assert request.condition_name == "TestCondition"
+    assert request.type == "ConditionType"
+    assert request.scalar.sint32_value == 123
+
+
+def test___publish_condition_batch___calls_datastoreclient(
+    mocked_datastore_client: Mock,
+) -> None:
+    client = Client(data_store_client=mocked_datastore_client)
+    _ = client.publish_condition_batch(
+        condition_name="TestCondition",
+        type="ConditionType",
+        values=Vector(values=["one", "two", "three"], units="fake_units"),
+        step_id="MyStep",
+    )
+
+    args, __ = mocked_datastore_client.publish_condition_batch.call_args
+    request = cast(PublishConditionBatchRequest, args[0])
+
+    # Now assert on its fields
+    assert request.step_id == "MyStep"
+    assert request.condition_name == "TestCondition"
+    assert request.type == "ConditionType"
+    assert list(request.scalar_values.string_array.values) == ["one", "two", "three"]
+    assert request.scalar_values.attributes["NI_UnitDescription"].string_value == "fake_units"
 
 
 def test___read_data___calls_monikerclient(mocked_moniker_client: Mock) -> None:
