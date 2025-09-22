@@ -27,7 +27,6 @@ from nitypes.scalar import Scalar
 from nitypes.vector import Vector
 from nitypes.waveform import AnalogWaveform, ComplexWaveform, DigitalWaveform, Spectrum
 
-
 _TPythonType = TypeVar("_TPythonType")
 
 
@@ -293,9 +292,7 @@ class AnalogWaveformPublishConverter(PublishConverter[AnalogWaveform[Any]]):
                 float64_analog_waveform_to_protobuf(value)
             )
         elif value.dtype == np.int16:
-            publish_request.i16_analog_waveform.CopyFrom(
-                int16_analog_waveform_to_protobuf(value)
-            )
+            publish_request.i16_analog_waveform.CopyFrom(int16_analog_waveform_to_protobuf(value))
         else:
             raise TypeError(f"Unsupported AnalogWaveform dtype: {value.dtype}")
 
@@ -327,9 +324,7 @@ class ComplexWaveformPublishConverter(PublishConverter[ComplexWaveform[Any]]):
                 float64_complex_waveform_to_protobuf(value)
             )
         elif value.dtype == ComplexInt32DType:
-            publish_request.i16_complex_waveform.CopyFrom(
-                int16_complex_waveform_to_protobuf(value)
-            )
+            publish_request.i16_complex_waveform.CopyFrom(int16_complex_waveform_to_protobuf(value))
         else:
             raise TypeError(f"Unsupported ComplexWaveform dtype: {value.dtype}")
 

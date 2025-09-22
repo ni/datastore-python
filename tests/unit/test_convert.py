@@ -21,12 +21,12 @@ from nitypes.vector import Vector
 from nitypes.waveform import AnalogWaveform, ComplexWaveform, DigitalWaveform, Spectrum
 
 from ni.datastore.conversion import (
-    convert_from_protobuf,
-    populate_publish_condition_request_value,
-    populate_publish_condition_batch_request_values,
-    populate_publish_measurement_request_value,
-    populate_publish_measurement_batch_request_values,
     _get_type_string,
+    convert_from_protobuf,
+    populate_publish_condition_batch_request_values,
+    populate_publish_condition_request_value,
+    populate_publish_measurement_batch_request_values,
+    populate_publish_measurement_request_value,
 )
 
 
@@ -137,7 +137,9 @@ def test___python_vector_object___populate_measurement___measurement_updated_cor
     assert request.vector.attributes["NI_UnitDescription"].string_value == "amps"
 
 
-def test___python_float64_analog_waveform___populate_measurement___measurement_updated_correctly() -> None:
+def test___python_float64_analog_waveform___populate_measurement___measurement_updated_correctly() -> (
+    None
+):
     wfm_obj = AnalogWaveform(3, np.float64)
     request = PublishMeasurementRequest()
     populate_publish_measurement_request_value(request, wfm_obj)
@@ -146,7 +148,9 @@ def test___python_float64_analog_waveform___populate_measurement___measurement_u
     assert list(request.double_analog_waveform.y_data) == [0.0, 0.0, 0.0]
 
 
-def test___python_int16_analog_waveform___populate_measurement___measurement_updated_correctly() -> None:
+def test___python_int16_analog_waveform___populate_measurement___measurement_updated_correctly() -> (
+    None
+):
     wfm_obj = AnalogWaveform(3, np.int16)
     request = PublishMeasurementRequest()
     populate_publish_measurement_request_value(request, wfm_obj)
@@ -155,7 +159,9 @@ def test___python_int16_analog_waveform___populate_measurement___measurement_upd
     assert list(request.i16_analog_waveform.y_data) == [0, 0, 0]
 
 
-def test___python_float64_complex_waveform___populate_measurement___measurement_updated_correctly() -> None:
+def test___python_float64_complex_waveform___populate_measurement___measurement_updated_correctly() -> (
+    None
+):
     wfm_obj = ComplexWaveform(2, np.complex128)
     request = PublishMeasurementRequest()
     populate_publish_measurement_request_value(request, wfm_obj)
@@ -164,7 +170,9 @@ def test___python_float64_complex_waveform___populate_measurement___measurement_
     assert list(request.double_complex_waveform.y_data) == [0.0, 0.0, 0.0, 0.0]
 
 
-def test___python_int16_complex_waveform___populate_measurement___measurement_updated_correctly() -> None:
+def test___python_int16_complex_waveform___populate_measurement___measurement_updated_correctly() -> (
+    None
+):
     wfm_obj = ComplexWaveform(2, ComplexInt32DType)
     request = PublishMeasurementRequest()
     populate_publish_measurement_request_value(request, wfm_obj)
@@ -173,7 +181,9 @@ def test___python_int16_complex_waveform___populate_measurement___measurement_up
     assert list(request.i16_complex_waveform.y_data) == [0, 0, 0, 0]
 
 
-def test___python_bool_digital_waveform___populate_measurement___measurement_updated_correctly() -> None:
+def test___python_bool_digital_waveform___populate_measurement___measurement_updated_correctly() -> (
+    None
+):
     data = np.array([[0, 1, 0], [1, 0, 1]], dtype=np.bool)
     wfm_obj = DigitalWaveform.from_lines(data, signal_count=3)
 
@@ -185,7 +195,9 @@ def test___python_bool_digital_waveform___populate_measurement___measurement_upd
     assert request.digital_waveform.signal_count == 3
 
 
-def test___python_uint8_digital_waveform___populate_measurement___measurement_updated_correctly() -> None:
+def test___python_uint8_digital_waveform___populate_measurement___measurement_updated_correctly() -> (
+    None
+):
     data = np.array([[0, 1, 3], [7, 5, 1]], dtype=np.uint8)
     wfm_obj = DigitalWaveform.from_lines(data, signal_count=3)
 
@@ -214,7 +226,9 @@ def test___python_float64_spectrum___populate_measurement___measurement_updated_
 # ========================================================
 # Populate Measurement Batch
 # ========================================================
-def test___python_vector_object___populate_measurement_batch___condition_updated_correctly() -> None:
+def test___python_vector_object___populate_measurement_batch___condition_updated_correctly() -> (
+    None
+):
     vector_obj = Vector([1.0, 2.0, 3.0], "amps")
     request = PublishMeasurementBatchRequest()
     populate_publish_measurement_batch_request_values(request, vector_obj)
@@ -254,7 +268,9 @@ def test___vector_proto___convert_from_protobuf___valid_python_vector() -> None:
     assert result.units == "amps"
 
 
-def test___double_analog_waveform_proto___convert_from_protobuf___valid_python_float64_analog_waveform() -> None:
+def test___double_analog_waveform_proto___convert_from_protobuf___valid_python_float64_analog_waveform() -> (
+    None
+):
     pb_value = waveform_pb2.DoubleAnalogWaveform(y_data=[0.0, 0.0, 0.0])
     packed_any = _pack_into_any(pb_value)
 
@@ -265,7 +281,9 @@ def test___double_analog_waveform_proto___convert_from_protobuf___valid_python_f
     assert result.dtype == np.float64
 
 
-def test___i16_analog_waveform_proto___convert_from_protobuf___valid_python_int16_analog_waveform() -> None:
+def test___i16_analog_waveform_proto___convert_from_protobuf___valid_python_int16_analog_waveform() -> (
+    None
+):
     pb_value = waveform_pb2.I16AnalogWaveform(y_data=[0, 0, 0])
     packed_any = _pack_into_any(pb_value)
 
@@ -289,7 +307,9 @@ def test___double_complex_waveform_proto___convert_from_protobuf___valid_python_
     assert result.dtype == np.complex128
 
 
-def test___i16_complex_waveform_proto___convert_from_protobuf___valid_python_int16_complex_waveform() -> None:
+def test___i16_complex_waveform_proto___convert_from_protobuf___valid_python_int16_complex_waveform() -> (
+    None
+):
     pb_value = waveform_pb2.I16ComplexWaveform(y_data=[0, 0, 0, 0])
     packed_any = _pack_into_any(pb_value)
 
@@ -300,7 +320,9 @@ def test___i16_complex_waveform_proto___convert_from_protobuf___valid_python_int
     assert result.dtype == ComplexInt32DType
 
 
-def test___digital_waveform_proto___convert_from_protobuf___valid_python_bool_digital_waveform() -> None:
+def test___digital_waveform_proto___convert_from_protobuf___valid_python_bool_digital_waveform() -> (
+    None
+):
     data = np.array([[0, 1, 0], [1, 0, 1]], dtype=np.bool)
     pb_value = waveform_pb2.DigitalWaveform(y_data=data.tobytes(), signal_count=3)
     packed_any = _pack_into_any(pb_value)
@@ -312,7 +334,9 @@ def test___digital_waveform_proto___convert_from_protobuf___valid_python_bool_di
     assert result.signal_count == 3
 
 
-def test___digital_waveform_proto___convert_from_protobuf___valid_python_uint8_digital_waveform() -> None:
+def test___digital_waveform_proto___convert_from_protobuf___valid_python_uint8_digital_waveform() -> (
+    None
+):
     data = np.array([[0, 1, 0], [1, 0, 1]], dtype=np.uint8)
     pb_value = waveform_pb2.DigitalWaveform(y_data=data.tobytes(), signal_count=3)
     packed_any = _pack_into_any(pb_value)

@@ -24,8 +24,8 @@ from ni.datastore.publish_converters import (
     ScalarPublishConverter,
     SpectrumPublishConverter,
     StringPublishConverter,
-    VectorPublishConverter,
     VectorPublishBatchConverter,
+    VectorPublishConverter,
 )
 from ni.datastore.read_converters import (
     DigitalWaveformReadConverter,
@@ -69,7 +69,9 @@ _READ_CONVERTERS: list[ReadConverter[Any]] = [
 
 _READ_CONVERTERS_BY_PROTOBUF_TYPE = {entry.protobuf_typename: entry for entry in _READ_CONVERTERS}
 _PUBLISH_CONVERTERS_BY_PYTHON_TYPE = {entry.python_typename: entry for entry in _PUBLISH_CONVERTERS}
-_PUBLISH_BATCH_CONVERTERS_BY_PYTHON_TYPE = {entry.python_typename: entry for entry in _PUBLISH_BATCH_CONVERTERS}
+_PUBLISH_BATCH_CONVERTERS_BY_PYTHON_TYPE = {
+    entry.python_typename: entry for entry in _PUBLISH_BATCH_CONVERTERS
+}
 
 
 def convert_from_protobuf(protobuf_any: any_pb2.Any) -> object:

@@ -12,7 +12,6 @@ import pytest
 from google.protobuf.any_pb2 import Any as gpAny
 from hightime import datetime
 from ni.datamonikers.v1.data_moniker_pb2 import Moniker, ReadFromMonikerResult
-from ni.datastore.client import Client
 from ni.measurements.data.v1.data_store_pb2 import (
     ErrorInformation,
     Outcome,
@@ -27,6 +26,8 @@ from ni.protobuf.types.waveform_conversion import float64_analog_waveform_to_pro
 from ni.protobuf.types.waveform_pb2 import DoubleAnalogWaveform
 from nitypes.waveform import AnalogWaveform, Timing
 from pytest_mock import MockerFixture
+
+from ni.datastore.client import Client
 
 
 @pytest.mark.parametrize("value", [True, False])
