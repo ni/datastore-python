@@ -259,6 +259,7 @@ def test___read_data___calls_monikerclient(mocked_moniker_client: Mock) -> None:
     mocked_moniker_client.read_from_moniker.return_value = result
 
     client.read_data(moniker, AnalogWaveform)
+
     args, __ = mocked_moniker_client.read_from_moniker.call_args
     requested_moniker = cast(Moniker, args[0])
     assert requested_moniker.service_location == moniker.service_location
