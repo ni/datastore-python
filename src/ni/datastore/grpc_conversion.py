@@ -50,8 +50,6 @@ def populate_publish_condition_request_value(
     publish_request: PublishConditionRequest, value: object
 ) -> None:
     """Assign a value to the scalar member of PublishConditionRequest."""
-    # TODO: Determine whether we wish to support primitive types such as float
-    # TODO: or require wrapping in a Scalar.
     if isinstance(value, bool):
         publish_request.scalar.bool_value = value
     elif isinstance(value, int):
@@ -85,8 +83,6 @@ def populate_publish_measurement_request_value(
     publish_request: PublishMeasurementRequest, value: object
 ) -> None:
     """Assign a value to the appropriate field of a PublishMeasurementRequest object."""
-    # TODO: Determine whether we wish to support primitive types such as float
-    # TODO: or require wrapping in a Scalar.
     if isinstance(value, bool):
         publish_request.scalar.bool_value = value
     elif isinstance(value, int):
