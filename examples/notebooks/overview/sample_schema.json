@@ -5,7 +5,7 @@
   "description": "A schema for the metadata of test measurements",
   "type": "object",
   "properties": {
-    "session": {
+    "test_result": {
       "type": "object",
       "properties": {
         "session_file_path": {
@@ -35,7 +35,7 @@
         }
       }
     },
-    "software": {
+    "software_item": {
       "type": "object",
       "properties": {
         "license": {
