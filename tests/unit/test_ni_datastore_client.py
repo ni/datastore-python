@@ -16,6 +16,8 @@ from ni.datastore.client import Client
 from ni.measurements.data.v1.data_store_pb2 import (
     ErrorInformation,
     Outcome,
+    PublishedCondition,
+    PublishedMeasurement,
     Step,
     TestResult,
 )
@@ -29,9 +31,13 @@ from ni.measurements.data.v1.data_store_service_pb2 import (
     GetTestResultRequest,
     GetTestResultResponse,
     PublishConditionBatchRequest,
+    PublishConditionBatchResponse,
     PublishConditionRequest,
+    PublishConditionResponse,
     PublishMeasurementBatchRequest,
+    PublishMeasurementBatchResponse,
     PublishMeasurementRequest,
+    PublishMeasurementResponse,
 )
 from ni.protobuf.types.precision_timestamp_conversion import (
     hightime_datetime_to_protobuf,
@@ -49,7 +55,11 @@ def test___publish_boolean_data___calls_datastoreclient(
 ) -> None:
     timestamp = datetime.now(tz=std_datetime.timezone.utc)
     client = Client(data_store_client=mocked_datastore_client)
-    client.publish_measurement(
+    published_measurement = PublishedMeasurement(published_measurement_id="response_id")
+    expected_response = PublishMeasurementResponse(published_measurement=published_measurement)
+    mocked_datastore_client.publish_measurement.return_value = expected_response
+
+    result = client.publish_measurement(
         "name",
         value,
         "step_id",
@@ -61,10 +71,10 @@ def test___publish_boolean_data___calls_datastoreclient(
         [],
         "notes",
     )
+
     args, __ = mocked_datastore_client.publish_measurement.call_args
     request = args[0]  # The PublishMeasurementRequest object
-
-    # Now assert on its fields
+    assert result.published_measurement_id == "response_id"
     assert request.step_id == "step_id"
     assert request.measurement_name == "name"
     assert request.notes == "notes"
@@ -91,8 +101,12 @@ def test___publish_analog_waveform_data___calls_datastoreclient(
     expected_protobuf_waveform = DoubleAnalogWaveform()
     expected_protobuf_waveform.CopyFrom(float64_analog_waveform_to_protobuf(analog_waveform))
     client = Client(data_store_client=mocked_datastore_client)
+    published_measurement = PublishedMeasurement(published_measurement_id="response_id")
+    expected_response = PublishMeasurementResponse(published_measurement=published_measurement)
+    mocked_datastore_client.publish_measurement.return_value = expected_response
+
     # Now, when client.publish_measurement calls foo.MyClass().publish(), it will use the mock
-    client.publish_measurement(
+    result = client.publish_measurement(
         "name",
         analog_waveform,
         "step_id",
@@ -104,10 +118,10 @@ def test___publish_analog_waveform_data___calls_datastoreclient(
         [],
         "notes",
     )
+
     args, __ = mocked_datastore_client.publish_measurement.call_args
     request = cast(PublishMeasurementRequest, args[0])  # The PublishMeasurementRequest object
-
-    # Now assert on its fields
+    assert result.published_measurement_id == "response_id"
     assert request.step_id == "step_id"
     assert request.measurement_name == "name"
     assert request.notes == "notes"
@@ -164,8 +178,8 @@ def test___publish_analog_waveform_data_with_mismatched_timestamp_parameter___ra
         timing=Timing.create_with_regular_interval(std_datetime.timedelta(seconds=1), timestamp),
     )
     client = Client(data_store_client=mocked_datastore_client)
-
     mismatched_timestamp = timestamp + std_datetime.timedelta(seconds=1)
+
     with pytest.raises(ValueError):
         client.publish_measurement("name", analog_waveform, "step_id", mismatched_timestamp)
 
@@ -175,7 +189,13 @@ def test___publish_measurement_batch___calls_datastoreclient(
 ) -> None:
     timestamp = datetime.now(tz=std_datetime.timezone.utc)
     client = Client(data_store_client=mocked_datastore_client)
-    client.publish_measurement_batch(
+    published_measurement = PublishedMeasurement(published_measurement_id="response_id")
+    expected_response = PublishMeasurementBatchResponse(
+        published_measurements=[published_measurement]
+    )
+    mocked_datastore_client.publish_measurement_batch.return_value = expected_response
+
+    response = client.publish_measurement_batch(
         measurement_name="name",
         values=Vector(values=[1.0, 2.0, 3.0], units="BatchUnits"),
         step_id="step_id",
@@ -189,8 +209,7 @@ def test___publish_measurement_batch___calls_datastoreclient(
 
     args, __ = mocked_datastore_client.publish_measurement_batch.call_args
     request = cast(PublishMeasurementBatchRequest, args[0])
-
-    # Now assert on its fields
+    assert next(iter(response)).published_measurement_id == "response_id"
     assert request.step_id == "step_id"
     assert request.measurement_name == "name"
     assert request.timestamp == [hightime_datetime_to_protobuf(timestamp)]
@@ -207,7 +226,11 @@ def test___publish_condition___calls_datastoreclient(
     mocked_datastore_client: Mock,
 ) -> None:
     client = Client(data_store_client=mocked_datastore_client)
-    _ = client.publish_condition(
+    published_condition = PublishedCondition(published_condition_id="response_id")
+    expected_response = PublishConditionResponse(published_condition=published_condition)
+    mocked_datastore_client.publish_condition.return_value = expected_response
+
+    result = client.publish_condition(
         condition_name="TestCondition",
         type="ConditionType",
         value=123,
@@ -216,8 +239,7 @@ def test___publish_condition___calls_datastoreclient(
 
     args, __ = mocked_datastore_client.publish_condition.call_args
     request = cast(PublishConditionRequest, args[0])
-
-    # Now assert on its fields
+    assert result.published_condition_id == "response_id"
     assert request.step_id == "MyStep"
     assert request.condition_name == "TestCondition"
     assert request.type == "ConditionType"
@@ -228,7 +250,11 @@ def test___publish_condition_batch___calls_datastoreclient(
     mocked_datastore_client: Mock,
 ) -> None:
     client = Client(data_store_client=mocked_datastore_client)
-    _ = client.publish_condition_batch(
+    published_condition = PublishedCondition(published_condition_id="response_id")
+    expected_response = PublishConditionBatchResponse(published_condition=published_condition)
+    mocked_datastore_client.publish_condition_batch.return_value = expected_response
+
+    result = client.publish_condition_batch(
         condition_name="TestCondition",
         type="ConditionType",
         values=Vector(values=["one", "two", "three"], units="fake_units"),
@@ -237,8 +263,7 @@ def test___publish_condition_batch___calls_datastoreclient(
 
     args, __ = mocked_datastore_client.publish_condition_batch.call_args
     request = cast(PublishConditionBatchRequest, args[0])
-
-    # Now assert on its fields
+    assert result.published_condition_id == "response_id"
     assert request.step_id == "MyStep"
     assert request.condition_name == "TestCondition"
     assert request.type == "ConditionType"
@@ -284,15 +309,13 @@ def test___create_step___calls_datastoreclient(
         start_date_time=hightime_datetime_to_protobuf(start_time),
         end_date_time=hightime_datetime_to_protobuf(end_time),
     )
-
     expected_response = CreateStepResponse(step_id="response_id")
     mocked_datastore_client.create_step.return_value = expected_response
+
     result = client.create_step(step)
 
     args, __ = mocked_datastore_client.create_step.call_args
     request = cast(CreateStepRequest, args[0])
-
-    # Now assert on its fields
     assert request.step == step
     assert result == "response_id"
 
@@ -314,14 +337,12 @@ def test___get_step___calls_datastoreclient(
         start_date_time=hightime_datetime_to_protobuf(start_time),
         end_date_time=hightime_datetime_to_protobuf(end_time),
     )
-
     mocked_datastore_client.get_step.return_value = GetStepResponse(step=step)
+
     result = client.get_step(step_id="request_id")
 
     args, __ = mocked_datastore_client.get_step.call_args
     request = cast(GetStepRequest, args[0])
-
-    # Now assert on its fields
     assert request.step_id == "request_id"
     assert result == step
 
@@ -345,15 +366,13 @@ def test___create_test_result___calls_datastoreclient(
         start_date_time=hightime_datetime_to_protobuf(start_time),
         end_date_time=hightime_datetime_to_protobuf(end_time),
     )
-
     expected_response = CreateTestResultResponse(test_result_id="response_id")
     mocked_datastore_client.create_test_result.return_value = expected_response
+
     result = client.create_test_result(test_result)
 
     args, __ = mocked_datastore_client.create_test_result.call_args
     request = cast(CreateTestResultRequest, args[0])
-
-    # Now assert on its fields
     assert request.test_result == test_result
     assert result == "response_id"
 
@@ -377,15 +396,13 @@ def test___get_test_result___calls_datastoreclient(
         start_date_time=hightime_datetime_to_protobuf(start_time),
         end_date_time=hightime_datetime_to_protobuf(end_time),
     )
-
     expected_response = GetTestResultResponse(test_result=test_result)
     mocked_datastore_client.get_test_result.return_value = expected_response
+
     result = client.get_test_result(test_result_id="request_id")
 
     args, __ = mocked_datastore_client.get_test_result.call_args
     request = cast(GetTestResultRequest, args[0])
-
-    # Now assert on its fields
     assert request.test_result_id == "request_id"
     assert result == test_result
 
