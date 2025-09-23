@@ -1,0 +1,67 @@
+[project]
+name = "overview_example"
+version = "0.1.0-dev0"
+license = "MIT"
+description = "Overview of how to use the NI Measurement Data Store APIs for publishing and reading data"
+authors = [{name = "NI", email = "opensource@ni.com"}]
+maintainers = [
+  {name = "Johann Scholtz", email = "johann.scholtz@emerson.com"},
+  {name = "Joel Dixon", email = "joel.dixon@emerson.com"}
+]
+readme = "README.md"
+repository = "https://github.com/ni/datastore-python"
+keywords = ["overview", "example"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Manufacturing",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: POSIX",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: Implementation :: CPython",
+]
+dynamic = ["dependencies"]
+requires-python = '>=3.9,<4.0'
+
+[tool.poetry]
+requires-poetry = '>=2.1,<3.0'
+
+[tool.poetry.dependencies]
+python = "^3.9"
+protobuf = {version=">=4.21"}
+ni-datamonikers-v1-client = { version = ">=0.1.0.dev0", allow-prereleases = true }
+ni-measurements-data-v1-client = { version = ">=0.1.0.dev0", allow-prereleases = true }
+ni-measurements-metadata-v1-client = { version = ">=0.1.0.dev0", allow-prereleases = true }
+ni-protobuf-types = { version = ">=0.1.0.dev3", allow-prereleases = true }
+hightime = { version = ">=0.3.0.dev0", allow-prereleases = true }
+
+[tool.poetry.group.dev.dependencies]
+types-grpcio = ">=1.0"
+types-protobuf = ">=4.21"
+ni-datastore = {path = "../..", develop = true}
+
+[tool.poetry.group.lint.dependencies]
+ni-python-styleguide = ">=0.4.1"
+mypy = ">=1.0"
+
+[build-system]
+requires = ["poetry-core>=1.8"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 100
+
+[tool.mypy]
+mypy_path = "src"
+files = "."
+namespace_packages = true
+strict = true
+explicit_package_bases = true
+exclude = ["docs"]
