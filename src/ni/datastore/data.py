@@ -61,7 +61,7 @@ class Step:
         notes: str = "",
         link: str = "",
         extensions: MutableMapping[str, ExtensionValue] | None = None,
-        schema_id: str = ""
+        schema_id: str = "",
     ) -> None:
         """Initialize a Step instance."""
         self.step_id = step_id
@@ -193,7 +193,7 @@ class TestResult:
         outcome: Outcome.ValueType = Outcome.OUTCOME_UNSPECIFIED,
         link: str = "",
         extensions: MutableMapping[str, ExtensionValue] | None = None,
-        schema_id: str = ""
+        schema_id: str = "",
     ) -> None:
         """Initialize a TestResult instance."""
         self.test_result_id = test_result_id
@@ -340,7 +340,7 @@ class PublishedMeasurement:
         end_date_time: hightime_datetime | None = None,
         outcome: Outcome.ValueType = Outcome.OUTCOME_UNSPECIFIED,
         parametric_index: int = 0,
-        error_information: ErrorInformation | None = None
+        error_information: ErrorInformation | None = None,
     ) -> None:
         """Initialize a PublishedMeasurement instance."""
         self.moniker = moniker
