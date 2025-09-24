@@ -13,13 +13,14 @@ from google.protobuf.any_pb2 import Any as gpAny
 from hightime import datetime
 from ni.datamonikers.v1.data_moniker_pb2 import Moniker, ReadFromMonikerResult
 from ni.datastore.client import Client
+from ni.datastore.data import Step, TestResult
 from ni.measurements.data.v1.data_store_pb2 import (
     ErrorInformation,
     Outcome,
     PublishedCondition,
     PublishedMeasurement,
-    Step,
-    TestResult,
+    Step as StepProto,
+    TestResult as TestResultProto,
 )
 from ni.measurements.data.v1.data_store_service_pb2 import (
     CreateStepRequest,
@@ -144,6 +145,9 @@ def test___publish_analog_waveform_data_without_timestamp_parameter___uses_wavef
         raw_data=np.array(waveform_values, dtype=np.float64),
         timing=Timing.create_with_regular_interval(std_datetime.timedelta(seconds=1), timestamp),
     )
+    published_measurement = PublishedMeasurement(published_measurement_id="response_id")
+    expected_response = PublishMeasurementResponse(published_measurement=published_measurement)
+    mocked_datastore_client.publish_measurement.return_value = expected_response
     client = Client(data_store_client=mocked_datastore_client)
 
     client.publish_measurement("name", analog_waveform, "step_id")
@@ -158,6 +162,9 @@ def test___publish_analog_waveform_data_without_t0___uses_timestamp_parameter(
 ) -> None:
     timestamp = datetime.now(tz=std_datetime.timezone.utc)
     analog_waveform = AnalogWaveform.from_array_1d([1.0, 2.0, 3.0], dtype=float)
+    published_measurement = PublishedMeasurement(published_measurement_id="response_id")
+    expected_response = PublishMeasurementResponse(published_measurement=published_measurement)
+    mocked_datastore_client.publish_measurement.return_value = expected_response
     client = Client(data_store_client=mocked_datastore_client)
 
     client.publish_measurement("name", analog_waveform, "step_id", timestamp)
@@ -306,8 +313,8 @@ def test___create_step___calls_datastoreclient(
         step_name="step_name",
         step_type="step_type",
         notes="step_notes",
-        start_date_time=hightime_datetime_to_protobuf(start_time),
-        end_date_time=hightime_datetime_to_protobuf(end_time),
+        start_date_time=start_time,
+        end_date_time=end_time,
     )
     expected_response = CreateStepResponse(step_id="response_id")
     mocked_datastore_client.create_step.return_value = expected_response
@@ -316,7 +323,7 @@ def test___create_step___calls_datastoreclient(
 
     args, __ = mocked_datastore_client.create_step.call_args
     request = cast(CreateStepRequest, args[0])
-    assert request.step == step
+    assert request.step == step.to_protobuf()
     assert result == "response_id"
 
 
@@ -326,7 +333,7 @@ def test___get_step___calls_datastoreclient(
     client = Client(data_store_client=mocked_datastore_client)
     start_time = datetime.now(tz=std_datetime.timezone.utc)
     end_time = datetime.now(tz=std_datetime.timezone.utc)
-    step = Step(
+    step = StepProto(
         step_id="step_id",
         parent_step_id="parent_step_id",
         test_result_id="test_result",
@@ -344,7 +351,7 @@ def test___get_step___calls_datastoreclient(
     args, __ = mocked_datastore_client.get_step.call_args
     request = cast(GetStepRequest, args[0])
     assert request.step_id == "request_id"
-    assert result == step
+    assert result == Step.from_protobuf(step)
 
 
 def test___create_test_result___calls_datastoreclient(
@@ -363,8 +370,8 @@ def test___create_test_result___calls_datastoreclient(
         hardware_item_ids=[],
         test_adapter_ids=[],
         test_result_name="test_result_name",
-        start_date_time=hightime_datetime_to_protobuf(start_time),
-        end_date_time=hightime_datetime_to_protobuf(end_time),
+        start_date_time=start_time,
+        end_date_time=end_time,
     )
     expected_response = CreateTestResultResponse(test_result_id="response_id")
     mocked_datastore_client.create_test_result.return_value = expected_response
@@ -373,7 +380,7 @@ def test___create_test_result___calls_datastoreclient(
 
     args, __ = mocked_datastore_client.create_test_result.call_args
     request = cast(CreateTestResultRequest, args[0])
-    assert request.test_result == test_result
+    assert request.test_result == test_result.to_protobuf()
     assert result == "response_id"
 
 
@@ -383,7 +390,7 @@ def test___get_test_result___calls_datastoreclient(
     client = Client(data_store_client=mocked_datastore_client)
     start_time = datetime.now(tz=std_datetime.timezone.utc)
     end_time = datetime.now(tz=std_datetime.timezone.utc)
-    test_result = TestResult(
+    test_result = TestResultProto(
         test_result_id="test_result_id",
         uut_instance_id="uut_instance_id",
         operator_id="operator_id",
@@ -404,7 +411,7 @@ def test___get_test_result___calls_datastoreclient(
     args, __ = mocked_datastore_client.get_test_result.call_args
     request = cast(GetTestResultRequest, args[0])
     assert request.test_result_id == "request_id"
-    assert result == test_result
+    assert result == TestResult.from_protobuf(test_result)
 
 
 @pytest.fixture

@@ -14,14 +14,12 @@ from google.protobuf.any_pb2 import Any
 from hightime import datetime
 from ni.datamonikers.v1.client import MonikerClient
 from ni.datamonikers.v1.data_moniker_pb2 import Moniker
+from ni.datastore.data import PublishedMeasurement, Step, TestResult
 from ni.measurements.data.v1.client import DataStoreClient
 from ni.measurements.data.v1.data_store_pb2 import (
     ErrorInformation,
     Outcome,
     PublishedCondition,
-    PublishedMeasurement,
-    Step,
-    TestResult,
 )
 from ni.measurements.data.v1.data_store_service_pb2 import (
     CreateStepRequest,
@@ -211,7 +209,7 @@ class Client:
             self._get_publish_measurement_timestamp(publish_request, timestamp)
         )
         publish_response = self._data_store_client.publish_measurement(publish_request)
-        return publish_response.published_measurement
+        return PublishedMeasurement.from_protobuf(publish_response.published_measurement)
 
     def publish_measurement_batch(
         self,
@@ -238,7 +236,9 @@ class Client:
         )
         self._populate_publish_measurement_batch_request_values(publish_request, values)
         publish_response = self._data_store_client.publish_measurement_batch(publish_request)
-        return publish_response.published_measurements
+        return [
+            PublishedMeasurement.from_protobuf(pm) for pm in publish_response.published_measurements
+        ]
 
     @overload
     def read_data(
@@ -277,7 +277,7 @@ class Client:
 
     def create_step(self, step: Step) -> str:
         """Create a step in the datastore."""
-        create_request = CreateStepRequest(step=step)
+        create_request = CreateStepRequest(step=step.to_protobuf())
         create_response = self._data_store_client.create_step(create_request)
         return create_response.step_id
 
@@ -285,11 +285,11 @@ class Client:
         """Get a step from the data store."""
         get_request = GetStepRequest(step_id=step_id)
         get_response = self._data_store_client.get_step(get_request)
-        return get_response.step
+        return Step.from_protobuf(get_response.step)
 
     def create_test_result(self, test_result: TestResult) -> str:
         """Create a test result in the data store."""
-        create_request = CreateTestResultRequest(test_result=test_result)
+        create_request = CreateTestResultRequest(test_result=test_result.to_protobuf())
         create_response = self._data_store_client.create_test_result(create_request)
         return create_response.test_result_id
 
@@ -297,7 +297,7 @@ class Client:
         """Get a test result from the data store."""
         get_request = GetTestResultRequest(test_result_id=test_result_id)
         get_response = self._data_store_client.get_test_result(get_request)
-        return get_response.test_result
+        return TestResult.from_protobuf(get_response.test_result)
 
     def query_conditions(self, odata_query: str) -> Iterable[PublishedCondition]:
         """Query conditions from the data store."""
@@ -309,13 +309,15 @@ class Client:
         """Query measurements from the data store."""
         query_request = QueryMeasurementsRequest(odata_query=odata_query)
         query_response = self._data_store_client.query_measurements(query_request)
-        return query_response.published_measurements
+        return [
+            PublishedMeasurement.from_protobuf(pm) for pm in query_response.published_measurements
+        ]
 
     def query_steps(self, odata_query: str) -> Iterable[Step]:
         """Query steps from the data store."""
         query_request = QueryStepsRequest(odata_query=odata_query)
         query_response = self._data_store_client.query_steps(query_request)
-        return query_response.steps
+        return [Step.from_protobuf(step) for step in query_response.steps]
 
     def create_uut_instance(self, uut_instance: UutInstance) -> str:
         """Create a UUT instance in the metadata store."""
