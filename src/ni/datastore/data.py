@@ -325,7 +325,7 @@ class PublishedMeasurement:
     def __init__(
         self,
         *,
-        moniker: Moniker,
+        moniker: Moniker | None = None,
         published_conditions: Iterable[PublishedCondition] | None = None,
         published_measurement_id: str = "",
         test_result_id: str = "",
@@ -372,7 +372,9 @@ class PublishedMeasurement:
     def from_protobuf(published_measurement: PublishedMeasurementProto) -> "PublishedMeasurement":
         """Create a PublishedMeasurement instance from a protobuf PublishedMeasurement message."""
         return PublishedMeasurement(
-            moniker=published_measurement.moniker,
+            moniker=(
+                published_measurement.moniker if published_measurement.HasField("moniker") else None
+            ),
             published_conditions=published_measurement.published_conditions,
             published_measurement_id=published_measurement.published_measurement_id,
             test_result_id=published_measurement.test_result_id,

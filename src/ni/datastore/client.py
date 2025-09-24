@@ -237,6 +237,8 @@ class Client:
         if isinstance(moniker_source, Moniker):
             moniker = moniker_source
         elif isinstance(moniker_source, PublishedMeasurement):
+            if moniker_source.moniker is None:
+                raise ValueError("PublishedMeasurement must have a Moniker to read data")
             moniker = moniker_source.moniker
         elif isinstance(moniker_source, PublishedCondition):
             moniker = moniker_source.moniker
