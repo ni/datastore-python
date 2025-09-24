@@ -31,8 +31,7 @@ dynamic = ["dependencies"]
 requires-python = '>=3.9,<4.0'
 
 [[tool.poetry.packages]]
-include = "overview"
-from = "src"
+include = "src"
 
 [project.scripts]
 overview = "overview:main"
