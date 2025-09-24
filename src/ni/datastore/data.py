@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Iterable, MutableMapping
 
-from hightime import datetime as hightime_datetime
+from hightime import datetime
 from ni.datamonikers.v1.data_moniker_pb2 import Moniker
 from ni.measurements.data.v1.data_store_pb2 import (
     ErrorInformation,
@@ -40,12 +40,12 @@ class Step:
     )
 
     @property
-    def start_date_time(self) -> hightime_datetime | None:
+    def start_date_time(self) -> datetime | None:
         """Get the start date and time of the step execution."""
         return self._start_date_time
 
     @property
-    def end_date_time(self) -> hightime_datetime | None:
+    def end_date_time(self) -> datetime | None:
         """Get the end date and time of the step execution."""
         return self._end_date_time
 
@@ -77,8 +77,8 @@ class Step:
         )
         self.schema_id = schema_id
 
-        self._start_date_time: hightime_datetime | None = None
-        self._end_date_time: hightime_datetime | None = None
+        self._start_date_time: datetime | None = None
+        self._end_date_time: datetime | None = None
 
     @staticmethod
     def from_protobuf(step: StepProto) -> "Step":
@@ -169,12 +169,12 @@ class TestResult:
     )
 
     @property
-    def start_date_time(self) -> hightime_datetime | None:
+    def start_date_time(self) -> datetime | None:
         """Get the start date and time of the test execution."""
         return self._start_date_time
 
     @property
-    def end_date_time(self) -> hightime_datetime | None:
+    def end_date_time(self) -> datetime | None:
         """Get the end date and time of the test execution."""
         return self._end_date_time
 
@@ -218,8 +218,8 @@ class TestResult:
         )
         self.schema_id = schema_id
 
-        self._start_date_time: hightime_datetime | None = None
-        self._end_date_time: hightime_datetime | None = None
+        self._start_date_time: datetime | None = None
+        self._end_date_time: datetime | None = None
 
     @staticmethod
     def from_protobuf(test_result: TestResultProto) -> "TestResult":
@@ -336,8 +336,8 @@ class PublishedMeasurement:
         measurement_name: str = "",
         data_type: str = "",
         measurement_notes: str = "",
-        start_date_time: hightime_datetime | None = None,
-        end_date_time: hightime_datetime | None = None,
+        start_date_time: datetime | None = None,
+        end_date_time: datetime | None = None,
         outcome: Outcome.ValueType = Outcome.OUTCOME_UNSPECIFIED,
         parametric_index: int = 0,
         error_information: ErrorInformation | None = None,
