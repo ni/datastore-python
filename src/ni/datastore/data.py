@@ -162,7 +162,7 @@ class TestResult:
         "test_result_name",
         "_start_date_time",
         "_end_date_time",
-        "outcome",
+        "_outcome",
         "link",
         "extensions",
         "schema_id",
@@ -178,6 +178,11 @@ class TestResult:
         """Get the end date and time of the test execution."""
         return self._end_date_time
 
+    @property
+    def outcome(self) -> Outcome.ValueType:
+        """Get the outcome of the test execution."""
+        return self._outcome
+
     def __init__(
         self,
         *,
@@ -190,7 +195,6 @@ class TestResult:
         hardware_item_ids: Iterable[str] | None = None,
         test_adapter_ids: Iterable[str] | None = None,
         test_result_name: str = "",
-        outcome: Outcome.ValueType = Outcome.OUTCOME_UNSPECIFIED,
         link: str = "",
         extensions: MutableMapping[str, ExtensionValue] | None = None,
         schema_id: str = "",
@@ -211,7 +215,6 @@ class TestResult:
             test_adapter_ids if test_adapter_ids is not None else []
         )
         self.test_result_name = test_result_name
-        self.outcome = outcome
         self.link = link
         self.extensions: MutableMapping[str, ExtensionValue] = (
             extensions if extensions is not None else {}
@@ -220,6 +223,7 @@ class TestResult:
 
         self._start_date_time: datetime | None = None
         self._end_date_time: datetime | None = None
+        self._outcome: Outcome.ValueType = Outcome.OUTCOME_UNSPECIFIED
 
     @staticmethod
     def from_protobuf(test_result: TestResultProto) -> "TestResult":
@@ -234,7 +238,6 @@ class TestResult:
             hardware_item_ids=test_result.hardware_item_ids,
             test_adapter_ids=test_result.test_adapter_ids,
             test_result_name=test_result.test_result_name,
-            outcome=test_result.outcome,
             link=test_result.link,
             extensions=test_result.extensions,
             schema_id=test_result.schema_id,
@@ -249,6 +252,7 @@ class TestResult:
             if test_result.HasField("end_date_time")
             else None
         )
+        converted_test_result._outcome = test_result.outcome
         return converted_test_result
 
     def to_protobuf(self) -> TestResultProto:
