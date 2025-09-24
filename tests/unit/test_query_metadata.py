@@ -90,15 +90,13 @@ def test___query_uut_instances___calls_metadatastoreclient(
         extensions=None,
         schema_id="schema_id",
     )
-
     expected_response = QueryUutInstancesResponse(uut_instances=[uut_instance])
     mocked_metadatastore_client.query_uut_instances.return_value = expected_response
+
     result = client.query_uut_instances(odata_query="request_query")
 
     args, __ = mocked_metadatastore_client.query_uut_instances.call_args
     request = cast(QueryUutInstancesRequest, args[0])
-
-    # Now assert on its fields
     assert request.odata_query == "request_query"
     assert list(result) == [uut_instance]
 
@@ -116,15 +114,13 @@ def test___query_uuts___calls_metadatastoreclient(
         extensions=None,
         schema_id="schema_id",
     )
-
     expected_response = QueryUutsResponse(uuts=[uut])
     mocked_metadatastore_client.query_uuts.return_value = expected_response
+
     result = client.query_uuts(odata_query="request_query")
 
     args, __ = mocked_metadatastore_client.query_uuts.call_args
     request = cast(QueryUutsRequest, args[0])
-
-    # Now assert on its fields
     assert request.odata_query == "request_query"
     assert list(result) == [uut]
 
@@ -140,15 +136,13 @@ def test___query_operators___calls_metadatastoreclient(
         extensions=None,
         schema_id="schema_id",
     )
-
     expected_response = QueryOperatorsResponse(operators=[operator])
     mocked_metadatastore_client.query_operators.return_value = expected_response
+
     result = client.query_operators(odata_query="request_query")
 
     args, __ = mocked_metadatastore_client.query_operators.call_args
     request = cast(QueryOperatorsRequest, args[0])
-
-    # Now assert on its fields
     assert request.odata_query == "request_query"
     assert list(result) == [operator]
 
@@ -164,15 +158,13 @@ def test___query_test_descriptions___calls_metadatastoreclient(
         extensions=None,
         schema_id="schema_id",
     )
-
     expected_response = QueryTestDescriptionsResponse(test_descriptions=[test_description])
     mocked_metadatastore_client.query_test_descriptions.return_value = expected_response
+
     result = client.query_test_descriptions(odata_query="request_query")
 
     args, __ = mocked_metadatastore_client.query_test_descriptions.call_args
     request = cast(QueryTestDescriptionsRequest, args[0])
-
-    # Now assert on its fields
     assert request.odata_query == "request_query"
     assert list(result) == [test_description]
 
@@ -187,15 +179,13 @@ def test___query_tests___calls_metadatastoreclient(
         extensions=None,
         schema_id="schema_id",
     )
-
     expected_response = QueryTestsResponse(tests=[test])
     mocked_metadatastore_client.query_tests.return_value = expected_response
+
     result = client.query_tests(odata_query="request_query")
 
     args, __ = mocked_metadatastore_client.query_tests.call_args
     request = cast(QueryTestsRequest, args[0])
-
-    # Now assert on its fields
     assert request.odata_query == "request_query"
     assert list(result) == [test]
 
@@ -211,15 +201,13 @@ def test___query_test_stations___calls_metadatastoreclient(
         extensions=None,
         schema_id="schema_id",
     )
-
     expected_response = QueryTestStationsResponse(test_stations=[test_station])
     mocked_metadatastore_client.query_test_stations.return_value = expected_response
+
     result = client.query_test_stations(odata_query="request_query")
 
     args, __ = mocked_metadatastore_client.query_test_stations.call_args
     request = cast(QueryTestStationsRequest, args[0])
-
-    # Now assert on its fields
     assert request.odata_query == "request_query"
     assert list(result) == [test_station]
 
@@ -239,15 +227,13 @@ def test___query_hardware_items___calls_metadatastoreclient(
         extensions=None,
         schema_id="schema_id",
     )
-
     expected_response = QueryHardwareItemsResponse(hardware_items=[hardware_item])
     mocked_metadatastore_client.query_hardware_items.return_value = expected_response
+
     result = client.query_hardware_items(odata_query="request_query")
 
     args, __ = mocked_metadatastore_client.query_hardware_items.call_args
     request = cast(QueryHardwareItemsRequest, args[0])
-
-    # Now assert on its fields
     assert request.odata_query == "request_query"
     assert list(result) == [hardware_item]
 
@@ -263,15 +249,13 @@ def test___query_software_items___calls_metadatastoreclient(
         extensions=None,
         schema_id="schema_id",
     )
-
     expected_response = QuerySoftwareItemsResponse(software_items=[software_item])
     mocked_metadatastore_client.query_software_items.return_value = expected_response
+
     result = client.query_software_items(odata_query="request_query")
 
     args, __ = mocked_metadatastore_client.query_software_items.call_args
     request = cast(QuerySoftwareItemsRequest, args[0])
-
-    # Now assert on its fields
     assert request.odata_query == "request_query"
     assert list(result) == [software_item]
 
@@ -292,14 +276,12 @@ def test___query_test_adapters___calls_metadatastoreclient(
         extensions=None,
         schema_id="schema_id",
     )
-
     expected_response = QueryTestAdaptersResponse(test_adapters=[test_adapter])
     mocked_metadatastore_client.query_test_adapters.return_value = expected_response
+
     result = client.query_test_adapters(odata_query="request_query")
 
     args, __ = mocked_metadatastore_client.query_test_adapters.call_args
     request = cast(QueryTestAdaptersRequest, args[0])
-
-    # Now assert on its fields
     assert request.odata_query == "request_query"
     assert list(result) == [test_adapter]

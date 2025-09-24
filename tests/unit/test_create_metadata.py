@@ -126,9 +126,9 @@ def test___create_uut_instance___calls_metadatastoreclient(
         extensions=None,
         schema_id="schema_id",
     )
-
     expected_response = CreateUutInstanceResponse(uut_instance_id="response_id")
     mocked_metadatastore_client.create_uut_instance.return_value = expected_response
+
     result = client.create_uut_instance(uut_instance)
 
     args, __ = mocked_metadatastore_client.create_uut_instance.call_args
@@ -152,9 +152,9 @@ def test___create_uut___calls_metadatastoreclient(
         extensions=None,
         schema_id="schema_id",
     )
-
     expected_response = CreateUutResponse(uut_id="response_id")
     mocked_metadatastore_client.create_uut.return_value = expected_response
+
     result = client.create_uut(uut)
 
     args, __ = mocked_metadatastore_client.create_uut.call_args
@@ -176,15 +176,13 @@ def test___create_operator___calls_metadatastoreclient(
         extensions=None,
         schema_id="schema_id",
     )
-
     expected_response = CreateOperatorResponse(operator_id="response_id")
     mocked_metadatastore_client.create_operator.return_value = expected_response
+
     result = client.create_operator(operator)
 
     args, __ = mocked_metadatastore_client.create_operator.call_args
     request = cast(CreateOperatorRequest, args[0])
-
-    # Now assert on its fields
     assert request.operator == operator
     assert result == "response_id"
 
@@ -200,15 +198,13 @@ def test___create_test_description___calls_metadatastoreclient(
         extensions=None,
         schema_id="schema_id",
     )
-
     expected_response = CreateTestDescriptionResponse(test_description_id="response_id")
     mocked_metadatastore_client.create_test_description.return_value = expected_response
+
     result = client.create_test_description(test_description)
 
     args, __ = mocked_metadatastore_client.create_test_description.call_args
     request = cast(CreateTestDescriptionRequest, args[0])
-
-    # Now assert on its fields
     assert request.test_description == test_description
     assert result == "response_id"
 
@@ -223,15 +219,13 @@ def test___create_test___calls_metadatastoreclient(
         extensions=None,
         schema_id="schema_id",
     )
-
     expected_response = CreateTestResponse(test_id="response_id")
     mocked_metadatastore_client.create_test.return_value = expected_response
+
     result = client.create_test(test)
 
     args, __ = mocked_metadatastore_client.create_test.call_args
     request = cast(CreateTestRequest, args[0])
-
-    # Now assert on its fields
     assert request.test == test
     assert result == "response_id"
 
@@ -247,15 +241,13 @@ def test___create_test_station___calls_metadatastoreclient(
         extensions=None,
         schema_id="schema_id",
     )
-
     expected_response = CreateTestStationResponse(test_station_id="response_id")
     mocked_metadatastore_client.create_test_station.return_value = expected_response
+
     result = client.create_test_station(test_station)
 
     args, __ = mocked_metadatastore_client.create_test_station.call_args
     request = cast(CreateTestStationRequest, args[0])
-
-    # Now assert on its fields
     assert request.test_station == test_station
     assert result == "response_id"
 
@@ -275,15 +267,13 @@ def test___create_hardware_item___calls_metadatastoreclient(
         extensions=None,
         schema_id="schema_id",
     )
-
     expected_response = CreateHardwareItemResponse(hardware_item_id="response_id")
     mocked_metadatastore_client.create_hardware_item.return_value = expected_response
+
     result = client.create_hardware_item(hardware_item)
 
     args, __ = mocked_metadatastore_client.create_hardware_item.call_args
     request = cast(CreateHardwareItemRequest, args[0])
-
-    # Now assert on its fields
     assert request.hardware_item == hardware_item
     assert result == "response_id"
 
@@ -299,15 +289,13 @@ def test___create_software_item___calls_metadatastoreclient(
         extensions=None,
         schema_id="schema_id",
     )
-
     expected_response = CreateSoftwareItemResponse(software_item_id="response_id")
     mocked_metadatastore_client.create_software_item.return_value = expected_response
+
     result = client.create_software_item(software_item)
 
     args, __ = mocked_metadatastore_client.create_software_item.call_args
     request = cast(CreateSoftwareItemRequest, args[0])
-
-    # Now assert on its fields
     assert request.software_item == software_item
     assert result == "response_id"
 
@@ -328,14 +316,12 @@ def test___create_test_adapter___calls_metadatastoreclient(
         extensions=None,
         schema_id="schema_id",
     )
-
     expected_response = CreateTestAdapterResponse(test_adapter_id="response_id")
     mocked_metadatastore_client.create_test_adapter.return_value = expected_response
+
     result = client.create_test_adapter(test_adapter)
 
     args, __ = mocked_metadatastore_client.create_test_adapter.call_args
     request = cast(CreateTestAdapterRequest, args[0])
-
-    # Now assert on its fields
     assert request.test_adapter == test_adapter
     assert result == "response_id"
