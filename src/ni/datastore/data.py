@@ -1,6 +1,6 @@
 """Data types for the Data Store Client."""
 
-from typing import Iterable, Mapping
+from typing import Iterable, MutableMapping
 
 from hightime import datetime as hightime_datetime
 from ni.datamonikers.v1.data_moniker_pb2 import Moniker
@@ -22,6 +22,31 @@ from ni.protobuf.types.precision_timestamp_conversion import (
 class Step:
     """Information about a step into which measurements and conditions are published."""
 
+    __slots__ = (
+        "step_id",
+        "parent_step_id",
+        "test_result_id",
+        "test_id",
+        "step_name",
+        "step_type",
+        "notes",
+        "_start_date_time",
+        "_end_date_time",
+        "link",
+        "extensions",
+        "schema_id",
+    )
+
+    @property
+    def start_date_time(self) -> hightime_datetime | None:
+        """Get the start date and time of the step execution."""
+        return self._start_date_time
+
+    @property
+    def end_date_time(self) -> hightime_datetime | None:
+        """Get the end date and time of the step execution."""
+        return self._end_date_time
+
     def __init__(
         self,
         *,
@@ -32,10 +57,8 @@ class Step:
         step_name: str = "",
         step_type: str = "",
         notes: str = "",
-        start_date_time: hightime_datetime | None = None,
-        end_date_time: hightime_datetime | None = None,
         link: str = "",
-        extensions: Mapping[str, ExtensionValue] | None = None,
+        extensions: MutableMapping[str, ExtensionValue] | None = None,
         schema_id: str = ""
     ) -> None:
         """Initialize a Step instance."""
@@ -46,16 +69,19 @@ class Step:
         self.step_name = step_name
         self.step_type = step_type
         self.notes = notes
-        self.start_date_time = start_date_time
-        self.end_date_time = end_date_time
         self.link = link
-        self.extensions: Mapping[str, ExtensionValue] = extensions if extensions is not None else {}
+        self.extensions: MutableMapping[str, ExtensionValue] = (
+            extensions if extensions is not None else {}
+        )
         self.schema_id = schema_id
+
+        self._start_date_time: hightime_datetime | None = None
+        self._end_date_time: hightime_datetime | None = None
 
     @staticmethod
     def from_protobuf(step: StepProto) -> "Step":
         """Create a Step instance from a protobuf Step message."""
-        return Step(
+        converted_step = Step(
             step_id=step.step_id,
             parent_step_id=step.parent_step_id,
             test_result_id=step.test_result_id,
@@ -63,20 +89,21 @@ class Step:
             step_name=step.step_name,
             step_type=step.step_type,
             notes=step.notes,
-            start_date_time=(
-                hightime_datetime_from_protobuf(step.start_date_time)
-                if step.HasField("start_date_time")
-                else None
-            ),
-            end_date_time=(
-                hightime_datetime_from_protobuf(step.end_date_time)
-                if step.HasField("end_date_time")
-                else None
-            ),
             link=step.link,
             extensions=step.extensions,
             schema_id=step.schema_id,
         )
+        converted_step._start_date_time = (
+            hightime_datetime_from_protobuf(step.start_date_time)
+            if step.HasField("start_date_time")
+            else None
+        )
+        converted_step._end_date_time = (
+            hightime_datetime_from_protobuf(step.end_date_time)
+            if step.HasField("end_date_time")
+            else None
+        )
+        return converted_step
 
     def to_protobuf(self) -> StepProto:
         """Convert this Step to a protobuf Step message."""
@@ -121,6 +148,34 @@ class Step:
 class TestResult:
     """Information about a test result."""
 
+    __slots__ = (
+        "test_result_id",
+        "uut_instance_id",
+        "operator_id",
+        "test_station_id",
+        "test_description_id",
+        "software_item_ids",
+        "hardware_item_ids",
+        "test_adapter_ids",
+        "test_result_name",
+        "_start_date_time",
+        "_end_date_time",
+        "outcome",
+        "link",
+        "extensions",
+        "schema_id",
+    )
+
+    @property
+    def start_date_time(self) -> hightime_datetime | None:
+        """Get the start date and time of the test execution."""
+        return self._start_date_time
+
+    @property
+    def end_date_time(self) -> hightime_datetime | None:
+        """Get the end date and time of the test execution."""
+        return self._end_date_time
+
     def __init__(
         self,
         *,
@@ -133,11 +188,9 @@ class TestResult:
         hardware_item_ids: Iterable[str] | None = None,
         test_adapter_ids: Iterable[str] | None = None,
         test_result_name: str = "",
-        start_date_time: hightime_datetime | None = None,
-        end_date_time: hightime_datetime | None = None,
         outcome: Outcome.ValueType = Outcome.OUTCOME_UNSPECIFIED,
         link: str = "",
-        extensions: Mapping[str, ExtensionValue] | None = None,
+        extensions: MutableMapping[str, ExtensionValue] | None = None,
         schema_id: str = ""
     ) -> None:
         """Initialize a TestResult instance."""
@@ -156,17 +209,20 @@ class TestResult:
             test_adapter_ids if test_adapter_ids is not None else []
         )
         self.test_result_name = test_result_name
-        self.start_date_time = start_date_time
-        self.end_date_time = end_date_time
         self.outcome = outcome
         self.link = link
-        self.extensions: Mapping[str, ExtensionValue] = extensions if extensions is not None else {}
+        self.extensions: MutableMapping[str, ExtensionValue] = (
+            extensions if extensions is not None else {}
+        )
         self.schema_id = schema_id
+
+        self._start_date_time: hightime_datetime | None = None
+        self._end_date_time: hightime_datetime | None = None
 
     @staticmethod
     def from_protobuf(test_result: TestResultProto) -> "TestResult":
         """Create a TestResult instance from a protobuf TestResult message."""
-        return TestResult(
+        converted_test_result = TestResult(
             test_result_id=test_result.test_result_id,
             uut_instance_id=test_result.uut_instance_id,
             operator_id=test_result.operator_id,
@@ -176,21 +232,22 @@ class TestResult:
             hardware_item_ids=test_result.hardware_item_ids,
             test_adapter_ids=test_result.test_adapter_ids,
             test_result_name=test_result.test_result_name,
-            start_date_time=(
-                hightime_datetime_from_protobuf(test_result.start_date_time)
-                if test_result.HasField("start_date_time")
-                else None
-            ),
-            end_date_time=(
-                hightime_datetime_from_protobuf(test_result.end_date_time)
-                if test_result.HasField("end_date_time")
-                else None
-            ),
             outcome=test_result.outcome,
             link=test_result.link,
             extensions=test_result.extensions,
             schema_id=test_result.schema_id,
         )
+        converted_test_result._start_date_time = (
+            hightime_datetime_from_protobuf(test_result.start_date_time)
+            if test_result.HasField("start_date_time")
+            else None
+        )
+        converted_test_result._end_date_time = (
+            hightime_datetime_from_protobuf(test_result.end_date_time)
+            if test_result.HasField("end_date_time")
+            else None
+        )
+        return converted_test_result
 
     def to_protobuf(self) -> TestResultProto:
         """Convert this TestResult to a protobuf TestResult message."""
@@ -243,6 +300,25 @@ class TestResult:
 
 class PublishedMeasurement:
     """Information about a measurement published to the data store."""
+
+    __slots__ = (
+        "moniker",
+        "published_conditions",
+        "published_measurement_id",
+        "test_result_id",
+        "step_id",
+        "software_item_ids",
+        "hardware_item_ids",
+        "test_adapter_ids",
+        "measurement_name",
+        "data_type",
+        "measurement_notes",
+        "start_date_time",
+        "end_date_time",
+        "outcome",
+        "parametric_index",
+        "error_information",
+    )
 
     def __init__(
         self,
