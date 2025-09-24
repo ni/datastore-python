@@ -12,6 +12,9 @@ jobs:
   check_analyzers:
       name: Check analyzers for ni.datastore
       uses: ./.github/workflows/check_ni_datastore.yml
+  check_examples:
+      name: Check analyzers for examples
+      uses: ./.github/workflows/check_examples.yml
   check_docs:
     name: Check docs for ni.datastore
     uses: ./.github/workflows/check_docs.yml
