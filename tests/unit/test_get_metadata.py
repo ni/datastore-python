@@ -86,6 +86,8 @@ def test___get_test_result___calls_datastoreclient(
     mocked_datastore_client: Mock,
 ) -> None:
     client = Client(data_store_client=mocked_datastore_client)
+    start_time = datetime.now(tz=std_datetime.timezone.utc)
+    end_time = datetime.now(tz=std_datetime.timezone.utc)
     test_result = TestResultProto(
         test_result_id="test_result_id",
         uut_instance_id="uut_instance_id",
@@ -96,6 +98,8 @@ def test___get_test_result___calls_datastoreclient(
         hardware_item_ids=[],
         test_adapter_ids=[],
         test_result_name="test_result_name",
+        start_date_time=hightime_datetime_to_protobuf(start_time),
+        end_date_time=hightime_datetime_to_protobuf(end_time),
     )
     expected_response = GetTestResultResponse(test_result=test_result)
     mocked_datastore_client.get_test_result.return_value = expected_response
@@ -105,7 +109,7 @@ def test___get_test_result___calls_datastoreclient(
     args, __ = mocked_datastore_client.get_test_result.call_args
     request = cast(GetTestResultRequest, args[0])
     assert request.test_result_id == "request_id"
-    assert result == test_result
+    assert result == TestResult.from_protobuf(test_result)
 
 
 def test___get_uut_instance___calls_metadatastoreclient(

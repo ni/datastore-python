@@ -8,7 +8,8 @@ from unittest.mock import Mock
 
 from hightime import datetime
 from ni.datastore.client import Client
-from ni.measurements.data.v1.data_store_pb2 import Step
+from ni.datastore.data import Step
+from ni.measurements.data.v1.data_store_pb2 import Step as StepProto
 from ni.measurements.data.v1.data_store_service_pb2 import (
     QueryStepsRequest,
     QueryStepsResponse,
@@ -55,7 +56,7 @@ def test___query_steps___calls_datastoreclient(
     client = Client(data_store_client=mocked_datastore_client)
     start_time = datetime.now(tz=std_datetime.timezone.utc)
     end_time = datetime.now(tz=std_datetime.timezone.utc)
-    step = Step(
+    step = StepProto(
         step_id="step_id",
         parent_step_id="parent_step_id",
         test_result_id="test_result",
@@ -73,7 +74,7 @@ def test___query_steps___calls_datastoreclient(
     args, __ = mocked_datastore_client.query_steps.call_args
     request = cast(QueryStepsRequest, args[0])
     assert request.odata_query == "request_query"
-    assert list(result) == [step]
+    assert list(result) == [Step.from_protobuf(step)]
 
 
 def test___query_uut_instances___calls_metadatastoreclient(
