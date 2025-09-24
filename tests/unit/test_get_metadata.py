@@ -8,9 +8,10 @@ from unittest.mock import Mock
 
 from hightime import datetime
 from ni.datastore.client import Client
+from ni.datastore.data import Step, TestResult
 from ni.measurements.data.v1.data_store_pb2 import (
-    Step,
-    TestResult,
+    Step as StepProto,
+    TestResult as TestResultProto,
 )
 from ni.measurements.data.v1.data_store_service_pb2 import (
     GetStepRequest,
@@ -29,7 +30,7 @@ def test___get_step___calls_datastoreclient(
     client = Client(data_store_client=mocked_datastore_client)
     start_time = datetime.now(tz=std_datetime.timezone.utc)
     end_time = datetime.now(tz=std_datetime.timezone.utc)
-    step = Step(
+    step = StepProto(
         step_id="step_id",
         parent_step_id="parent_step_id",
         test_result_id="test_result",
@@ -47,16 +48,14 @@ def test___get_step___calls_datastoreclient(
     args, __ = mocked_datastore_client.get_step.call_args
     request = cast(GetStepRequest, args[0])
     assert request.step_id == "request_id"
-    assert result == step
+    assert result == Step.from_protobuf(step)
 
 
 def test___get_test_result___calls_datastoreclient(
     mocked_datastore_client: Mock,
 ) -> None:
     client = Client(data_store_client=mocked_datastore_client)
-    start_time = datetime.now(tz=std_datetime.timezone.utc)
-    end_time = datetime.now(tz=std_datetime.timezone.utc)
-    test_result = TestResult(
+    test_result = TestResultProto(
         test_result_id="test_result_id",
         uut_instance_id="uut_instance_id",
         operator_id="operator_id",
@@ -66,8 +65,6 @@ def test___get_test_result___calls_datastoreclient(
         hardware_item_ids=[],
         test_adapter_ids=[],
         test_result_name="test_result_name",
-        start_date_time=hightime_datetime_to_protobuf(start_time),
-        end_date_time=hightime_datetime_to_protobuf(end_time),
     )
     expected_response = GetTestResultResponse(test_result=test_result)
     mocked_datastore_client.get_test_result.return_value = expected_response
@@ -77,4 +74,4 @@ def test___get_test_result___calls_datastoreclient(
     args, __ = mocked_datastore_client.get_test_result.call_args
     request = cast(GetTestResultRequest, args[0])
     assert request.test_result_id == "request_id"
-    assert result == test_result
+    assert result == TestResult.from_protobuf(test_result)

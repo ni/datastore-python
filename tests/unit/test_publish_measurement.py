@@ -126,6 +126,9 @@ def test___publish_analog_waveform_data_without_timestamp_parameter___uses_wavef
         raw_data=np.array(waveform_values, dtype=np.float64),
         timing=Timing.create_with_regular_interval(std_datetime.timedelta(seconds=1), timestamp),
     )
+    published_measurement = PublishedMeasurement(published_measurement_id="response_id")
+    expected_response = PublishMeasurementResponse(published_measurement=published_measurement)
+    mocked_datastore_client.publish_measurement.return_value = expected_response
     client = Client(data_store_client=mocked_datastore_client)
 
     client.publish_measurement("name", analog_waveform, "step_id")
@@ -140,6 +143,9 @@ def test___publish_analog_waveform_data_without_t0___uses_timestamp_parameter(
 ) -> None:
     timestamp = datetime.now(tz=std_datetime.timezone.utc)
     analog_waveform = AnalogWaveform.from_array_1d([1.0, 2.0, 3.0], dtype=float)
+    published_measurement = PublishedMeasurement(published_measurement_id="response_id")
+    expected_response = PublishMeasurementResponse(published_measurement=published_measurement)
+    mocked_datastore_client.publish_measurement.return_value = expected_response
     client = Client(data_store_client=mocked_datastore_client)
 
     client.publish_measurement("name", analog_waveform, "step_id", timestamp)
