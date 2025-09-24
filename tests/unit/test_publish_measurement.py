@@ -1,32 +1,34 @@
-"""Contains tests to validate the datastore client functionality."""
+"""Contains tests to validate the datastore client publish functionality."""
 
 from __future__ import annotations
 
 import datetime as std_datetime
 import unittest.mock
-from typing import Any, cast
+from typing import cast
 from unittest.mock import Mock
 
 import numpy as np
 import pytest
-from google.protobuf.any_pb2 import Any as gpAny
 from hightime import datetime
-from ni.datamonikers.v1.data_moniker_pb2 import Moniker, ReadFromMonikerResult
 from ni.datastore.client import Client
 from ni.measurements.data.v1.data_store_pb2 import (
     ErrorInformation,
     Outcome,
+    PublishedMeasurement,
 )
 from ni.measurements.data.v1.data_store_service_pb2 import (
+    PublishMeasurementBatchRequest,
+    PublishMeasurementBatchResponse,
     PublishMeasurementRequest,
+    PublishMeasurementResponse,
 )
 from ni.protobuf.types.precision_timestamp_conversion import (
     hightime_datetime_to_protobuf,
 )
 from ni.protobuf.types.waveform_conversion import float64_analog_waveform_to_protobuf
 from ni.protobuf.types.waveform_pb2 import DoubleAnalogWaveform
+from nitypes.vector import Vector
 from nitypes.waveform import AnalogWaveform, Timing
-from pytest_mock import MockerFixture
 
 
 @pytest.mark.parametrize("value", [True, False])
@@ -35,7 +37,11 @@ def test___publish_boolean_data___calls_datastoreclient(
 ) -> None:
     timestamp = datetime.now(tz=std_datetime.timezone.utc)
     client = Client(data_store_client=mocked_datastore_client)
-    client.publish_measurement(
+    published_measurement = PublishedMeasurement(published_measurement_id="response_id")
+    expected_response = PublishMeasurementResponse(published_measurement=published_measurement)
+    mocked_datastore_client.publish_measurement.return_value = expected_response
+
+    result = client.publish_measurement(
         "name",
         value,
         "step_id",
@@ -47,10 +53,10 @@ def test___publish_boolean_data___calls_datastoreclient(
         [],
         "notes",
     )
+
     args, __ = mocked_datastore_client.publish_measurement.call_args
     request = args[0]  # The PublishMeasurementRequest object
-
-    # Now assert on its fields
+    assert result.published_measurement_id == "response_id"
     assert request.step_id == "step_id"
     assert request.measurement_name == "name"
     assert request.notes == "notes"
@@ -77,8 +83,12 @@ def test___publish_analog_waveform_data___calls_datastoreclient(
     expected_protobuf_waveform = DoubleAnalogWaveform()
     expected_protobuf_waveform.CopyFrom(float64_analog_waveform_to_protobuf(analog_waveform))
     client = Client(data_store_client=mocked_datastore_client)
+    published_measurement = PublishedMeasurement(published_measurement_id="response_id")
+    expected_response = PublishMeasurementResponse(published_measurement=published_measurement)
+    mocked_datastore_client.publish_measurement.return_value = expected_response
+
     # Now, when client.publish_measurement calls foo.MyClass().publish(), it will use the mock
-    client.publish_measurement(
+    result = client.publish_measurement(
         "name",
         analog_waveform,
         "step_id",
@@ -90,10 +100,10 @@ def test___publish_analog_waveform_data___calls_datastoreclient(
         [],
         "notes",
     )
+
     args, __ = mocked_datastore_client.publish_measurement.call_args
     request = cast(PublishMeasurementRequest, args[0])  # The PublishMeasurementRequest object
-
-    # Now assert on its fields
+    assert result.published_measurement_id == "response_id"
     assert request.step_id == "step_id"
     assert request.measurement_name == "name"
     assert request.notes == "notes"
@@ -150,47 +160,45 @@ def test___publish_analog_waveform_data_with_mismatched_timestamp_parameter___ra
         timing=Timing.create_with_regular_interval(std_datetime.timedelta(seconds=1), timestamp),
     )
     client = Client(data_store_client=mocked_datastore_client)
-
     mismatched_timestamp = timestamp + std_datetime.timedelta(seconds=1)
+
     with pytest.raises(ValueError):
         client.publish_measurement("name", analog_waveform, "step_id", mismatched_timestamp)
 
 
-def test___read_data___calls_monikerclient(mocked_moniker_client: Mock) -> None:
-
-    client = Client(moniker_clients_by_service_location={"localhost:50051": mocked_moniker_client})
-    moniker = Moniker()
-    moniker.data_instance = 12
-    moniker.data_source = "ABCD123"
-    moniker.service_location = "http://localhost:50051"
-    result = ReadFromMonikerResult()
-    value_to_read = gpAny()
-    value_to_read.Pack(DoubleAnalogWaveform())
-    result.value.CopyFrom(value_to_read)
-    mocked_moniker_client.read_from_moniker.return_value = result
-
-    client.read_data(moniker, AnalogWaveform)
-
-    args, __ = mocked_moniker_client.read_from_moniker.call_args
-    requested_moniker = cast(Moniker, args[0])
-    assert requested_moniker.service_location == moniker.service_location
-    assert requested_moniker.data_instance == moniker.data_instance
-    assert requested_moniker.data_source == moniker.data_source
-
-
-@pytest.fixture
-def mocked_datastore_client(mocker: MockerFixture) -> Any:
-    mock_datastore_client = mocker.patch(
-        "ni.measurements.data.v1.client.DataStoreClient", autospec=True
+def test___publish_measurement_batch___calls_datastoreclient(
+    mocked_datastore_client: Mock,
+) -> None:
+    timestamp = datetime.now(tz=std_datetime.timezone.utc)
+    client = Client(data_store_client=mocked_datastore_client)
+    published_measurement = PublishedMeasurement(published_measurement_id="response_id")
+    expected_response = PublishMeasurementBatchResponse(
+        published_measurements=[published_measurement]
     )
-    # Set up the mock's publish method
-    mock_datastore_instance = mock_datastore_client.return_value
-    return mock_datastore_instance
+    mocked_datastore_client.publish_measurement_batch.return_value = expected_response
 
+    response = client.publish_measurement_batch(
+        measurement_name="name",
+        values=Vector(values=[1.0, 2.0, 3.0], units="BatchUnits"),
+        step_id="step_id",
+        timestamps=[timestamp],
+        outcomes=[Outcome.OUTCOME_PASSED],
+        error_information=[ErrorInformation()],
+        hardware_item_ids=[],
+        test_adapter_ids=[],
+        software_item_ids=[],
+    )
 
-@pytest.fixture
-def mocked_moniker_client(mocker: MockerFixture) -> Any:
-    mock_moniker_client = mocker.patch("ni.datamonikers.v1.client.MonikerClient", autospec=True)
-    # Set up the mock's publish method
-    mock_moniker_instance = mock_moniker_client.return_value
-    return mock_moniker_instance
+    args, __ = mocked_datastore_client.publish_measurement_batch.call_args
+    request = cast(PublishMeasurementBatchRequest, args[0])
+    assert next(iter(response)).published_measurement_id == "response_id"
+    assert request.step_id == "step_id"
+    assert request.measurement_name == "name"
+    assert request.timestamp == [hightime_datetime_to_protobuf(timestamp)]
+    assert request.scalar_values.double_array.values == [1.0, 2.0, 3.0]
+    assert request.scalar_values.attributes["NI_UnitDescription"].string_value == "BatchUnits"
+    assert request.outcome == [Outcome.OUTCOME_PASSED]
+    assert request.error_information == [ErrorInformation()]
+    assert request.hardware_item_ids == []
+    assert request.software_item_ids == []
+    assert request.test_adapter_ids == []

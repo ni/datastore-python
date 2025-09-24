@@ -9,11 +9,16 @@ from threading import Lock
 from typing import Type, TypeVar, cast, overload
 from urllib.parse import urlparse
 
-import numpy as np
-from google.protobuf.any_pb2 import Any
 from hightime import datetime
 from ni.datamonikers.v1.client import MonikerClient
 from ni.datamonikers.v1.data_moniker_pb2 import Moniker
+from ni.datastore.grpc_conversion import (
+    populate_publish_condition_batch_request_values,
+    populate_publish_condition_request_value,
+    populate_publish_measurement_batch_request_values,
+    populate_publish_measurement_request_value,
+    unpack_and_convert_from_protobuf_any,
+)
 from ni.measurements.data.v1.client import DataStoreClient
 from ni.measurements.data.v1.data_store_pb2 import (
     ErrorInformation,
@@ -89,36 +94,6 @@ from ni.protobuf.types.precision_timestamp_conversion import (
     hightime_datetime_to_protobuf,
 )
 from ni.protobuf.types.precision_timestamp_pb2 import PrecisionTimestamp
-from ni.protobuf.types.scalar_conversion import scalar_to_protobuf
-from ni.protobuf.types.vector_conversion import vector_from_protobuf, vector_to_protobuf
-from ni.protobuf.types.vector_pb2 import Vector as VectorProto
-from ni.protobuf.types.waveform_conversion import (
-    digital_waveform_from_protobuf,
-    digital_waveform_to_protobuf,
-    float64_analog_waveform_from_protobuf,
-    float64_analog_waveform_to_protobuf,
-    float64_complex_waveform_from_protobuf,
-    float64_complex_waveform_to_protobuf,
-    float64_spectrum_from_protobuf,
-    float64_spectrum_to_protobuf,
-    int16_analog_waveform_from_protobuf,
-    int16_analog_waveform_to_protobuf,
-    int16_complex_waveform_from_protobuf,
-    int16_complex_waveform_to_protobuf,
-)
-from ni.protobuf.types.waveform_pb2 import (
-    DigitalWaveform as DigitalWaveformProto,
-    DoubleAnalogWaveform,
-    DoubleComplexWaveform,
-    DoubleSpectrum,
-    I16AnalogWaveform,
-    I16ComplexWaveform,
-)
-from ni.protobuf.types.xydata_pb2 import DoubleXYData
-from nitypes.complex import ComplexInt32Base
-from nitypes.scalar import Scalar
-from nitypes.vector import Vector
-from nitypes.waveform import AnalogWaveform, ComplexWaveform, DigitalWaveform, Spectrum
 
 TRead = TypeVar("TRead")
 
@@ -165,7 +140,7 @@ class Client:
             type=type,
             step_id=step_id,
         )
-        self._populate_publish_condition_request_value(publish_request, value)
+        populate_publish_condition_request_value(publish_request, value)
         publish_response = self._data_store_client.publish_condition(publish_request)
         return publish_response.published_condition
 
@@ -178,7 +153,7 @@ class Client:
             type=type,
             step_id=step_id,
         )
-        self._populate_publish_condition_batch_request_values(publish_request, values)
+        populate_publish_condition_batch_request_values(publish_request, values)
         publish_response = self._data_store_client.publish_condition_batch(publish_request)
         return publish_response.published_condition
 
@@ -206,7 +181,7 @@ class Client:
             software_item_ids=software_item_ids,
             notes=notes,
         )
-        self._populate_publish_measurement_request_value(publish_request, value)
+        populate_publish_measurement_request_value(publish_request, value)
         publish_request.timestamp.CopyFrom(
             self._get_publish_measurement_timestamp(publish_request, timestamp)
         )
@@ -236,7 +211,7 @@ class Client:
             test_adapter_ids=test_adapter_ids,
             software_item_ids=software_item_ids,
         )
-        self._populate_publish_measurement_batch_request_values(publish_request, values)
+        populate_publish_measurement_batch_request_values(publish_request, values)
         publish_response = self._data_store_client.publish_measurement_batch(publish_request)
         return publish_response.published_measurements
 
@@ -268,9 +243,7 @@ class Client:
 
         moniker_client = self._get_moniker_client(moniker.service_location)
         read_result = moniker_client.read_from_moniker(moniker)
-
-        unpacked_data = self._unpack_data(read_result.value)
-        converted_data = self._convert_from_protobuf(unpacked_data)
+        converted_data = unpack_and_convert_from_protobuf_any(read_result.value)
         if expected_type is not None and not isinstance(converted_data, expected_type):
             raise TypeError(f"Expected type {expected_type}, got {type(converted_data)}")
         return converted_data
@@ -591,167 +564,3 @@ class Client:
                     "omit the timestamp to use the waveform t0."
                 )
         return publish_time
-
-    # TODO: We may wish to separate out some of the conversion code below.
-    @staticmethod
-    def _populate_publish_condition_request_value(
-        publish_request: PublishConditionRequest, value: object
-    ) -> None:
-        # TODO: Determine whether we wish to support primitive types such as float
-        # TODO: or require wrapping in a Scalar.
-        if isinstance(value, bool):
-            publish_request.scalar.bool_value = value
-        elif isinstance(value, int):
-            publish_request.scalar.sint32_value = value
-        elif isinstance(value, float):
-            publish_request.scalar.double_value = value
-        elif isinstance(value, str):
-            publish_request.scalar.string_value = value
-        elif isinstance(value, Scalar):
-            publish_request.scalar.CopyFrom(scalar_to_protobuf(value))
-        else:
-            raise TypeError(
-                f"Unsupported condition value type: {type(value)}. Please consult the documentation."
-            )
-
-    @staticmethod
-    def _populate_publish_condition_batch_request_values(
-        publish_request: PublishConditionBatchRequest, values: object
-    ) -> None:
-        # TODO: Determine whether we wish to support primitive types such as a list of float
-        if isinstance(values, Vector):
-            publish_request.scalar_values.CopyFrom(vector_to_protobuf(values))
-        else:
-            raise TypeError(
-                f"Unsupported condition values type: {type(values)}. Please consult the documentation."
-            )
-
-    @staticmethod
-    def _populate_publish_measurement_request_value(
-        publish_request: PublishMeasurementRequest, value: object
-    ) -> None:
-        # TODO: Determine whether we wish to support primitive types such as float
-        # TODO: or require wrapping in a Scalar.
-        if isinstance(value, bool):
-            publish_request.scalar.bool_value = value
-        elif isinstance(value, int):
-            publish_request.scalar.sint32_value = value
-        elif isinstance(value, float):
-            publish_request.scalar.double_value = value
-        elif isinstance(value, str):
-            publish_request.scalar.string_value = value
-        elif isinstance(value, Scalar):
-            publish_request.scalar.CopyFrom(scalar_to_protobuf(value))
-        elif isinstance(value, Vector):
-            publish_request.vector.CopyFrom(vector_to_protobuf(value))
-        elif isinstance(value, AnalogWaveform):
-            if value.dtype == np.float64:
-                publish_request.double_analog_waveform.CopyFrom(
-                    float64_analog_waveform_to_protobuf(value)
-                )
-            elif value.dtype == np.int16:
-                publish_request.i16_analog_waveform.CopyFrom(
-                    int16_analog_waveform_to_protobuf(value)
-                )
-            else:
-                raise TypeError(f"Unsupported AnalogWaveform dtype: {value.dtype}")
-        elif isinstance(value, ComplexWaveform):
-            if value.dtype == np.complex128:
-                publish_request.double_complex_waveform.CopyFrom(
-                    float64_complex_waveform_to_protobuf(value)
-                )
-            elif value.dtype == ComplexInt32Base:
-                publish_request.i16_complex_waveform.CopyFrom(
-                    int16_complex_waveform_to_protobuf(value)
-                )
-            else:
-                raise TypeError(f"Unsupported ComplexWaveform dtype: {value.dtype}")
-        elif isinstance(value, Spectrum):
-            if value.dtype == np.float64:
-                publish_request.double_spectrum.CopyFrom(float64_spectrum_to_protobuf(value))
-            else:
-                raise TypeError(f"Unsupported Spectrum dtype: {value.dtype}")
-        elif isinstance(value, DigitalWaveform):
-            publish_request.digital_waveform.CopyFrom(digital_waveform_to_protobuf(value))
-        else:
-            raise TypeError(
-                f"Unsupported measurement value type: {type(value)}. Please consult the documentation."
-            )
-        # TODO: Implement conversion from proper XYData type
-
-    @staticmethod
-    def _populate_publish_measurement_batch_request_values(
-        publish_request: PublishMeasurementBatchRequest, values: object
-    ) -> None:
-        # TODO: Determine whether we wish to support primitive types such as a list of float
-        if isinstance(values, Vector):
-            publish_request.scalar_values.CopyFrom(vector_to_protobuf(values))
-        else:
-            raise TypeError(
-                f"Unsupported measurement values type: {type(values)}. Please consult the documentation."
-            )
-
-    @staticmethod
-    def _unpack_data(read_value: Any) -> object:
-        data_type_url = read_value.type_url
-
-        data_type_prefix = "type.googleapis.com/"
-        if data_type_url == data_type_prefix + DoubleAnalogWaveform.DESCRIPTOR.full_name:
-            double_analog_waveform = DoubleAnalogWaveform()
-            read_value.Unpack(double_analog_waveform)
-            return double_analog_waveform
-        elif data_type_url == data_type_prefix + I16AnalogWaveform.DESCRIPTOR.full_name:
-            i16_analog_waveform = I16AnalogWaveform()
-            read_value.Unpack(i16_analog_waveform)
-            return i16_analog_waveform
-        elif data_type_url == data_type_prefix + DoubleComplexWaveform.DESCRIPTOR.full_name:
-            double_complex_waveform = DoubleComplexWaveform()
-            read_value.Unpack(double_complex_waveform)
-            return double_complex_waveform
-        elif data_type_url == data_type_prefix + I16ComplexWaveform.DESCRIPTOR.full_name:
-            i16_complex_waveform = I16ComplexWaveform()
-            read_value.Unpack(i16_complex_waveform)
-            return i16_complex_waveform
-        elif data_type_url == data_type_prefix + DoubleSpectrum.DESCRIPTOR.full_name:
-            spectrum = DoubleSpectrum()
-            read_value.Unpack(spectrum)
-            return spectrum
-        elif data_type_url == data_type_prefix + DigitalWaveformProto.DESCRIPTOR.full_name:
-            digital_waveform = DigitalWaveformProto()
-            read_value.Unpack(digital_waveform)
-            return digital_waveform
-        elif data_type_url == data_type_prefix + DoubleXYData.DESCRIPTOR.full_name:
-            xydata = DoubleXYData()
-            read_value.Unpack(xydata)
-            return xydata
-        elif data_type_url == data_type_prefix + VectorProto.DESCRIPTOR.full_name:
-            vector = VectorProto()
-            read_value.Unpack(vector)
-            return vector
-
-        else:
-            raise TypeError(f"Unsupported data type URL: {data_type_url}")
-
-    @staticmethod
-    def _convert_from_protobuf(unpacked_data: object) -> object:
-        if isinstance(unpacked_data, DoubleAnalogWaveform):
-            return float64_analog_waveform_from_protobuf(unpacked_data)
-        elif isinstance(unpacked_data, I16AnalogWaveform):
-            return int16_analog_waveform_from_protobuf(unpacked_data)
-        elif isinstance(unpacked_data, DoubleComplexWaveform):
-            return float64_complex_waveform_from_protobuf(unpacked_data)
-        elif isinstance(unpacked_data, I16ComplexWaveform):
-            return int16_complex_waveform_from_protobuf(unpacked_data)
-        elif isinstance(unpacked_data, DoubleSpectrum):
-            return float64_spectrum_from_protobuf(unpacked_data)
-        elif isinstance(unpacked_data, DigitalWaveformProto):
-            return digital_waveform_from_protobuf(unpacked_data)
-        elif isinstance(unpacked_data, DoubleXYData):
-            _logger.warning(
-                "DoubleXYData conversion is not yet implemented. Returning the raw protobuf object."
-            )
-            return unpacked_data  # TODO: Implement conversion to proper XYData type
-        elif isinstance(unpacked_data, VectorProto):
-            return vector_from_protobuf(unpacked_data)
-        else:
-            raise TypeError(f"Unsupported unpacked data type: {type(unpacked_data)}")
