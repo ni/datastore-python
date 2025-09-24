@@ -144,6 +144,9 @@ class Step:
             and self.notes == other.notes
             and self.start_date_time == other.start_date_time
             and self.end_date_time == other.end_date_time
+            and self.link == other.link
+            and self.extensions == other.extensions
+            and self.schema_id == other.schema_id
         )
 
 
