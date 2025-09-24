@@ -60,7 +60,9 @@ def main() -> None:
         value=waveform,
         step_id=step_id,
     )
-    print(f"Published measurement: '{published_measurement.measurement_name}' with id {published_measurement.published_measurement_id}")
+    print(
+        f"Published measurement: '{published_measurement.measurement_name}' with id {published_measurement.published_measurement_id}"
+    )
 
     published_measurements = client.query_measurements(
         odata_query=f"$filter=id eq {published_measurement.published_measurement_id}"
@@ -68,7 +70,9 @@ def main() -> None:
     found_measurement = next(iter(published_measurements), None)
 
     if found_measurement is not None:
-        print(f"Found published measurement: '{found_measurement.measurement_name}' with id {found_measurement.published_measurement_id}")
+        print(
+            f"Found published measurement: '{found_measurement.measurement_name}' with id {found_measurement.published_measurement_id}"
+        )
         test_result = client.get_test_result(found_measurement.test_result_id)
         operator = client.get_operator(test_result.operator_id)
 
