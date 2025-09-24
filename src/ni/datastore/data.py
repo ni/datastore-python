@@ -130,7 +130,7 @@ class Step:
             schema_id=self.schema_id,
         )
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         """Determine equality."""
         if not isinstance(other, Step):
             return NotImplemented
