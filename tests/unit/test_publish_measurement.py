@@ -1,0 +1,204 @@
+"""Contains tests to validate the datastore client publish functionality."""
+
+from __future__ import annotations
+
+import datetime as std_datetime
+import unittest.mock
+from typing import cast
+from unittest.mock import Mock
+
+import numpy as np
+import pytest
+from hightime import datetime
+from ni.datastore.client import Client
+from ni.measurements.data.v1.data_store_pb2 import (
+    ErrorInformation,
+    Outcome,
+    PublishedMeasurement,
+)
+from ni.measurements.data.v1.data_store_service_pb2 import (
+    PublishMeasurementBatchRequest,
+    PublishMeasurementBatchResponse,
+    PublishMeasurementRequest,
+    PublishMeasurementResponse,
+)
+from ni.protobuf.types.precision_timestamp_conversion import (
+    hightime_datetime_to_protobuf,
+)
+from ni.protobuf.types.waveform_conversion import float64_analog_waveform_to_protobuf
+from ni.protobuf.types.waveform_pb2 import DoubleAnalogWaveform
+from nitypes.vector import Vector
+from nitypes.waveform import AnalogWaveform, Timing
+
+
+@pytest.mark.parametrize("value", [True, False])
+def test___publish_boolean_data___calls_datastoreclient(
+    mocked_datastore_client: Mock, value: bool
+) -> None:
+    timestamp = datetime.now(tz=std_datetime.timezone.utc)
+    client = Client(data_store_client=mocked_datastore_client)
+    published_measurement = PublishedMeasurement(published_measurement_id="response_id")
+    expected_response = PublishMeasurementResponse(published_measurement=published_measurement)
+    mocked_datastore_client.publish_measurement.return_value = expected_response
+
+    result = client.publish_measurement(
+        "name",
+        value,
+        "step_id",
+        timestamp,
+        Outcome.OUTCOME_PASSED,
+        ErrorInformation(),
+        [],
+        [],
+        [],
+        "notes",
+    )
+
+    args, __ = mocked_datastore_client.publish_measurement.call_args
+    request = args[0]  # The PublishMeasurementRequest object
+    assert result.published_measurement_id == "response_id"
+    assert request.step_id == "step_id"
+    assert request.measurement_name == "name"
+    assert request.notes == "notes"
+    assert request.timestamp == unittest.mock.ANY
+    assert request.scalar.bool_value == value
+    assert request.outcome == Outcome.OUTCOME_PASSED
+    assert request.error_information == ErrorInformation()
+    assert request.hardware_item_ids == []
+    assert request.software_item_ids == []
+    assert request.test_adapter_ids == []
+
+
+def test___publish_analog_waveform_data___calls_datastoreclient(
+    mocked_datastore_client: Mock,
+) -> None:
+    timestamp = datetime.now(tz=std_datetime.timezone.utc)
+    waveform_values = [1.0, 2.0, 3.0]
+    analog_waveform = AnalogWaveform(
+        sample_count=len(waveform_values),
+        raw_data=np.array(waveform_values, dtype=np.float64),
+        timing=Timing.create_with_regular_interval(std_datetime.timedelta(seconds=1), timestamp),
+    )
+
+    expected_protobuf_waveform = DoubleAnalogWaveform()
+    expected_protobuf_waveform.CopyFrom(float64_analog_waveform_to_protobuf(analog_waveform))
+    client = Client(data_store_client=mocked_datastore_client)
+    published_measurement = PublishedMeasurement(published_measurement_id="response_id")
+    expected_response = PublishMeasurementResponse(published_measurement=published_measurement)
+    mocked_datastore_client.publish_measurement.return_value = expected_response
+
+    # Now, when client.publish_measurement calls foo.MyClass().publish(), it will use the mock
+    result = client.publish_measurement(
+        "name",
+        analog_waveform,
+        "step_id",
+        timestamp,
+        Outcome.OUTCOME_PASSED,
+        ErrorInformation(),
+        [],
+        [],
+        [],
+        "notes",
+    )
+
+    args, __ = mocked_datastore_client.publish_measurement.call_args
+    request = cast(PublishMeasurementRequest, args[0])  # The PublishMeasurementRequest object
+    assert result.published_measurement_id == "response_id"
+    assert request.step_id == "step_id"
+    assert request.measurement_name == "name"
+    assert request.notes == "notes"
+    assert request.timestamp == hightime_datetime_to_protobuf(timestamp)
+    assert request.double_analog_waveform == expected_protobuf_waveform
+    assert request.outcome == Outcome.OUTCOME_PASSED
+    assert request.error_information == ErrorInformation()
+    assert request.hardware_item_ids == []
+    assert request.software_item_ids == []
+    assert request.test_adapter_ids == []
+
+
+def test___publish_analog_waveform_data_without_timestamp_parameter___uses_waveform_t0(
+    mocked_datastore_client: Mock,
+) -> None:
+    timestamp = datetime.now(tz=std_datetime.timezone.utc)
+    waveform_values = [1.0, 2.0, 3.0]
+    analog_waveform = AnalogWaveform(
+        sample_count=len(waveform_values),
+        raw_data=np.array(waveform_values, dtype=np.float64),
+        timing=Timing.create_with_regular_interval(std_datetime.timedelta(seconds=1), timestamp),
+    )
+    client = Client(data_store_client=mocked_datastore_client)
+
+    client.publish_measurement("name", analog_waveform, "step_id")
+
+    args, __ = mocked_datastore_client.publish_measurement.call_args
+    request = cast(PublishMeasurementRequest, args[0])  # The PublishMeasurementRequest object
+    assert request.timestamp == hightime_datetime_to_protobuf(timestamp)
+
+
+def test___publish_analog_waveform_data_without_t0___uses_timestamp_parameter(
+    mocked_datastore_client: Mock,
+) -> None:
+    timestamp = datetime.now(tz=std_datetime.timezone.utc)
+    analog_waveform = AnalogWaveform.from_array_1d([1.0, 2.0, 3.0], dtype=float)
+    client = Client(data_store_client=mocked_datastore_client)
+
+    client.publish_measurement("name", analog_waveform, "step_id", timestamp)
+
+    args, __ = mocked_datastore_client.publish_measurement.call_args
+    request = cast(PublishMeasurementRequest, args[0])  # The PublishMeasurementRequest object
+    assert request.timestamp == hightime_datetime_to_protobuf(timestamp)
+
+
+def test___publish_analog_waveform_data_with_mismatched_timestamp_parameter___raises_error(
+    mocked_datastore_client: Mock,
+) -> None:
+    timestamp = datetime.now(tz=std_datetime.timezone.utc)
+    waveform_values = [1.0, 2.0, 3.0]
+    analog_waveform = AnalogWaveform(
+        sample_count=len(waveform_values),
+        raw_data=np.array(waveform_values, dtype=np.float64),
+        timing=Timing.create_with_regular_interval(std_datetime.timedelta(seconds=1), timestamp),
+    )
+    client = Client(data_store_client=mocked_datastore_client)
+    mismatched_timestamp = timestamp + std_datetime.timedelta(seconds=1)
+
+    with pytest.raises(ValueError):
+        client.publish_measurement("name", analog_waveform, "step_id", mismatched_timestamp)
+
+
+def test___publish_measurement_batch___calls_datastoreclient(
+    mocked_datastore_client: Mock,
+) -> None:
+    timestamp = datetime.now(tz=std_datetime.timezone.utc)
+    client = Client(data_store_client=mocked_datastore_client)
+    published_measurement = PublishedMeasurement(published_measurement_id="response_id")
+    expected_response = PublishMeasurementBatchResponse(
+        published_measurements=[published_measurement]
+    )
+    mocked_datastore_client.publish_measurement_batch.return_value = expected_response
+
+    response = client.publish_measurement_batch(
+        measurement_name="name",
+        values=Vector(values=[1.0, 2.0, 3.0], units="BatchUnits"),
+        step_id="step_id",
+        timestamps=[timestamp],
+        outcomes=[Outcome.OUTCOME_PASSED],
+        error_information=[ErrorInformation()],
+        hardware_item_ids=[],
+        test_adapter_ids=[],
+        software_item_ids=[],
+    )
+
+    args, __ = mocked_datastore_client.publish_measurement_batch.call_args
+    request = cast(PublishMeasurementBatchRequest, args[0])
+    assert next(iter(response)).published_measurement_id == "response_id"
+    assert request.step_id == "step_id"
+    assert request.measurement_name == "name"
+    assert request.timestamp == [hightime_datetime_to_protobuf(timestamp)]
+    assert request.scalar_values.double_array.values == [1.0, 2.0, 3.0]
+    assert request.scalar_values.attributes["NI_UnitDescription"].string_value == "BatchUnits"
+    assert request.outcome == [Outcome.OUTCOME_PASSED]
+    assert request.error_information == [ErrorInformation()]
+    assert request.hardware_item_ids == []
+    assert request.software_item_ids == []
+    assert request.test_adapter_ids == []
