@@ -1,0 +1,5 @@
+id = "https://example.com/cable.schema.toml"
+
+[hardware_item]
+cable_length = "*"
+manufacture_date = "*"

@@ -1,0 +1,4 @@
+id = "https://example.com/session.schema.toml"
+
+[hardware_item]
+manufacture_date = "*"
