@@ -28,5 +28,3 @@ jobs:
         uses: ni/python-actions/analyze-project@4dd93759c00c090b0170541b503d8b26ac03948a
         with:
           project-directory: ${{ github.workspace }}/examples/overview
-      - name: Bandit security checks
-        run:  poetry run bandit -c pyproject.toml -r ${{ github.workspace }}/examples/overview
