@@ -16,7 +16,11 @@ from nitypes.waveform import AnalogWaveform, Timing
 
 
 def main() -> None:
-    """Main function to demonstrate data publishing and querying."""
+    published_measurement_id = publish_data()
+    query_data(published_measurement_id)
+
+def publish_data() -> str:
+    """Demonstrate data publishing of an AnalogWaveform."""
     client = Client()
 
     # Create UUT instance
@@ -75,9 +79,13 @@ def main() -> None:
     print(
         f"Published measurement: '{published_measurement.measurement_name}' with id {published_measurement.published_measurement_id}"
     )
+    return published_measurement.published_measurement_id
 
+def query_data(published_measurement_id: str) -> None:
+    """Demonstrate data publishing of an AnalogWaveform."""
+    client = Client()
     published_measurements = client.query_measurements(
-        odata_query=f"$filter=id eq {published_measurement.published_measurement_id}"
+        odata_query=f"$filter=id eq {published_measurement_id}"
     )
     found_measurement = next(iter(published_measurements), None)
 
