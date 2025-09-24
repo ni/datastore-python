@@ -3,7 +3,6 @@ name = "overview_example"
 version = "0.1.0-dev0"
 license = "MIT"
 description = "Overview of how to use the NI Measurement Data Store APIs for publishing and reading data"
-authors = [{name = "NI", email = "opensource@ni.com"}]
 maintainers = [
   {name = "Johann Scholtz", email = "johann.scholtz@emerson.com"},
   {name = "Joel Dixon", email = "joel.dixon@emerson.com"}

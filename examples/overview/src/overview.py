@@ -9,7 +9,8 @@ from ni.measurements.metadata.v1.metadata_store_pb2 import (
     Operator,
     SoftwareItem,
     TestStation,
-    UutInstance
+    Uut,
+    UutInstance,
 )
 from nitypes.waveform import AnalogWaveform, Timing
 
@@ -19,7 +20,9 @@ def main() -> None:
     client = Client()
 
     # Create UUT instance
-    uut_instance = UutInstance(uut_id="NI-6508", serial_number="A861-42367")
+    uut = Uut(model_name="NI-6508", family="Digital")
+    uut_id = client.create_uut(uut)
+    uut_instance = UutInstance(uut_id=uut_id, serial_number="A861-42367")
     uut_instance_id = client.create_uut_instance(uut_instance=uut_instance)
 
     # Create Operator metadata
@@ -46,7 +49,7 @@ def main() -> None:
         operator_id=operator_id,
         test_station_id=test_station_id,
         software_item_ids=[software_item_id, software_item_2_id],
-        uut_instance_id=uut_instance_id
+        uut_instance_id=uut_instance_id,
     )
     test_result_id = client.create_test_result(test_result)
     print(f"created test_result_id: {test_result_id}")
