@@ -1,5 +1,7 @@
 """Data types for the Data Store Client."""
 
+from __future__ import annotations
+
 from typing import Iterable, MutableMapping
 
 from hightime import datetime as hightime_datetime
