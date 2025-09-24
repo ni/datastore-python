@@ -1,0 +1,5 @@
+id = "https://example.com/scope.schema.toml"
+
+[hardware_item]
+bandwidth = "*"
+manufacture_date = "*"

@@ -2,125 +2,565 @@
 
 from __future__ import annotations
 
+import datetime as std_datetime
+import logging
 from collections.abc import Iterable
-from typing import Type, TypeVar, cast
+from threading import Lock
+from typing import Type, TypeVar, cast, overload
+from urllib.parse import urlparse
 
-import numpy as np
+from hightime import datetime
 from ni.datamonikers.v1.client import MonikerClient
 from ni.datamonikers.v1.data_moniker_pb2 import Moniker
+from ni.datastore.grpc_conversion import (
+    populate_publish_condition_batch_request_values,
+    populate_publish_condition_request_value,
+    populate_publish_measurement_batch_request_values,
+    populate_publish_measurement_request_value,
+    unpack_and_convert_from_protobuf_any,
+)
 from ni.measurements.data.v1.client import DataStoreClient
 from ni.measurements.data.v1.data_store_pb2 import (
     ErrorInformation,
     Outcome,
+    PublishedCondition,
     PublishedMeasurement,
+    Step,
+    TestResult,
 )
-from ni.measurements.data.v1.data_store_service_pb2 import PublishMeasurementRequest
+from ni.measurements.data.v1.data_store_service_pb2 import (
+    CreateStepRequest,
+    CreateTestResultRequest,
+    GetStepRequest,
+    GetTestResultRequest,
+    PublishConditionBatchRequest,
+    PublishConditionRequest,
+    PublishMeasurementBatchRequest,
+    PublishMeasurementRequest,
+    QueryConditionsRequest,
+    QueryMeasurementsRequest,
+    QueryStepsRequest,
+)
 from ni.measurements.metadata.v1.client import MetadataStoreClient
-from ni.protobuf.types.precision_timestamp_conversion import (
-    bintime_datetime_to_protobuf,
+from ni.measurements.metadata.v1.metadata_store_pb2 import (
+    Alias,
+    ExtensionSchema,
+    HardwareItem,
+    Operator,
+    SoftwareItem,
+    Test,
+    TestAdapter,
+    TestDescription,
+    TestStation,
+    Uut,
+    UutInstance,
 )
-from ni.protobuf.types.waveform_conversion import float64_analog_waveform_to_protobuf
-from nitypes.bintime import DateTime
-from nitypes.waveform import AnalogWaveform
+from ni.measurements.metadata.v1.metadata_store_service_pb2 import (
+    CreateAliasRequest,
+    CreateHardwareItemRequest,
+    CreateOperatorRequest,
+    CreateSoftwareItemRequest,
+    CreateTestAdapterRequest,
+    CreateTestDescriptionRequest,
+    CreateTestRequest,
+    CreateTestStationRequest,
+    CreateUutInstanceRequest,
+    CreateUutRequest,
+    DeleteAliasRequest,
+    GetAliasRequest,
+    GetHardwareItemRequest,
+    GetOperatorRequest,
+    GetSoftwareItemRequest,
+    GetTestAdapterRequest,
+    GetTestDescriptionRequest,
+    GetTestRequest,
+    GetTestStationRequest,
+    GetUutInstanceRequest,
+    GetUutRequest,
+    ListSchemasRequest,
+    QueryAliasesRequest,
+    QueryHardwareItemsRequest,
+    QueryOperatorsRequest,
+    QuerySoftwareItemsRequest,
+    QueryTestAdaptersRequest,
+    QueryTestDescriptionsRequest,
+    QueryTestsRequest,
+    QueryTestStationsRequest,
+    QueryUutInstancesRequest,
+    QueryUutsRequest,
+    RegisterSchemaRequest,
+)
+from ni.protobuf.types.precision_timestamp_conversion import (
+    hightime_datetime_to_protobuf,
+)
+from ni.protobuf.types.precision_timestamp_pb2 import PrecisionTimestamp
 
 TRead = TypeVar("TRead")
-TWrite = TypeVar("TWrite")
+
+_logger = logging.getLogger(__name__)
 
 
 class Client:
     """Datastore client for publishing and reading data."""
 
-    __slots__ = ("_data_store_client", "_metadata_store_client", "_moniker_client")
+    __slots__ = (
+        "_data_store_client",
+        "_metadata_store_client",
+        "_moniker_clients_by_service_location",
+        "_moniker_clients_lock",
+    )
 
     _data_store_client: DataStoreClient
     _metadata_store_client: MetadataStoreClient
-    _moniker_client: MonikerClient
+    _moniker_clients_by_service_location: dict[str, MonikerClient]
+    _moniker_clients_lock: Lock
 
     def __init__(
         self,
         data_store_client: DataStoreClient | None = None,
         metadata_store_client: MetadataStoreClient | None = None,
-        moniker_client: MonikerClient | None = None,
+        moniker_clients_by_service_location: dict[str, MonikerClient] | None = None,
     ) -> None:
         """Initialize the Client."""
         self._data_store_client = data_store_client or DataStoreClient()
         self._metadata_store_client = metadata_store_client or MetadataStoreClient()
-        self._moniker_client = moniker_client or MonikerClient(service_location="dummy")
+        self._moniker_clients_by_service_location = moniker_clients_by_service_location or {}
+        self._moniker_clients_lock = Lock()
 
-    def publish_measurement_data(
+    def publish_condition(
         self,
+        condition_name: str,
+        type: str,
+        value: object,
         step_id: str,
-        name: str,
-        notes: str,
-        timestamp: DateTime,
-        data: object,  # More strongly typed Union[bool, AnalogWaveform] can be used if needed
-        outcome: Outcome.ValueType,
-        error_info: ErrorInformation,
-        hardware_item_ids: Iterable[str] = tuple(),
-        software_item_ids: Iterable[str] = tuple(),
-        test_adapter_ids: Iterable[str] = tuple(),
-    ) -> PublishedMeasurement:
-        """Publish measurement data to the datastore."""
-        publish_request = PublishMeasurementRequest(
+    ) -> PublishedCondition:
+        """Publish a condition value to the data store."""
+        publish_request = PublishConditionRequest(
+            condition_name=condition_name,
+            type=type,
             step_id=step_id,
-            measurement_name=name,
-            notes=notes,
-            timestamp=bintime_datetime_to_protobuf(timestamp),
-            outcome=outcome,
-            error_information=error_info,
-            hardware_item_ids=hardware_item_ids,
-            software_item_ids=software_item_ids,
-            test_adapter_ids=test_adapter_ids,
         )
+        populate_publish_condition_request_value(publish_request, value)
+        publish_response = self._data_store_client.publish_condition(publish_request)
+        return publish_response.published_condition
 
-        if isinstance(data, bool):
-            publish_request.scalar.bool_value = data
-        elif isinstance(data, AnalogWaveform):
-            # Assuming data is of type AnalogWaveform
-            analog_waveform = cast(AnalogWaveform[np.float64], data)
-            publish_request.double_analog_waveform.CopyFrom(
-                float64_analog_waveform_to_protobuf(analog_waveform)
-            )
+    def publish_condition_batch(
+        self, condition_name: str, type: str, values: object, step_id: str
+    ) -> PublishedCondition:
+        """Publish a batch of N values for a condition to the data store."""
+        publish_request = PublishConditionBatchRequest(
+            condition_name=condition_name,
+            type=type,
+            step_id=step_id,
+        )
+        populate_publish_condition_batch_request_values(publish_request, values)
+        publish_response = self._data_store_client.publish_condition_batch(publish_request)
+        return publish_response.published_condition
 
+    def publish_measurement(
+        self,
+        measurement_name: str,
+        value: object,  # More strongly typed Union[bool, AnalogWaveform] can be used if needed
+        step_id: str,
+        timestamp: datetime | None = None,
+        outcome: Outcome.ValueType = Outcome.OUTCOME_UNSPECIFIED,
+        error_information: ErrorInformation | None = None,
+        hardware_item_ids: Iterable[str] = tuple(),
+        test_adapter_ids: Iterable[str] = tuple(),
+        software_item_ids: Iterable[str] = tuple(),
+        notes: str = "",
+    ) -> PublishedMeasurement:
+        """Publish a measurement value to the data store."""
+        publish_request = PublishMeasurementRequest(
+            measurement_name=measurement_name,
+            step_id=step_id,
+            outcome=outcome,
+            error_information=error_information,
+            hardware_item_ids=hardware_item_ids,
+            test_adapter_ids=test_adapter_ids,
+            software_item_ids=software_item_ids,
+            notes=notes,
+        )
+        populate_publish_measurement_request_value(publish_request, value)
+        publish_request.timestamp.CopyFrom(
+            self._get_publish_measurement_timestamp(publish_request, timestamp)
+        )
         publish_response = self._data_store_client.publish_measurement(publish_request)
         return publish_response.published_measurement
 
-    def read_measurement_data(
-        self, moniker_source: Moniker | PublishedMeasurement, expected_type: Type[TRead]
-    ) -> TRead:
-        """Read measurement data from the datastore."""
+    def publish_measurement_batch(
+        self,
+        measurement_name: str,
+        values: object,
+        step_id: str,
+        timestamps: Iterable[datetime] = tuple(),
+        outcomes: Iterable[Outcome.ValueType] = tuple(),
+        error_information: Iterable[ErrorInformation] = tuple(),
+        hardware_item_ids: Iterable[str] = tuple(),
+        test_adapter_ids: Iterable[str] = tuple(),
+        software_item_ids: Iterable[str] = tuple(),
+    ) -> Iterable[PublishedMeasurement]:
+        """Publish a batch of N values of a measurement to the data store."""
+        publish_request = PublishMeasurementBatchRequest(
+            measurement_name=measurement_name,
+            step_id=step_id,
+            timestamp=[hightime_datetime_to_protobuf(ts) for ts in timestamps],
+            outcome=outcomes,
+            error_information=error_information,
+            hardware_item_ids=hardware_item_ids,
+            test_adapter_ids=test_adapter_ids,
+            software_item_ids=software_item_ids,
+        )
+        populate_publish_measurement_batch_request_values(publish_request, values)
+        publish_response = self._data_store_client.publish_measurement_batch(publish_request)
+        return publish_response.published_measurements
+
+    @overload
+    def read_data(
+        self,
+        moniker_source: Moniker | PublishedMeasurement | PublishedCondition,
+        expected_type: Type[TRead],
+    ) -> TRead: ...
+
+    @overload
+    def read_data(
+        self,
+        moniker_source: Moniker | PublishedMeasurement | PublishedCondition,
+    ) -> object: ...
+
+    def read_data(
+        self,
+        moniker_source: Moniker | PublishedMeasurement | PublishedCondition,
+        expected_type: Type[TRead] | None = None,
+    ) -> TRead | object:
+        """Read data published to the data store."""
         if isinstance(moniker_source, Moniker):
             moniker = moniker_source
-        else:
+        elif isinstance(moniker_source, PublishedMeasurement):
             moniker = moniker_source.moniker
-        self._moniker_client._service_location = moniker.service_location
-        result = self._moniker_client.read_from_moniker(moniker)
-        if not isinstance(result.value, expected_type):
-            raise TypeError(f"Expected type {expected_type}, got {type(result.value)}")
-        return result.value
+        elif isinstance(moniker_source, PublishedCondition):
+            moniker = moniker_source.moniker
 
-    def create_step(
-        self,
-        step_name: str,
-        step_type: str,
-        notes: str,
-        start_time: DateTime,
-        end_time: DateTime,
-        test_result_id: str = "",
-    ) -> str:
-        """Create a test step in the datastore."""
-        return "step_id"
+        moniker_client = self._get_moniker_client(moniker.service_location)
+        read_result = moniker_client.read_from_moniker(moniker)
+        converted_data = unpack_and_convert_from_protobuf_any(read_result.value)
+        if expected_type is not None and not isinstance(converted_data, expected_type):
+            raise TypeError(f"Expected type {expected_type}, got {type(converted_data)}")
+        return converted_data
 
-    def create_test_result(
+    def create_step(self, step: Step) -> str:
+        """Create a step in the datastore."""
+        create_request = CreateStepRequest(step=step)
+        create_response = self._data_store_client.create_step(create_request)
+        return create_response.step_id
+
+    def get_step(self, step_id: str) -> Step:
+        """Get a step from the data store."""
+        get_request = GetStepRequest(step_id=step_id)
+        get_response = self._data_store_client.get_step(get_request)
+        return get_response.step
+
+    def create_test_result(self, test_result: TestResult) -> str:
+        """Create a test result in the data store."""
+        create_request = CreateTestResultRequest(test_result=test_result)
+        create_response = self._data_store_client.create_test_result(create_request)
+        return create_response.test_result_id
+
+    def get_test_result(self, test_result_id: str) -> TestResult:
+        """Get a test result from the data store."""
+        get_request = GetTestResultRequest(test_result_id=test_result_id)
+        get_response = self._data_store_client.get_test_result(get_request)
+        return get_response.test_result
+
+    def query_conditions(self, odata_query: str) -> Iterable[PublishedCondition]:
+        """Query conditions from the data store."""
+        query_request = QueryConditionsRequest(odata_query=odata_query)
+        query_response = self._data_store_client.query_conditions(query_request)
+        return query_response.published_conditions
+
+    def query_measurements(self, odata_query: str) -> Iterable[PublishedMeasurement]:
+        """Query measurements from the data store."""
+        query_request = QueryMeasurementsRequest(odata_query=odata_query)
+        query_response = self._data_store_client.query_measurements(query_request)
+        return query_response.published_measurements
+
+    def query_steps(self, odata_query: str) -> Iterable[Step]:
+        """Query steps from the data store."""
+        query_request = QueryStepsRequest(odata_query=odata_query)
+        query_response = self._data_store_client.query_steps(query_request)
+        return query_response.steps
+
+    def create_uut_instance(self, uut_instance: UutInstance) -> str:
+        """Create a UUT instance in the metadata store."""
+        create_request = CreateUutInstanceRequest(uut_instance=uut_instance)
+        create_response = self._metadata_store_client.create_uut_instance(create_request)
+        return create_response.uut_instance_id
+
+    def get_uut_instance(self, uut_instance_id: str) -> UutInstance:
+        """Get a UUT instance from the metadata store."""
+        get_request = GetUutInstanceRequest(uut_instance_id=uut_instance_id)
+        get_response = self._metadata_store_client.get_uut_instance(get_request)
+        return get_response.uut_instance
+
+    def query_uut_instances(self, odata_query: str) -> Iterable[UutInstance]:
+        """Query UUT instances from the metadata store."""
+        query_request = QueryUutInstancesRequest(odata_query=odata_query)
+        query_response = self._metadata_store_client.query_uut_instances(query_request)
+        return query_response.uut_instances
+
+    def create_uut(self, uut: Uut) -> str:
+        """Create a UUT in the metadata store."""
+        create_request = CreateUutRequest(uut=uut)
+        create_response = self._metadata_store_client.create_uut(create_request)
+        return create_response.uut_id
+
+    def get_uut(self, uut_id: str) -> Uut:
+        """Get a UUT from the metadata store."""
+        get_request = GetUutRequest(uut_id=uut_id)
+        get_response = self._metadata_store_client.get_uut(get_request)
+        return get_response.uut
+
+    def query_uuts(self, odata_query: str) -> Iterable[Uut]:
+        """Query UUTs from the metadata store."""
+        query_request = QueryUutsRequest(odata_query=odata_query)
+        query_response = self._metadata_store_client.query_uuts(query_request)
+        return query_response.uuts
+
+    def create_operator(self, operator: Operator) -> str:
+        """Create an operator in the metadata store."""
+        create_request = CreateOperatorRequest(operator=operator)
+        create_response = self._metadata_store_client.create_operator(create_request)
+        return create_response.operator_id
+
+    def get_operator(self, operator_id: str) -> Operator:
+        """Get an operator from the metadata store."""
+        get_request = GetOperatorRequest(operator_id=operator_id)
+        get_response = self._metadata_store_client.get_operator(get_request)
+        return get_response.operator
+
+    def query_operators(self, odata_query: str) -> Iterable[Operator]:
+        """Query operators from the metadata store."""
+        query_request = QueryOperatorsRequest(odata_query=odata_query)
+        query_response = self._metadata_store_client.query_operators(query_request)
+        return query_response.operators
+
+    def create_test_description(self, test_description: TestDescription) -> str:
+        """Create a test description in the metadata store."""
+        create_request = CreateTestDescriptionRequest(test_description=test_description)
+        create_response = self._metadata_store_client.create_test_description(create_request)
+        return create_response.test_description_id
+
+    def get_test_description(self, test_description_id: str) -> TestDescription:
+        """Get a test description from the metadata store."""
+        get_request = GetTestDescriptionRequest(test_description_id=test_description_id)
+        get_response = self._metadata_store_client.get_test_description(get_request)
+        return get_response.test_description
+
+    def query_test_descriptions(self, odata_query: str) -> Iterable[TestDescription]:
+        """Query test descriptions from the metadata store."""
+        query_request = QueryTestDescriptionsRequest(odata_query=odata_query)
+        query_response = self._metadata_store_client.query_test_descriptions(query_request)
+        return query_response.test_descriptions
+
+    def create_test(self, test: Test) -> str:
+        """Create a test in the metadata store."""
+        create_request = CreateTestRequest(test=test)
+        create_response = self._metadata_store_client.create_test(create_request)
+        return create_response.test_id
+
+    def get_test(self, test_id: str) -> Test:
+        """Get a test from the metadata store."""
+        get_request = GetTestRequest(test_id=test_id)
+        get_response = self._metadata_store_client.get_test(get_request)
+        return get_response.test
+
+    def query_tests(self, odata_query: str) -> Iterable[Test]:
+        """Query tests from the metadata store."""
+        query_request = QueryTestsRequest(odata_query=odata_query)
+        query_response = self._metadata_store_client.query_tests(query_request)
+        return query_response.tests
+
+    def create_test_station(self, test_station: TestStation) -> str:
+        """Create a test station in the metadata store."""
+        create_request = CreateTestStationRequest(test_station=test_station)
+        create_response = self._metadata_store_client.create_test_station(create_request)
+        return create_response.test_station_id
+
+    def get_test_station(self, test_station_id: str) -> TestStation:
+        """Get a test station from the metadata store."""
+        get_request = GetTestStationRequest(test_station_id=test_station_id)
+        get_response = self._metadata_store_client.get_test_station(get_request)
+        return get_response.test_station
+
+    def query_test_stations(self, odata_query: str) -> Iterable[TestStation]:
+        """Query test stations from the metadata store."""
+        query_request = QueryTestStationsRequest(odata_query=odata_query)
+        query_response = self._metadata_store_client.query_test_stations(query_request)
+        return query_response.test_stations
+
+    def create_hardware_item(self, hardware_item: HardwareItem) -> str:
+        """Create a hardware item in the metadata store."""
+        create_request = CreateHardwareItemRequest(hardware_item=hardware_item)
+        create_response = self._metadata_store_client.create_hardware_item(create_request)
+        return create_response.hardware_item_id
+
+    def get_hardware_item(self, hardware_item_id: str) -> HardwareItem:
+        """Get a hardware item from the metadata store."""
+        get_request = GetHardwareItemRequest(hardware_item_id=hardware_item_id)
+        get_response = self._metadata_store_client.get_hardware_item(get_request)
+        return get_response.hardware_item
+
+    def query_hardware_items(self, odata_query: str) -> Iterable[HardwareItem]:
+        """Query hardware items from the metadata store."""
+        query_request = QueryHardwareItemsRequest(odata_query=odata_query)
+        query_response = self._metadata_store_client.query_hardware_items(query_request)
+        return query_response.hardware_items
+
+    def create_software_item(self, software_item: SoftwareItem) -> str:
+        """Create a software item in the metadata store."""
+        create_request = CreateSoftwareItemRequest(software_item=software_item)
+        create_response = self._metadata_store_client.create_software_item(create_request)
+        return create_response.software_item_id
+
+    def get_software_item(self, software_item_id: str) -> SoftwareItem:
+        """Get a software item from the metadata store."""
+        get_request = GetSoftwareItemRequest(software_item_id=software_item_id)
+        get_response = self._metadata_store_client.get_software_item(get_request)
+        return get_response.software_item
+
+    def query_software_items(self, odata_query: str) -> Iterable[SoftwareItem]:
+        """Query software items from the metadata store."""
+        query_request = QuerySoftwareItemsRequest(odata_query=odata_query)
+        query_response = self._metadata_store_client.query_software_items(query_request)
+        return query_response.software_items
+
+    def create_test_adapter(self, test_adapter: TestAdapter) -> str:
+        """Create a test adapter in the metadata store."""
+        create_request = CreateTestAdapterRequest(test_adapter=test_adapter)
+        create_response = self._metadata_store_client.create_test_adapter(create_request)
+        return create_response.test_adapter_id
+
+    def get_test_adapter(self, test_adapter_id: str) -> TestAdapter:
+        """Get a test adapter from the metadata store."""
+        get_request = GetTestAdapterRequest(test_adapter_id=test_adapter_id)
+        get_response = self._metadata_store_client.get_test_adapter(get_request)
+        return get_response.test_adapter
+
+    def query_test_adapters(self, odata_query: str) -> Iterable[TestAdapter]:
+        """Query test adapters from the metadata store."""
+        query_request = QueryTestAdaptersRequest(odata_query=odata_query)
+        query_response = self._metadata_store_client.query_test_adapters(query_request)
+        return query_response.test_adapters
+
+    # TODO: Also support providing a file path?
+    def register_schema(self, schema: str) -> str:
+        """Register a schema in the metadata store."""
+        register_request = RegisterSchemaRequest(schema=schema)
+        register_response = self._metadata_store_client.register_schema(register_request)
+        return register_response.schema_id
+
+    def list_schemas(self) -> Iterable[ExtensionSchema]:
+        """List all schemas in the metadata store."""
+        list_request = ListSchemasRequest()
+        list_response = self._metadata_store_client.list_schemas(list_request)
+        return list_response.schemas
+
+    def create_alias(
         self,
-        test_name: str,
-        uut_instance_id: str = "",
-        operator_id: str = "",
-        test_station_id: str = "",
-        test_description_id: str = "",
-        software_item_ids: list[str] = [],
-        hardware_item_ids: list[str] = [],
-        test_adapter_ids: list[str] = [],
-    ) -> str:
-        """Create a test result in the datastore."""
-        return "test_result_id"
+        alias_name: str,
+        alias_target: (
+            UutInstance
+            | Uut
+            | HardwareItem
+            | SoftwareItem
+            | Operator
+            | TestDescription
+            | Test
+            | TestAdapter
+            | TestStation
+        ),
+    ) -> Alias:
+        """Create an alias in the metadata store."""
+        create_request = CreateAliasRequest(alias_name=alias_name)
+        if isinstance(alias_target, UutInstance):
+            create_request.uut_instance.CopyFrom(alias_target)
+        elif isinstance(alias_target, Uut):
+            create_request.uut.CopyFrom(alias_target)
+        elif isinstance(alias_target, HardwareItem):
+            create_request.hardware_item.CopyFrom(alias_target)
+        elif isinstance(alias_target, SoftwareItem):
+            create_request.software_item.CopyFrom(alias_target)
+        elif isinstance(alias_target, Operator):
+            create_request.operator.CopyFrom(alias_target)
+        elif isinstance(alias_target, TestDescription):
+            create_request.test_description.CopyFrom(alias_target)
+        elif isinstance(alias_target, Test):
+            create_request.test.CopyFrom(alias_target)
+        elif isinstance(alias_target, TestAdapter):
+            create_request.test_adapter.CopyFrom(alias_target)
+        elif isinstance(alias_target, TestStation):
+            create_request.test_station.CopyFrom(alias_target)
+        response = self._metadata_store_client.create_alias(create_request)
+        return response.alias
+
+    def get_alias(self, alias_name: str) -> Alias:
+        """Get an alias from the metadata store."""
+        get_request = GetAliasRequest(alias_name=alias_name)
+        get_response = self._metadata_store_client.get_alias(get_request)
+        return get_response.alias
+
+    def delete_alias(self, alias_name: str) -> bool:
+        """Delete an alias from the metadata store."""
+        delete_request = DeleteAliasRequest(alias_name=alias_name)
+        delete_response = self._metadata_store_client.delete_alias(delete_request)
+        return delete_response.unregistered
+
+    def query_aliases(self, odata_query: str) -> Iterable[Alias]:
+        """Query aliases from the metadata store."""
+        query_request = QueryAliasesRequest(odata_query=odata_query)
+        query_response = self._metadata_store_client.query_aliases(query_request)
+        return query_response.aliases
+
+    def _get_moniker_client(self, service_location: str) -> MonikerClient:
+        parsed_service_location = urlparse(service_location).netloc
+        with self._moniker_clients_lock:
+            if parsed_service_location not in self._moniker_clients_by_service_location:
+                self._moniker_clients_by_service_location[parsed_service_location] = MonikerClient(
+                    service_location=parsed_service_location
+                )
+            return self._moniker_clients_by_service_location[parsed_service_location]
+
+    @staticmethod
+    def _get_publish_measurement_timestamp(
+        publish_request: PublishMeasurementRequest, client_provided_timestamp: datetime | None
+    ) -> PrecisionTimestamp:
+        no_client_timestamp_provided = client_provided_timestamp is None
+        if no_client_timestamp_provided:
+            publish_time = hightime_datetime_to_protobuf(datetime.now(std_datetime.timezone.utc))
+        else:
+            publish_time = hightime_datetime_to_protobuf(cast(datetime, client_provided_timestamp))
+
+        waveform_t0: PrecisionTimestamp | None = None
+        value_case = publish_request.WhichOneof("value")
+        if value_case == "double_analog_waveform":
+            waveform_t0 = publish_request.double_analog_waveform.t0
+        elif value_case == "i16_analog_waveform":
+            waveform_t0 = publish_request.i16_analog_waveform.t0
+        elif value_case == "double_complex_waveform":
+            waveform_t0 = publish_request.double_complex_waveform.t0
+        elif value_case == "i16_complex_waveform":
+            waveform_t0 = publish_request.i16_complex_waveform.t0
+        elif value_case == "digital_waveform":
+            waveform_t0 = publish_request.digital_waveform.t0
+
+        # If an initialized waveform t0 value is present
+        if waveform_t0 is not None and waveform_t0 != PrecisionTimestamp():
+            if no_client_timestamp_provided:
+                # If the client did not provide a timestamp, use the waveform t0 value
+                publish_time = waveform_t0
+            elif publish_time != waveform_t0:
+                raise ValueError(
+                    "The provided timestamp does not match the waveform t0. Please provide a matching timestamp or "
+                    "omit the timestamp to use the waveform t0."
+                )
+        return publish_time
