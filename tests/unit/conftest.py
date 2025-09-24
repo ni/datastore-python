@@ -25,7 +25,6 @@ def mocked_metadatastore_client(mocker: MockerFixture) -> Any:
     mock_metadatastore_client = mocker.patch(
         "ni.measurements.metadata.v1.client.MetadataStoreClient", autospec=True
     )
-    # Set up the mock's publish method
     mock_metadatastore_instance = mock_metadatastore_client.return_value
     return mock_metadatastore_instance
 

@@ -133,8 +133,6 @@ def test___create_uut_instance___calls_metadatastoreclient(
 
     args, __ = mocked_metadatastore_client.create_uut_instance.call_args
     request = cast(CreateUutInstanceRequest, args[0])
-
-    # Now assert on its fields
     assert request.uut_instance == uut_instance
     assert result == "response_id"
 
@@ -159,8 +157,6 @@ def test___create_uut___calls_metadatastoreclient(
 
     args, __ = mocked_metadatastore_client.create_uut.call_args
     request = cast(CreateUutRequest, args[0])
-
-    # Now assert on its fields
     assert request.uut == uut
     assert result == "response_id"
 
