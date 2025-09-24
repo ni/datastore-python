@@ -277,7 +277,7 @@ class TestResult:
             schema_id=self.schema_id,
         )
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         """Determine equality."""
         if not isinstance(other, TestResult):
             return NotImplemented
@@ -402,7 +402,7 @@ class PublishedMeasurement:
             ),
         )
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         """Determine equality."""
         if not isinstance(other, PublishedMeasurement):
             return NotImplemented
