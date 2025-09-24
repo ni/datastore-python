@@ -3,10 +3,9 @@
 from __future__ import annotations
 
 import datetime as std_datetime
-from typing import Any, cast
+from typing import cast
 from unittest.mock import Mock
 
-import pytest
 from hightime import datetime
 from ni.datastore.client import Client
 from ni.measurements.data.v1.data_store_pb2 import (
@@ -22,7 +21,6 @@ from ni.measurements.data.v1.data_store_service_pb2 import (
 from ni.protobuf.types.precision_timestamp_conversion import (
     hightime_datetime_to_protobuf,
 )
-from pytest_mock import MockerFixture
 
 
 def test___create_step___calls_datastoreclient(
@@ -81,21 +79,3 @@ def test___create_test_result___calls_datastoreclient(
     request = cast(CreateTestResultRequest, args[0])
     assert request.test_result == test_result
     assert result == "response_id"
-
-
-@pytest.fixture
-def mocked_datastore_client(mocker: MockerFixture) -> Any:
-    mock_datastore_client = mocker.patch(
-        "ni.measurements.data.v1.client.DataStoreClient", autospec=True
-    )
-    # Set up the mock's publish method
-    mock_datastore_instance = mock_datastore_client.return_value
-    return mock_datastore_instance
-
-
-@pytest.fixture
-def mocked_moniker_client(mocker: MockerFixture) -> Any:
-    mock_moniker_client = mocker.patch("ni.datamonikers.v1.client.MonikerClient", autospec=True)
-    # Set up the mock's publish method
-    mock_moniker_instance = mock_moniker_client.return_value
-    return mock_moniker_instance
