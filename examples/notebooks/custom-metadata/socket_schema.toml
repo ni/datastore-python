@@ -1,0 +1,5 @@
+id = "https://example.com/socket.schema.toml"
+
+[hardware_item]
+socket_number = "*"
+manufacture_date = "*"
