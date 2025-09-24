@@ -1,12 +1,15 @@
-# Overview of Measurement Data Store API Usage
+# Overview Example
 
 `overview` contains sample Python code for writing to and reading from
 the [NI Measurement Data Store](https://github.com/ni/datastore-service).
 
-## Python Version Support
+## Required Software
 
-`overview` supports CPython 3.9+
+`overview` requires Python 3.9 or greater
 
-## Installation
+## Usage
 
-You can install the `overview` example using `poetry install --no-root`
+```python
+poetry install
+poetry run overview
+```

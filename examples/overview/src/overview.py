@@ -9,6 +9,7 @@ from ni.measurements.metadata.v1.metadata_store_pb2 import (
     Operator,
     SoftwareItem,
     TestStation,
+    UutInstance
 )
 from nitypes.waveform import AnalogWaveform, Timing
 
@@ -17,8 +18,12 @@ def main() -> None:
     """Main function to demonstrate data publishing and querying."""
     client = Client()
 
+    # Create UUT instance
+    uut_instance = UutInstance(uut_id="NI-6508", serial_number="A861-42367")
+    uut_instance_id = client.create_uut_instance(uut_instance=uut_instance)
+
     # Create Operator metadata
-    operator = Operator(operator_name="Nick Beer")
+    operator = Operator(operator_name="James Bowery", role="Test Operator")
     operator_id = client.create_operator(operator)
     print(f"created operator_id: {operator_id}")
 
@@ -31,13 +36,17 @@ def main() -> None:
     software_item = SoftwareItem(product="Windows", version="10.0.19044")
     software_item_id = client.create_software_item(software_item)
     print(f"created software_item_id: {software_item_id}")
+    software_item_2 = SoftwareItem(product="Python", version="3.12")
+    software_item_2_id = client.create_software_item(software_item_2)
+    print(f"created software_item_2_id: {software_item_2_id}")
 
     # Create TestResult metadata
     test_result = TestResult(
-        test_result_name="sample data publish session",
+        test_result_name="sample test result",
         operator_id=operator_id,
         test_station_id=test_station_id,
-        software_item_ids=[software_item_id],
+        software_item_ids=[software_item_id, software_item_2_id],
+        uut_instance_id=uut_instance_id
     )
     test_result_id = client.create_test_result(test_result)
     print(f"created test_result_id: {test_result_id}")
