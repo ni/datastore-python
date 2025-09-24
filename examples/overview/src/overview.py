@@ -16,8 +16,10 @@ from nitypes.waveform import AnalogWaveform, Timing
 
 
 def main() -> None:
+    """Main function to demonstrate data publishing and querying."""
     published_measurement_id = publish_data()
     query_data(published_measurement_id)
+
 
 def publish_data() -> str:
     """Demonstrate data publishing of an AnalogWaveform."""
@@ -81,6 +83,7 @@ def publish_data() -> str:
     )
     return published_measurement.published_measurement_id
 
+
 def query_data(published_measurement_id: str) -> None:
     """Demonstrate data publishing of an AnalogWaveform."""
     client = Client()
@@ -94,7 +97,9 @@ def query_data(published_measurement_id: str) -> None:
             f"Found published measurement: '{found_measurement.measurement_name}' with id {found_measurement.published_measurement_id}"
         )
         test_result = client.get_test_result(found_measurement.test_result_id)
+        print(f"test_result: {test_result}")
         operator = client.get_operator(test_result.operator_id)
+        print(f"operator: {operator}")
 
         waveform = client.read_data(found_measurement.moniker, expected_type=AnalogWaveform)
         print(f"published data is: {waveform.raw_data}")
