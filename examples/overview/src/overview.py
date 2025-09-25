@@ -1,7 +1,7 @@
 """Overview example demonstrating data publishing and querying."""
 
-from datetime import datetime, timedelta, timezone
-
+from datetime import timedelta, timezone
+import hightime as ht
 import numpy as np
 from ni.datastore import Client, Step, TestResult
 from ni.measurements.metadata.v1.metadata_store_pb2 import (
@@ -65,7 +65,7 @@ def publish_data() -> str:
         sample_count=3,
         raw_data=np.array([1.0, 2.0, 3.0]),
         timing=Timing.create_with_regular_interval(
-            timedelta(seconds=1e-3), datetime.now(timezone.utc)
+            timedelta(seconds=1e-3), ht.datetime.now(timezone.utc)
         ),
     )
 
