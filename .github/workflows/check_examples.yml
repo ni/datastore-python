@@ -11,6 +11,7 @@ jobs:
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
         python-version: [3.13]
+        example-name: ['overview']
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out repo
@@ -27,4 +28,4 @@ jobs:
       - name: Analyze Python Project
         uses: ni/python-actions/analyze-project@4dd93759c00c090b0170541b503d8b26ac03948a
         with:
-          project-directory: ${{ github.workspace }}/examples/overview
+          project-directory: ${{ github.workspace }}/examples/${{ matrix.example-name }}
