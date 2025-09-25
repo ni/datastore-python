@@ -79,7 +79,6 @@ def test___publish_analog_waveform_data___calls_datastoreclient(
         raw_data=np.array(waveform_values, dtype=np.float64),
         timing=Timing.create_with_regular_interval(std_datetime.timedelta(seconds=1), timestamp),
     )
-
     expected_protobuf_waveform = DoubleAnalogWaveform()
     expected_protobuf_waveform.CopyFrom(float64_analog_waveform_to_protobuf(analog_waveform))
     client = Client(data_store_client=mocked_datastore_client)
