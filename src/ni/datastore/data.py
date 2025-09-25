@@ -278,7 +278,7 @@ class TestResult:
             end_date_time=(
                 hightime_datetime_to_protobuf(self.end_date_time) if self.end_date_time else None
             ),
-            outcome=self.outcome if self.outcome is not None else Outcome.OUTCOME_UNSPECIFIED,
+            outcome=self.outcome,
             link=self.link,
             extensions=self.extensions,
             schema_id=self.schema_id,
