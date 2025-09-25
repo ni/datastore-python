@@ -85,7 +85,7 @@ def publish_data() -> str:
 
 
 def query_data(published_measurement_id: str) -> None:
-    """Demonstrate data publishing of an AnalogWaveform."""
+    """Demonstrate querying a published AnalogWaveform measurement."""
     client = Client()
     published_measurements = client.query_measurements(
         odata_query=f"$filter=id eq {published_measurement_id}"
