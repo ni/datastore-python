@@ -10,7 +10,7 @@ from unittest.mock import Mock
 import numpy as np
 import pytest
 from hightime import datetime
-from ni.datastore.client import Client
+from ni.datastore import Client
 from ni.measurements.data.v1.data_store_pb2 import (
     ErrorInformation,
     Outcome,
