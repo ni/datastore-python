@@ -55,9 +55,9 @@ from ni.protobuf.types.precision_timestamp_conversion import (
 
 
 def test___create_step___calls_datastoreclient(
+    client: Client,
     mocked_datastore_client: Mock,
 ) -> None:
-    client = Client(data_store_client=mocked_datastore_client)
     start_time = datetime.now(tz=std_datetime.timezone.utc)
     end_time = datetime.now(tz=std_datetime.timezone.utc)
     step = Step(
@@ -83,9 +83,9 @@ def test___create_step___calls_datastoreclient(
 
 
 def test___create_test_result___calls_datastoreclient(
+    client: Client,
     mocked_datastore_client: Mock,
 ) -> None:
-    client = Client(data_store_client=mocked_datastore_client)
     start_time = datetime.now(tz=std_datetime.timezone.utc)
     end_time = datetime.now(tz=std_datetime.timezone.utc)
     test_result = TestResult(
@@ -113,9 +113,9 @@ def test___create_test_result___calls_datastoreclient(
 
 
 def test___create_uut_instance___calls_metadatastoreclient(
+    client: Client,
     mocked_metadatastore_client: Mock,
 ) -> None:
-    client = Client(metadata_store_client=mocked_metadatastore_client)
     uut_instance = UutInstance(
         uut_id="uut_id",
         serial_number="serial_number",
@@ -138,9 +138,9 @@ def test___create_uut_instance___calls_metadatastoreclient(
 
 
 def test___create_uut___calls_metadatastoreclient(
+    client: Client,
     mocked_metadatastore_client: Mock,
 ) -> None:
-    client = Client(metadata_store_client=mocked_metadatastore_client)
     uut = Uut(
         model_name="model_name",
         family="family",
@@ -162,9 +162,9 @@ def test___create_uut___calls_metadatastoreclient(
 
 
 def test___create_operator___calls_metadatastoreclient(
+    client: Client,
     mocked_metadatastore_client: Mock,
 ) -> None:
-    client = Client(metadata_store_client=mocked_metadatastore_client)
     operator = Operator(
         operator_name="operator_name",
         role="role",
@@ -184,9 +184,9 @@ def test___create_operator___calls_metadatastoreclient(
 
 
 def test___create_test_description___calls_metadatastoreclient(
+    client: Client,
     mocked_metadatastore_client: Mock,
 ) -> None:
-    client = Client(metadata_store_client=mocked_metadatastore_client)
     test_description = TestDescription(
         uut_id="uut_id",
         test_description_name="test_description_name",
@@ -206,9 +206,9 @@ def test___create_test_description___calls_metadatastoreclient(
 
 
 def test___create_test___calls_metadatastoreclient(
+    client: Client,
     mocked_metadatastore_client: Mock,
 ) -> None:
-    client = Client(metadata_store_client=mocked_metadatastore_client)
     test = Test(
         test_name="test_name",
         description="description",
@@ -227,9 +227,9 @@ def test___create_test___calls_metadatastoreclient(
 
 
 def test___create_test_station___calls_metadatastoreclient(
+    client: Client,
     mocked_metadatastore_client: Mock,
 ) -> None:
-    client = Client(metadata_store_client=mocked_metadatastore_client)
     test_station = TestStation(
         test_station_name="test_station_name",
         asset_identifier="asset_identifier",
@@ -249,9 +249,9 @@ def test___create_test_station___calls_metadatastoreclient(
 
 
 def test___create_hardware_item___calls_metadatastoreclient(
+    client: Client,
     mocked_metadatastore_client: Mock,
 ) -> None:
-    client = Client(metadata_store_client=mocked_metadatastore_client)
     hardware_item = HardwareItem(
         manufacturer="manufacturer",
         model="model",
@@ -275,9 +275,9 @@ def test___create_hardware_item___calls_metadatastoreclient(
 
 
 def test___create_software_item___calls_metadatastoreclient(
+    client: Client,
     mocked_metadatastore_client: Mock,
 ) -> None:
-    client = Client(metadata_store_client=mocked_metadatastore_client)
     software_item = SoftwareItem(
         product="product",
         version="version",
@@ -297,9 +297,9 @@ def test___create_software_item___calls_metadatastoreclient(
 
 
 def test___create_test_adapter___calls_metadatastoreclient(
+    client: Client,
     mocked_metadatastore_client: Mock,
 ) -> None:
-    client = Client(metadata_store_client=mocked_metadatastore_client)
     test_adapter = TestAdapter(
         test_adapter_name="test_adapter_name",
         manufacturer="manufacturer",

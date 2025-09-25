@@ -33,10 +33,9 @@ from nitypes.waveform import AnalogWaveform, Timing
 
 @pytest.mark.parametrize("value", [True, False])
 def test___publish_boolean_data___calls_datastoreclient(
-    mocked_datastore_client: Mock, value: bool
+    client: Client, mocked_datastore_client: Mock, value: bool
 ) -> None:
     timestamp = datetime.now(tz=std_datetime.timezone.utc)
-    client = Client(data_store_client=mocked_datastore_client)
     published_measurement = PublishedMeasurement(published_measurement_id="response_id")
     expected_response = PublishMeasurementResponse(published_measurement=published_measurement)
     mocked_datastore_client.publish_measurement.return_value = expected_response
@@ -70,6 +69,7 @@ def test___publish_boolean_data___calls_datastoreclient(
 
 
 def test___publish_analog_waveform_data___calls_datastoreclient(
+    client: Client,
     mocked_datastore_client: Mock,
 ) -> None:
     timestamp = datetime.now(tz=std_datetime.timezone.utc)
@@ -81,7 +81,6 @@ def test___publish_analog_waveform_data___calls_datastoreclient(
     )
     expected_protobuf_waveform = DoubleAnalogWaveform()
     expected_protobuf_waveform.CopyFrom(float64_analog_waveform_to_protobuf(analog_waveform))
-    client = Client(data_store_client=mocked_datastore_client)
     published_measurement = PublishedMeasurement(published_measurement_id="response_id")
     expected_response = PublishMeasurementResponse(published_measurement=published_measurement)
     mocked_datastore_client.publish_measurement.return_value = expected_response
@@ -116,6 +115,7 @@ def test___publish_analog_waveform_data___calls_datastoreclient(
 
 
 def test___publish_analog_waveform_data_without_timestamp_parameter___uses_waveform_t0(
+    client: Client,
     mocked_datastore_client: Mock,
 ) -> None:
     timestamp = datetime.now(tz=std_datetime.timezone.utc)
@@ -125,7 +125,6 @@ def test___publish_analog_waveform_data_without_timestamp_parameter___uses_wavef
         raw_data=np.array(waveform_values, dtype=np.float64),
         timing=Timing.create_with_regular_interval(std_datetime.timedelta(seconds=1), timestamp),
     )
-    client = Client(data_store_client=mocked_datastore_client)
 
     client.publish_measurement("name", analog_waveform, "step_id")
 
@@ -135,11 +134,11 @@ def test___publish_analog_waveform_data_without_timestamp_parameter___uses_wavef
 
 
 def test___publish_analog_waveform_data_without_t0___uses_timestamp_parameter(
+    client: Client,
     mocked_datastore_client: Mock,
 ) -> None:
     timestamp = datetime.now(tz=std_datetime.timezone.utc)
     analog_waveform = AnalogWaveform.from_array_1d([1.0, 2.0, 3.0], dtype=float)
-    client = Client(data_store_client=mocked_datastore_client)
 
     client.publish_measurement("name", analog_waveform, "step_id", timestamp)
 
@@ -149,7 +148,7 @@ def test___publish_analog_waveform_data_without_t0___uses_timestamp_parameter(
 
 
 def test___publish_analog_waveform_data_with_mismatched_timestamp_parameter___raises_error(
-    mocked_datastore_client: Mock,
+    client: Client,
 ) -> None:
     timestamp = datetime.now(tz=std_datetime.timezone.utc)
     waveform_values = [1.0, 2.0, 3.0]
@@ -158,7 +157,6 @@ def test___publish_analog_waveform_data_with_mismatched_timestamp_parameter___ra
         raw_data=np.array(waveform_values, dtype=np.float64),
         timing=Timing.create_with_regular_interval(std_datetime.timedelta(seconds=1), timestamp),
     )
-    client = Client(data_store_client=mocked_datastore_client)
     mismatched_timestamp = timestamp + std_datetime.timedelta(seconds=1)
 
     with pytest.raises(ValueError):
@@ -166,10 +164,10 @@ def test___publish_analog_waveform_data_with_mismatched_timestamp_parameter___ra
 
 
 def test___publish_measurement_batch___calls_datastoreclient(
+    client: Client,
     mocked_datastore_client: Mock,
 ) -> None:
     timestamp = datetime.now(tz=std_datetime.timezone.utc)
-    client = Client(data_store_client=mocked_datastore_client)
     published_measurement = PublishedMeasurement(published_measurement_id="response_id")
     expected_response = PublishMeasurementBatchResponse(
         published_measurements=[published_measurement]

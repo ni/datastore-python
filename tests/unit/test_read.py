@@ -15,8 +15,7 @@ from nitypes.vector import Vector
 from nitypes.waveform import AnalogWaveform, ComplexWaveform, DigitalWaveform, Spectrum
 
 
-def test___read_data___calls_monikerclient(mocked_moniker_client: Mock) -> None:
-    client = _init_client(mocked_moniker_client)
+def test___read_data___calls_monikerclient(client: Client, mocked_moniker_client: Mock) -> None:
     moniker = _init_moniker()
     result = ReadFromMonikerResult()
     value_to_read = gpAny()
@@ -36,8 +35,9 @@ def test___read_data___calls_monikerclient(mocked_moniker_client: Mock) -> None:
     assert list(actual_waveform.scaled_data) == list(expected_waveform.y_data)
 
 
-def test___read_double_analog_waveform___value_correct(mocked_moniker_client: Mock) -> None:
-    client = _init_client(mocked_moniker_client)
+def test___read_double_analog_waveform___value_correct(
+    client: Client, mocked_moniker_client: Mock
+) -> None:
     moniker = _init_moniker()
     result = ReadFromMonikerResult()
     value_to_read = gpAny()
@@ -52,8 +52,9 @@ def test___read_double_analog_waveform___value_correct(mocked_moniker_client: Mo
     assert list(actual_waveform.scaled_data) == list(expected_waveform.y_data)
 
 
-def test___read_i16_analog_waveform___value_correct(mocked_moniker_client: Mock) -> None:
-    client = _init_client(mocked_moniker_client)
+def test___read_i16_analog_waveform___value_correct(
+    client: Client, mocked_moniker_client: Mock
+) -> None:
     moniker = _init_moniker()
     result = ReadFromMonikerResult()
     value_to_read = gpAny()
@@ -68,8 +69,9 @@ def test___read_i16_analog_waveform___value_correct(mocked_moniker_client: Mock)
     assert list(actual_waveform.raw_data) == list(expected_waveform.y_data)
 
 
-def test___read_double_complex_waveform___value_correct(mocked_moniker_client: Mock) -> None:
-    client = _init_client(mocked_moniker_client)
+def test___read_double_complex_waveform___value_correct(
+    client: Client, mocked_moniker_client: Mock
+) -> None:
     moniker = _init_moniker()
     result = ReadFromMonikerResult()
     value_to_read = gpAny()
@@ -86,8 +88,9 @@ def test___read_double_complex_waveform___value_correct(mocked_moniker_client: M
     assert actual_waveform.dtype == np.complex128
 
 
-def test___read_i16_complex_waveform___value_correct(mocked_moniker_client: Mock) -> None:
-    client = _init_client(mocked_moniker_client)
+def test___read_i16_complex_waveform___value_correct(
+    client: Client, mocked_moniker_client: Mock
+) -> None:
     moniker = _init_moniker()
     result = ReadFromMonikerResult()
     value_to_read = gpAny()
@@ -104,8 +107,9 @@ def test___read_i16_complex_waveform___value_correct(mocked_moniker_client: Mock
     assert actual_waveform.dtype == ComplexInt32DType
 
 
-def test___read_digital_waveform___value_correct(mocked_moniker_client: Mock) -> None:
-    client = _init_client(mocked_moniker_client)
+def test___read_digital_waveform___value_correct(
+    client: Client, mocked_moniker_client: Mock
+) -> None:
     moniker = _init_moniker()
     result = ReadFromMonikerResult()
     value_to_read = gpAny()
@@ -122,8 +126,9 @@ def test___read_digital_waveform___value_correct(mocked_moniker_client: Mock) ->
     assert actual_waveform.signal_count == 3
 
 
-def test___read_double_spectrum___value_correct(mocked_moniker_client: Mock) -> None:
-    client = _init_client(mocked_moniker_client)
+def test___read_double_spectrum___value_correct(
+    client: Client, mocked_moniker_client: Mock
+) -> None:
     moniker = _init_moniker()
     result = ReadFromMonikerResult()
     value_to_read = gpAny()
@@ -144,8 +149,7 @@ def test___read_double_spectrum___value_correct(mocked_moniker_client: Mock) -> 
     assert actual_waveform.frequency_increment == 10.0
 
 
-def test___read_vector___value_correct(mocked_moniker_client: Mock) -> None:
-    client = _init_client(mocked_moniker_client)
+def test___read_vector___value_correct(client: Client, mocked_moniker_client: Mock) -> None:
     moniker = _init_moniker()
     result = ReadFromMonikerResult()
     value_to_read = gpAny()
@@ -163,10 +167,6 @@ def test___read_vector___value_correct(mocked_moniker_client: Mock) -> None:
     assert isinstance(actual_vector, Vector)
     assert list(actual_vector) == [1.0, 2.0, 3.0]
     assert actual_vector.units == "amps"
-
-
-def _init_client(mocked_moniker_client: Mock) -> Client:
-    return Client(moniker_clients_by_service_location={"localhost:50051": mocked_moniker_client})
 
 
 def _init_moniker() -> Moniker:

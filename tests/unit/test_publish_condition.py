@@ -17,9 +17,9 @@ from nitypes.vector import Vector
 
 
 def test___publish_condition___calls_datastoreclient(
+    client: Client,
     mocked_datastore_client: Mock,
 ) -> None:
-    client = Client(data_store_client=mocked_datastore_client)
     published_condition = PublishedCondition(published_condition_id="response_id")
     expected_response = PublishConditionResponse(published_condition=published_condition)
     mocked_datastore_client.publish_condition.return_value = expected_response
@@ -41,9 +41,9 @@ def test___publish_condition___calls_datastoreclient(
 
 
 def test___publish_condition_batch___calls_datastoreclient(
+    client: Client,
     mocked_datastore_client: Mock,
 ) -> None:
-    client = Client(data_store_client=mocked_datastore_client)
     published_condition = PublishedCondition(published_condition_id="response_id")
     expected_response = PublishConditionBatchResponse(published_condition=published_condition)
     mocked_datastore_client.publish_condition_batch.return_value = expected_response
