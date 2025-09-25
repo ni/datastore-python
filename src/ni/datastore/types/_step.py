@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import MutableMapping
 
-from hightime import datetime
+import hightime as ht
 from ni.measurements.data.v1.data_store_pb2 import (
     Step as StepProto,
 )
@@ -34,12 +34,12 @@ class Step:
     )
 
     @property
-    def start_date_time(self) -> datetime | None:
+    def start_date_time(self) -> ht.datetime | None:
         """Get the start date and time of the step execution."""
         return self._start_date_time
 
     @property
-    def end_date_time(self) -> datetime | None:
+    def end_date_time(self) -> ht.datetime | None:
         """Get the end date and time of the step execution."""
         return self._end_date_time
 
@@ -71,8 +71,8 @@ class Step:
         )
         self.schema_id = schema_id
 
-        self._start_date_time: datetime | None = None
-        self._end_date_time: datetime | None = None
+        self._start_date_time: ht.datetime | None = None
+        self._end_date_time: ht.datetime | None = None
 
     @staticmethod
     def from_protobuf(step: StepProto) -> "Step":

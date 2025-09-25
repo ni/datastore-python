@@ -9,7 +9,7 @@ from threading import Lock
 from typing import Type, TypeVar, cast, overload
 from urllib.parse import urlparse
 
-from hightime import datetime
+import hightime as ht
 from ni.datamonikers.v1.client import MonikerClient
 from ni.datamonikers.v1.data_moniker_pb2 import Moniker
 from ni.datastore.grpc_conversion import (
@@ -162,7 +162,7 @@ class Client:
         measurement_name: str,
         value: object,  # More strongly typed Union[bool, AnalogWaveform] can be used if needed
         step_id: str,
-        timestamp: datetime | None = None,
+        timestamp: ht.datetime | None = None,
         outcome: Outcome.ValueType = Outcome.OUTCOME_UNSPECIFIED,
         error_information: ErrorInformation | None = None,
         hardware_item_ids: Iterable[str] = tuple(),
@@ -193,7 +193,7 @@ class Client:
         measurement_name: str,
         values: object,
         step_id: str,
-        timestamps: Iterable[datetime] = tuple(),
+        timestamps: Iterable[ht.datetime] = tuple(),
         outcomes: Iterable[Outcome.ValueType] = tuple(),
         error_information: Iterable[ErrorInformation] = tuple(),
         hardware_item_ids: Iterable[str] = tuple(),
@@ -538,13 +538,15 @@ class Client:
 
     @staticmethod
     def _get_publish_measurement_timestamp(
-        publish_request: PublishMeasurementRequest, client_provided_timestamp: datetime | None
+        publish_request: PublishMeasurementRequest, client_provided_timestamp: ht.datetime | None
     ) -> PrecisionTimestamp:
         no_client_timestamp_provided = client_provided_timestamp is None
         if no_client_timestamp_provided:
-            publish_time = hightime_datetime_to_protobuf(datetime.now(std_datetime.timezone.utc))
+            publish_time = hightime_datetime_to_protobuf(ht.datetime.now(std_datetime.timezone.utc))
         else:
-            publish_time = hightime_datetime_to_protobuf(cast(datetime, client_provided_timestamp))
+            publish_time = hightime_datetime_to_protobuf(
+                cast(ht.datetime, client_provided_timestamp)
+            )
 
         waveform_t0: PrecisionTimestamp | None = None
         value_case = publish_request.WhichOneof("value")

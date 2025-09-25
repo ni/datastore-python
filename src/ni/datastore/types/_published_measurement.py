@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Iterable
 
-from hightime import datetime
+import hightime as ht
 from ni.datamonikers.v1.data_moniker_pb2 import Moniker
 from ni.measurements.data.v1.data_store_pb2 import (
     ErrorInformation,
@@ -53,8 +53,8 @@ class PublishedMeasurement:
         measurement_name: str = "",
         data_type: str = "",
         measurement_notes: str = "",
-        start_date_time: datetime | None = None,
-        end_date_time: datetime | None = None,
+        start_date_time: ht.datetime | None = None,
+        end_date_time: ht.datetime | None = None,
         outcome: Outcome.ValueType = Outcome.OUTCOME_UNSPECIFIED,
         parametric_index: int = 0,
         error_information: ErrorInformation | None = None,
