@@ -132,10 +132,11 @@ def test___publish_analog_waveform_data_without_timestamp_parameter___uses_wavef
     mocked_datastore_client.publish_measurement.return_value = publish_measurement_response
     client = Client(data_store_client=mocked_datastore_client)
 
-    client.publish_measurement("name", analog_waveform, "step_id")
+    result = client.publish_measurement("name", analog_waveform, "step_id")
 
     args, __ = mocked_datastore_client.publish_measurement.call_args
     request = cast(PublishMeasurementRequest, args[0])  # The PublishMeasurementRequest object
+    assert result.published_measurement_id == "response_id"
     assert request.timestamp == hightime_datetime_to_protobuf(timestamp)
 
 
@@ -151,10 +152,11 @@ def test___publish_analog_waveform_data_without_t0___uses_timestamp_parameter(
     mocked_datastore_client.publish_measurement.return_value = publish_measurement_response
     client = Client(data_store_client=mocked_datastore_client)
 
-    client.publish_measurement("name", analog_waveform, "step_id", timestamp)
+    result = client.publish_measurement("name", analog_waveform, "step_id", timestamp)
 
     args, __ = mocked_datastore_client.publish_measurement.call_args
     request = cast(PublishMeasurementRequest, args[0])  # The PublishMeasurementRequest object
+    assert result.published_measurement_id == "response_id"
     assert request.timestamp == hightime_datetime_to_protobuf(timestamp)
 
 
