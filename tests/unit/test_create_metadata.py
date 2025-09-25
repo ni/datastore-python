@@ -5,8 +5,7 @@ from __future__ import annotations
 from typing import cast
 from unittest.mock import Mock
 
-from ni.datastore import Client
-from ni.datastore.data import Step, TestResult
+from ni.datastore import Client, Step, TestResult
 from ni.measurements.data.v1.data_store_service_pb2 import (
     CreateStepRequest,
     CreateStepResponse,

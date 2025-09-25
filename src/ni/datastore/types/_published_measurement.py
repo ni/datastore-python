@@ -1,0 +1,145 @@
+"""Published Measurement data type for the Data Store Client."""
+
+from __future__ import annotations
+
+from typing import Iterable
+
+from hightime import datetime
+from ni.datamonikers.v1.data_moniker_pb2 import Moniker
+from ni.measurements.data.v1.data_store_pb2 import (
+    ErrorInformation,
+    Outcome,
+    PublishedCondition,
+    PublishedMeasurement as PublishedMeasurementProto,
+)
+from ni.protobuf.types.precision_timestamp_conversion import (
+    hightime_datetime_from_protobuf,
+)
+
+
+class PublishedMeasurement:
+    """Information about a measurement published to the data store."""
+
+    __slots__ = (
+        "moniker",
+        "published_conditions",
+        "published_measurement_id",
+        "test_result_id",
+        "step_id",
+        "software_item_ids",
+        "hardware_item_ids",
+        "test_adapter_ids",
+        "measurement_name",
+        "data_type",
+        "measurement_notes",
+        "start_date_time",
+        "end_date_time",
+        "outcome",
+        "parametric_index",
+        "error_information",
+    )
+
+    def __init__(
+        self,
+        *,
+        moniker: Moniker | None = None,
+        published_conditions: Iterable[PublishedCondition] | None = None,
+        published_measurement_id: str = "",
+        test_result_id: str = "",
+        step_id: str = "",
+        software_item_ids: Iterable[str] | None = None,
+        hardware_item_ids: Iterable[str] | None = None,
+        test_adapter_ids: Iterable[str] | None = None,
+        measurement_name: str = "",
+        data_type: str = "",
+        measurement_notes: str = "",
+        start_date_time: datetime | None = None,
+        end_date_time: datetime | None = None,
+        outcome: Outcome.ValueType = Outcome.OUTCOME_UNSPECIFIED,
+        parametric_index: int = 0,
+        error_information: ErrorInformation | None = None,
+    ) -> None:
+        """Initialize a PublishedMeasurement instance."""
+        self.moniker = moniker
+        self.published_conditions: Iterable[PublishedCondition] = (
+            published_conditions if published_conditions is not None else []
+        )
+        self.published_measurement_id = published_measurement_id
+        self.test_result_id = test_result_id
+        self.step_id = step_id
+        self.software_item_ids: Iterable[str] = (
+            software_item_ids if software_item_ids is not None else []
+        )
+        self.hardware_item_ids: Iterable[str] = (
+            hardware_item_ids if hardware_item_ids is not None else []
+        )
+        self.test_adapter_ids: Iterable[str] = (
+            test_adapter_ids if test_adapter_ids is not None else []
+        )
+        self.measurement_name = measurement_name
+        self.data_type = data_type
+        self.measurement_notes = measurement_notes
+        self.start_date_time = start_date_time
+        self.end_date_time = end_date_time
+        self.outcome = outcome
+        self.parametric_index = parametric_index
+        self.error_information = error_information
+
+    @staticmethod
+    def from_protobuf(published_measurement: PublishedMeasurementProto) -> "PublishedMeasurement":
+        """Create a PublishedMeasurement instance from a protobuf PublishedMeasurement message."""
+        return PublishedMeasurement(
+            moniker=(
+                published_measurement.moniker if published_measurement.HasField("moniker") else None
+            ),
+            published_conditions=published_measurement.published_conditions,
+            published_measurement_id=published_measurement.published_measurement_id,
+            test_result_id=published_measurement.test_result_id,
+            step_id=published_measurement.step_id,
+            software_item_ids=published_measurement.software_item_ids,
+            hardware_item_ids=published_measurement.hardware_item_ids,
+            test_adapter_ids=published_measurement.test_adapter_ids,
+            measurement_name=published_measurement.measurement_name,
+            data_type=published_measurement.data_type,
+            measurement_notes=published_measurement.measurement_notes,
+            start_date_time=(
+                hightime_datetime_from_protobuf(published_measurement.start_date_time)
+                if published_measurement.HasField("start_date_time")
+                else None
+            ),
+            end_date_time=(
+                hightime_datetime_from_protobuf(published_measurement.end_date_time)
+                if published_measurement.HasField("end_date_time")
+                else None
+            ),
+            outcome=published_measurement.outcome,
+            parametric_index=published_measurement.parametric_index,
+            error_information=(
+                published_measurement.error_information
+                if published_measurement.HasField("error_information")
+                else None
+            ),
+        )
+
+    def __eq__(self, other: object) -> bool:
+        """Determine equality."""
+        if not isinstance(other, PublishedMeasurement):
+            return NotImplemented
+        return (
+            self.moniker == other.moniker
+            and self.published_conditions == other.published_conditions
+            and self.published_measurement_id == other.published_measurement_id
+            and self.test_result_id == other.test_result_id
+            and self.step_id == other.step_id
+            and self.software_item_ids == other.software_item_ids
+            and self.hardware_item_ids == other.hardware_item_ids
+            and self.test_adapter_ids == other.test_adapter_ids
+            and self.measurement_name == other.measurement_name
+            and self.data_type == other.data_type
+            and self.measurement_notes == other.measurement_notes
+            and self.start_date_time == other.start_date_time
+            and self.end_date_time == other.end_date_time
+            and self.outcome == other.outcome
+            and self.parametric_index == other.parametric_index
+            and self.error_information == other.error_information
+        )

@@ -12,7 +12,6 @@ from urllib.parse import urlparse
 from hightime import datetime
 from ni.datamonikers.v1.client import MonikerClient
 from ni.datamonikers.v1.data_moniker_pb2 import Moniker
-from ni.datastore.data import PublishedMeasurement, Step, TestResult
 from ni.datastore.grpc_conversion import (
     populate_publish_condition_batch_request_values,
     populate_publish_condition_request_value,
@@ -20,6 +19,9 @@ from ni.datastore.grpc_conversion import (
     populate_publish_measurement_request_value,
     unpack_and_convert_from_protobuf_any,
 )
+from ni.datastore.types._published_measurement import PublishedMeasurement
+from ni.datastore.types._step import Step
+from ni.datastore.types._test_result import TestResult
 from ni.measurements.data.v1.client import DataStoreClient
 from ni.measurements.data.v1.data_store_pb2 import (
     ErrorInformation,
