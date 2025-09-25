@@ -1,6 +1,6 @@
 """Overview example demonstrating data publishing and querying."""
 
-from datetime import timedelta, timezone
+from datetime import timezone
 
 import hightime as ht
 import numpy as np
@@ -66,7 +66,7 @@ def publish_data() -> str:
         sample_count=3,
         raw_data=np.array([1.0, 2.0, 3.0]),
         timing=Timing.create_with_regular_interval(
-            timedelta(seconds=1e-3), ht.datetime.now(timezone.utc)
+            ht.timedelta(seconds=1e-3), ht.datetime.now(timezone.utc)
         ),
     )
 

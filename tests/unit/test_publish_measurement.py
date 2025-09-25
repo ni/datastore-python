@@ -9,7 +9,7 @@ from unittest.mock import Mock
 
 import numpy as np
 import pytest
-from hightime import datetime
+from hightime import datetime, timedelta
 from ni.datastore import Client
 from ni.measurements.data.v1.data_store_pb2 import (
     ErrorInformation,
@@ -77,7 +77,7 @@ def test___publish_analog_waveform_data___calls_datastoreclient(
     analog_waveform = AnalogWaveform(
         sample_count=len(waveform_values),
         raw_data=np.array(waveform_values, dtype=np.float64),
-        timing=Timing.create_with_regular_interval(std_datetime.timedelta(seconds=1), timestamp),
+        timing=Timing.create_with_regular_interval(timedelta(seconds=1), timestamp),
     )
     expected_protobuf_waveform = DoubleAnalogWaveform()
     expected_protobuf_waveform.CopyFrom(float64_analog_waveform_to_protobuf(analog_waveform))
@@ -123,7 +123,7 @@ def test___publish_analog_waveform_data_without_timestamp_parameter___uses_wavef
     analog_waveform = AnalogWaveform(
         sample_count=len(waveform_values),
         raw_data=np.array(waveform_values, dtype=np.float64),
-        timing=Timing.create_with_regular_interval(std_datetime.timedelta(seconds=1), timestamp),
+        timing=Timing.create_with_regular_interval(timedelta(seconds=1), timestamp),
     )
     published_measurement = PublishedMeasurement(published_measurement_id="response_id")
     publish_measurement_response = PublishMeasurementResponse(
@@ -168,10 +168,10 @@ def test___publish_analog_waveform_data_with_mismatched_timestamp_parameter___ra
     analog_waveform = AnalogWaveform(
         sample_count=len(waveform_values),
         raw_data=np.array(waveform_values, dtype=np.float64),
-        timing=Timing.create_with_regular_interval(std_datetime.timedelta(seconds=1), timestamp),
+        timing=Timing.create_with_regular_interval(timedelta(seconds=1), timestamp),
     )
     client = Client(data_store_client=mocked_datastore_client)
-    mismatched_timestamp = timestamp + std_datetime.timedelta(seconds=1)
+    mismatched_timestamp = timestamp + timedelta(seconds=1)
 
     with pytest.raises(ValueError):
         client.publish_measurement("name", analog_waveform, "step_id", mismatched_timestamp)
