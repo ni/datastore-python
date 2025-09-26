@@ -8,7 +8,7 @@ from unittest.mock import Mock
 import numpy as np
 from google.protobuf.any_pb2 import Any as gpAny
 from ni.datamonikers.v1.data_moniker_pb2 import Moniker, ReadFromMonikerResult
-from ni.datastore.client import Client
+from ni.datastore import Client
 from ni.protobuf.types import array_pb2, attribute_value_pb2, vector_pb2, waveform_pb2
 from nitypes.complex import ComplexInt32DType
 from nitypes.vector import Vector

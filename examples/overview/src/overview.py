@@ -1,10 +1,10 @@
 """Overview example demonstrating data publishing and querying."""
 
-from datetime import datetime, timedelta, timezone
+from datetime import timezone
 
+import hightime as ht
 import numpy as np
-from ni.datastore.client import Client
-from ni.measurements.data.v1.data_store_pb2 import Step, TestResult
+from ni.datastore import Client, Step, TestResult
 from ni.measurements.metadata.v1.metadata_store_pb2 import (
     Operator,
     SoftwareItem,
@@ -66,7 +66,7 @@ def publish_data() -> str:
         sample_count=3,
         raw_data=np.array([1.0, 2.0, 3.0]),
         timing=Timing.create_with_regular_interval(
-            timedelta(seconds=1e-3), datetime.now(timezone.utc)
+            ht.timedelta(seconds=1e-3), ht.datetime.now(timezone.utc)
         ),
     )
 
@@ -97,11 +97,11 @@ def query_data(published_measurement_id: str) -> None:
             f"Found published measurement: '{found_measurement.measurement_name}' with id {found_measurement.published_measurement_id}"
         )
         test_result = client.get_test_result(found_measurement.test_result_id)
-        print(f"test_result: {test_result}")
+        print(f"test_result: {test_result.test_result_name}")
         operator = client.get_operator(test_result.operator_id)
         print(f"operator: {operator}")
 
-        waveform = client.read_data(found_measurement.moniker, expected_type=AnalogWaveform)
+        waveform = client.read_data(found_measurement, expected_type=AnalogWaveform)
         print(f"published data is: {waveform.raw_data}")
 
 
