@@ -47,6 +47,10 @@ hightime = { version = ">=0.3.0.dev0", allow-prereleases = true }
 types-grpcio = ">=1.0"
 types-protobuf = ">=4.21"
 ipykernel = ">=6.0"
+plotly = ">=5.0"
+nbformat = ">=4.2.0"
+ipython = ">=7.0"
+jupyter = ">=1.0" 
 
 [tool.poetry.group.lint.dependencies]
 bandit = { version = ">=1.7", extras = ["toml"] }
