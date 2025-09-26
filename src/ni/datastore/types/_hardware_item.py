@@ -4,8 +4,11 @@ from __future__ import annotations
 
 from typing import MutableMapping
 
+from ni.datastore.grpc_conversion import (
+    populate_extension_value_message_map,
+    populate_from_extension_value_message_map,
+)
 from ni.measurements.metadata.v1.metadata_store_pb2 import (
-    ExtensionValue,
     HardwareItem as HardwareItemProto,
 )
 
@@ -35,7 +38,7 @@ class HardwareItem:
         asset_identifier: str = "",
         calibration_due_date: str = "",
         link: str = "",
-        extensions: MutableMapping[str, ExtensionValue] | None = None,
+        extensions: MutableMapping[str, object] | None = None,
         schema_id: str = "",
     ) -> None:
         """Initialize a HardwareItem instance."""
@@ -46,15 +49,13 @@ class HardwareItem:
         self.asset_identifier = asset_identifier
         self.calibration_due_date = calibration_due_date
         self.link = link
-        self.extensions: MutableMapping[str, ExtensionValue] = (
-            extensions if extensions is not None else {}
-        )
+        self.extensions: MutableMapping[str, object] = extensions if extensions is not None else {}
         self.schema_id = schema_id
 
     @staticmethod
     def from_protobuf(hardware_item: HardwareItemProto) -> "HardwareItem":
         """Create a HardwareItem instance from a protobuf HardwareItem message."""
-        return HardwareItem(
+        result = HardwareItem(
             manufacturer=hardware_item.manufacturer,
             model=hardware_item.model,
             serial_number=hardware_item.serial_number,
@@ -62,13 +63,14 @@ class HardwareItem:
             asset_identifier=hardware_item.asset_identifier,
             calibration_due_date=hardware_item.calibration_due_date,
             link=hardware_item.link,
-            extensions=hardware_item.extensions,
             schema_id=hardware_item.schema_id,
         )
+        populate_from_extension_value_message_map(result.extensions, hardware_item.extensions)
+        return result
 
     def to_protobuf(self) -> HardwareItemProto:
         """Convert this HardwareItem to a protobuf HardwareItem message."""
-        return HardwareItemProto(
+        hardware_item_proto = HardwareItemProto(
             manufacturer=self.manufacturer,
             model=self.model,
             serial_number=self.serial_number,
@@ -76,9 +78,10 @@ class HardwareItem:
             asset_identifier=self.asset_identifier,
             calibration_due_date=self.calibration_due_date,
             link=self.link,
-            extensions=self.extensions,
             schema_id=self.schema_id,
         )
+        populate_extension_value_message_map(hardware_item_proto.extensions, self.extensions)
+        return hardware_item_proto
 
     def __eq__(self, other: object) -> bool:
         """Determine equality."""

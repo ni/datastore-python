@@ -5,10 +5,13 @@ from __future__ import annotations
 from typing import MutableMapping
 
 import hightime as ht
+from ni.datastore.grpc_conversion import (
+    populate_extension_value_message_map,
+    populate_from_extension_value_message_map,
+)
 from ni.measurements.data.v1.data_store_pb2 import (
     Step as StepProto,
 )
-from ni.measurements.metadata.v1.metadata_store_pb2 import ExtensionValue
 from ni.protobuf.types.precision_timestamp_conversion import (
     hightime_datetime_from_protobuf,
     hightime_datetime_to_protobuf,
@@ -54,7 +57,7 @@ class Step:
         step_type: str = "",
         notes: str = "",
         link: str = "",
-        extensions: MutableMapping[str, ExtensionValue] | None = None,
+        extensions: MutableMapping[str, object] | None = None,
         schema_id: str = "",
     ) -> None:
         """Initialize a Step instance."""
@@ -66,9 +69,7 @@ class Step:
         self.step_type = step_type
         self.notes = notes
         self.link = link
-        self.extensions: MutableMapping[str, ExtensionValue] = (
-            extensions if extensions is not None else {}
-        )
+        self.extensions: MutableMapping[str, object] = extensions if extensions is not None else {}
         self.schema_id = schema_id
 
         self._start_date_time: ht.datetime | None = None
@@ -77,7 +78,7 @@ class Step:
     @staticmethod
     def from_protobuf(step: StepProto) -> "Step":
         """Create a Step instance from a protobuf Step message."""
-        converted_step = Step(
+        result = Step(
             step_id=step.step_id,
             parent_step_id=step.parent_step_id,
             test_result_id=step.test_result_id,
@@ -86,24 +87,24 @@ class Step:
             step_type=step.step_type,
             notes=step.notes,
             link=step.link,
-            extensions=step.extensions,
             schema_id=step.schema_id,
         )
-        converted_step._start_date_time = (
+        result._start_date_time = (
             hightime_datetime_from_protobuf(step.start_date_time)
             if step.HasField("start_date_time")
             else None
         )
-        converted_step._end_date_time = (
+        result._end_date_time = (
             hightime_datetime_from_protobuf(step.end_date_time)
             if step.HasField("end_date_time")
             else None
         )
-        return converted_step
+        populate_from_extension_value_message_map(result.extensions, step.extensions)
+        return result
 
     def to_protobuf(self) -> StepProto:
         """Convert this Step to a protobuf Step message."""
-        return StepProto(
+        step = StepProto(
             step_id=self.step_id,
             parent_step_id=self.parent_step_id,
             test_result_id=self.test_result_id,
@@ -120,9 +121,10 @@ class Step:
                 hightime_datetime_to_protobuf(self.end_date_time) if self.end_date_time else None
             ),
             link=self.link,
-            extensions=self.extensions,
             schema_id=self.schema_id,
         )
+        populate_extension_value_message_map(step.extensions, self.extensions)
+        return step
 
     def __eq__(self, other: object) -> bool:
         """Determine equality."""

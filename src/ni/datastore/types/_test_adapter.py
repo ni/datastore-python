@@ -4,8 +4,11 @@ from __future__ import annotations
 
 from typing import MutableMapping
 
+from ni.datastore.grpc_conversion import (
+    populate_extension_value_message_map,
+    populate_from_extension_value_message_map,
+)
 from ni.measurements.metadata.v1.metadata_store_pb2 import (
-    ExtensionValue,
     TestAdapter as TestAdapterProto,
 )
 
@@ -37,7 +40,7 @@ class TestAdapter:
         asset_identifier: str = "",
         calibration_due_date: str = "",
         link: str = "",
-        extensions: MutableMapping[str, ExtensionValue] | None = None,
+        extensions: MutableMapping[str, object] | None = None,
         schema_id: str = "",
     ) -> None:
         """Initialize a TestAdapter instance."""
@@ -49,15 +52,13 @@ class TestAdapter:
         self.asset_identifier = asset_identifier
         self.calibration_due_date = calibration_due_date
         self.link = link
-        self.extensions: MutableMapping[str, ExtensionValue] = (
-            extensions if extensions is not None else {}
-        )
+        self.extensions: MutableMapping[str, object] = extensions if extensions is not None else {}
         self.schema_id = schema_id
 
     @staticmethod
     def from_protobuf(test_adapter: TestAdapterProto) -> "TestAdapter":
         """Create a TestAdapter instance from a protobuf TestAdapter message."""
-        return TestAdapter(
+        result = TestAdapter(
             test_adapter_name=test_adapter.test_adapter_name,
             manufacturer=test_adapter.manufacturer,
             model=test_adapter.model,
@@ -66,13 +67,14 @@ class TestAdapter:
             asset_identifier=test_adapter.asset_identifier,
             calibration_due_date=test_adapter.calibration_due_date,
             link=test_adapter.link,
-            extensions=test_adapter.extensions,
             schema_id=test_adapter.schema_id,
         )
+        populate_from_extension_value_message_map(result.extensions, test_adapter.extensions)
+        return result
 
     def to_protobuf(self) -> TestAdapterProto:
         """Convert this TestAdapter to a protobuf TestAdapter message."""
-        return TestAdapterProto(
+        test_adapter = TestAdapterProto(
             test_adapter_name=self.test_adapter_name,
             manufacturer=self.manufacturer,
             model=self.model,
@@ -81,9 +83,10 @@ class TestAdapter:
             asset_identifier=self.asset_identifier,
             calibration_due_date=self.calibration_due_date,
             link=self.link,
-            extensions=self.extensions,
             schema_id=self.schema_id,
         )
+        populate_extension_value_message_map(test_adapter.extensions, self.extensions)
+        return test_adapter
 
     def __eq__(self, other: object) -> bool:
         """Determine equality."""

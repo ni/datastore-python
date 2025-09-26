@@ -4,8 +4,11 @@ from __future__ import annotations
 
 from typing import MutableMapping
 
+from ni.datastore.grpc_conversion import (
+    populate_extension_value_message_map,
+    populate_from_extension_value_message_map,
+)
 from ni.measurements.metadata.v1.metadata_store_pb2 import (
-    ExtensionValue,
     SoftwareItem as SoftwareItemProto,
 )
 
@@ -27,38 +30,38 @@ class SoftwareItem:
         product: str = "",
         version: str = "",
         link: str = "",
-        extensions: MutableMapping[str, ExtensionValue] | None = None,
+        extensions: MutableMapping[str, object] | None = None,
         schema_id: str = "",
     ) -> None:
         """Initialize a SoftwareItem instance."""
         self.product = product
         self.version = version
         self.link = link
-        self.extensions: MutableMapping[str, ExtensionValue] = (
-            extensions if extensions is not None else {}
-        )
+        self.extensions: MutableMapping[str, object] = extensions if extensions is not None else {}
         self.schema_id = schema_id
 
     @staticmethod
     def from_protobuf(software_item: SoftwareItemProto) -> "SoftwareItem":
         """Create a SoftwareItem instance from a protobuf SoftwareItem message."""
-        return SoftwareItem(
+        result = SoftwareItem(
             product=software_item.product,
             version=software_item.version,
             link=software_item.link,
-            extensions=software_item.extensions,
             schema_id=software_item.schema_id,
         )
+        populate_from_extension_value_message_map(result.extensions, software_item.extensions)
+        return result
 
     def to_protobuf(self) -> SoftwareItemProto:
         """Convert this SoftwareItem to a protobuf SoftwareItem message."""
-        return SoftwareItemProto(
+        software_item = SoftwareItemProto(
             product=self.product,
             version=self.version,
             link=self.link,
-            extensions=self.extensions,
             schema_id=self.schema_id,
         )
+        populate_extension_value_message_map(software_item.extensions, self.extensions)
+        return software_item
 
     def __eq__(self, other: object) -> bool:
         """Determine equality."""

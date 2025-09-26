@@ -4,8 +4,11 @@ from __future__ import annotations
 
 from typing import MutableMapping
 
+from ni.datastore.grpc_conversion import (
+    populate_extension_value_message_map,
+    populate_from_extension_value_message_map,
+)
 from ni.measurements.metadata.v1.metadata_store_pb2 import (
-    ExtensionValue,
     Test as TestProto,
 )
 
@@ -27,38 +30,38 @@ class Test:
         test_name: str = "",
         description: str = "",
         link: str = "",
-        extensions: MutableMapping[str, ExtensionValue] | None = None,
+        extensions: MutableMapping[str, object] | None = None,
         schema_id: str = "",
     ) -> None:
         """Initialize a Test instance."""
         self.test_name = test_name
         self.description = description
         self.link = link
-        self.extensions: MutableMapping[str, ExtensionValue] = (
-            extensions if extensions is not None else {}
-        )
+        self.extensions: MutableMapping[str, object] = extensions if extensions is not None else {}
         self.schema_id = schema_id
 
     @staticmethod
     def from_protobuf(test: TestProto) -> "Test":
         """Create a Test instance from a protobuf Test message."""
-        return Test(
+        result = Test(
             test_name=test.test_name,
             description=test.description,
             link=test.link,
-            extensions=test.extensions,
             schema_id=test.schema_id,
         )
+        populate_from_extension_value_message_map(result.extensions, test.extensions)
+        return result
 
     def to_protobuf(self) -> TestProto:
         """Convert this Test to a protobuf Test message."""
-        return TestProto(
+        test = TestProto(
             test_name=self.test_name,
             description=self.description,
             link=self.link,
-            extensions=self.extensions,
             schema_id=self.schema_id,
         )
+        populate_extension_value_message_map(test.extensions, self.extensions)
+        return test
 
     def __eq__(self, other: object) -> bool:
         """Determine equality."""

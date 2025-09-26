@@ -3,15 +3,18 @@
 from __future__ import annotations
 
 import logging
+from typing import MutableMapping
 
 import numpy as np
 from google.protobuf.any_pb2 import Any
+from google.protobuf.internal.containers import MessageMap
 from ni.measurements.data.v1.data_store_service_pb2 import (
     PublishConditionBatchRequest,
     PublishConditionRequest,
     PublishMeasurementBatchRequest,
     PublishMeasurementRequest,
 )
+from ni.measurements.metadata.v1.metadata_store_pb2 import ExtensionValue
 from ni.protobuf.types.scalar_conversion import scalar_to_protobuf
 from ni.protobuf.types.vector_conversion import vector_from_protobuf, vector_to_protobuf
 from ni.protobuf.types.vector_pb2 import Vector as VectorProto
@@ -180,3 +183,36 @@ def unpack_and_convert_from_protobuf_any(read_value: Any) -> object:
         return vector_from_protobuf(vector)
     else:
         raise TypeError(f"Unsupported data type Name: {value_type}")
+
+
+def populate_extension_value_message_map(
+    destination: MessageMap[str, ExtensionValue],
+    source: MutableMapping[str, object],
+) -> None:
+    """Populate a gRPC message map of string keys to ExtensionValue.
+
+    The input is a mapping of string keys to values.
+    """
+    for key, value in source.items():
+        if isinstance(value, str):
+            destination[key].string_value = value
+        elif isinstance(value, ExtensionValue):
+            destination[key].CopyFrom(value)
+        else:
+            raise TypeError(f"Unsupported value type for key '{key}': {type(value)}")
+
+
+def populate_from_extension_value_message_map(
+    destination: MutableMapping[str, object],
+    source: MessageMap[str, ExtensionValue],
+) -> None:
+    """Populate a mapping of string keys to values.
+
+    The input is a gRPC message map of string keys to ExtensionValue.
+    """
+    for key, extension_value in source.items():
+        value_case = extension_value.WhichOneof("metadata")
+        if value_case == "string_value":
+            destination[key] = extension_value.string_value
+        else:
+            raise TypeError(f"Unsupported ExtensionValue type for key '{key}': {value_case}")

@@ -4,8 +4,11 @@ from __future__ import annotations
 
 from typing import MutableMapping
 
+from ni.datastore.grpc_conversion import (
+    populate_extension_value_message_map,
+    populate_from_extension_value_message_map,
+)
 from ni.measurements.metadata.v1.metadata_store_pb2 import (
-    ExtensionValue,
     UutInstance as UutInstanceProto,
 )
 
@@ -33,7 +36,7 @@ class UutInstance:
         firmware_version: str = "",
         hardware_version: str = "",
         link: str = "",
-        extensions: MutableMapping[str, ExtensionValue] | None = None,
+        extensions: MutableMapping[str, object] | None = None,
         schema_id: str = "",
     ) -> None:
         """Initialize a UutInstance instance."""
@@ -43,37 +46,37 @@ class UutInstance:
         self.firmware_version = firmware_version
         self.hardware_version = hardware_version
         self.link = link
-        self.extensions: MutableMapping[str, ExtensionValue] = (
-            extensions if extensions is not None else {}
-        )
+        self.extensions: MutableMapping[str, object] = extensions if extensions is not None else {}
         self.schema_id = schema_id
 
     @staticmethod
     def from_protobuf(uut_instance: UutInstanceProto) -> "UutInstance":
         """Create a UutInstance from a protobuf UutInstance message."""
-        return UutInstance(
+        result = UutInstance(
             uut_id=uut_instance.uut_id,
             serial_number=uut_instance.serial_number,
             manufacture_date=uut_instance.manufacture_date,
             firmware_version=uut_instance.firmware_version,
             hardware_version=uut_instance.hardware_version,
             link=uut_instance.link,
-            extensions=uut_instance.extensions,
             schema_id=uut_instance.schema_id,
         )
+        populate_from_extension_value_message_map(result.extensions, uut_instance.extensions)
+        return result
 
     def to_protobuf(self) -> UutInstanceProto:
         """Convert this UutInstance to a protobuf UutInstance message."""
-        return UutInstanceProto(
+        uut_instance = UutInstanceProto(
             uut_id=self.uut_id,
             serial_number=self.serial_number,
             manufacture_date=self.manufacture_date,
             firmware_version=self.firmware_version,
             hardware_version=self.hardware_version,
             link=self.link,
-            extensions=self.extensions,
             schema_id=self.schema_id,
         )
+        populate_extension_value_message_map(uut_instance.extensions, self.extensions)
+        return uut_instance
 
     def __eq__(self, other: object) -> bool:
         """Determine equality."""

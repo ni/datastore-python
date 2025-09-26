@@ -4,8 +4,11 @@ from __future__ import annotations
 
 from typing import Iterable, MutableMapping
 
+from ni.datastore.grpc_conversion import (
+    populate_extension_value_message_map,
+    populate_from_extension_value_message_map,
+)
 from ni.measurements.metadata.v1.metadata_store_pb2 import (
-    ExtensionValue,
     Uut as UutProto,
 )
 
@@ -31,7 +34,7 @@ class Uut:
         manufacturers: Iterable[str] | None = None,
         part_number: str = "",
         link: str = "",
-        extensions: MutableMapping[str, ExtensionValue] | None = None,
+        extensions: MutableMapping[str, object] | None = None,
         schema_id: str = "",
     ) -> None:
         """Initialize a Uut instance."""
@@ -40,35 +43,35 @@ class Uut:
         self.manufacturers: Iterable[str] = manufacturers if manufacturers is not None else []
         self.part_number = part_number
         self.link = link
-        self.extensions: MutableMapping[str, ExtensionValue] = (
-            extensions if extensions is not None else {}
-        )
+        self.extensions: MutableMapping[str, object] = extensions if extensions is not None else {}
         self.schema_id = schema_id
 
     @staticmethod
     def from_protobuf(uut: UutProto) -> "Uut":
         """Create a Uut instance from a protobuf Uut message."""
-        return Uut(
+        result = Uut(
             model_name=uut.model_name,
             family=uut.family,
             manufacturers=uut.manufacturers,
             part_number=uut.part_number,
             link=uut.link,
-            extensions=uut.extensions,
             schema_id=uut.schema_id,
         )
+        populate_from_extension_value_message_map(result.extensions, uut.extensions)
+        return result
 
     def to_protobuf(self) -> UutProto:
         """Convert this Uut to a protobuf Uut message."""
-        return UutProto(
+        uut = UutProto(
             model_name=self.model_name,
             family=self.family,
             manufacturers=self.manufacturers,
             part_number=self.part_number,
             link=self.link,
-            extensions=self.extensions,
             schema_id=self.schema_id,
         )
+        populate_extension_value_message_map(uut.extensions, self.extensions)
+        return uut
 
     def __eq__(self, other: object) -> bool:
         """Determine equality."""

@@ -4,8 +4,11 @@ from __future__ import annotations
 
 from typing import MutableMapping
 
+from ni.datastore.grpc_conversion import (
+    populate_extension_value_message_map,
+    populate_from_extension_value_message_map,
+)
 from ni.measurements.metadata.v1.metadata_store_pb2 import (
-    ExtensionValue,
     TestStation as TestStationProto,
 )
 
@@ -27,38 +30,38 @@ class TestStation:
         test_station_name: str = "",
         asset_identifier: str = "",
         link: str = "",
-        extensions: MutableMapping[str, ExtensionValue] | None = None,
+        extensions: MutableMapping[str, object] | None = None,
         schema_id: str = "",
     ) -> None:
         """Initialize a TestStation instance."""
         self.test_station_name = test_station_name
         self.asset_identifier = asset_identifier
         self.link = link
-        self.extensions: MutableMapping[str, ExtensionValue] = (
-            extensions if extensions is not None else {}
-        )
+        self.extensions: MutableMapping[str, object] = extensions if extensions is not None else {}
         self.schema_id = schema_id
 
     @staticmethod
     def from_protobuf(test_station: TestStationProto) -> "TestStation":
         """Create a TestStation instance from a protobuf TestStation message."""
-        return TestStation(
+        result = TestStation(
             test_station_name=test_station.test_station_name,
             asset_identifier=test_station.asset_identifier,
             link=test_station.link,
-            extensions=test_station.extensions,
             schema_id=test_station.schema_id,
         )
+        populate_from_extension_value_message_map(result.extensions, test_station.extensions)
+        return result
 
     def to_protobuf(self) -> TestStationProto:
         """Convert this TestStation to a protobuf TestStation message."""
-        return TestStationProto(
+        test_station = TestStationProto(
             test_station_name=self.test_station_name,
             asset_identifier=self.asset_identifier,
             link=self.link,
-            extensions=self.extensions,
             schema_id=self.schema_id,
         )
+        populate_extension_value_message_map(test_station.extensions, self.extensions)
+        return test_station
 
     def __eq__(self, other: object) -> bool:
         """Determine equality."""

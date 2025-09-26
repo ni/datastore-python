@@ -5,11 +5,14 @@ from __future__ import annotations
 from typing import Iterable, MutableMapping
 
 import hightime as ht
+from ni.datastore.grpc_conversion import (
+    populate_extension_value_message_map,
+    populate_from_extension_value_message_map,
+)
 from ni.measurements.data.v1.data_store_pb2 import (
     Outcome,
     TestResult as TestResultProto,
 )
-from ni.measurements.metadata.v1.metadata_store_pb2 import ExtensionValue
 from ni.protobuf.types.precision_timestamp_conversion import (
     hightime_datetime_from_protobuf,
     hightime_datetime_to_protobuf,
@@ -65,7 +68,7 @@ class TestResult:
         test_adapter_ids: Iterable[str] | None = None,
         test_result_name: str = "",
         link: str = "",
-        extensions: MutableMapping[str, ExtensionValue] | None = None,
+        extensions: MutableMapping[str, object] | None = None,
         schema_id: str = "",
     ) -> None:
         """Initialize a TestResult instance."""
@@ -85,9 +88,7 @@ class TestResult:
         )
         self.test_result_name = test_result_name
         self.link = link
-        self.extensions: MutableMapping[str, ExtensionValue] = (
-            extensions if extensions is not None else {}
-        )
+        self.extensions: MutableMapping[str, object] = extensions if extensions is not None else {}
         self.schema_id = schema_id
 
         self._start_date_time: ht.datetime | None = None
@@ -97,7 +98,7 @@ class TestResult:
     @staticmethod
     def from_protobuf(test_result: TestResultProto) -> "TestResult":
         """Create a TestResult instance from a protobuf TestResult message."""
-        converted_test_result = TestResult(
+        result = TestResult(
             test_result_id=test_result.test_result_id,
             uut_instance_id=test_result.uut_instance_id,
             operator_id=test_result.operator_id,
@@ -108,25 +109,25 @@ class TestResult:
             test_adapter_ids=test_result.test_adapter_ids,
             test_result_name=test_result.test_result_name,
             link=test_result.link,
-            extensions=test_result.extensions,
             schema_id=test_result.schema_id,
         )
-        converted_test_result._start_date_time = (
+        result._start_date_time = (
             hightime_datetime_from_protobuf(test_result.start_date_time)
             if test_result.HasField("start_date_time")
             else None
         )
-        converted_test_result._end_date_time = (
+        result._end_date_time = (
             hightime_datetime_from_protobuf(test_result.end_date_time)
             if test_result.HasField("end_date_time")
             else None
         )
-        converted_test_result._outcome = test_result.outcome
-        return converted_test_result
+        result._outcome = test_result.outcome
+        populate_from_extension_value_message_map(result.extensions, test_result.extensions)
+        return result
 
     def to_protobuf(self) -> TestResultProto:
         """Convert this TestResult to a protobuf TestResult message."""
-        return TestResultProto(
+        test_result = TestResultProto(
             test_result_id=self.test_result_id,
             uut_instance_id=self.uut_instance_id,
             operator_id=self.operator_id,
@@ -146,9 +147,10 @@ class TestResult:
             ),
             outcome=self.outcome,
             link=self.link,
-            extensions=self.extensions,
             schema_id=self.schema_id,
         )
+        populate_extension_value_message_map(test_result.extensions, self.extensions)
+        return test_result
 
     def __eq__(self, other: object) -> bool:
         """Determine equality."""
