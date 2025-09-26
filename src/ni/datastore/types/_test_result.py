@@ -171,3 +171,7 @@ class TestResult:
             and self.extensions == other.extensions
             and self.schema_id == other.schema_id
         )
+
+    def __str__(self) -> str:
+        """Return a string representation of the TestResult."""
+        return str(self.to_protobuf())

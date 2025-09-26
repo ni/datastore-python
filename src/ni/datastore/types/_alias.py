@@ -7,6 +7,7 @@ from ni.measurements.metadata.v1.metadata_store_pb2 import (
     AliasTargetType,
 )
 
+
 class Alias:
     """Information about an alias."""
 
@@ -54,3 +55,7 @@ class Alias:
             and self.target_type == other.target_type
             and self.target_id == other.target_id
         )
+
+    def __str__(self) -> str:
+        """Return a string representation of the Alias."""
+        return str(self.to_protobuf())

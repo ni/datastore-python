@@ -5,9 +5,10 @@ from __future__ import annotations
 from typing import Iterable, MutableMapping
 
 from ni.measurements.metadata.v1.metadata_store_pb2 import (
-    Uut as UutProto,
     ExtensionValue,
+    Uut as UutProto,
 )
+
 
 class Uut:
     """Information about a Unit Under Test (UUT)."""
@@ -82,3 +83,7 @@ class Uut:
             and self.extensions == other.extensions
             and self.schema_id == other.schema_id
         )
+
+    def __str__(self) -> str:
+        """Return a string representation of the Uut."""
+        return str(self.to_protobuf())

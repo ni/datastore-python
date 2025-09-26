@@ -6,14 +6,15 @@ from typing import Iterable
 
 import hightime as ht
 from ni.datamonikers.v1.data_moniker_pb2 import Moniker
+from ni.datastore.types._published_condition import PublishedCondition
 from ni.measurements.data.v1.data_store_pb2 import (
     ErrorInformation,
     Outcome,
-    PublishedCondition,
     PublishedMeasurement as PublishedMeasurementProto,
 )
 from ni.protobuf.types.precision_timestamp_conversion import (
     hightime_datetime_from_protobuf,
+    hightime_datetime_to_protobuf,
 )
 
 
@@ -85,6 +86,37 @@ class PublishedMeasurement:
         self.parametric_index = parametric_index
         self.error_information = error_information
 
+    def to_protobuf(self) -> PublishedMeasurementProto:
+        """Convert this PublishedMeasurement instance to a protobuf PublishedMeasurement message."""
+        return PublishedMeasurementProto(
+            moniker=self.moniker,
+            published_conditions=[
+                condition.to_protobuf() for condition in self.published_conditions
+            ],
+            published_measurement_id=self.published_measurement_id,
+            test_result_id=self.test_result_id,
+            step_id=self.step_id,
+            software_item_ids=self.software_item_ids,
+            hardware_item_ids=self.hardware_item_ids,
+            test_adapter_ids=self.test_adapter_ids,
+            measurement_name=self.measurement_name,
+            data_type=self.data_type,
+            measurement_notes=self.measurement_notes,
+            start_date_time=(
+                hightime_datetime_to_protobuf(self.start_date_time)
+                if self.start_date_time is not None
+                else None
+            ),
+            end_date_time=(
+                hightime_datetime_to_protobuf(self.end_date_time)
+                if self.end_date_time is not None
+                else None
+            ),
+            outcome=self.outcome,
+            parametric_index=self.parametric_index,
+            error_information=self.error_information,
+        )
+
     @staticmethod
     def from_protobuf(published_measurement: PublishedMeasurementProto) -> "PublishedMeasurement":
         """Create a PublishedMeasurement instance from a protobuf PublishedMeasurement message."""
@@ -92,7 +124,10 @@ class PublishedMeasurement:
             moniker=(
                 published_measurement.moniker if published_measurement.HasField("moniker") else None
             ),
-            published_conditions=published_measurement.published_conditions,
+            published_conditions=[
+                PublishedCondition.from_protobuf(cond)
+                for cond in published_measurement.published_conditions
+            ],
             published_measurement_id=published_measurement.published_measurement_id,
             test_result_id=published_measurement.test_result_id,
             step_id=published_measurement.step_id,
@@ -143,3 +178,7 @@ class PublishedMeasurement:
             and self.parametric_index == other.parametric_index
             and self.error_information == other.error_information
         )
+
+    def __str__(self) -> str:
+        """Return a string representation of the PublishedMeasurement."""
+        return str(self.to_protobuf())

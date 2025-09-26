@@ -52,6 +52,18 @@ class PublishedCondition:
             test_result_id=published_condition.test_result_id,
         )
 
+    def to_protobuf(self) -> PublishedConditionProto:
+        """Convert this PublishedCondition instance to a protobuf PublishedCondition message."""
+        published_condition = PublishedConditionProto(
+            moniker=self.moniker,
+            published_condition_id=self.published_condition_id,
+            condition_name=self.condition_name,
+            condition_type=self.condition_type,
+            step_id=self.step_id,
+            test_result_id=self.test_result_id,
+        )
+        return published_condition
+
     def __eq__(self, other: object) -> bool:
         """Determine equality."""
         if not isinstance(other, PublishedCondition):
@@ -64,3 +76,7 @@ class PublishedCondition:
             and self.step_id == other.step_id
             and self.test_result_id == other.test_result_id
         )
+
+    def __str__(self) -> str:
+        """Return a string representation of the PublishedCondition."""
+        return str(self.to_protobuf())

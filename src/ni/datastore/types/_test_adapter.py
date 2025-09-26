@@ -5,9 +5,10 @@ from __future__ import annotations
 from typing import MutableMapping
 
 from ni.measurements.metadata.v1.metadata_store_pb2 import (
-    TestAdapter as TestAdapterProto,
     ExtensionValue,
+    TestAdapter as TestAdapterProto,
 )
+
 
 class TestAdapter:
     """Information about a test adapter."""
@@ -100,3 +101,7 @@ class TestAdapter:
             and self.extensions == other.extensions
             and self.schema_id == other.schema_id
         )
+
+    def __str__(self) -> str:
+        """Return a string representation of the TestAdapter."""
+        return str(self.to_protobuf())

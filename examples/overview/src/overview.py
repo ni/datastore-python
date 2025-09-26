@@ -4,10 +4,12 @@ from datetime import timezone
 
 import hightime as ht
 import numpy as np
-from ni.datastore import Client, Step, TestResult
-from ni.measurements.metadata.v1.metadata_store_pb2 import (
+from ni.datastore import (
+    Client,
     Operator,
     SoftwareItem,
+    Step,
+    TestResult,
     TestStation,
     Uut,
     UutInstance,

@@ -5,9 +5,10 @@ from __future__ import annotations
 from typing import MutableMapping
 
 from ni.measurements.metadata.v1.metadata_store_pb2 import (
-    SoftwareItem as SoftwareItemProto,
     ExtensionValue,
+    SoftwareItem as SoftwareItemProto,
 )
+
 
 class SoftwareItem:
     """Information about a software item."""
@@ -70,3 +71,7 @@ class SoftwareItem:
             and self.extensions == other.extensions
             and self.schema_id == other.schema_id
         )
+
+    def __str__(self) -> str:
+        """Return a string representation of the SoftwareItem."""
+        return str(self.to_protobuf())

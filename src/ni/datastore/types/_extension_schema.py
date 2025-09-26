@@ -6,6 +6,7 @@ from ni.measurements.metadata.v1.metadata_store_pb2 import (
     ExtensionSchema as ExtensionSchemaProto,
 )
 
+
 class ExtensionSchema:
     """Information about an extension schema."""
 
@@ -43,7 +44,8 @@ class ExtensionSchema:
         """Determine equality."""
         if not isinstance(other, ExtensionSchema):
             return NotImplemented
-        return (
-            self.schema_id == other.schema_id
-            and self.schema == other.schema
-        )
+        return self.schema_id == other.schema_id and self.schema == other.schema
+
+    def __str__(self) -> str:
+        """Return a string representation of the ExtensionSchema."""
+        return str(self.to_protobuf())
