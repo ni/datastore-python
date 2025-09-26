@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from typing import Any
 from unittest.mock import NonCallableMock
 
 import pytest
@@ -26,7 +27,7 @@ def client(
 
 
 @pytest.fixture
-def mocked_datastore_client(mocker: MockerFixture) -> NonCallableMock:
+def mocked_datastore_client(mocker: MockerFixture) -> Any:
     """Returns the pytest fixture for a mocked datastore client."""
     mock_datastore_client = mocker.patch(
         "ni.measurements.data.v1.client.DataStoreClient", autospec=True
@@ -36,7 +37,7 @@ def mocked_datastore_client(mocker: MockerFixture) -> NonCallableMock:
 
 
 @pytest.fixture
-def mocked_metadatastore_client(mocker: MockerFixture) -> NonCallableMock:
+def mocked_metadatastore_client(mocker: MockerFixture) -> Any:
     """Returns the pytest fixture for a mocked metadatastore client."""
     mock_metadatastore_client = mocker.patch(
         "ni.measurements.metadata.v1.client.MetadataStoreClient", autospec=True
@@ -46,7 +47,7 @@ def mocked_metadatastore_client(mocker: MockerFixture) -> NonCallableMock:
 
 
 @pytest.fixture
-def mocked_moniker_client(mocker: MockerFixture) -> NonCallableMock:
+def mocked_moniker_client(mocker: MockerFixture) -> Any:
     """Returns the pytest fixture for a mocked moniker client."""
     mock_moniker_client = mocker.patch("ni.datamonikers.v1.client.MonikerClient", autospec=True)
     mock_moniker_instance = mock_moniker_client.return_value
