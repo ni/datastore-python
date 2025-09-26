@@ -127,13 +127,13 @@ class PublishedMeasurement:
             return NotImplemented
         return (
             self.moniker == other.moniker
-            and self.published_conditions == other.published_conditions
+            and list(self.published_conditions) == list(other.published_conditions)
             and self.published_measurement_id == other.published_measurement_id
             and self.test_result_id == other.test_result_id
             and self.step_id == other.step_id
-            and self.software_item_ids == other.software_item_ids
-            and self.hardware_item_ids == other.hardware_item_ids
-            and self.test_adapter_ids == other.test_adapter_ids
+            and list(self.software_item_ids) == list(other.software_item_ids)
+            and list(self.hardware_item_ids) == list(other.hardware_item_ids)
+            and list(self.test_adapter_ids) == list(other.test_adapter_ids)
             and self.measurement_name == other.measurement_name
             and self.data_type == other.data_type
             and self.measurement_notes == other.measurement_notes

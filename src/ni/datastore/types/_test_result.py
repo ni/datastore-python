@@ -160,9 +160,9 @@ class TestResult:
             and self.operator_id == other.operator_id
             and self.test_station_id == other.test_station_id
             and self.test_description_id == other.test_description_id
-            and self.software_item_ids == other.software_item_ids
-            and self.hardware_item_ids == other.hardware_item_ids
-            and self.test_adapter_ids == other.test_adapter_ids
+            and list(self.software_item_ids) == list(other.software_item_ids)
+            and list(self.hardware_item_ids) == list(other.hardware_item_ids)
+            and list(self.test_adapter_ids) == list(other.test_adapter_ids)
             and self.test_result_name == other.test_result_name
             and self.start_date_time == other.start_date_time
             and self.end_date_time == other.end_date_time
