@@ -15,7 +15,9 @@ from nitypes.vector import Vector
 from nitypes.waveform import AnalogWaveform, ComplexWaveform, DigitalWaveform, Spectrum
 
 
-def test___read_data___calls_monikerclient(client: Client, mocked_moniker_client: NonCallableMock) -> None:
+def test___read_data___calls_monikerclient(
+    client: Client, mocked_moniker_client: NonCallableMock
+) -> None:
     moniker = _init_moniker()
     result = ReadFromMonikerResult()
     value_to_read = gpAny()
@@ -149,7 +151,9 @@ def test___read_double_spectrum___value_correct(
     assert actual_waveform.frequency_increment == 10.0
 
 
-def test___read_vector___value_correct(client: Client, mocked_moniker_client: NonCallableMock) -> None:
+def test___read_vector___value_correct(
+    client: Client, mocked_moniker_client: NonCallableMock
+) -> None:
     moniker = _init_moniker()
     result = ReadFromMonikerResult()
     value_to_read = gpAny()
