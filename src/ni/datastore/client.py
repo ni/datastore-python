@@ -9,8 +9,8 @@ from threading import Lock
 from typing import Type, TypeVar, cast, overload
 from urllib.parse import urlparse
 
-from grpc import Channel
 import hightime as ht
+from grpc import Channel
 from ni.datamonikers.v1.client import MonikerClient
 from ni.datamonikers.v1.data_moniker_pb2 import Moniker
 from ni.datastore.grpc_conversion import (
@@ -139,7 +139,9 @@ class Client:
         Args:
             discovery_client: An optional discovery client (recommended).
 
-            grpc_channel: An optional data store gRPC channel.
+            grpc_channel: An optional data store gRPC channel. (Note: Reading data
+            from a moniker will still always use a channel corresponding to the service location
+            specified by the moniker.)
 
             grpc_channel_pool: An optional gRPC channel pool (recommended).
         """
