@@ -139,9 +139,10 @@ class Client:
         Args:
             discovery_client: An optional discovery client (recommended).
 
-            grpc_channel: An optional data store gRPC channel. (Note: Reading data
-            from a moniker will still always use a channel corresponding to the service location
-            specified by the moniker.)
+            grpc_channel: An optional data store gRPC channel. Providing this channel will bypass
+            discovery service resolution of the data store. (Note: Reading data from a moniker
+            will still always use a channel corresponding to the service location specified by
+            that moniker.)
 
             grpc_channel_pool: An optional gRPC channel pool (recommended).
         """
