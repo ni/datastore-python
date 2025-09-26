@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import cast
 from unittest.mock import Mock
 
-from ni.datastore.client import Client
+from ni.datastore import Client
 from ni.measurements.data.v1.data_store_pb2 import PublishedCondition
 from ni.measurements.data.v1.data_store_service_pb2 import (
     PublishConditionBatchRequest,
