@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from unittest.mock import Mock
+from unittest.mock import NonCallableMock
 
 import pytest
 from ni.datastore import Client
@@ -11,9 +11,9 @@ from pytest_mock import MockerFixture
 
 @pytest.fixture
 def client(
-    mocked_datastore_client: Mock,
-    mocked_metadatastore_client: Mock,
-    mocked_moniker_client: Mock,
+    mocked_datastore_client: NonCallableMock,
+    mocked_metadatastore_client: NonCallableMock,
+    mocked_moniker_client: NonCallableMock,
     mocker: MockerFixture,
 ) -> Client:
     """Returns the pytest fixture for the client."""
@@ -26,7 +26,7 @@ def client(
 
 
 @pytest.fixture
-def mocked_datastore_client(mocker: MockerFixture) -> Mock:
+def mocked_datastore_client(mocker: MockerFixture) -> NonCallableMock:
     """Returns the pytest fixture for a mocked datastore client."""
     mock_datastore_client = mocker.patch(
         "ni.measurements.data.v1.client.DataStoreClient", autospec=True
@@ -36,7 +36,7 @@ def mocked_datastore_client(mocker: MockerFixture) -> Mock:
 
 
 @pytest.fixture
-def mocked_metadatastore_client(mocker: MockerFixture) -> Mock:
+def mocked_metadatastore_client(mocker: MockerFixture) -> NonCallableMock:
     """Returns the pytest fixture for a mocked metadatastore client."""
     mock_metadatastore_client = mocker.patch(
         "ni.measurements.metadata.v1.client.MetadataStoreClient", autospec=True
@@ -46,7 +46,7 @@ def mocked_metadatastore_client(mocker: MockerFixture) -> Mock:
 
 
 @pytest.fixture
-def mocked_moniker_client(mocker: MockerFixture) -> Mock:
+def mocked_moniker_client(mocker: MockerFixture) -> NonCallableMock:
     """Returns the pytest fixture for a mocked moniker client."""
     mock_moniker_client = mocker.patch("ni.datamonikers.v1.client.MonikerClient", autospec=True)
     mock_moniker_instance = mock_moniker_client.return_value

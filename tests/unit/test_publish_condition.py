@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from typing import cast
-from unittest.mock import Mock
+from unittest.mock import NonCallableMock
 
 from ni.datastore import Client
 from ni.measurements.data.v1.data_store_pb2 import PublishedCondition
@@ -18,7 +18,7 @@ from nitypes.vector import Vector
 
 def test___publish_condition___calls_datastoreclient(
     client: Client,
-    mocked_datastore_client: Mock,
+    mocked_datastore_client: NonCallableMock,
 ) -> None:
     published_condition = PublishedCondition(published_condition_id="response_id")
     expected_response = PublishConditionResponse(published_condition=published_condition)
@@ -42,7 +42,7 @@ def test___publish_condition___calls_datastoreclient(
 
 def test___publish_condition_batch___calls_datastoreclient(
     client: Client,
-    mocked_datastore_client: Mock,
+    mocked_datastore_client: NonCallableMock,
 ) -> None:
     published_condition = PublishedCondition(published_condition_id="response_id")
     expected_response = PublishConditionBatchResponse(published_condition=published_condition)

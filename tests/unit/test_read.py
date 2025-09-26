@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from typing import cast
-from unittest.mock import Mock
+from unittest.mock import NonCallableMock
 
 import numpy as np
 from google.protobuf.any_pb2 import Any as gpAny
@@ -15,7 +15,7 @@ from nitypes.vector import Vector
 from nitypes.waveform import AnalogWaveform, ComplexWaveform, DigitalWaveform, Spectrum
 
 
-def test___read_data___calls_monikerclient(client: Client, mocked_moniker_client: Mock) -> None:
+def test___read_data___calls_monikerclient(client: Client, mocked_moniker_client: NonCallableMock) -> None:
     moniker = _init_moniker()
     result = ReadFromMonikerResult()
     value_to_read = gpAny()
@@ -36,7 +36,7 @@ def test___read_data___calls_monikerclient(client: Client, mocked_moniker_client
 
 
 def test___read_double_analog_waveform___value_correct(
-    client: Client, mocked_moniker_client: Mock
+    client: Client, mocked_moniker_client: NonCallableMock
 ) -> None:
     moniker = _init_moniker()
     result = ReadFromMonikerResult()
@@ -53,7 +53,7 @@ def test___read_double_analog_waveform___value_correct(
 
 
 def test___read_i16_analog_waveform___value_correct(
-    client: Client, mocked_moniker_client: Mock
+    client: Client, mocked_moniker_client: NonCallableMock
 ) -> None:
     moniker = _init_moniker()
     result = ReadFromMonikerResult()
@@ -70,7 +70,7 @@ def test___read_i16_analog_waveform___value_correct(
 
 
 def test___read_double_complex_waveform___value_correct(
-    client: Client, mocked_moniker_client: Mock
+    client: Client, mocked_moniker_client: NonCallableMock
 ) -> None:
     moniker = _init_moniker()
     result = ReadFromMonikerResult()
@@ -89,7 +89,7 @@ def test___read_double_complex_waveform___value_correct(
 
 
 def test___read_i16_complex_waveform___value_correct(
-    client: Client, mocked_moniker_client: Mock
+    client: Client, mocked_moniker_client: NonCallableMock
 ) -> None:
     moniker = _init_moniker()
     result = ReadFromMonikerResult()
@@ -108,7 +108,7 @@ def test___read_i16_complex_waveform___value_correct(
 
 
 def test___read_digital_waveform___value_correct(
-    client: Client, mocked_moniker_client: Mock
+    client: Client, mocked_moniker_client: NonCallableMock
 ) -> None:
     moniker = _init_moniker()
     result = ReadFromMonikerResult()
@@ -127,7 +127,7 @@ def test___read_digital_waveform___value_correct(
 
 
 def test___read_double_spectrum___value_correct(
-    client: Client, mocked_moniker_client: Mock
+    client: Client, mocked_moniker_client: NonCallableMock
 ) -> None:
     moniker = _init_moniker()
     result = ReadFromMonikerResult()
@@ -149,7 +149,7 @@ def test___read_double_spectrum___value_correct(
     assert actual_waveform.frequency_increment == 10.0
 
 
-def test___read_vector___value_correct(client: Client, mocked_moniker_client: Mock) -> None:
+def test___read_vector___value_correct(client: Client, mocked_moniker_client: NonCallableMock) -> None:
     moniker = _init_moniker()
     result = ReadFromMonikerResult()
     value_to_read = gpAny()

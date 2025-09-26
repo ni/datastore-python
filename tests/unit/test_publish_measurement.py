@@ -5,7 +5,7 @@ from __future__ import annotations
 import datetime as std_datetime
 import unittest.mock
 from typing import cast
-from unittest.mock import Mock
+from unittest.mock import NonCallableMock
 
 import numpy as np
 import pytest
@@ -33,7 +33,7 @@ from nitypes.waveform import AnalogWaveform, Timing
 
 @pytest.mark.parametrize("value", [True, False])
 def test___publish_boolean_data___calls_datastoreclient(
-    client: Client, mocked_datastore_client: Mock, value: bool
+    client: Client, mocked_datastore_client: NonCallableMock, value: bool
 ) -> None:
     timestamp = datetime.now(tz=std_datetime.timezone.utc)
     published_measurement = PublishedMeasurement(published_measurement_id="response_id")
@@ -70,7 +70,7 @@ def test___publish_boolean_data___calls_datastoreclient(
 
 def test___publish_analog_waveform_data___calls_datastoreclient(
     client: Client,
-    mocked_datastore_client: Mock,
+    mocked_datastore_client: NonCallableMock,
 ) -> None:
     timestamp = datetime.now(tz=std_datetime.timezone.utc)
     waveform_values = [1.0, 2.0, 3.0]
@@ -116,7 +116,7 @@ def test___publish_analog_waveform_data___calls_datastoreclient(
 
 def test___publish_analog_waveform_data_without_timestamp_parameter___uses_waveform_t0(
     client: Client,
-    mocked_datastore_client: Mock,
+    mocked_datastore_client: NonCallableMock,
 ) -> None:
     timestamp = datetime.now(tz=std_datetime.timezone.utc)
     waveform_values = [1.0, 2.0, 3.0]
@@ -141,7 +141,7 @@ def test___publish_analog_waveform_data_without_timestamp_parameter___uses_wavef
 
 def test___publish_analog_waveform_data_without_t0___uses_timestamp_parameter(
     client: Client,
-    mocked_datastore_client: Mock,
+    mocked_datastore_client: NonCallableMock,
 ) -> None:
     timestamp = datetime.now(tz=std_datetime.timezone.utc)
     analog_waveform = AnalogWaveform.from_array_1d([1.0, 2.0, 3.0], dtype=float)
@@ -177,7 +177,7 @@ def test___publish_analog_waveform_data_with_mismatched_timestamp_parameter___ra
 
 def test___publish_measurement_batch___calls_datastoreclient(
     client: Client,
-    mocked_datastore_client: Mock,
+    mocked_datastore_client: NonCallableMock,
 ) -> None:
     timestamp = datetime.now(tz=std_datetime.timezone.utc)
     published_measurement = PublishedMeasurement(published_measurement_id="response_id")

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import datetime as std_datetime
 from typing import cast
-from unittest.mock import Mock
+from unittest.mock import NonCallableMock
 
 from hightime import datetime
 from ni.datastore import Client, Step, TestResult
@@ -56,7 +56,7 @@ from ni.protobuf.types.precision_timestamp_conversion import (
 
 def test___get_step___calls_datastoreclient(
     client: Client,
-    mocked_datastore_client: Mock,
+    mocked_datastore_client: NonCallableMock,
 ) -> None:
     start_time = datetime.now(tz=std_datetime.timezone.utc)
     end_time = datetime.now(tz=std_datetime.timezone.utc)
@@ -83,7 +83,7 @@ def test___get_step___calls_datastoreclient(
 
 def test___get_test_result___calls_datastoreclient(
     client: Client,
-    mocked_datastore_client: Mock,
+    mocked_datastore_client: NonCallableMock,
 ) -> None:
     start_time = datetime.now(tz=std_datetime.timezone.utc)
     end_time = datetime.now(tz=std_datetime.timezone.utc)
@@ -113,7 +113,7 @@ def test___get_test_result___calls_datastoreclient(
 
 def test___get_uut_instance___calls_metadatastoreclient(
     client: Client,
-    mocked_metadatastore_client: Mock,
+    mocked_metadatastore_client: NonCallableMock,
 ) -> None:
     uut_instance = UutInstance(
         uut_id="uut_id",
@@ -138,7 +138,7 @@ def test___get_uut_instance___calls_metadatastoreclient(
 
 def test___get_uut___calls_metadatastoreclient(
     client: Client,
-    mocked_metadatastore_client: Mock,
+    mocked_metadatastore_client: NonCallableMock,
 ) -> None:
     uut = Uut(
         model_name="model_name",
@@ -162,7 +162,7 @@ def test___get_uut___calls_metadatastoreclient(
 
 def test___get_operator___calls_metadatastoreclient(
     client: Client,
-    mocked_metadatastore_client: Mock,
+    mocked_metadatastore_client: NonCallableMock,
 ) -> None:
     operator = Operator(
         operator_name="operator_name",
@@ -184,7 +184,7 @@ def test___get_operator___calls_metadatastoreclient(
 
 def test___get_test_description___calls_metadatastoreclient(
     client: Client,
-    mocked_metadatastore_client: Mock,
+    mocked_metadatastore_client: NonCallableMock,
 ) -> None:
     test_description = TestDescription(
         uut_id="uut_id",
@@ -206,7 +206,7 @@ def test___get_test_description___calls_metadatastoreclient(
 
 def test___get_test___calls_metadatastoreclient(
     client: Client,
-    mocked_metadatastore_client: Mock,
+    mocked_metadatastore_client: NonCallableMock,
 ) -> None:
     test = Test(
         test_name="test_name",
@@ -227,7 +227,7 @@ def test___get_test___calls_metadatastoreclient(
 
 def test___get_test_station___calls_metadatastoreclient(
     client: Client,
-    mocked_metadatastore_client: Mock,
+    mocked_metadatastore_client: NonCallableMock,
 ) -> None:
     test_station = TestStation(
         test_station_name="test_station_name",
@@ -249,7 +249,7 @@ def test___get_test_station___calls_metadatastoreclient(
 
 def test___get_hardware_item___calls_metadatastoreclient(
     client: Client,
-    mocked_metadatastore_client: Mock,
+    mocked_metadatastore_client: NonCallableMock,
 ) -> None:
     hardware_item = HardwareItem(
         manufacturer="manufacturer",
@@ -275,7 +275,7 @@ def test___get_hardware_item___calls_metadatastoreclient(
 
 def test___get_software_item___calls_metadatastoreclient(
     client: Client,
-    mocked_metadatastore_client: Mock,
+    mocked_metadatastore_client: NonCallableMock,
 ) -> None:
     software_item = SoftwareItem(
         product="product",
@@ -297,7 +297,7 @@ def test___get_software_item___calls_metadatastoreclient(
 
 def test___get_test_adapter___calls_metadatastoreclient(
     client: Client,
-    mocked_metadatastore_client: Mock,
+    mocked_metadatastore_client: NonCallableMock,
 ) -> None:
     test_adapter = TestAdapter(
         test_adapter_name="test_adapter_name",
