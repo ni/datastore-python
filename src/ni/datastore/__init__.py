@@ -2,21 +2,21 @@
 
 from ni.datamonikers.v1.data_moniker_pb2 import Moniker
 from ni.datastore._client import Client
-from ni.datastore.types._alias import Alias
-from ni.datastore.types._extension_schema import ExtensionSchema
-from ni.datastore.types._hardware_item import HardwareItem
-from ni.datastore.types._operator import Operator
-from ni.datastore.types._published_condition import PublishedCondition
-from ni.datastore.types._published_measurement import PublishedMeasurement
-from ni.datastore.types._software_item import SoftwareItem
-from ni.datastore.types._step import Step
-from ni.datastore.types._test import Test
-from ni.datastore.types._test_adapter import TestAdapter
-from ni.datastore.types._test_description import TestDescription
-from ni.datastore.types._test_result import TestResult
-from ni.datastore.types._test_station import TestStation
-from ni.datastore.types._uut import Uut
-from ni.datastore.types._uut_instance import UutInstance
+from ni.datastore._types._alias import Alias
+from ni.datastore._types._extension_schema import ExtensionSchema
+from ni.datastore._types._hardware_item import HardwareItem
+from ni.datastore._types._operator import Operator
+from ni.datastore._types._published_condition import PublishedCondition
+from ni.datastore._types._published_measurement import PublishedMeasurement
+from ni.datastore._types._software_item import SoftwareItem
+from ni.datastore._types._step import Step
+from ni.datastore._types._test import Test
+from ni.datastore._types._test_adapter import TestAdapter
+from ni.datastore._types._test_description import TestDescription
+from ni.datastore._types._test_result import TestResult
+from ni.datastore._types._test_station import TestStation
+from ni.datastore._types._uut import Uut
+from ni.datastore._types._uut_instance import UutInstance
 from ni.measurements.data.v1.data_store_pb2 import ErrorInformation, Outcome
 from ni.measurements.metadata.v1.metadata_store_pb2 import AliasTargetType
 

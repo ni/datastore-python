@@ -6,7 +6,7 @@ from typing import Iterable
 
 import hightime as ht
 from ni.datamonikers.v1.data_moniker_pb2 import Moniker
-from ni.datastore.types._published_condition import PublishedCondition
+from ni.datastore._types._published_condition import PublishedCondition
 from ni.measurements.data.v1.data_store_pb2 import (
     ErrorInformation,
     Outcome,
