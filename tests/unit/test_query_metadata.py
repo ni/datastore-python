@@ -7,22 +7,34 @@ from typing import cast
 from unittest.mock import NonCallableMock
 
 from hightime import datetime
-from ni.datastore import Client, Step
-from ni.measurements.data.v1.data_store_pb2 import Step as StepProto
-from ni.measurements.data.v1.data_store_service_pb2 import (
-    QueryStepsRequest,
-    QueryStepsResponse,
-)
-from ni.measurements.metadata.v1.metadata_store_pb2 import (
+from ni.datastore import (
+    Client,
     HardwareItem,
     Operator,
     SoftwareItem,
+    Step,
     Test,
     TestAdapter,
     TestDescription,
     TestStation,
     Uut,
     UutInstance,
+)
+from ni.measurements.data.v1.data_store_pb2 import Step as StepProto
+from ni.measurements.data.v1.data_store_service_pb2 import (
+    QueryStepsRequest,
+    QueryStepsResponse,
+)
+from ni.measurements.metadata.v1.metadata_store_pb2 import (
+    HardwareItem as HardwareItemProto,
+    Operator as OperatorProto,
+    SoftwareItem as SoftwareItemProto,
+    Test as TestProto,
+    TestAdapter as TestAdapterProto,
+    TestDescription as TestDescriptionProto,
+    TestStation as TestStationProto,
+    Uut as UutProto,
+    UutInstance as UutInstanceProto,
 )
 from ni.measurements.metadata.v1.metadata_store_service_pb2 import (
     QueryHardwareItemsRequest,
@@ -80,7 +92,7 @@ def test___query_uut_instances___calls_metadatastoreclient(
     client: Client,
     mocked_metadatastore_client: NonCallableMock,
 ) -> None:
-    uut_instance = UutInstance(
+    uut_instance = UutInstanceProto(
         uut_id="uut_id",
         serial_number="serial_number",
         manufacture_date="manufacture_date",
@@ -98,14 +110,14 @@ def test___query_uut_instances___calls_metadatastoreclient(
     args, __ = mocked_metadatastore_client.query_uut_instances.call_args
     request = cast(QueryUutInstancesRequest, args[0])
     assert request.odata_query == "request_query"
-    assert list(result) == [uut_instance]
+    assert list(result) == [UutInstance.from_protobuf(uut_instance)]
 
 
 def test___query_uuts___calls_metadatastoreclient(
     client: Client,
     mocked_metadatastore_client: NonCallableMock,
 ) -> None:
-    uut = Uut(
+    uut = UutProto(
         model_name="model_name",
         family="family",
         manufacturers=None,
@@ -122,14 +134,14 @@ def test___query_uuts___calls_metadatastoreclient(
     args, __ = mocked_metadatastore_client.query_uuts.call_args
     request = cast(QueryUutsRequest, args[0])
     assert request.odata_query == "request_query"
-    assert list(result) == [uut]
+    assert list(result) == [Uut.from_protobuf(uut)]
 
 
 def test___query_operators___calls_metadatastoreclient(
     client: Client,
     mocked_metadatastore_client: NonCallableMock,
 ) -> None:
-    operator = Operator(
+    operator = OperatorProto(
         operator_name="operator_name",
         role="role",
         link="link",
@@ -144,14 +156,14 @@ def test___query_operators___calls_metadatastoreclient(
     args, __ = mocked_metadatastore_client.query_operators.call_args
     request = cast(QueryOperatorsRequest, args[0])
     assert request.odata_query == "request_query"
-    assert list(result) == [operator]
+    assert list(result) == [Operator.from_protobuf(operator)]
 
 
 def test___query_test_descriptions___calls_metadatastoreclient(
     client: Client,
     mocked_metadatastore_client: NonCallableMock,
 ) -> None:
-    test_description = TestDescription(
+    test_description = TestDescriptionProto(
         uut_id="uut_id",
         test_description_name="test_description_name",
         link="link",
@@ -166,14 +178,14 @@ def test___query_test_descriptions___calls_metadatastoreclient(
     args, __ = mocked_metadatastore_client.query_test_descriptions.call_args
     request = cast(QueryTestDescriptionsRequest, args[0])
     assert request.odata_query == "request_query"
-    assert list(result) == [test_description]
+    assert list(result) == [TestDescription.from_protobuf(test_description)]
 
 
 def test___query_tests___calls_metadatastoreclient(
     client: Client,
     mocked_metadatastore_client: NonCallableMock,
 ) -> None:
-    test = Test(
+    test = TestProto(
         test_name="test_name",
         description="description",
         extensions=None,
@@ -187,14 +199,14 @@ def test___query_tests___calls_metadatastoreclient(
     args, __ = mocked_metadatastore_client.query_tests.call_args
     request = cast(QueryTestsRequest, args[0])
     assert request.odata_query == "request_query"
-    assert list(result) == [test]
+    assert list(result) == [Test.from_protobuf(test)]
 
 
 def test___query_test_stations___calls_metadatastoreclient(
     client: Client,
     mocked_metadatastore_client: NonCallableMock,
 ) -> None:
-    test_station = TestStation(
+    test_station = TestStationProto(
         test_station_name="test_station_name",
         asset_identifier="asset_identifier",
         link="link",
@@ -209,14 +221,14 @@ def test___query_test_stations___calls_metadatastoreclient(
     args, __ = mocked_metadatastore_client.query_test_stations.call_args
     request = cast(QueryTestStationsRequest, args[0])
     assert request.odata_query == "request_query"
-    assert list(result) == [test_station]
+    assert list(result) == [TestStation.from_protobuf(test_station)]
 
 
 def test___query_hardware_items___calls_metadatastoreclient(
     client: Client,
     mocked_metadatastore_client: NonCallableMock,
 ) -> None:
-    hardware_item = HardwareItem(
+    hardware_item = HardwareItemProto(
         manufacturer="manufacturer",
         model="model",
         serial_number="serial_number",
@@ -235,14 +247,14 @@ def test___query_hardware_items___calls_metadatastoreclient(
     args, __ = mocked_metadatastore_client.query_hardware_items.call_args
     request = cast(QueryHardwareItemsRequest, args[0])
     assert request.odata_query == "request_query"
-    assert list(result) == [hardware_item]
+    assert list(result) == [HardwareItem.from_protobuf(hardware_item)]
 
 
 def test___query_software_items___calls_metadatastoreclient(
     client: Client,
     mocked_metadatastore_client: NonCallableMock,
 ) -> None:
-    software_item = SoftwareItem(
+    software_item = SoftwareItemProto(
         product="product",
         version="version",
         link="link",
@@ -257,14 +269,14 @@ def test___query_software_items___calls_metadatastoreclient(
     args, __ = mocked_metadatastore_client.query_software_items.call_args
     request = cast(QuerySoftwareItemsRequest, args[0])
     assert request.odata_query == "request_query"
-    assert list(result) == [software_item]
+    assert list(result) == [SoftwareItem.from_protobuf(software_item)]
 
 
 def test___query_test_adapters___calls_metadatastoreclient(
     client: Client,
     mocked_metadatastore_client: NonCallableMock,
 ) -> None:
-    test_adapter = TestAdapter(
+    test_adapter = TestAdapterProto(
         test_adapter_name="test_adapter_name",
         manufacturer="manufacturer",
         model="model",
@@ -284,4 +296,4 @@ def test___query_test_adapters___calls_metadatastoreclient(
     args, __ = mocked_metadatastore_client.query_test_adapters.call_args
     request = cast(QueryTestAdaptersRequest, args[0])
     assert request.odata_query == "request_query"
-    assert list(result) == [test_adapter]
+    assert list(result) == [TestAdapter.from_protobuf(test_adapter)]

@@ -5,11 +5,14 @@ from __future__ import annotations
 from typing import Iterable, MutableMapping
 
 import hightime as ht
+from ni.datastore.grpc_conversion import (
+    populate_extension_value_message_map,
+    populate_from_extension_value_message_map,
+)
 from ni.measurements.data.v1.data_store_pb2 import (
     Outcome,
     TestResult as TestResultProto,
 )
-from ni.measurements.metadata.v1.metadata_store_pb2 import ExtensionValue
 from ni.protobuf.types.precision_timestamp_conversion import (
     hightime_datetime_from_protobuf,
     hightime_datetime_to_protobuf,
@@ -65,7 +68,7 @@ class TestResult:
         test_adapter_ids: Iterable[str] | None = None,
         test_result_name: str = "",
         link: str = "",
-        extensions: MutableMapping[str, ExtensionValue] | None = None,
+        extensions: MutableMapping[str, str] | None = None,
         schema_id: str = "",
     ) -> None:
         """Initialize a TestResult instance."""
@@ -85,9 +88,7 @@ class TestResult:
         )
         self.test_result_name = test_result_name
         self.link = link
-        self.extensions: MutableMapping[str, ExtensionValue] = (
-            extensions if extensions is not None else {}
-        )
+        self.extensions: MutableMapping[str, str] = extensions if extensions is not None else {}
         self.schema_id = schema_id
 
         self._start_date_time: ht.datetime | None = None
@@ -95,38 +96,40 @@ class TestResult:
         self._outcome: Outcome.ValueType = Outcome.OUTCOME_UNSPECIFIED
 
     @staticmethod
-    def from_protobuf(test_result: TestResultProto) -> "TestResult":
+    def from_protobuf(test_result_proto: TestResultProto) -> "TestResult":
         """Create a TestResult instance from a protobuf TestResult message."""
-        converted_test_result = TestResult(
-            test_result_id=test_result.test_result_id,
-            uut_instance_id=test_result.uut_instance_id,
-            operator_id=test_result.operator_id,
-            test_station_id=test_result.test_station_id,
-            test_description_id=test_result.test_description_id,
-            software_item_ids=test_result.software_item_ids,
-            hardware_item_ids=test_result.hardware_item_ids,
-            test_adapter_ids=test_result.test_adapter_ids,
-            test_result_name=test_result.test_result_name,
-            link=test_result.link,
-            extensions=test_result.extensions,
-            schema_id=test_result.schema_id,
+        test_result = TestResult(
+            test_result_id=test_result_proto.test_result_id,
+            uut_instance_id=test_result_proto.uut_instance_id,
+            operator_id=test_result_proto.operator_id,
+            test_station_id=test_result_proto.test_station_id,
+            test_description_id=test_result_proto.test_description_id,
+            software_item_ids=test_result_proto.software_item_ids,
+            hardware_item_ids=test_result_proto.hardware_item_ids,
+            test_adapter_ids=test_result_proto.test_adapter_ids,
+            test_result_name=test_result_proto.test_result_name,
+            link=test_result_proto.link,
+            schema_id=test_result_proto.schema_id,
         )
-        converted_test_result._start_date_time = (
-            hightime_datetime_from_protobuf(test_result.start_date_time)
-            if test_result.HasField("start_date_time")
+        test_result._start_date_time = (
+            hightime_datetime_from_protobuf(test_result_proto.start_date_time)
+            if test_result_proto.HasField("start_date_time")
             else None
         )
-        converted_test_result._end_date_time = (
-            hightime_datetime_from_protobuf(test_result.end_date_time)
-            if test_result.HasField("end_date_time")
+        test_result._end_date_time = (
+            hightime_datetime_from_protobuf(test_result_proto.end_date_time)
+            if test_result_proto.HasField("end_date_time")
             else None
         )
-        converted_test_result._outcome = test_result.outcome
-        return converted_test_result
+        test_result._outcome = test_result_proto.outcome
+        populate_from_extension_value_message_map(
+            test_result.extensions, test_result_proto.extensions
+        )
+        return test_result
 
     def to_protobuf(self) -> TestResultProto:
         """Convert this TestResult to a protobuf TestResult message."""
-        return TestResultProto(
+        test_result_proto = TestResultProto(
             test_result_id=self.test_result_id,
             uut_instance_id=self.uut_instance_id,
             operator_id=self.operator_id,
@@ -146,9 +149,10 @@ class TestResult:
             ),
             outcome=self.outcome,
             link=self.link,
-            extensions=self.extensions,
             schema_id=self.schema_id,
         )
+        populate_extension_value_message_map(test_result_proto.extensions, self.extensions)
+        return test_result_proto
 
     def __eq__(self, other: object) -> bool:
         """Determine equality."""
@@ -160,9 +164,9 @@ class TestResult:
             and self.operator_id == other.operator_id
             and self.test_station_id == other.test_station_id
             and self.test_description_id == other.test_description_id
-            and self.software_item_ids == other.software_item_ids
-            and self.hardware_item_ids == other.hardware_item_ids
-            and self.test_adapter_ids == other.test_adapter_ids
+            and list(self.software_item_ids) == list(other.software_item_ids)
+            and list(self.hardware_item_ids) == list(other.hardware_item_ids)
+            and list(self.test_adapter_ids) == list(other.test_adapter_ids)
             and self.test_result_name == other.test_result_name
             and self.start_date_time == other.start_date_time
             and self.end_date_time == other.end_date_time
@@ -171,3 +175,7 @@ class TestResult:
             and self.extensions == other.extensions
             and self.schema_id == other.schema_id
         )
+
+    def __str__(self) -> str:
+        """Return a string representation of the TestResult."""
+        return str(self.to_protobuf())

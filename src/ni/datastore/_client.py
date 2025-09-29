@@ -13,6 +13,21 @@ import hightime as ht
 from grpc import Channel
 from ni.datamonikers.v1.client import MonikerClient
 from ni.datamonikers.v1.data_moniker_pb2 import Moniker
+from ni.datastore._types._alias import Alias
+from ni.datastore._types._extension_schema import ExtensionSchema
+from ni.datastore._types._hardware_item import HardwareItem
+from ni.datastore._types._operator import Operator
+from ni.datastore._types._published_condition import PublishedCondition
+from ni.datastore._types._published_measurement import PublishedMeasurement
+from ni.datastore._types._software_item import SoftwareItem
+from ni.datastore._types._step import Step
+from ni.datastore._types._test import Test
+from ni.datastore._types._test_adapter import TestAdapter
+from ni.datastore._types._test_description import TestDescription
+from ni.datastore._types._test_result import TestResult
+from ni.datastore._types._test_station import TestStation
+from ni.datastore._types._uut import Uut
+from ni.datastore._types._uut_instance import UutInstance
 from ni.datastore.grpc_conversion import (
     populate_publish_condition_batch_request_values,
     populate_publish_condition_request_value,
@@ -20,15 +35,11 @@ from ni.datastore.grpc_conversion import (
     populate_publish_measurement_request_value,
     unpack_and_convert_from_protobuf_any,
 )
-from ni.datastore.types._published_measurement import PublishedMeasurement
-from ni.datastore.types._step import Step
-from ni.datastore.types._test_result import TestResult
 from ni.measurementlink.discovery.v1.client import DiscoveryClient
 from ni.measurements.data.v1.client import DataStoreClient
 from ni.measurements.data.v1.data_store_pb2 import (
     ErrorInformation,
     Outcome,
-    PublishedCondition,
 )
 from ni.measurements.data.v1.data_store_service_pb2 import (
     CreateStepRequest,
@@ -44,19 +55,6 @@ from ni.measurements.data.v1.data_store_service_pb2 import (
     QueryStepsRequest,
 )
 from ni.measurements.metadata.v1.client import MetadataStoreClient
-from ni.measurements.metadata.v1.metadata_store_pb2 import (
-    Alias,
-    ExtensionSchema,
-    HardwareItem,
-    Operator,
-    SoftwareItem,
-    Test,
-    TestAdapter,
-    TestDescription,
-    TestStation,
-    Uut,
-    UutInstance,
-)
 from ni.measurements.metadata.v1.metadata_store_service_pb2 import (
     CreateAliasRequest,
     CreateHardwareItemRequest,
@@ -173,7 +171,7 @@ class Client:
         )
         populate_publish_condition_request_value(publish_request, value)
         publish_response = self._get_data_store_client().publish_condition(publish_request)
-        return publish_response.published_condition
+        return PublishedCondition.from_protobuf(publish_response.published_condition)
 
     def publish_condition_batch(
         self, condition_name: str, type: str, values: object, step_id: str
@@ -186,7 +184,7 @@ class Client:
         )
         populate_publish_condition_batch_request_values(publish_request, values)
         publish_response = self._get_data_store_client().publish_condition_batch(publish_request)
-        return publish_response.published_condition
+        return PublishedCondition.from_protobuf(publish_response.published_condition)
 
     def publish_measurement(
         self,
@@ -274,6 +272,8 @@ class Client:
                 raise ValueError("PublishedMeasurement must have a Moniker to read data")
             moniker = moniker_source.moniker
         elif isinstance(moniker_source, PublishedCondition):
+            if moniker_source.moniker is None:
+                raise ValueError("PublishedCondition must have a Moniker to read data")
             moniker = moniker_source.moniker
 
         moniker_client = self._get_moniker_client(moniker.service_location)
@@ -311,14 +311,18 @@ class Client:
         """Query conditions from the data store."""
         query_request = QueryConditionsRequest(odata_query=odata_query)
         query_response = self._get_data_store_client().query_conditions(query_request)
-        return query_response.published_conditions
+        return [
+            PublishedCondition.from_protobuf(published_condition)
+            for published_condition in query_response.published_conditions
+        ]
 
     def query_measurements(self, odata_query: str) -> Iterable[PublishedMeasurement]:
         """Query measurements from the data store."""
         query_request = QueryMeasurementsRequest(odata_query=odata_query)
         query_response = self._get_data_store_client().query_measurements(query_request)
         return [
-            PublishedMeasurement.from_protobuf(pm) for pm in query_response.published_measurements
+            PublishedMeasurement.from_protobuf(published_measurement)
+            for published_measurement in query_response.published_measurements
         ]
 
     def query_steps(self, odata_query: str) -> Iterable[Step]:
@@ -329,7 +333,7 @@ class Client:
 
     def create_uut_instance(self, uut_instance: UutInstance) -> str:
         """Create a UUT instance in the metadata store."""
-        create_request = CreateUutInstanceRequest(uut_instance=uut_instance)
+        create_request = CreateUutInstanceRequest(uut_instance=uut_instance.to_protobuf())
         create_response = self._get_metadata_store_client().create_uut_instance(create_request)
         return create_response.uut_instance_id
 
@@ -337,17 +341,19 @@ class Client:
         """Get a UUT instance from the metadata store."""
         get_request = GetUutInstanceRequest(uut_instance_id=uut_instance_id)
         get_response = self._get_metadata_store_client().get_uut_instance(get_request)
-        return get_response.uut_instance
+        return UutInstance.from_protobuf(get_response.uut_instance)
 
     def query_uut_instances(self, odata_query: str) -> Iterable[UutInstance]:
         """Query UUT instances from the metadata store."""
         query_request = QueryUutInstancesRequest(odata_query=odata_query)
         query_response = self._get_metadata_store_client().query_uut_instances(query_request)
-        return query_response.uut_instances
+        return [
+            UutInstance.from_protobuf(uut_instance) for uut_instance in query_response.uut_instances
+        ]
 
     def create_uut(self, uut: Uut) -> str:
         """Create a UUT in the metadata store."""
-        create_request = CreateUutRequest(uut=uut)
+        create_request = CreateUutRequest(uut=uut.to_protobuf())
         create_response = self._get_metadata_store_client().create_uut(create_request)
         return create_response.uut_id
 
@@ -355,17 +361,17 @@ class Client:
         """Get a UUT from the metadata store."""
         get_request = GetUutRequest(uut_id=uut_id)
         get_response = self._get_metadata_store_client().get_uut(get_request)
-        return get_response.uut
+        return Uut.from_protobuf(get_response.uut)
 
     def query_uuts(self, odata_query: str) -> Iterable[Uut]:
         """Query UUTs from the metadata store."""
         query_request = QueryUutsRequest(odata_query=odata_query)
         query_response = self._get_metadata_store_client().query_uuts(query_request)
-        return query_response.uuts
+        return [Uut.from_protobuf(uut) for uut in query_response.uuts]
 
     def create_operator(self, operator: Operator) -> str:
         """Create an operator in the metadata store."""
-        create_request = CreateOperatorRequest(operator=operator)
+        create_request = CreateOperatorRequest(operator=operator.to_protobuf())
         create_response = self._get_metadata_store_client().create_operator(create_request)
         return create_response.operator_id
 
@@ -373,17 +379,19 @@ class Client:
         """Get an operator from the metadata store."""
         get_request = GetOperatorRequest(operator_id=operator_id)
         get_response = self._get_metadata_store_client().get_operator(get_request)
-        return get_response.operator
+        return Operator.from_protobuf(get_response.operator)
 
     def query_operators(self, odata_query: str) -> Iterable[Operator]:
         """Query operators from the metadata store."""
         query_request = QueryOperatorsRequest(odata_query=odata_query)
         query_response = self._get_metadata_store_client().query_operators(query_request)
-        return query_response.operators
+        return [Operator.from_protobuf(operator) for operator in query_response.operators]
 
     def create_test_description(self, test_description: TestDescription) -> str:
         """Create a test description in the metadata store."""
-        create_request = CreateTestDescriptionRequest(test_description=test_description)
+        create_request = CreateTestDescriptionRequest(
+            test_description=test_description.to_protobuf()
+        )
         create_response = self._get_metadata_store_client().create_test_description(create_request)
         return create_response.test_description_id
 
@@ -391,17 +399,20 @@ class Client:
         """Get a test description from the metadata store."""
         get_request = GetTestDescriptionRequest(test_description_id=test_description_id)
         get_response = self._get_metadata_store_client().get_test_description(get_request)
-        return get_response.test_description
+        return TestDescription.from_protobuf(get_response.test_description)
 
     def query_test_descriptions(self, odata_query: str) -> Iterable[TestDescription]:
         """Query test descriptions from the metadata store."""
         query_request = QueryTestDescriptionsRequest(odata_query=odata_query)
         query_response = self._get_metadata_store_client().query_test_descriptions(query_request)
-        return query_response.test_descriptions
+        return [
+            TestDescription.from_protobuf(test_description)
+            for test_description in query_response.test_descriptions
+        ]
 
     def create_test(self, test: Test) -> str:
         """Create a test in the metadata store."""
-        create_request = CreateTestRequest(test=test)
+        create_request = CreateTestRequest(test=test.to_protobuf())
         create_response = self._get_metadata_store_client().create_test(create_request)
         return create_response.test_id
 
@@ -409,17 +420,17 @@ class Client:
         """Get a test from the metadata store."""
         get_request = GetTestRequest(test_id=test_id)
         get_response = self._get_metadata_store_client().get_test(get_request)
-        return get_response.test
+        return Test.from_protobuf(get_response.test)
 
     def query_tests(self, odata_query: str) -> Iterable[Test]:
         """Query tests from the metadata store."""
         query_request = QueryTestsRequest(odata_query=odata_query)
         query_response = self._get_metadata_store_client().query_tests(query_request)
-        return query_response.tests
+        return [Test.from_protobuf(test) for test in query_response.tests]
 
     def create_test_station(self, test_station: TestStation) -> str:
         """Create a test station in the metadata store."""
-        create_request = CreateTestStationRequest(test_station=test_station)
+        create_request = CreateTestStationRequest(test_station=test_station.to_protobuf())
         create_response = self._get_metadata_store_client().create_test_station(create_request)
         return create_response.test_station_id
 
@@ -427,17 +438,19 @@ class Client:
         """Get a test station from the metadata store."""
         get_request = GetTestStationRequest(test_station_id=test_station_id)
         get_response = self._get_metadata_store_client().get_test_station(get_request)
-        return get_response.test_station
+        return TestStation.from_protobuf(get_response.test_station)
 
     def query_test_stations(self, odata_query: str) -> Iterable[TestStation]:
         """Query test stations from the metadata store."""
         query_request = QueryTestStationsRequest(odata_query=odata_query)
         query_response = self._get_metadata_store_client().query_test_stations(query_request)
-        return query_response.test_stations
+        return [
+            TestStation.from_protobuf(test_station) for test_station in query_response.test_stations
+        ]
 
     def create_hardware_item(self, hardware_item: HardwareItem) -> str:
         """Create a hardware item in the metadata store."""
-        create_request = CreateHardwareItemRequest(hardware_item=hardware_item)
+        create_request = CreateHardwareItemRequest(hardware_item=hardware_item.to_protobuf())
         create_response = self._get_metadata_store_client().create_hardware_item(create_request)
         return create_response.hardware_item_id
 
@@ -445,17 +458,20 @@ class Client:
         """Get a hardware item from the metadata store."""
         get_request = GetHardwareItemRequest(hardware_item_id=hardware_item_id)
         get_response = self._get_metadata_store_client().get_hardware_item(get_request)
-        return get_response.hardware_item
+        return HardwareItem.from_protobuf(get_response.hardware_item)
 
     def query_hardware_items(self, odata_query: str) -> Iterable[HardwareItem]:
         """Query hardware items from the metadata store."""
         query_request = QueryHardwareItemsRequest(odata_query=odata_query)
         query_response = self._get_metadata_store_client().query_hardware_items(query_request)
-        return query_response.hardware_items
+        return [
+            HardwareItem.from_protobuf(hardware_item)
+            for hardware_item in query_response.hardware_items
+        ]
 
     def create_software_item(self, software_item: SoftwareItem) -> str:
         """Create a software item in the metadata store."""
-        create_request = CreateSoftwareItemRequest(software_item=software_item)
+        create_request = CreateSoftwareItemRequest(software_item=software_item.to_protobuf())
         create_response = self._get_metadata_store_client().create_software_item(create_request)
         return create_response.software_item_id
 
@@ -463,17 +479,20 @@ class Client:
         """Get a software item from the metadata store."""
         get_request = GetSoftwareItemRequest(software_item_id=software_item_id)
         get_response = self._get_metadata_store_client().get_software_item(get_request)
-        return get_response.software_item
+        return SoftwareItem.from_protobuf(get_response.software_item)
 
     def query_software_items(self, odata_query: str) -> Iterable[SoftwareItem]:
         """Query software items from the metadata store."""
         query_request = QuerySoftwareItemsRequest(odata_query=odata_query)
         query_response = self._get_metadata_store_client().query_software_items(query_request)
-        return query_response.software_items
+        return [
+            SoftwareItem.from_protobuf(software_item)
+            for software_item in query_response.software_items
+        ]
 
     def create_test_adapter(self, test_adapter: TestAdapter) -> str:
         """Create a test adapter in the metadata store."""
-        create_request = CreateTestAdapterRequest(test_adapter=test_adapter)
+        create_request = CreateTestAdapterRequest(test_adapter=test_adapter.to_protobuf())
         create_response = self._get_metadata_store_client().create_test_adapter(create_request)
         return create_response.test_adapter_id
 
@@ -481,13 +500,15 @@ class Client:
         """Get a test adapter from the metadata store."""
         get_request = GetTestAdapterRequest(test_adapter_id=test_adapter_id)
         get_response = self._get_metadata_store_client().get_test_adapter(get_request)
-        return get_response.test_adapter
+        return TestAdapter.from_protobuf(get_response.test_adapter)
 
     def query_test_adapters(self, odata_query: str) -> Iterable[TestAdapter]:
         """Query test adapters from the metadata store."""
         query_request = QueryTestAdaptersRequest(odata_query=odata_query)
         query_response = self._get_metadata_store_client().query_test_adapters(query_request)
-        return query_response.test_adapters
+        return [
+            TestAdapter.from_protobuf(test_adapter) for test_adapter in query_response.test_adapters
+        ]
 
     # TODO: Also support providing a file path?
     def register_schema(self, schema: str) -> str:
@@ -500,7 +521,7 @@ class Client:
         """List all schemas in the metadata store."""
         list_request = ListSchemasRequest()
         list_response = self._get_metadata_store_client().list_schemas(list_request)
-        return list_response.schemas
+        return [ExtensionSchema.from_protobuf(schema) for schema in list_response.schemas]
 
     def create_alias(
         self,
@@ -520,31 +541,31 @@ class Client:
         """Create an alias in the metadata store."""
         create_request = CreateAliasRequest(alias_name=alias_name)
         if isinstance(alias_target, UutInstance):
-            create_request.uut_instance.CopyFrom(alias_target)
+            create_request.uut_instance.CopyFrom(alias_target.to_protobuf())
         elif isinstance(alias_target, Uut):
-            create_request.uut.CopyFrom(alias_target)
+            create_request.uut.CopyFrom(alias_target.to_protobuf())
         elif isinstance(alias_target, HardwareItem):
-            create_request.hardware_item.CopyFrom(alias_target)
+            create_request.hardware_item.CopyFrom(alias_target.to_protobuf())
         elif isinstance(alias_target, SoftwareItem):
-            create_request.software_item.CopyFrom(alias_target)
+            create_request.software_item.CopyFrom(alias_target.to_protobuf())
         elif isinstance(alias_target, Operator):
-            create_request.operator.CopyFrom(alias_target)
+            create_request.operator.CopyFrom(alias_target.to_protobuf())
         elif isinstance(alias_target, TestDescription):
-            create_request.test_description.CopyFrom(alias_target)
+            create_request.test_description.CopyFrom(alias_target.to_protobuf())
         elif isinstance(alias_target, Test):
-            create_request.test.CopyFrom(alias_target)
+            create_request.test.CopyFrom(alias_target.to_protobuf())
         elif isinstance(alias_target, TestAdapter):
-            create_request.test_adapter.CopyFrom(alias_target)
+            create_request.test_adapter.CopyFrom(alias_target.to_protobuf())
         elif isinstance(alias_target, TestStation):
-            create_request.test_station.CopyFrom(alias_target)
+            create_request.test_station.CopyFrom(alias_target.to_protobuf())
         response = self._get_metadata_store_client().create_alias(create_request)
-        return response.alias
+        return Alias.from_protobuf(response.alias)
 
     def get_alias(self, alias_name: str) -> Alias:
         """Get an alias from the metadata store."""
         get_request = GetAliasRequest(alias_name=alias_name)
         get_response = self._get_metadata_store_client().get_alias(get_request)
-        return get_response.alias
+        return Alias.from_protobuf(get_response.alias)
 
     def delete_alias(self, alias_name: str) -> bool:
         """Delete an alias from the metadata store."""
@@ -556,7 +577,7 @@ class Client:
         """Query aliases from the metadata store."""
         query_request = QueryAliasesRequest(odata_query=odata_query)
         query_response = self._get_metadata_store_client().query_aliases(query_request)
-        return query_response.aliases
+        return [Alias.from_protobuf(alias) for alias in query_response.aliases]
 
     def _get_data_store_client(self) -> DataStoreClient:
         if self._data_store_client is None:

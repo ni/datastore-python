@@ -5,23 +5,25 @@ from __future__ import annotations
 from typing import cast
 from unittest.mock import NonCallableMock
 
-from ni.datastore import Client, Step, TestResult
+from ni.datastore import (
+    Client,
+    HardwareItem,
+    Operator,
+    SoftwareItem,
+    Step,
+    Test,
+    TestAdapter,
+    TestDescription,
+    TestResult,
+    TestStation,
+    Uut,
+    UutInstance,
+)
 from ni.measurements.data.v1.data_store_service_pb2 import (
     CreateStepRequest,
     CreateStepResponse,
     CreateTestResultRequest,
     CreateTestResultResponse,
-)
-from ni.measurements.metadata.v1.metadata_store_pb2 import (
-    HardwareItem,
-    Operator,
-    SoftwareItem,
-    Test,
-    TestAdapter,
-    TestDescription,
-    TestStation,
-    Uut,
-    UutInstance,
 )
 from ni.measurements.metadata.v1.metadata_store_service_pb2 import (
     CreateHardwareItemRequest,
@@ -116,7 +118,7 @@ def test___create_uut_instance___calls_metadatastoreclient(
 
     args, __ = mocked_metadatastore_client.create_uut_instance.call_args
     request = cast(CreateUutInstanceRequest, args[0])
-    assert request.uut_instance == uut_instance
+    assert request.uut_instance == uut_instance.to_protobuf()
     assert result == "response_id"
 
 
@@ -140,7 +142,7 @@ def test___create_uut___calls_metadatastoreclient(
 
     args, __ = mocked_metadatastore_client.create_uut.call_args
     request = cast(CreateUutRequest, args[0])
-    assert request.uut == uut
+    assert request.uut == uut.to_protobuf()
     assert result == "response_id"
 
 
@@ -162,7 +164,7 @@ def test___create_operator___calls_metadatastoreclient(
 
     args, __ = mocked_metadatastore_client.create_operator.call_args
     request = cast(CreateOperatorRequest, args[0])
-    assert request.operator == operator
+    assert request.operator == operator.to_protobuf()
     assert result == "response_id"
 
 
@@ -184,7 +186,7 @@ def test___create_test_description___calls_metadatastoreclient(
 
     args, __ = mocked_metadatastore_client.create_test_description.call_args
     request = cast(CreateTestDescriptionRequest, args[0])
-    assert request.test_description == test_description
+    assert request.test_description == test_description.to_protobuf()
     assert result == "response_id"
 
 
@@ -205,7 +207,7 @@ def test___create_test___calls_metadatastoreclient(
 
     args, __ = mocked_metadatastore_client.create_test.call_args
     request = cast(CreateTestRequest, args[0])
-    assert request.test == test
+    assert request.test == test.to_protobuf()
     assert result == "response_id"
 
 
@@ -227,7 +229,7 @@ def test___create_test_station___calls_metadatastoreclient(
 
     args, __ = mocked_metadatastore_client.create_test_station.call_args
     request = cast(CreateTestStationRequest, args[0])
-    assert request.test_station == test_station
+    assert request.test_station == test_station.to_protobuf()
     assert result == "response_id"
 
 
@@ -253,7 +255,7 @@ def test___create_hardware_item___calls_metadatastoreclient(
 
     args, __ = mocked_metadatastore_client.create_hardware_item.call_args
     request = cast(CreateHardwareItemRequest, args[0])
-    assert request.hardware_item == hardware_item
+    assert request.hardware_item == hardware_item.to_protobuf()
     assert result == "response_id"
 
 
@@ -275,7 +277,7 @@ def test___create_software_item___calls_metadatastoreclient(
 
     args, __ = mocked_metadatastore_client.create_software_item.call_args
     request = cast(CreateSoftwareItemRequest, args[0])
-    assert request.software_item == software_item
+    assert request.software_item == software_item.to_protobuf()
     assert result == "response_id"
 
 
@@ -302,5 +304,5 @@ def test___create_test_adapter___calls_metadatastoreclient(
 
     args, __ = mocked_metadatastore_client.create_test_adapter.call_args
     request = cast(CreateTestAdapterRequest, args[0])
-    assert request.test_adapter == test_adapter
+    assert request.test_adapter == test_adapter.to_protobuf()
     assert result == "response_id"
