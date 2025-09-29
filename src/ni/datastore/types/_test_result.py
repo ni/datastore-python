@@ -68,7 +68,7 @@ class TestResult:
         test_adapter_ids: Iterable[str] | None = None,
         test_result_name: str = "",
         link: str = "",
-        extensions: MutableMapping[str, object] | None = None,
+        extensions: MutableMapping[str, str] | None = None,
         schema_id: str = "",
     ) -> None:
         """Initialize a TestResult instance."""
@@ -88,7 +88,7 @@ class TestResult:
         )
         self.test_result_name = test_result_name
         self.link = link
-        self.extensions: MutableMapping[str, object] = extensions if extensions is not None else {}
+        self.extensions: MutableMapping[str, str] = extensions if extensions is not None else {}
         self.schema_id = schema_id
 
         self._start_date_time: ht.datetime | None = None

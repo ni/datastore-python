@@ -57,7 +57,7 @@ class Step:
         step_type: str = "",
         notes: str = "",
         link: str = "",
-        extensions: MutableMapping[str, object] | None = None,
+        extensions: MutableMapping[str, str] | None = None,
         schema_id: str = "",
     ) -> None:
         """Initialize a Step instance."""
@@ -69,7 +69,7 @@ class Step:
         self.step_type = step_type
         self.notes = notes
         self.link = link
-        self.extensions: MutableMapping[str, object] = extensions if extensions is not None else {}
+        self.extensions: MutableMapping[str, str] = extensions if extensions is not None else {}
         self.schema_id = schema_id
 
         self._start_date_time: ht.datetime | None = None

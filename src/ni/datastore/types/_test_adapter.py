@@ -40,7 +40,7 @@ class TestAdapter:
         asset_identifier: str = "",
         calibration_due_date: str = "",
         link: str = "",
-        extensions: MutableMapping[str, object] | None = None,
+        extensions: MutableMapping[str, str] | None = None,
         schema_id: str = "",
     ) -> None:
         """Initialize a TestAdapter instance."""
@@ -52,7 +52,7 @@ class TestAdapter:
         self.asset_identifier = asset_identifier
         self.calibration_due_date = calibration_due_date
         self.link = link
-        self.extensions: MutableMapping[str, object] = extensions if extensions is not None else {}
+        self.extensions: MutableMapping[str, str] = extensions if extensions is not None else {}
         self.schema_id = schema_id
 
     @staticmethod

@@ -187,26 +187,21 @@ def unpack_and_convert_from_protobuf_any(read_value: Any) -> object:
 
 def populate_extension_value_message_map(
     destination: MessageMap[str, ExtensionValue],
-    source: MutableMapping[str, object],
+    source: MutableMapping[str, str],
 ) -> None:
     """Populate a gRPC message map of string keys to ExtensionValue.
 
-    The input is a mapping of string keys to values.
+    The input is a mapping of string keys to string values.
     """
     for key, value in source.items():
-        if isinstance(value, str):
-            destination[key].string_value = value
-        elif isinstance(value, ExtensionValue):
-            destination[key].CopyFrom(value)
-        else:
-            raise TypeError(f"Unsupported value type for key '{key}': {type(value)}")
+        destination[key].string_value = value
 
 
 def populate_from_extension_value_message_map(
-    destination: MutableMapping[str, object],
+    destination: MutableMapping[str, str],
     source: MessageMap[str, ExtensionValue],
 ) -> None:
-    """Populate a mapping of string keys to values.
+    """Populate a mapping of string keys to stringvalues.
 
     The input is a gRPC message map of string keys to ExtensionValue.
     """
@@ -214,7 +209,5 @@ def populate_from_extension_value_message_map(
         value_case = extension_value.WhichOneof("metadata")
         if value_case == "string_value":
             destination[key] = extension_value.string_value
-        elif value_case is None:
-            destination[key] = None
         else:
             raise TypeError(f"Unsupported ExtensionValue type for key '{key}': {value_case}")

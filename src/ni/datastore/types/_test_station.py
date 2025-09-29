@@ -30,14 +30,14 @@ class TestStation:
         test_station_name: str = "",
         asset_identifier: str = "",
         link: str = "",
-        extensions: MutableMapping[str, object] | None = None,
+        extensions: MutableMapping[str, str] | None = None,
         schema_id: str = "",
     ) -> None:
         """Initialize a TestStation instance."""
         self.test_station_name = test_station_name
         self.asset_identifier = asset_identifier
         self.link = link
-        self.extensions: MutableMapping[str, object] = extensions if extensions is not None else {}
+        self.extensions: MutableMapping[str, str] = extensions if extensions is not None else {}
         self.schema_id = schema_id
 
     @staticmethod

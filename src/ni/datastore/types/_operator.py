@@ -30,14 +30,14 @@ class Operator:
         operator_name: str = "",
         role: str = "",
         link: str = "",
-        extensions: MutableMapping[str, object] | None = None,
+        extensions: MutableMapping[str, str] | None = None,
         schema_id: str = "",
     ) -> None:
         """Initialize an Operator instance."""
         self.operator_name = operator_name
         self.role = role
         self.link = link
-        self.extensions: MutableMapping[str, object] = extensions if extensions is not None else {}
+        self.extensions: MutableMapping[str, str] = extensions if extensions is not None else {}
         self.schema_id = schema_id
 
     @staticmethod

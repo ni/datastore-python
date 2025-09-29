@@ -34,7 +34,7 @@ class Uut:
         manufacturers: Iterable[str] | None = None,
         part_number: str = "",
         link: str = "",
-        extensions: MutableMapping[str, object] | None = None,
+        extensions: MutableMapping[str, str] | None = None,
         schema_id: str = "",
     ) -> None:
         """Initialize a Uut instance."""
@@ -43,7 +43,7 @@ class Uut:
         self.manufacturers: Iterable[str] = manufacturers if manufacturers is not None else []
         self.part_number = part_number
         self.link = link
-        self.extensions: MutableMapping[str, object] = extensions if extensions is not None else {}
+        self.extensions: MutableMapping[str, str] = extensions if extensions is not None else {}
         self.schema_id = schema_id
 
     @staticmethod
