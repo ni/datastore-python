@@ -86,37 +86,6 @@ class PublishedMeasurement:
         self.parametric_index = parametric_index
         self.error_information = error_information
 
-    def to_protobuf(self) -> PublishedMeasurementProto:
-        """Convert this PublishedMeasurement instance to a protobuf PublishedMeasurement message."""
-        return PublishedMeasurementProto(
-            moniker=self.moniker,
-            published_conditions=[
-                condition.to_protobuf() for condition in self.published_conditions
-            ],
-            published_measurement_id=self.published_measurement_id,
-            test_result_id=self.test_result_id,
-            step_id=self.step_id,
-            software_item_ids=self.software_item_ids,
-            hardware_item_ids=self.hardware_item_ids,
-            test_adapter_ids=self.test_adapter_ids,
-            measurement_name=self.measurement_name,
-            data_type=self.data_type,
-            measurement_notes=self.measurement_notes,
-            start_date_time=(
-                hightime_datetime_to_protobuf(self.start_date_time)
-                if self.start_date_time is not None
-                else None
-            ),
-            end_date_time=(
-                hightime_datetime_to_protobuf(self.end_date_time)
-                if self.end_date_time is not None
-                else None
-            ),
-            outcome=self.outcome,
-            parametric_index=self.parametric_index,
-            error_information=self.error_information,
-        )
-
     @staticmethod
     def from_protobuf(
         published_measurement_proto: PublishedMeasurementProto,
@@ -158,6 +127,37 @@ class PublishedMeasurement:
                 if published_measurement_proto.HasField("error_information")
                 else None
             ),
+        )
+
+    def to_protobuf(self) -> PublishedMeasurementProto:
+        """Convert this PublishedMeasurement instance to a protobuf PublishedMeasurement message."""
+        return PublishedMeasurementProto(
+            moniker=self.moniker,
+            published_conditions=[
+                condition.to_protobuf() for condition in self.published_conditions
+            ],
+            published_measurement_id=self.published_measurement_id,
+            test_result_id=self.test_result_id,
+            step_id=self.step_id,
+            software_item_ids=self.software_item_ids,
+            hardware_item_ids=self.hardware_item_ids,
+            test_adapter_ids=self.test_adapter_ids,
+            measurement_name=self.measurement_name,
+            data_type=self.data_type,
+            measurement_notes=self.measurement_notes,
+            start_date_time=(
+                hightime_datetime_to_protobuf(self.start_date_time)
+                if self.start_date_time is not None
+                else None
+            ),
+            end_date_time=(
+                hightime_datetime_to_protobuf(self.end_date_time)
+                if self.end_date_time is not None
+                else None
+            ),
+            outcome=self.outcome,
+            parametric_index=self.parametric_index,
+            error_information=self.error_information,
         )
 
     def __eq__(self, other: object) -> bool:
