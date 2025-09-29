@@ -214,5 +214,7 @@ def populate_from_extension_value_message_map(
         value_case = extension_value.WhichOneof("metadata")
         if value_case == "string_value":
             destination[key] = extension_value.string_value
+        elif value_case is None:
+            destination[key] = None
         else:
             raise TypeError(f"Unsupported ExtensionValue type for key '{key}': {value_case}")
