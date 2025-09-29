@@ -311,14 +311,18 @@ class Client:
         """Query conditions from the data store."""
         query_request = QueryConditionsRequest(odata_query=odata_query)
         query_response = self._get_data_store_client().query_conditions(query_request)
-        return [PublishedCondition.from_protobuf(pc) for pc in query_response.published_conditions]
+        return [
+            PublishedCondition.from_protobuf(published_condition)
+            for published_condition in query_response.published_conditions
+        ]
 
     def query_measurements(self, odata_query: str) -> Iterable[PublishedMeasurement]:
         """Query measurements from the data store."""
         query_request = QueryMeasurementsRequest(odata_query=odata_query)
         query_response = self._get_data_store_client().query_measurements(query_request)
         return [
-            PublishedMeasurement.from_protobuf(pm) for pm in query_response.published_measurements
+            PublishedMeasurement.from_protobuf(published_measurement)
+            for published_measurement in query_response.published_measurements
         ]
 
     def query_steps(self, odata_query: str) -> Iterable[Step]:
@@ -401,7 +405,10 @@ class Client:
         """Query test descriptions from the metadata store."""
         query_request = QueryTestDescriptionsRequest(odata_query=odata_query)
         query_response = self._get_metadata_store_client().query_test_descriptions(query_request)
-        return [TestDescription.from_protobuf(td) for td in query_response.test_descriptions]
+        return [
+            TestDescription.from_protobuf(test_description)
+            for test_description in query_response.test_descriptions
+        ]
 
     def create_test(self, test: Test) -> str:
         """Create a test in the metadata store."""
@@ -437,7 +444,9 @@ class Client:
         """Query test stations from the metadata store."""
         query_request = QueryTestStationsRequest(odata_query=odata_query)
         query_response = self._get_metadata_store_client().query_test_stations(query_request)
-        return [TestStation.from_protobuf(ts) for ts in query_response.test_stations]
+        return [
+            TestStation.from_protobuf(test_station) for test_station in query_response.test_stations
+        ]
 
     def create_hardware_item(self, hardware_item: HardwareItem) -> str:
         """Create a hardware item in the metadata store."""
@@ -455,7 +464,10 @@ class Client:
         """Query hardware items from the metadata store."""
         query_request = QueryHardwareItemsRequest(odata_query=odata_query)
         query_response = self._get_metadata_store_client().query_hardware_items(query_request)
-        return [HardwareItem.from_protobuf(item) for item in query_response.hardware_items]
+        return [
+            HardwareItem.from_protobuf(hardware_item)
+            for hardware_item in query_response.hardware_items
+        ]
 
     def create_software_item(self, software_item: SoftwareItem) -> str:
         """Create a software item in the metadata store."""
@@ -473,7 +485,10 @@ class Client:
         """Query software items from the metadata store."""
         query_request = QuerySoftwareItemsRequest(odata_query=odata_query)
         query_response = self._get_metadata_store_client().query_software_items(query_request)
-        return [SoftwareItem.from_protobuf(item) for item in query_response.software_items]
+        return [
+            SoftwareItem.from_protobuf(software_item)
+            for software_item in query_response.software_items
+        ]
 
     def create_test_adapter(self, test_adapter: TestAdapter) -> str:
         """Create a test adapter in the metadata store."""
@@ -491,7 +506,9 @@ class Client:
         """Query test adapters from the metadata store."""
         query_request = QueryTestAdaptersRequest(odata_query=odata_query)
         query_response = self._get_metadata_store_client().query_test_adapters(query_request)
-        return [TestAdapter.from_protobuf(ta) for ta in query_response.test_adapters]
+        return [
+            TestAdapter.from_protobuf(test_adapter) for test_adapter in query_response.test_adapters
+        ]
 
     # TODO: Also support providing a file path?
     def register_schema(self, schema: str) -> str:
