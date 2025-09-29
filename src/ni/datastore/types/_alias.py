@@ -30,12 +30,12 @@ class Alias:
         self.target_id = target_id
 
     @staticmethod
-    def from_protobuf(alias: AliasProto) -> "Alias":
+    def from_protobuf(alias_proto: AliasProto) -> "Alias":
         """Create an Alias instance from a protobuf Alias message."""
         return Alias(
-            alias_name=alias.alias_name,
-            target_type=alias.target_type,
-            target_id=alias.target_id,
+            alias_name=alias_proto.alias_name,
+            target_type=alias_proto.target_type,
+            target_id=alias_proto.target_id,
         )
 
     def to_protobuf(self) -> AliasProto:

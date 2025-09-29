@@ -53,20 +53,22 @@ class HardwareItem:
         self.schema_id = schema_id
 
     @staticmethod
-    def from_protobuf(hardware_item: HardwareItemProto) -> "HardwareItem":
+    def from_protobuf(hardware_item_proto: HardwareItemProto) -> "HardwareItem":
         """Create a HardwareItem instance from a protobuf HardwareItem message."""
-        result = HardwareItem(
-            manufacturer=hardware_item.manufacturer,
-            model=hardware_item.model,
-            serial_number=hardware_item.serial_number,
-            part_number=hardware_item.part_number,
-            asset_identifier=hardware_item.asset_identifier,
-            calibration_due_date=hardware_item.calibration_due_date,
-            link=hardware_item.link,
-            schema_id=hardware_item.schema_id,
+        hardware_item = HardwareItem(
+            manufacturer=hardware_item_proto.manufacturer,
+            model=hardware_item_proto.model,
+            serial_number=hardware_item_proto.serial_number,
+            part_number=hardware_item_proto.part_number,
+            asset_identifier=hardware_item_proto.asset_identifier,
+            calibration_due_date=hardware_item_proto.calibration_due_date,
+            link=hardware_item_proto.link,
+            schema_id=hardware_item_proto.schema_id,
         )
-        populate_from_extension_value_message_map(result.extensions, hardware_item.extensions)
-        return result
+        populate_from_extension_value_message_map(
+            hardware_item.extensions, hardware_item_proto.extensions
+        )
+        return hardware_item
 
     def to_protobuf(self) -> HardwareItemProto:
         """Convert this HardwareItem to a protobuf HardwareItem message."""

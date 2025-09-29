@@ -118,40 +118,44 @@ class PublishedMeasurement:
         )
 
     @staticmethod
-    def from_protobuf(published_measurement: PublishedMeasurementProto) -> "PublishedMeasurement":
+    def from_protobuf(
+        published_measurement_proto: PublishedMeasurementProto,
+    ) -> "PublishedMeasurement":
         """Create a PublishedMeasurement instance from a protobuf PublishedMeasurement message."""
         return PublishedMeasurement(
             moniker=(
-                published_measurement.moniker if published_measurement.HasField("moniker") else None
+                published_measurement_proto.moniker
+                if published_measurement_proto.HasField("moniker")
+                else None
             ),
             published_conditions=[
                 PublishedCondition.from_protobuf(cond)
-                for cond in published_measurement.published_conditions
+                for cond in published_measurement_proto.published_conditions
             ],
-            published_measurement_id=published_measurement.published_measurement_id,
-            test_result_id=published_measurement.test_result_id,
-            step_id=published_measurement.step_id,
-            software_item_ids=published_measurement.software_item_ids,
-            hardware_item_ids=published_measurement.hardware_item_ids,
-            test_adapter_ids=published_measurement.test_adapter_ids,
-            measurement_name=published_measurement.measurement_name,
-            data_type=published_measurement.data_type,
-            measurement_notes=published_measurement.measurement_notes,
+            published_measurement_id=published_measurement_proto.published_measurement_id,
+            test_result_id=published_measurement_proto.test_result_id,
+            step_id=published_measurement_proto.step_id,
+            software_item_ids=published_measurement_proto.software_item_ids,
+            hardware_item_ids=published_measurement_proto.hardware_item_ids,
+            test_adapter_ids=published_measurement_proto.test_adapter_ids,
+            measurement_name=published_measurement_proto.measurement_name,
+            data_type=published_measurement_proto.data_type,
+            measurement_notes=published_measurement_proto.measurement_notes,
             start_date_time=(
-                hightime_datetime_from_protobuf(published_measurement.start_date_time)
-                if published_measurement.HasField("start_date_time")
+                hightime_datetime_from_protobuf(published_measurement_proto.start_date_time)
+                if published_measurement_proto.HasField("start_date_time")
                 else None
             ),
             end_date_time=(
-                hightime_datetime_from_protobuf(published_measurement.end_date_time)
-                if published_measurement.HasField("end_date_time")
+                hightime_datetime_from_protobuf(published_measurement_proto.end_date_time)
+                if published_measurement_proto.HasField("end_date_time")
                 else None
             ),
-            outcome=published_measurement.outcome,
-            parametric_index=published_measurement.parametric_index,
+            outcome=published_measurement_proto.outcome,
+            parametric_index=published_measurement_proto.parametric_index,
             error_information=(
-                published_measurement.error_information
-                if published_measurement.HasField("error_information")
+                published_measurement_proto.error_information
+                if published_measurement_proto.HasField("error_information")
                 else None
             ),
         )

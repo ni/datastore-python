@@ -76,35 +76,35 @@ class Step:
         self._end_date_time: ht.datetime | None = None
 
     @staticmethod
-    def from_protobuf(step: StepProto) -> "Step":
+    def from_protobuf(step_proto: StepProto) -> "Step":
         """Create a Step instance from a protobuf Step message."""
-        result = Step(
-            step_id=step.step_id,
-            parent_step_id=step.parent_step_id,
-            test_result_id=step.test_result_id,
-            test_id=step.test_id,
-            step_name=step.step_name,
-            step_type=step.step_type,
-            notes=step.notes,
-            link=step.link,
-            schema_id=step.schema_id,
+        step = Step(
+            step_id=step_proto.step_id,
+            parent_step_id=step_proto.parent_step_id,
+            test_result_id=step_proto.test_result_id,
+            test_id=step_proto.test_id,
+            step_name=step_proto.step_name,
+            step_type=step_proto.step_type,
+            notes=step_proto.notes,
+            link=step_proto.link,
+            schema_id=step_proto.schema_id,
         )
-        result._start_date_time = (
-            hightime_datetime_from_protobuf(step.start_date_time)
-            if step.HasField("start_date_time")
+        step._start_date_time = (
+            hightime_datetime_from_protobuf(step_proto.start_date_time)
+            if step_proto.HasField("start_date_time")
             else None
         )
-        result._end_date_time = (
-            hightime_datetime_from_protobuf(step.end_date_time)
-            if step.HasField("end_date_time")
+        step._end_date_time = (
+            hightime_datetime_from_protobuf(step_proto.end_date_time)
+            if step_proto.HasField("end_date_time")
             else None
         )
-        populate_from_extension_value_message_map(result.extensions, step.extensions)
-        return result
+        populate_from_extension_value_message_map(step.extensions, step_proto.extensions)
+        return step
 
     def to_protobuf(self) -> StepProto:
         """Convert this Step to a protobuf Step message."""
-        step = StepProto(
+        step_proto = StepProto(
             step_id=self.step_id,
             parent_step_id=self.parent_step_id,
             test_result_id=self.test_result_id,
@@ -123,8 +123,8 @@ class Step:
             link=self.link,
             schema_id=self.schema_id,
         )
-        populate_extension_value_message_map(step.extensions, self.extensions)
-        return step
+        populate_extension_value_message_map(step_proto.extensions, self.extensions)
+        return step_proto
 
     def __eq__(self, other: object) -> bool:
         """Determine equality."""

@@ -41,27 +41,29 @@ class SoftwareItem:
         self.schema_id = schema_id
 
     @staticmethod
-    def from_protobuf(software_item: SoftwareItemProto) -> "SoftwareItem":
+    def from_protobuf(software_item_proto: SoftwareItemProto) -> "SoftwareItem":
         """Create a SoftwareItem instance from a protobuf SoftwareItem message."""
-        result = SoftwareItem(
-            product=software_item.product,
-            version=software_item.version,
-            link=software_item.link,
-            schema_id=software_item.schema_id,
+        software_item = SoftwareItem(
+            product=software_item_proto.product,
+            version=software_item_proto.version,
+            link=software_item_proto.link,
+            schema_id=software_item_proto.schema_id,
         )
-        populate_from_extension_value_message_map(result.extensions, software_item.extensions)
-        return result
+        populate_from_extension_value_message_map(
+            software_item.extensions, software_item_proto.extensions
+        )
+        return software_item
 
     def to_protobuf(self) -> SoftwareItemProto:
         """Convert this SoftwareItem to a protobuf SoftwareItem message."""
-        software_item = SoftwareItemProto(
+        software_item_proto = SoftwareItemProto(
             product=self.product,
             version=self.version,
             link=self.link,
             schema_id=self.schema_id,
         )
-        populate_extension_value_message_map(software_item.extensions, self.extensions)
-        return software_item
+        populate_extension_value_message_map(software_item_proto.extensions, self.extensions)
+        return software_item_proto
 
     def __eq__(self, other: object) -> bool:
         """Determine equality."""

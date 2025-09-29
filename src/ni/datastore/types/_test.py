@@ -41,27 +41,27 @@ class Test:
         self.schema_id = schema_id
 
     @staticmethod
-    def from_protobuf(test: TestProto) -> "Test":
+    def from_protobuf(test_proto: TestProto) -> "Test":
         """Create a Test instance from a protobuf Test message."""
-        result = Test(
-            test_name=test.test_name,
-            description=test.description,
-            link=test.link,
-            schema_id=test.schema_id,
+        test = Test(
+            test_name=test_proto.test_name,
+            description=test_proto.description,
+            link=test_proto.link,
+            schema_id=test_proto.schema_id,
         )
-        populate_from_extension_value_message_map(result.extensions, test.extensions)
-        return result
+        populate_from_extension_value_message_map(test.extensions, test_proto.extensions)
+        return test
 
     def to_protobuf(self) -> TestProto:
         """Convert this Test to a protobuf Test message."""
-        test = TestProto(
+        test_proto = TestProto(
             test_name=self.test_name,
             description=self.description,
             link=self.link,
             schema_id=self.schema_id,
         )
-        populate_extension_value_message_map(test.extensions, self.extensions)
-        return test
+        populate_extension_value_message_map(test_proto.extensions, self.extensions)
+        return test_proto
 
     def __eq__(self, other: object) -> bool:
         """Determine equality."""

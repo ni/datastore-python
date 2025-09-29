@@ -96,38 +96,40 @@ class TestResult:
         self._outcome: Outcome.ValueType = Outcome.OUTCOME_UNSPECIFIED
 
     @staticmethod
-    def from_protobuf(test_result: TestResultProto) -> "TestResult":
+    def from_protobuf(test_result_proto: TestResultProto) -> "TestResult":
         """Create a TestResult instance from a protobuf TestResult message."""
-        result = TestResult(
-            test_result_id=test_result.test_result_id,
-            uut_instance_id=test_result.uut_instance_id,
-            operator_id=test_result.operator_id,
-            test_station_id=test_result.test_station_id,
-            test_description_id=test_result.test_description_id,
-            software_item_ids=test_result.software_item_ids,
-            hardware_item_ids=test_result.hardware_item_ids,
-            test_adapter_ids=test_result.test_adapter_ids,
-            test_result_name=test_result.test_result_name,
-            link=test_result.link,
-            schema_id=test_result.schema_id,
+        test_result = TestResult(
+            test_result_id=test_result_proto.test_result_id,
+            uut_instance_id=test_result_proto.uut_instance_id,
+            operator_id=test_result_proto.operator_id,
+            test_station_id=test_result_proto.test_station_id,
+            test_description_id=test_result_proto.test_description_id,
+            software_item_ids=test_result_proto.software_item_ids,
+            hardware_item_ids=test_result_proto.hardware_item_ids,
+            test_adapter_ids=test_result_proto.test_adapter_ids,
+            test_result_name=test_result_proto.test_result_name,
+            link=test_result_proto.link,
+            schema_id=test_result_proto.schema_id,
         )
-        result._start_date_time = (
-            hightime_datetime_from_protobuf(test_result.start_date_time)
-            if test_result.HasField("start_date_time")
+        test_result._start_date_time = (
+            hightime_datetime_from_protobuf(test_result_proto.start_date_time)
+            if test_result_proto.HasField("start_date_time")
             else None
         )
-        result._end_date_time = (
-            hightime_datetime_from_protobuf(test_result.end_date_time)
-            if test_result.HasField("end_date_time")
+        test_result._end_date_time = (
+            hightime_datetime_from_protobuf(test_result_proto.end_date_time)
+            if test_result_proto.HasField("end_date_time")
             else None
         )
-        result._outcome = test_result.outcome
-        populate_from_extension_value_message_map(result.extensions, test_result.extensions)
-        return result
+        test_result._outcome = test_result_proto.outcome
+        populate_from_extension_value_message_map(
+            test_result.extensions, test_result_proto.extensions
+        )
+        return test_result
 
     def to_protobuf(self) -> TestResultProto:
         """Convert this TestResult to a protobuf TestResult message."""
-        test_result = TestResultProto(
+        test_result_proto = TestResultProto(
             test_result_id=self.test_result_id,
             uut_instance_id=self.uut_instance_id,
             operator_id=self.operator_id,
@@ -149,8 +151,8 @@ class TestResult:
             link=self.link,
             schema_id=self.schema_id,
         )
-        populate_extension_value_message_map(test_result.extensions, self.extensions)
-        return test_result
+        populate_extension_value_message_map(test_result_proto.extensions, self.extensions)
+        return test_result_proto
 
     def __eq__(self, other: object) -> bool:
         """Determine equality."""

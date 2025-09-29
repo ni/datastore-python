@@ -47,22 +47,22 @@ class Uut:
         self.schema_id = schema_id
 
     @staticmethod
-    def from_protobuf(uut: UutProto) -> "Uut":
+    def from_protobuf(uut_proto: UutProto) -> "Uut":
         """Create a Uut instance from a protobuf Uut message."""
-        result = Uut(
-            model_name=uut.model_name,
-            family=uut.family,
-            manufacturers=uut.manufacturers,
-            part_number=uut.part_number,
-            link=uut.link,
-            schema_id=uut.schema_id,
+        uut = Uut(
+            model_name=uut_proto.model_name,
+            family=uut_proto.family,
+            manufacturers=uut_proto.manufacturers,
+            part_number=uut_proto.part_number,
+            link=uut_proto.link,
+            schema_id=uut_proto.schema_id,
         )
-        populate_from_extension_value_message_map(result.extensions, uut.extensions)
-        return result
+        populate_from_extension_value_message_map(uut.extensions, uut_proto.extensions)
+        return uut
 
     def to_protobuf(self) -> UutProto:
         """Convert this Uut to a protobuf Uut message."""
-        uut = UutProto(
+        uut_proto = UutProto(
             model_name=self.model_name,
             family=self.family,
             manufacturers=self.manufacturers,
@@ -70,8 +70,8 @@ class Uut:
             link=self.link,
             schema_id=self.schema_id,
         )
-        populate_extension_value_message_map(uut.extensions, self.extensions)
-        return uut
+        populate_extension_value_message_map(uut_proto.extensions, self.extensions)
+        return uut_proto
 
     def __eq__(self, other: object) -> bool:
         """Determine equality."""

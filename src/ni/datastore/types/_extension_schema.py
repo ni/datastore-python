@@ -26,11 +26,11 @@ class ExtensionSchema:
         self.schema = schema
 
     @staticmethod
-    def from_protobuf(extension_schema: ExtensionSchemaProto) -> "ExtensionSchema":
+    def from_protobuf(extension_schema_proto: ExtensionSchemaProto) -> "ExtensionSchema":
         """Create an ExtensionSchema instance from a protobuf ExtensionSchema message."""
         return ExtensionSchema(
-            schema_id=extension_schema.schema_id,
-            schema=extension_schema.schema,
+            schema_id=extension_schema_proto.schema_id,
+            schema=extension_schema_proto.schema,
         )
 
     def to_protobuf(self) -> ExtensionSchemaProto:

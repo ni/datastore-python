@@ -50,23 +50,25 @@ class UutInstance:
         self.schema_id = schema_id
 
     @staticmethod
-    def from_protobuf(uut_instance: UutInstanceProto) -> "UutInstance":
+    def from_protobuf(uut_instance_proto: UutInstanceProto) -> "UutInstance":
         """Create a UutInstance from a protobuf UutInstance message."""
-        result = UutInstance(
-            uut_id=uut_instance.uut_id,
-            serial_number=uut_instance.serial_number,
-            manufacture_date=uut_instance.manufacture_date,
-            firmware_version=uut_instance.firmware_version,
-            hardware_version=uut_instance.hardware_version,
-            link=uut_instance.link,
-            schema_id=uut_instance.schema_id,
+        uut_instance = UutInstance(
+            uut_id=uut_instance_proto.uut_id,
+            serial_number=uut_instance_proto.serial_number,
+            manufacture_date=uut_instance_proto.manufacture_date,
+            firmware_version=uut_instance_proto.firmware_version,
+            hardware_version=uut_instance_proto.hardware_version,
+            link=uut_instance_proto.link,
+            schema_id=uut_instance_proto.schema_id,
         )
-        populate_from_extension_value_message_map(result.extensions, uut_instance.extensions)
-        return result
+        populate_from_extension_value_message_map(
+            uut_instance.extensions, uut_instance_proto.extensions
+        )
+        return uut_instance
 
     def to_protobuf(self) -> UutInstanceProto:
         """Convert this UutInstance to a protobuf UutInstance message."""
-        uut_instance = UutInstanceProto(
+        uut_instance_proto = UutInstanceProto(
             uut_id=self.uut_id,
             serial_number=self.serial_number,
             manufacture_date=self.manufacture_date,
@@ -75,8 +77,8 @@ class UutInstance:
             link=self.link,
             schema_id=self.schema_id,
         )
-        populate_extension_value_message_map(uut_instance.extensions, self.extensions)
-        return uut_instance
+        populate_extension_value_message_map(uut_instance_proto.extensions, self.extensions)
+        return uut_instance_proto
 
     def __eq__(self, other: object) -> bool:
         """Determine equality."""

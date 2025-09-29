@@ -41,27 +41,29 @@ class TestDescription:
         self.schema_id = schema_id
 
     @staticmethod
-    def from_protobuf(test_description: TestDescriptionProto) -> "TestDescription":
+    def from_protobuf(test_description_proto: TestDescriptionProto) -> "TestDescription":
         """Create a TestDescription instance from a protobuf TestDescription message."""
-        result = TestDescription(
-            uut_id=test_description.uut_id,
-            test_description_name=test_description.test_description_name,
-            link=test_description.link,
-            schema_id=test_description.schema_id,
+        test_description = TestDescription(
+            uut_id=test_description_proto.uut_id,
+            test_description_name=test_description_proto.test_description_name,
+            link=test_description_proto.link,
+            schema_id=test_description_proto.schema_id,
         )
-        populate_from_extension_value_message_map(result.extensions, test_description.extensions)
-        return result
+        populate_from_extension_value_message_map(
+            test_description.extensions, test_description_proto.extensions
+        )
+        return test_description
 
     def to_protobuf(self) -> TestDescriptionProto:
         """Convert this TestDescription to a protobuf TestDescription message."""
-        test_description = TestDescriptionProto(
+        test_description_proto = TestDescriptionProto(
             uut_id=self.uut_id,
             test_description_name=self.test_description_name,
             link=self.link,
             schema_id=self.schema_id,
         )
-        populate_extension_value_message_map(test_description.extensions, self.extensions)
-        return test_description
+        populate_extension_value_message_map(test_description_proto.extensions, self.extensions)
+        return test_description_proto
 
     def __eq__(self, other: object) -> bool:
         """Determine equality."""

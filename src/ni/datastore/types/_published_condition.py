@@ -39,22 +39,24 @@ class PublishedCondition:
         self.test_result_id = test_result_id
 
     @staticmethod
-    def from_protobuf(published_condition: PublishedConditionProto) -> "PublishedCondition":
+    def from_protobuf(published_condition_proto: PublishedConditionProto) -> "PublishedCondition":
         """Create a PublishedCondition instance from a protobuf PublishedCondition message."""
         return PublishedCondition(
             moniker=(
-                published_condition.moniker if published_condition.HasField("moniker") else None
+                published_condition_proto.moniker
+                if published_condition_proto.HasField("moniker")
+                else None
             ),
-            published_condition_id=published_condition.published_condition_id,
-            condition_name=published_condition.condition_name,
-            condition_type=published_condition.condition_type,
-            step_id=published_condition.step_id,
-            test_result_id=published_condition.test_result_id,
+            published_condition_id=published_condition_proto.published_condition_id,
+            condition_name=published_condition_proto.condition_name,
+            condition_type=published_condition_proto.condition_type,
+            step_id=published_condition_proto.step_id,
+            test_result_id=published_condition_proto.test_result_id,
         )
 
     def to_protobuf(self) -> PublishedConditionProto:
         """Convert this PublishedCondition instance to a protobuf PublishedCondition message."""
-        published_condition = PublishedConditionProto(
+        return PublishedConditionProto(
             moniker=self.moniker,
             published_condition_id=self.published_condition_id,
             condition_name=self.condition_name,
@@ -62,7 +64,6 @@ class PublishedCondition:
             step_id=self.step_id,
             test_result_id=self.test_result_id,
         )
-        return published_condition
 
     def __eq__(self, other: object) -> bool:
         """Determine equality."""

@@ -41,16 +41,16 @@ class Operator:
         self.schema_id = schema_id
 
     @staticmethod
-    def from_protobuf(operator: OperatorProto) -> "Operator":
+    def from_protobuf(operator_proto: OperatorProto) -> "Operator":
         """Create an Operator instance from a protobuf Operator message."""
-        result = Operator(
-            operator_name=operator.operator_name,
-            role=operator.role,
-            link=operator.link,
-            schema_id=operator.schema_id,
+        operator = Operator(
+            operator_name=operator_proto.operator_name,
+            role=operator_proto.role,
+            link=operator_proto.link,
+            schema_id=operator_proto.schema_id,
         )
-        populate_from_extension_value_message_map(result.extensions, operator.extensions)
-        return result
+        populate_from_extension_value_message_map(operator.extensions, operator_proto.extensions)
+        return operator
 
     def to_protobuf(self) -> OperatorProto:
         """Convert this Operator to a protobuf Operator message."""

@@ -56,25 +56,27 @@ class TestAdapter:
         self.schema_id = schema_id
 
     @staticmethod
-    def from_protobuf(test_adapter: TestAdapterProto) -> "TestAdapter":
+    def from_protobuf(test_adapter_proto: TestAdapterProto) -> "TestAdapter":
         """Create a TestAdapter instance from a protobuf TestAdapter message."""
-        result = TestAdapter(
-            test_adapter_name=test_adapter.test_adapter_name,
-            manufacturer=test_adapter.manufacturer,
-            model=test_adapter.model,
-            serial_number=test_adapter.serial_number,
-            part_number=test_adapter.part_number,
-            asset_identifier=test_adapter.asset_identifier,
-            calibration_due_date=test_adapter.calibration_due_date,
-            link=test_adapter.link,
-            schema_id=test_adapter.schema_id,
+        test_adapter = TestAdapter(
+            test_adapter_name=test_adapter_proto.test_adapter_name,
+            manufacturer=test_adapter_proto.manufacturer,
+            model=test_adapter_proto.model,
+            serial_number=test_adapter_proto.serial_number,
+            part_number=test_adapter_proto.part_number,
+            asset_identifier=test_adapter_proto.asset_identifier,
+            calibration_due_date=test_adapter_proto.calibration_due_date,
+            link=test_adapter_proto.link,
+            schema_id=test_adapter_proto.schema_id,
         )
-        populate_from_extension_value_message_map(result.extensions, test_adapter.extensions)
-        return result
+        populate_from_extension_value_message_map(
+            test_adapter.extensions, test_adapter_proto.extensions
+        )
+        return test_adapter
 
     def to_protobuf(self) -> TestAdapterProto:
         """Convert this TestAdapter to a protobuf TestAdapter message."""
-        test_adapter = TestAdapterProto(
+        test_adapter_proto = TestAdapterProto(
             test_adapter_name=self.test_adapter_name,
             manufacturer=self.manufacturer,
             model=self.model,
@@ -85,8 +87,8 @@ class TestAdapter:
             link=self.link,
             schema_id=self.schema_id,
         )
-        populate_extension_value_message_map(test_adapter.extensions, self.extensions)
-        return test_adapter
+        populate_extension_value_message_map(test_adapter_proto.extensions, self.extensions)
+        return test_adapter_proto
 
     def __eq__(self, other: object) -> bool:
         """Determine equality."""

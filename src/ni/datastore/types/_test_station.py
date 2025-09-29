@@ -41,27 +41,29 @@ class TestStation:
         self.schema_id = schema_id
 
     @staticmethod
-    def from_protobuf(test_station: TestStationProto) -> "TestStation":
+    def from_protobuf(test_station_proto: TestStationProto) -> "TestStation":
         """Create a TestStation instance from a protobuf TestStation message."""
-        result = TestStation(
-            test_station_name=test_station.test_station_name,
-            asset_identifier=test_station.asset_identifier,
-            link=test_station.link,
-            schema_id=test_station.schema_id,
+        test_station = TestStation(
+            test_station_name=test_station_proto.test_station_name,
+            asset_identifier=test_station_proto.asset_identifier,
+            link=test_station_proto.link,
+            schema_id=test_station_proto.schema_id,
         )
-        populate_from_extension_value_message_map(result.extensions, test_station.extensions)
-        return result
+        populate_from_extension_value_message_map(
+            test_station.extensions, test_station_proto.extensions
+        )
+        return test_station
 
     def to_protobuf(self) -> TestStationProto:
         """Convert this TestStation to a protobuf TestStation message."""
-        test_station = TestStationProto(
+        test_station_proto = TestStationProto(
             test_station_name=self.test_station_name,
             asset_identifier=self.asset_identifier,
             link=self.link,
             schema_id=self.schema_id,
         )
-        populate_extension_value_message_map(test_station.extensions, self.extensions)
-        return test_station
+        populate_extension_value_message_map(test_station_proto.extensions, self.extensions)
+        return test_station_proto
 
     def __eq__(self, other: object) -> bool:
         """Determine equality."""
