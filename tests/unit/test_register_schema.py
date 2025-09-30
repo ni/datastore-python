@@ -39,7 +39,7 @@ def test___register_schema_from_file_with_string_path___calls_metadatastoreclien
     assert request.schema == schema_path.read_text()
 
 
-def test___register_schema_from_file_with_non_existent_pathlib_path___throws_error(
+def test___register_schema_from_file_with_non_existent_pathlib_path___raises_error(
     client: Client, schemas_directory: Path
 ) -> None:
     schema_path = schemas_directory / "non_existent_schema.toml"
@@ -48,7 +48,7 @@ def test___register_schema_from_file_with_non_existent_pathlib_path___throws_err
         client.register_schema_from_file(schema_path)
 
 
-def test___register_schema_from_file_with_non_existent_string_path___throws_error(
+def test___register_schema_from_file_with_non_existent_string_path___raises_error(
     client: Client, schemas_directory: Path
 ) -> None:
     schema_path = schemas_directory / "non_existent_schema.toml"
