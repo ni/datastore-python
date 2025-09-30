@@ -1,7 +1,6 @@
 # Table of Contents
 
 - [Table of Contents](#table-of-contents)
-- [Measurement ]
 - [About](#about)
   - [Operating System Support](#operating-system-support)
   - [Python Version Support](#python-version-support)
