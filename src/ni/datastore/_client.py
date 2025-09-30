@@ -511,22 +511,30 @@ class Client:
             TestAdapter.from_protobuf(test_adapter) for test_adapter in query_response.test_adapters
         ]
 
-    def register_schema(self, schema: str | Path) -> str:
+    def register_schema_from_file(self, schema_file_path: Path | str) -> str:
+        """Register a schema obtained from the specified file in the metadata store.
+
+        Args:
+            schema_file_path: The path at which the schema file is located
+
+        Raises:
+            FileNotFoundError: If the schema file does not exist.
+        """
+        if isinstance(schema_file_path, str):
+            schema_file_path = Path(schema_file_path)
+
+        if not schema_file_path.exists():
+            raise FileNotFoundError(f"Schema file not found: {schema_file_path}")
+
+        schema_contents = schema_file_path.read_text()
+        return self.register_schema(schema_contents=schema_contents)
+
+    def register_schema(self, schema_contents: str) -> str:
         """Register a schema in the metadata store.
 
         Args:
-            schema (str | Path): The schema definition or a path to the schema file. A path to the
-                schema file can be provided as either a string or a pathlib.Path.
+            schema_contents: The contents of the schema to register
         """
-        if isinstance(schema, str):
-            schema_path = Path(schema)
-            if schema_path.exists():  # A string path was provided
-                schema_contents = schema_path.read_text()
-            else:
-                schema_contents = schema
-        else:
-            schema_contents = schema.read_text()
-
         register_request = RegisterSchemaRequest(schema=schema_contents)
         register_response = self._get_metadata_store_client().register_schema(register_request)
         return register_response.schema_id
