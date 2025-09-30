@@ -213,7 +213,7 @@ def test___vector___publish_measurement_batch___calls_datastoreclient(
     assert request.test_adapter_ids == []
 
 
-def test___int_sequence___publish_measurement_batch___calls_datastoreclient(
+def test___int_list___publish_measurement_batch___calls_datastoreclient(
     client: Client,
     mocked_datastore_client: NonCallableMock,
 ) -> None:
@@ -246,7 +246,7 @@ def test___int_sequence___publish_measurement_batch___calls_datastoreclient(
     assert request.scalar_values.attributes["NI_UnitDescription"].string_value == ""
 
 
-def test___float_sequence___publish_measurement_batch___calls_datastoreclient(
+def test___float_list___publish_measurement_batch___calls_datastoreclient(
     client: Client,
     mocked_datastore_client: NonCallableMock,
 ) -> None:
@@ -279,7 +279,7 @@ def test___float_sequence___publish_measurement_batch___calls_datastoreclient(
     assert request.scalar_values.attributes["NI_UnitDescription"].string_value == ""
 
 
-def test___bool_sequence___publish_measurement_batch___calls_datastoreclient(
+def test___bool_list___publish_measurement_batch___calls_datastoreclient(
     client: Client,
     mocked_datastore_client: NonCallableMock,
 ) -> None:
@@ -312,7 +312,7 @@ def test___bool_sequence___publish_measurement_batch___calls_datastoreclient(
     assert request.scalar_values.attributes["NI_UnitDescription"].string_value == ""
 
 
-def test___str_sequence___publish_measurement_batch___calls_datastoreclient(
+def test___str_list___publish_measurement_batch___calls_datastoreclient(
     client: Client,
     mocked_datastore_client: NonCallableMock,
 ) -> None:
@@ -343,3 +343,29 @@ def test___str_sequence___publish_measurement_batch___calls_datastoreclient(
     assert request.timestamp == [hightime_datetime_to_protobuf(timestamp)]
     assert request.scalar_values.string_array.values == ["one", "two", "three"]
     assert request.scalar_values.attributes["NI_UnitDescription"].string_value == ""
+
+
+def test___unsupported_list___publish_measurement_batch___raises_type_error(
+    client: Client,
+) -> None:
+    with pytest.raises(TypeError) as exc:
+        _ = client.publish_measurement_batch(
+            measurement_name="name",
+            values=[[1, 2, 3], [4, 5, 6]],  # List of lists will error during vector creation.
+            step_id="step_id",
+        )
+
+    assert exc.value.args[0].startswith("Unsupported iterable:")
+
+
+def test___empty_list___publish_measurement_batch___raises_type_error(
+    client: Client,
+) -> None:
+    with pytest.raises(ValueError) as exc:
+        _ = client.publish_measurement_batch(
+            measurement_name="name",
+            values=[],
+            step_id="step_id",
+        )
+
+    assert exc.value.args[0].startswith("Cannot publish an empty Iterable.")
