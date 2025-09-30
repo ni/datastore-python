@@ -175,7 +175,7 @@ def test___publish_analog_waveform_data_with_mismatched_timestamp_parameter___ra
         client.publish_measurement("name", analog_waveform, "step_id", mismatched_timestamp)
 
 
-def test___publish_measurement_batch___calls_datastoreclient(
+def test___vector___publish_measurement_batch___calls_datastoreclient(
     client: Client,
     mocked_datastore_client: NonCallableMock,
 ) -> None:
@@ -211,3 +211,135 @@ def test___publish_measurement_batch___calls_datastoreclient(
     assert request.hardware_item_ids == []
     assert request.software_item_ids == []
     assert request.test_adapter_ids == []
+
+
+def test___int_sequence___publish_measurement_batch___calls_datastoreclient(
+    client: Client,
+    mocked_datastore_client: NonCallableMock,
+) -> None:
+    timestamp = datetime.now(tz=std_datetime.timezone.utc)
+    published_measurement = PublishedMeasurement(published_measurement_id="response_id")
+    expected_response = PublishMeasurementBatchResponse(
+        published_measurements=[published_measurement]
+    )
+    mocked_datastore_client.publish_measurement_batch.return_value = expected_response
+
+    response = client.publish_measurement_batch(
+        measurement_name="name",
+        values=[1, 2, 3],
+        step_id="step_id",
+        timestamps=[timestamp],
+        outcomes=[Outcome.OUTCOME_PASSED],
+        error_information=[ErrorInformation()],
+        hardware_item_ids=[],
+        test_adapter_ids=[],
+        software_item_ids=[],
+    )
+
+    args, __ = mocked_datastore_client.publish_measurement_batch.call_args
+    request = cast(PublishMeasurementBatchRequest, args[0])
+    assert next(iter(response)).published_measurement_id == "response_id"
+    assert request.step_id == "step_id"
+    assert request.measurement_name == "name"
+    assert request.timestamp == [hightime_datetime_to_protobuf(timestamp)]
+    assert request.scalar_values.sint32_array.values == [1, 2, 3]
+    assert request.scalar_values.attributes["NI_UnitDescription"].string_value == ""
+
+
+def test___float_sequence___publish_measurement_batch___calls_datastoreclient(
+    client: Client,
+    mocked_datastore_client: NonCallableMock,
+) -> None:
+    timestamp = datetime.now(tz=std_datetime.timezone.utc)
+    published_measurement = PublishedMeasurement(published_measurement_id="response_id")
+    expected_response = PublishMeasurementBatchResponse(
+        published_measurements=[published_measurement]
+    )
+    mocked_datastore_client.publish_measurement_batch.return_value = expected_response
+
+    response = client.publish_measurement_batch(
+        measurement_name="name",
+        values=[1.0, 2.0, 3.0],
+        step_id="step_id",
+        timestamps=[timestamp],
+        outcomes=[Outcome.OUTCOME_PASSED],
+        error_information=[ErrorInformation()],
+        hardware_item_ids=[],
+        test_adapter_ids=[],
+        software_item_ids=[],
+    )
+
+    args, __ = mocked_datastore_client.publish_measurement_batch.call_args
+    request = cast(PublishMeasurementBatchRequest, args[0])
+    assert next(iter(response)).published_measurement_id == "response_id"
+    assert request.step_id == "step_id"
+    assert request.measurement_name == "name"
+    assert request.timestamp == [hightime_datetime_to_protobuf(timestamp)]
+    assert request.scalar_values.double_array.values == [1.0, 2.0, 3.0]
+    assert request.scalar_values.attributes["NI_UnitDescription"].string_value == ""
+
+
+def test___bool_sequence___publish_measurement_batch___calls_datastoreclient(
+    client: Client,
+    mocked_datastore_client: NonCallableMock,
+) -> None:
+    timestamp = datetime.now(tz=std_datetime.timezone.utc)
+    published_measurement = PublishedMeasurement(published_measurement_id="response_id")
+    expected_response = PublishMeasurementBatchResponse(
+        published_measurements=[published_measurement]
+    )
+    mocked_datastore_client.publish_measurement_batch.return_value = expected_response
+
+    response = client.publish_measurement_batch(
+        measurement_name="name",
+        values=[True, False, True],
+        step_id="step_id",
+        timestamps=[timestamp],
+        outcomes=[Outcome.OUTCOME_PASSED],
+        error_information=[ErrorInformation()],
+        hardware_item_ids=[],
+        test_adapter_ids=[],
+        software_item_ids=[],
+    )
+
+    args, __ = mocked_datastore_client.publish_measurement_batch.call_args
+    request = cast(PublishMeasurementBatchRequest, args[0])
+    assert next(iter(response)).published_measurement_id == "response_id"
+    assert request.step_id == "step_id"
+    assert request.measurement_name == "name"
+    assert request.timestamp == [hightime_datetime_to_protobuf(timestamp)]
+    assert request.scalar_values.bool_array.values == [True, False, True]
+    assert request.scalar_values.attributes["NI_UnitDescription"].string_value == ""
+
+
+def test___str_sequence___publish_measurement_batch___calls_datastoreclient(
+    client: Client,
+    mocked_datastore_client: NonCallableMock,
+) -> None:
+    timestamp = datetime.now(tz=std_datetime.timezone.utc)
+    published_measurement = PublishedMeasurement(published_measurement_id="response_id")
+    expected_response = PublishMeasurementBatchResponse(
+        published_measurements=[published_measurement]
+    )
+    mocked_datastore_client.publish_measurement_batch.return_value = expected_response
+
+    response = client.publish_measurement_batch(
+        measurement_name="name",
+        values=["one", "two", "three"],
+        step_id="step_id",
+        timestamps=[timestamp],
+        outcomes=[Outcome.OUTCOME_PASSED],
+        error_information=[ErrorInformation()],
+        hardware_item_ids=[],
+        test_adapter_ids=[],
+        software_item_ids=[],
+    )
+
+    args, __ = mocked_datastore_client.publish_measurement_batch.call_args
+    request = cast(PublishMeasurementBatchRequest, args[0])
+    assert next(iter(response)).published_measurement_id == "response_id"
+    assert request.step_id == "step_id"
+    assert request.measurement_name == "name"
+    assert request.timestamp == [hightime_datetime_to_protobuf(timestamp)]
+    assert request.scalar_values.string_array.values == ["one", "two", "three"]
+    assert request.scalar_values.attributes["NI_UnitDescription"].string_value == ""
