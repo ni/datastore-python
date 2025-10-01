@@ -1,0 +1,4 @@
+id = "https://example.com/hardware.item.schema.toml"
+
+[hardware_item]
+cable_length = "*"

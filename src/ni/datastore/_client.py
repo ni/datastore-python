@@ -5,6 +5,7 @@ from __future__ import annotations
 import datetime as std_datetime
 import logging
 from collections.abc import Iterable
+from pathlib import Path
 from threading import Lock
 from typing import Type, TypeVar, cast, overload
 from urllib.parse import urlparse
@@ -138,9 +139,9 @@ class Client:
             discovery_client: An optional discovery client (recommended).
 
             grpc_channel: An optional data store gRPC channel. Providing this channel will bypass
-            discovery service resolution of the data store. (Note: Reading data from a moniker
-            will still always use a channel corresponding to the service location specified by
-            that moniker.)
+                discovery service resolution of the data store. (Note: Reading data from a moniker
+                will still always use a channel corresponding to the service location specified by
+                that moniker.)
 
             grpc_channel_pool: An optional gRPC channel pool (recommended).
         """
@@ -510,10 +511,31 @@ class Client:
             TestAdapter.from_protobuf(test_adapter) for test_adapter in query_response.test_adapters
         ]
 
-    # TODO: Also support providing a file path?
-    def register_schema(self, schema: str) -> str:
-        """Register a schema in the metadata store."""
-        register_request = RegisterSchemaRequest(schema=schema)
+    def register_schema_from_file(self, schema_file_path: Path | str) -> str:
+        """Register a schema obtained from the specified file in the metadata store.
+
+        Args:
+            schema_file_path: The path at which the schema file is located
+
+        Raises:
+            FileNotFoundError: If the schema file does not exist.
+        """
+        if isinstance(schema_file_path, str):
+            schema_file_path = Path(schema_file_path)
+
+        if not schema_file_path.exists():
+            raise FileNotFoundError(f"Schema file not found: {schema_file_path}")
+
+        schema_contents = schema_file_path.read_text(encoding="utf-8-sig")
+        return self.register_schema(schema_contents=schema_contents)
+
+    def register_schema(self, schema_contents: str) -> str:
+        """Register a schema in the metadata store.
+
+        Args:
+            schema_contents: The contents of the schema to register
+        """
+        register_request = RegisterSchemaRequest(schema=schema_contents)
         register_response = self._get_metadata_store_client().register_schema(register_request)
         return register_response.schema_id
 
