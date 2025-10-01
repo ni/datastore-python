@@ -526,7 +526,7 @@ class Client:
         if not schema_file_path.exists():
             raise FileNotFoundError(f"Schema file not found: {schema_file_path}")
 
-        schema_contents = schema_file_path.read_text()
+        schema_contents = schema_file_path.read_text(encoding="utf-8-sig")
         return self.register_schema(schema_contents=schema_contents)
 
     def register_schema(self, schema_contents: str) -> str:
