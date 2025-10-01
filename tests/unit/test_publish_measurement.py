@@ -175,6 +175,19 @@ def test___publish_analog_waveform_data_with_mismatched_timestamp_parameter___ra
         client.publish_measurement("name", analog_waveform, "step_id", mismatched_timestamp)
 
 
+def test___none___publish_measurement___raises_type_error(
+    client: Client,
+) -> None:
+    with pytest.raises(TypeError) as exc:
+        _ = client.publish_measurement(
+            measurement_name="name",
+            value=None,
+            step_id="step_id",
+        )
+
+    assert exc.value.args[0].startswith("Unsupported measurement value type")
+
+
 def test___vector___publish_measurement_batch___calls_datastoreclient(
     client: Client,
     mocked_datastore_client: NonCallableMock,
@@ -369,3 +382,16 @@ def test___empty_list___publish_measurement_batch___raises_type_error(
         )
 
     assert exc.value.args[0].startswith("Cannot publish an empty Iterable.")
+
+
+def test___none___publish_measurement_batch___raises_type_error(
+    client: Client,
+) -> None:
+    with pytest.raises(TypeError) as exc:
+        _ = client.publish_measurement_batch(
+            measurement_name="name",
+            values=None,
+            step_id="step_id",
+        )
+
+    assert exc.value.args[0].startswith("Unsupported measurement values type")

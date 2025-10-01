@@ -41,6 +41,20 @@ def test___publish_condition___calls_datastoreclient(
     assert request.scalar.sint32_value == 123
 
 
+def test___none___publish_condition___raises_type_error(
+    client: Client,
+) -> None:
+    with pytest.raises(TypeError) as exc:
+        _ = client.publish_condition(
+            condition_name="TestCondition",
+            type="ConditionType",
+            value=None,
+            step_id="MyStep",
+        )
+
+    assert exc.value.args[0].startswith("Unsupported condition value type")
+
+
 def test___vector___publish_condition_batch___calls_datastoreclient(
     client: Client,
     mocked_datastore_client: NonCallableMock,
@@ -180,3 +194,17 @@ def test___empty_list___publish_condition_batch___raises_value_error(
         )
 
     assert exc.value.args[0].startswith("Cannot publish an empty Iterable.")
+
+
+def test___none___publish_condition_batch___raises_type_error(
+    client: Client,
+) -> None:
+    with pytest.raises(TypeError) as exc:
+        _ = client.publish_condition_batch(
+            condition_name="TestCondition",
+            type="ConditionType",
+            values=None,
+            step_id="MyStep",
+        )
+
+    assert exc.value.args[0].startswith("Unsupported condition values type")
