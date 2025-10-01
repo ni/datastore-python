@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from typing import MutableMapping
+from typing import Iterable, MutableMapping
 
 import numpy as np
 from google.protobuf.any_pb2 import Any
@@ -73,9 +73,19 @@ def populate_publish_condition_batch_request_values(
     publish_request: PublishConditionBatchRequest, values: object
 ) -> None:
     """Assign a value to the scalar_values vector member of PublishConditionBatchRequest."""
-    # TODO: Determine whether we wish to support primitive types such as a list of float
     if isinstance(values, Vector):
         publish_request.scalar_values.CopyFrom(vector_to_protobuf(values))
+    elif isinstance(values, Iterable):
+        if not values:
+            raise ValueError("Cannot publish an empty Iterable.")
+        try:
+            vector = Vector(values)
+        except (TypeError, ValueError):
+            raise TypeError(
+                f"Unsupported iterable: {values}. Subtype must be bool, float, int, or string."
+            )
+
+        publish_request.scalar_values.CopyFrom(vector_to_protobuf(vector))
     else:
         raise TypeError(
             f"Unsupported condition values type: {type(values)}. Please consult the documentation."
@@ -134,9 +144,19 @@ def populate_publish_measurement_batch_request_values(
     publish_request: PublishMeasurementBatchRequest, values: object
 ) -> None:
     """Assign a value to the appropriate field of the PublishMeasurementBatchRequest object."""
-    # TODO: Determine whether we wish to support primitive types such as a list of float
     if isinstance(values, Vector):
         publish_request.scalar_values.CopyFrom(vector_to_protobuf(values))
+    elif isinstance(values, Iterable):
+        if not values:
+            raise ValueError("Cannot publish an empty Iterable.")
+        try:
+            vector = Vector(values)
+        except (TypeError, ValueError):
+            raise TypeError(
+                f"Unsupported iterable: {values}. Subtype must be bool, float, int, or string."
+            )
+
+        publish_request.scalar_values.CopyFrom(vector_to_protobuf(vector))
     else:
         raise TypeError(
             f"Unsupported measurement values type: {type(values)}. Please consult the documentation."

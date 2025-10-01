@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
 from unittest.mock import NonCallableMock
 
@@ -52,3 +53,15 @@ def mocked_moniker_client(mocker: MockerFixture) -> Any:
     mock_moniker_client = mocker.patch("ni.datamonikers.v1.client.MonikerClient", autospec=True)
     mock_moniker_instance = mock_moniker_client.return_value
     return mock_moniker_instance
+
+
+@pytest.fixture(scope="module")
+def schemas_directory(test_assets_directory: Path) -> Path:
+    """Returns the test assets directory containing schemas."""
+    return test_assets_directory / "unit" / "schemas"
+
+
+@pytest.fixture(scope="module")
+def test_assets_directory() -> Path:
+    """Returns the test assets directory."""
+    return Path(__file__).parent.parent / "assets"
