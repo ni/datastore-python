@@ -1,4 +1,4 @@
-"""Contains test fixtures used by the unit tests."""
+"""Contains test fixtures used by the data store and metadata store unit tests."""
 
 from __future__ import annotations
 
@@ -7,29 +7,42 @@ from typing import Any
 from unittest.mock import NonCallableMock
 
 import pytest
-from ni.datastore import Client
+from ni.datastore.data import DataStoreClient
+from ni.datastore.metadata import MetadataStoreClient
 from pytest_mock import MockerFixture
 
 
 @pytest.fixture
-def client(
-    mocked_datastore_client: NonCallableMock,
-    mocked_metadatastore_client: NonCallableMock,
+def data_store_client(
+    mocked_data_store_service_client: NonCallableMock,
     mocked_moniker_client: NonCallableMock,
     mocker: MockerFixture,
-) -> Client:
-    """Returns the pytest fixture for the client."""
-    mocker.patch.object(Client, "_get_data_store_client", return_value=mocked_datastore_client)
+) -> DataStoreClient:
+    """Returns the pytest fixture for the data store client."""
     mocker.patch.object(
-        Client, "_get_metadata_store_client", return_value=mocked_metadatastore_client
+        DataStoreClient, "_get_data_store_client", return_value=mocked_data_store_service_client
     )
-    mocker.patch.object(Client, "_get_moniker_client", return_value=mocked_moniker_client)
-    return Client()
+    mocker.patch.object(DataStoreClient, "_get_moniker_client", return_value=mocked_moniker_client)
+    return DataStoreClient()
 
 
 @pytest.fixture
-def mocked_datastore_client(mocker: MockerFixture) -> Any:
-    """Returns the pytest fixture for a mocked datastore client."""
+def metadata_store_client(
+    mocked_metadata_store_service_client: NonCallableMock,
+    mocker: MockerFixture,
+) -> MetadataStoreClient:
+    """Returns the pytest fixture for the metadata store client."""
+    mocker.patch.object(
+        MetadataStoreClient,
+        "_get_metadata_store_client",
+        return_value=mocked_metadata_store_service_client,
+    )
+    return MetadataStoreClient()
+
+
+@pytest.fixture
+def mocked_data_store_service_client(mocker: MockerFixture) -> Any:
+    """Returns the pytest fixture for a mocked data store service client."""
     mock_datastore_client = mocker.patch(
         "ni.measurements.data.v1.client.DataStoreClient", autospec=True
     )
@@ -38,8 +51,8 @@ def mocked_datastore_client(mocker: MockerFixture) -> Any:
 
 
 @pytest.fixture
-def mocked_metadatastore_client(mocker: MockerFixture) -> Any:
-    """Returns the pytest fixture for a mocked metadatastore client."""
+def mocked_metadata_store_service_client(mocker: MockerFixture) -> Any:
+    """Returns the pytest fixture for a mocked metadata store service client."""
     mock_metadatastore_client = mocker.patch(
         "ni.measurements.metadata.v1.client.MetadataStoreClient", autospec=True
     )
@@ -58,7 +71,7 @@ def mocked_moniker_client(mocker: MockerFixture) -> Any:
 @pytest.fixture(scope="module")
 def schemas_directory(test_assets_directory: Path) -> Path:
     """Returns the test assets directory containing schemas."""
-    return test_assets_directory / "unit" / "schemas"
+    return test_assets_directory / "unit" / "metadata" / "schemas"
 
 
 @pytest.fixture(scope="module")
