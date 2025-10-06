@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import datetime as std_datetime
 import logging
-from typing import Iterable
+from typing import Iterable, cast
 
+import hightime as ht
 import numpy as np
 from google.protobuf.any_pb2 import Any
 from ni.measurements.data.v1.data_store_service_pb2 import (
@@ -13,6 +15,10 @@ from ni.measurements.data.v1.data_store_service_pb2 import (
     PublishMeasurementBatchRequest,
     PublishMeasurementRequest,
 )
+from ni.protobuf.types.precision_timestamp_conversion import (
+    hightime_datetime_to_protobuf,
+)
+from ni.protobuf.types.precision_timestamp_pb2 import PrecisionTimestamp
 from ni.protobuf.types.scalar_conversion import scalar_to_protobuf
 from ni.protobuf.types.vector_conversion import vector_from_protobuf, vector_to_protobuf
 from ni.protobuf.types.vector_pb2 import Vector as VectorProto
@@ -201,3 +207,39 @@ def unpack_and_convert_from_protobuf_any(read_value: Any) -> object:
         return vector_from_protobuf(vector)
     else:
         raise TypeError(f"Unsupported data type Name: {value_type}")
+
+
+def get_publish_measurement_timestamp(
+    publish_request: PublishMeasurementRequest, client_provided_timestamp: ht.datetime | None
+) -> PrecisionTimestamp:
+    """Determine the correct timestamp to use for publishing a measurement."""
+    no_client_timestamp_provided = client_provided_timestamp is None
+    if no_client_timestamp_provided:
+        publish_time = hightime_datetime_to_protobuf(ht.datetime.now(std_datetime.timezone.utc))
+    else:
+        publish_time = hightime_datetime_to_protobuf(cast(ht.datetime, client_provided_timestamp))
+
+    waveform_t0: PrecisionTimestamp | None = None
+    value_case = publish_request.WhichOneof("value")
+    if value_case == "double_analog_waveform":
+        waveform_t0 = publish_request.double_analog_waveform.t0
+    elif value_case == "i16_analog_waveform":
+        waveform_t0 = publish_request.i16_analog_waveform.t0
+    elif value_case == "double_complex_waveform":
+        waveform_t0 = publish_request.double_complex_waveform.t0
+    elif value_case == "i16_complex_waveform":
+        waveform_t0 = publish_request.i16_complex_waveform.t0
+    elif value_case == "digital_waveform":
+        waveform_t0 = publish_request.digital_waveform.t0
+
+    # If an initialized waveform t0 value is present
+    if waveform_t0 is not None and waveform_t0 != PrecisionTimestamp():
+        if no_client_timestamp_provided:
+            # If the client did not provide a timestamp, use the waveform t0 value
+            publish_time = waveform_t0
+        elif publish_time != waveform_t0:
+            raise ValueError(
+                "The provided timestamp does not match the waveform t0. Please provide a matching timestamp or "
+                "omit the timestamp to use the waveform t0."
+            )
+    return publish_time

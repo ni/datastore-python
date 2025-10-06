@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-import datetime as std_datetime
 import logging
 from collections.abc import Iterable
 from threading import Lock
-from typing import Type, TypeVar, cast, overload
+from typing import Type, TypeVar, overload
 from urllib.parse import urlparse
 
 import hightime as ht
@@ -14,6 +13,7 @@ from grpc import Channel
 from ni.datamonikers.v1.client import MonikerClient
 from ni.datamonikers.v1.data_moniker_pb2 import Moniker
 from ni.datastore.data._grpc_conversion import (
+    get_publish_measurement_timestamp,
     populate_publish_condition_batch_request_values,
     populate_publish_condition_request_value,
     populate_publish_measurement_batch_request_values,
@@ -46,7 +46,6 @@ from ni.measurements.data.v1.data_store_service_pb2 import (
 from ni.protobuf.types.precision_timestamp_conversion import (
     hightime_datetime_to_protobuf,
 )
-from ni.protobuf.types.precision_timestamp_pb2 import PrecisionTimestamp
 from ni_grpc_extensions.channelpool import GrpcChannelPool
 
 TRead = TypeVar("TRead")
@@ -159,7 +158,7 @@ class DataStoreClient:
         )
         populate_publish_measurement_request_value(publish_request, value)
         publish_request.timestamp.CopyFrom(
-            self._get_publish_measurement_timestamp(publish_request, timestamp)
+            get_publish_measurement_timestamp(publish_request, timestamp)
         )
         publish_response = self._get_data_store_client().publish_measurement(publish_request)
         return PublishedMeasurement.from_protobuf(publish_response.published_measurement)
@@ -301,40 +300,3 @@ class DataStoreClient:
                         )
                     )
         return self._moniker_clients_by_service_location[parsed_service_location]
-
-    @staticmethod
-    def _get_publish_measurement_timestamp(
-        publish_request: PublishMeasurementRequest, client_provided_timestamp: ht.datetime | None
-    ) -> PrecisionTimestamp:
-        no_client_timestamp_provided = client_provided_timestamp is None
-        if no_client_timestamp_provided:
-            publish_time = hightime_datetime_to_protobuf(ht.datetime.now(std_datetime.timezone.utc))
-        else:
-            publish_time = hightime_datetime_to_protobuf(
-                cast(ht.datetime, client_provided_timestamp)
-            )
-
-        waveform_t0: PrecisionTimestamp | None = None
-        value_case = publish_request.WhichOneof("value")
-        if value_case == "double_analog_waveform":
-            waveform_t0 = publish_request.double_analog_waveform.t0
-        elif value_case == "i16_analog_waveform":
-            waveform_t0 = publish_request.i16_analog_waveform.t0
-        elif value_case == "double_complex_waveform":
-            waveform_t0 = publish_request.double_complex_waveform.t0
-        elif value_case == "i16_complex_waveform":
-            waveform_t0 = publish_request.i16_complex_waveform.t0
-        elif value_case == "digital_waveform":
-            waveform_t0 = publish_request.digital_waveform.t0
-
-        # If an initialized waveform t0 value is present
-        if waveform_t0 is not None and waveform_t0 != PrecisionTimestamp():
-            if no_client_timestamp_provided:
-                # If the client did not provide a timestamp, use the waveform t0 value
-                publish_time = waveform_t0
-            elif publish_time != waveform_t0:
-                raise ValueError(
-                    "The provided timestamp does not match the waveform t0. Please provide a matching timestamp or "
-                    "omit the timestamp to use the waveform t0."
-                )
-        return publish_time
