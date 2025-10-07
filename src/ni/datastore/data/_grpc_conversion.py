@@ -137,6 +137,17 @@ def populate_publish_measurement_request_value(
             raise TypeError(f"Unsupported Spectrum dtype: {value.dtype}")
     elif isinstance(value, DigitalWaveform):
         publish_request.digital_waveform.CopyFrom(digital_waveform_to_protobuf(value))
+    elif isinstance(value, Iterable):
+        if not value:
+            raise ValueError("Cannot publish an empty Iterable.")
+        try:
+            vector = Vector(value)
+        except (TypeError, ValueError):
+            raise TypeError(
+                f"Unsupported iterable: {value}. Subtype must be bool, float, int, or string."
+            )
+
+        publish_request.vector.CopyFrom(vector_to_protobuf(vector))
     else:
         raise TypeError(
             f"Unsupported measurement value type: {type(value)}. Please consult the documentation."
