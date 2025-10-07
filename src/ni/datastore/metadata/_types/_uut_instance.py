@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import MutableMapping
+from typing import Mapping, MutableMapping
 
 from ni.datastore.metadata._grpc_conversion import (
     populate_extension_value_message_map,
@@ -23,9 +23,14 @@ class UutInstance:
         "firmware_version",
         "hardware_version",
         "link",
-        "extensions",
+        "_extensions",
         "schema_id",
     )
+
+    @property
+    def extensions(self) -> MutableMapping[str, str]:
+        """The extensions of the UUT instance."""
+        return self._extensions
 
     def __init__(
         self,
@@ -36,7 +41,7 @@ class UutInstance:
         firmware_version: str = "",
         hardware_version: str = "",
         link: str = "",
-        extensions: MutableMapping[str, str] | None = None,
+        extensions: Mapping[str, str] | None = None,
         schema_id: str = "",
     ) -> None:
         """Initialize a UutInstance instance."""
@@ -46,7 +51,9 @@ class UutInstance:
         self.firmware_version = firmware_version
         self.hardware_version = hardware_version
         self.link = link
-        self.extensions: MutableMapping[str, str] = extensions if extensions is not None else {}
+        self._extensions: MutableMapping[str, str] = (
+            dict(extensions) if extensions is not None else {}
+        )
         self.schema_id = schema_id
 
     @staticmethod

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import MutableMapping
+from typing import Mapping, MutableMapping
 
 from ni.datastore.metadata._grpc_conversion import (
     populate_extension_value_message_map,
@@ -20,9 +20,14 @@ class Operator:
         "operator_name",
         "role",
         "link",
-        "extensions",
+        "_extensions",
         "schema_id",
     )
+
+    @property
+    def extensions(self) -> MutableMapping[str, str]:
+        """The extensions of the operator."""
+        return self._extensions
 
     def __init__(
         self,
@@ -30,14 +35,16 @@ class Operator:
         operator_name: str = "",
         role: str = "",
         link: str = "",
-        extensions: MutableMapping[str, str] | None = None,
+        extensions: Mapping[str, str] | None = None,
         schema_id: str = "",
     ) -> None:
         """Initialize an Operator instance."""
         self.operator_name = operator_name
         self.role = role
         self.link = link
-        self.extensions: MutableMapping[str, str] = extensions if extensions is not None else {}
+        self._extensions: MutableMapping[str, str] = (
+            dict(extensions) if extensions is not None else {}
+        )
         self.schema_id = schema_id
 
     @staticmethod

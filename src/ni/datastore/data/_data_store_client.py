@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from threading import Lock
 from typing import Type, TypeVar, overload
 from urllib.parse import urlparse
@@ -174,7 +174,7 @@ class DataStoreClient:
         hardware_item_ids: Iterable[str] = tuple(),
         test_adapter_ids: Iterable[str] = tuple(),
         software_item_ids: Iterable[str] = tuple(),
-    ) -> Iterable[PublishedMeasurement]:
+    ) -> Sequence[PublishedMeasurement]:
         """Publish a batch of N values of a measurement to the data store."""
         publish_request = PublishMeasurementBatchRequest(
             measurement_name=measurement_name,
@@ -253,7 +253,7 @@ class DataStoreClient:
         get_response = self._get_data_store_client().get_test_result(get_request)
         return TestResult.from_protobuf(get_response.test_result)
 
-    def query_conditions(self, odata_query: str) -> Iterable[PublishedCondition]:
+    def query_conditions(self, odata_query: str = "") -> Sequence[PublishedCondition]:
         """Query conditions from the data store."""
         query_request = QueryConditionsRequest(odata_query=odata_query)
         query_response = self._get_data_store_client().query_conditions(query_request)
@@ -262,7 +262,7 @@ class DataStoreClient:
             for published_condition in query_response.published_conditions
         ]
 
-    def query_measurements(self, odata_query: str) -> Iterable[PublishedMeasurement]:
+    def query_measurements(self, odata_query: str = "") -> Sequence[PublishedMeasurement]:
         """Query measurements from the data store."""
         query_request = QueryMeasurementsRequest(odata_query=odata_query)
         query_response = self._get_data_store_client().query_measurements(query_request)
@@ -271,7 +271,7 @@ class DataStoreClient:
             for published_measurement in query_response.published_measurements
         ]
 
-    def query_steps(self, odata_query: str) -> Iterable[Step]:
+    def query_steps(self, odata_query: str = "") -> Sequence[Step]:
         """Query steps from the data store."""
         query_request = QueryStepsRequest(odata_query=odata_query)
         query_response = self._get_data_store_client().query_steps(query_request)
