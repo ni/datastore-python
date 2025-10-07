@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import datetime as std_datetime
 import unittest.mock
-from typing import cast
+from typing import Any, Iterable, cast
 from unittest.mock import NonCallableMock
 
 import numpy as np
@@ -25,6 +25,8 @@ from ni.measurements.data.v1.data_store_service_pb2 import (
 from ni.protobuf.types.precision_timestamp_conversion import (
     hightime_datetime_to_protobuf,
 )
+from ni.protobuf.types.vector_conversion import vector_to_protobuf
+from ni.protobuf.types.vector_pb2 import Vector as VectorProto
 from ni.protobuf.types.waveform_conversion import float64_analog_waveform_to_protobuf
 from ni.protobuf.types.waveform_pb2 import DoubleAnalogWaveform
 from nitypes.vector import Vector
@@ -114,6 +116,45 @@ def test___publish_analog_waveform_data___calls_data_store_service_client(
     assert request.hardware_item_ids == []
     assert request.software_item_ids == []
     assert request.test_adapter_ids == []
+
+
+@pytest.mark.parametrize(
+    "value", [[1, 2, 3], [1.0, 2.0, 3.0], [True, False, True], ["one", "two", "three"]]
+)
+def test___publish_basic_iterable_data___calls_data_store_service_client(
+    data_store_client: DataStoreClient,
+    mocked_data_store_service_client: NonCallableMock,
+    value: Iterable[Any],
+) -> None:
+    expected_vector = Vector(value)
+    expected_protobuf_vector = VectorProto()
+    expected_protobuf_vector.CopyFrom(vector_to_protobuf(expected_vector))
+    published_measurement = PublishedMeasurement(published_measurement_id="response_id")
+    expected_response = PublishMeasurementResponse(published_measurement=published_measurement)
+    mocked_data_store_service_client.publish_measurement.return_value = expected_response
+
+    # Now, when client.publish_measurement calls foo.MyClass().publish(), it will use the mock
+    result = data_store_client.publish_measurement("name", value, "step_id")
+
+    args, __ = mocked_data_store_service_client.publish_measurement.call_args
+    request = cast(PublishMeasurementRequest, args[0])  # The PublishMeasurementRequest object
+    assert result.published_measurement_id == "response_id"
+    assert request.step_id == "step_id"
+    assert request.measurement_name == "name"
+    assert request.vector == expected_protobuf_vector
+
+
+def test___unsupported_list___publish_measurement___raises_type_error(
+    data_store_client: DataStoreClient,
+) -> None:
+    with pytest.raises(TypeError) as exc:
+        _ = data_store_client.publish_measurement(
+            measurement_name="name",
+            value=[[1, 2, 3], [4, 5, 6]],  # List of lists will error during vector creation.
+            step_id="step_id",
+        )
+
+    assert exc.value.args[0].startswith("Unsupported iterable:")
 
 
 def test___publish_analog_waveform_data_without_timestamp_parameter___uses_waveform_t0(
