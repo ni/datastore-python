@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Iterable
+from typing import Iterable, MutableSequence
 
 import hightime as ht
 from ni.datamonikers.v1.data_moniker_pb2 import Moniker
@@ -23,13 +23,13 @@ class PublishedMeasurement:
 
     __slots__ = (
         "moniker",
-        "published_conditions",
+        "_published_conditions",
         "published_measurement_id",
         "test_result_id",
         "step_id",
-        "software_item_ids",
-        "hardware_item_ids",
-        "test_adapter_ids",
+        "_software_item_ids",
+        "_hardware_item_ids",
+        "_test_adapter_ids",
         "measurement_name",
         "data_type",
         "measurement_notes",
@@ -39,6 +39,26 @@ class PublishedMeasurement:
         "parametric_index",
         "error_information",
     )
+
+    @property
+    def published_conditions(self) -> MutableSequence[PublishedCondition]:
+        """The published conditions associated with the published measurement."""
+        return self._published_conditions
+
+    @property
+    def software_item_ids(self) -> MutableSequence[str]:
+        """The software item IDs associated with the published measurement."""
+        return self._software_item_ids
+
+    @property
+    def hardware_item_ids(self) -> MutableSequence[str]:
+        """The hardware item IDs associated with the published measurement."""
+        return self._hardware_item_ids
+
+    @property
+    def test_adapter_ids(self) -> MutableSequence[str]:
+        """The test adapter IDs associated with the published measurement."""
+        return self._test_adapter_ids
 
     def __init__(
         self,
@@ -62,20 +82,20 @@ class PublishedMeasurement:
     ) -> None:
         """Initialize a PublishedMeasurement instance."""
         self.moniker = moniker
-        self.published_conditions: Iterable[PublishedCondition] = (
-            published_conditions if published_conditions is not None else []
+        self._published_conditions: MutableSequence[PublishedCondition] = (
+            list(published_conditions) if published_conditions is not None else []
         )
         self.published_measurement_id = published_measurement_id
         self.test_result_id = test_result_id
         self.step_id = step_id
-        self.software_item_ids: Iterable[str] = (
-            software_item_ids if software_item_ids is not None else []
+        self._software_item_ids: MutableSequence[str] = (
+            list(software_item_ids) if software_item_ids is not None else []
         )
-        self.hardware_item_ids: Iterable[str] = (
-            hardware_item_ids if hardware_item_ids is not None else []
+        self._hardware_item_ids: MutableSequence[str] = (
+            list(hardware_item_ids) if hardware_item_ids is not None else []
         )
-        self.test_adapter_ids: Iterable[str] = (
-            test_adapter_ids if test_adapter_ids is not None else []
+        self._test_adapter_ids: MutableSequence[str] = (
+            list(test_adapter_ids) if test_adapter_ids is not None else []
         )
         self.measurement_name = measurement_name
         self.data_type = data_type
@@ -166,13 +186,13 @@ class PublishedMeasurement:
             return NotImplemented
         return (
             self.moniker == other.moniker
-            and list(self.published_conditions) == list(other.published_conditions)
+            and self.published_conditions == other.published_conditions
             and self.published_measurement_id == other.published_measurement_id
             and self.test_result_id == other.test_result_id
             and self.step_id == other.step_id
-            and list(self.software_item_ids) == list(other.software_item_ids)
-            and list(self.hardware_item_ids) == list(other.hardware_item_ids)
-            and list(self.test_adapter_ids) == list(other.test_adapter_ids)
+            and self.software_item_ids == other.software_item_ids
+            and self.hardware_item_ids == other.hardware_item_ids
+            and self.test_adapter_ids == other.test_adapter_ids
             and self.measurement_name == other.measurement_name
             and self.data_type == other.data_type
             and self.measurement_notes == other.measurement_notes

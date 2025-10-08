@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Iterable, MutableMapping
+from typing import Iterable, Mapping, MutableMapping, MutableSequence
 
 import hightime as ht
 from ni.datastore.metadata._grpc_conversion import (
@@ -28,15 +28,15 @@ class TestResult:
         "operator_id",
         "test_station_id",
         "test_description_id",
-        "software_item_ids",
-        "hardware_item_ids",
-        "test_adapter_ids",
+        "_software_item_ids",
+        "_hardware_item_ids",
+        "_test_adapter_ids",
         "test_result_name",
         "_start_date_time",
         "_end_date_time",
         "_outcome",
         "link",
-        "extensions",
+        "_extensions",
         "schema_id",
     )
 
@@ -55,6 +55,26 @@ class TestResult:
         """Get the outcome of the test execution."""
         return self._outcome
 
+    @property
+    def software_item_ids(self) -> MutableSequence[str]:
+        """The software item IDs associated with the test result."""
+        return self._software_item_ids
+
+    @property
+    def hardware_item_ids(self) -> MutableSequence[str]:
+        """The hardware item IDs associated with the test result."""
+        return self._hardware_item_ids
+
+    @property
+    def test_adapter_ids(self) -> MutableSequence[str]:
+        """The test adapter IDs associated with the test result."""
+        return self._test_adapter_ids
+
+    @property
+    def extensions(self) -> MutableMapping[str, str]:
+        """The extensions of the test result."""
+        return self._extensions
+
     def __init__(
         self,
         *,
@@ -68,7 +88,7 @@ class TestResult:
         test_adapter_ids: Iterable[str] | None = None,
         test_result_name: str = "",
         link: str = "",
-        extensions: MutableMapping[str, str] | None = None,
+        extensions: Mapping[str, str] | None = None,
         schema_id: str = "",
     ) -> None:
         """Initialize a TestResult instance."""
@@ -77,18 +97,20 @@ class TestResult:
         self.operator_id = operator_id
         self.test_station_id = test_station_id
         self.test_description_id = test_description_id
-        self.software_item_ids: Iterable[str] = (
-            software_item_ids if software_item_ids is not None else []
+        self._software_item_ids: MutableSequence[str] = (
+            list(software_item_ids) if software_item_ids is not None else []
         )
-        self.hardware_item_ids: Iterable[str] = (
-            hardware_item_ids if hardware_item_ids is not None else []
+        self._hardware_item_ids: MutableSequence[str] = (
+            list(hardware_item_ids) if hardware_item_ids is not None else []
         )
-        self.test_adapter_ids: Iterable[str] = (
-            test_adapter_ids if test_adapter_ids is not None else []
+        self._test_adapter_ids: MutableSequence[str] = (
+            list(test_adapter_ids) if test_adapter_ids is not None else []
         )
         self.test_result_name = test_result_name
         self.link = link
-        self.extensions: MutableMapping[str, str] = extensions if extensions is not None else {}
+        self._extensions: MutableMapping[str, str] = (
+            dict(extensions) if extensions is not None else {}
+        )
         self.schema_id = schema_id
 
         self._start_date_time: ht.datetime | None = None
@@ -164,9 +186,9 @@ class TestResult:
             and self.operator_id == other.operator_id
             and self.test_station_id == other.test_station_id
             and self.test_description_id == other.test_description_id
-            and list(self.software_item_ids) == list(other.software_item_ids)
-            and list(self.hardware_item_ids) == list(other.hardware_item_ids)
-            and list(self.test_adapter_ids) == list(other.test_adapter_ids)
+            and self.software_item_ids == other.software_item_ids
+            and self.hardware_item_ids == other.hardware_item_ids
+            and self.test_adapter_ids == other.test_adapter_ids
             and self.test_result_name == other.test_result_name
             and self.start_date_time == other.start_date_time
             and self.end_date_time == other.end_date_time
