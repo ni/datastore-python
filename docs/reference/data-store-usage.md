@@ -1,6 +1,6 @@
 # NI Measurement Data Store
 
-GitHub Copilot: Based on the OData schema and the Digital Thread Services context, here's what I believe these entities represent in the real world:
+The NI Measurement Data Store includes these objects:
 
 ## **TestResult**
 A **TestResult** represents a complete test session or test execution run for a specific Unit Under Test (UUT). It's the top-level container that captures everything that happened when you tested a particular device.
