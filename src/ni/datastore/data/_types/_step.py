@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import MutableMapping
+from typing import Mapping, MutableMapping
 
 import hightime as ht
 from ni.datastore.metadata._grpc_conversion import (
@@ -32,7 +32,7 @@ class Step:
         "_start_date_time",
         "_end_date_time",
         "link",
-        "extensions",
+        "_extensions",
         "schema_id",
     )
 
@@ -46,6 +46,11 @@ class Step:
         """Get the end date and time of the step execution."""
         return self._end_date_time
 
+    @property
+    def extensions(self) -> MutableMapping[str, str]:
+        """The extensions of the step."""
+        return self._extensions
+
     def __init__(
         self,
         *,
@@ -57,7 +62,7 @@ class Step:
         step_type: str = "",
         notes: str = "",
         link: str = "",
-        extensions: MutableMapping[str, str] | None = None,
+        extensions: Mapping[str, str] | None = None,
         schema_id: str = "",
     ) -> None:
         """Initialize a Step instance."""
@@ -69,7 +74,9 @@ class Step:
         self.step_type = step_type
         self.notes = notes
         self.link = link
-        self.extensions: MutableMapping[str, str] = extensions if extensions is not None else {}
+        self._extensions: MutableMapping[str, str] = (
+            dict(extensions) if extensions is not None else {}
+        )
         self.schema_id = schema_id
 
         self._start_date_time: ht.datetime | None = None

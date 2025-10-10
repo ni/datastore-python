@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import MutableMapping
+from typing import Mapping, MutableMapping
 
 from ni.datastore.metadata._grpc_conversion import (
     populate_extension_value_message_map,
@@ -20,9 +20,14 @@ class TestStation:
         "test_station_name",
         "asset_identifier",
         "link",
-        "extensions",
+        "_extensions",
         "schema_id",
     )
+
+    @property
+    def extensions(self) -> MutableMapping[str, str]:
+        """The extensions of the test station."""
+        return self._extensions
 
     def __init__(
         self,
@@ -30,14 +35,16 @@ class TestStation:
         test_station_name: str = "",
         asset_identifier: str = "",
         link: str = "",
-        extensions: MutableMapping[str, str] | None = None,
+        extensions: Mapping[str, str] | None = None,
         schema_id: str = "",
     ) -> None:
         """Initialize a TestStation instance."""
         self.test_station_name = test_station_name
         self.asset_identifier = asset_identifier
         self.link = link
-        self.extensions: MutableMapping[str, str] = extensions if extensions is not None else {}
+        self._extensions: MutableMapping[str, str] = (
+            dict(extensions) if extensions is not None else {}
+        )
         self.schema_id = schema_id
 
     @staticmethod

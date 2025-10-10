@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Iterable, MutableMapping
+from typing import Iterable, Mapping, MutableMapping, MutableSequence
 
 from ni.datastore.metadata._grpc_conversion import (
     populate_extension_value_message_map,
@@ -19,12 +19,22 @@ class Uut:
     __slots__ = (
         "model_name",
         "family",
-        "manufacturers",
+        "_manufacturers",
         "part_number",
         "link",
-        "extensions",
+        "_extensions",
         "schema_id",
     )
+
+    @property
+    def manufacturers(self) -> MutableSequence[str]:
+        """The manufacturers of the UUT."""
+        return self._manufacturers
+
+    @property
+    def extensions(self) -> MutableMapping[str, str]:
+        """The extensions of the UUT."""
+        return self._extensions
 
     def __init__(
         self,
@@ -34,16 +44,20 @@ class Uut:
         manufacturers: Iterable[str] | None = None,
         part_number: str = "",
         link: str = "",
-        extensions: MutableMapping[str, str] | None = None,
+        extensions: Mapping[str, str] | None = None,
         schema_id: str = "",
     ) -> None:
         """Initialize a Uut instance."""
         self.model_name = model_name
         self.family = family
-        self.manufacturers: Iterable[str] = manufacturers if manufacturers is not None else []
+        self._manufacturers: MutableSequence[str] = (
+            list(manufacturers) if manufacturers is not None else []
+        )
         self.part_number = part_number
         self.link = link
-        self.extensions: MutableMapping[str, str] = extensions if extensions is not None else {}
+        self._extensions: MutableMapping[str, str] = (
+            dict(extensions) if extensions is not None else {}
+        )
         self.schema_id = schema_id
 
     @staticmethod
@@ -80,7 +94,7 @@ class Uut:
         return (
             self.model_name == other.model_name
             and self.family == other.family
-            and list(self.manufacturers) == list(other.manufacturers)
+            and self.manufacturers == other.manufacturers
             and self.part_number == other.part_number
             and self.link == other.link
             and self.extensions == other.extensions

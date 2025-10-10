@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from collections.abc import Iterable
+from collections.abc import Sequence
 from pathlib import Path
 from threading import Lock
 
@@ -113,7 +113,7 @@ class MetadataStoreClient:
         get_response = self._get_metadata_store_client().get_uut_instance(get_request)
         return UutInstance.from_protobuf(get_response.uut_instance)
 
-    def query_uut_instances(self, odata_query: str) -> Iterable[UutInstance]:
+    def query_uut_instances(self, odata_query: str = "") -> Sequence[UutInstance]:
         """Query UUT instances from the metadata store."""
         query_request = QueryUutInstancesRequest(odata_query=odata_query)
         query_response = self._get_metadata_store_client().query_uut_instances(query_request)
@@ -133,7 +133,7 @@ class MetadataStoreClient:
         get_response = self._get_metadata_store_client().get_uut(get_request)
         return Uut.from_protobuf(get_response.uut)
 
-    def query_uuts(self, odata_query: str) -> Iterable[Uut]:
+    def query_uuts(self, odata_query: str = "") -> Sequence[Uut]:
         """Query UUTs from the metadata store."""
         query_request = QueryUutsRequest(odata_query=odata_query)
         query_response = self._get_metadata_store_client().query_uuts(query_request)
@@ -151,7 +151,7 @@ class MetadataStoreClient:
         get_response = self._get_metadata_store_client().get_operator(get_request)
         return Operator.from_protobuf(get_response.operator)
 
-    def query_operators(self, odata_query: str) -> Iterable[Operator]:
+    def query_operators(self, odata_query: str = "") -> Sequence[Operator]:
         """Query operators from the metadata store."""
         query_request = QueryOperatorsRequest(odata_query=odata_query)
         query_response = self._get_metadata_store_client().query_operators(query_request)
@@ -171,7 +171,7 @@ class MetadataStoreClient:
         get_response = self._get_metadata_store_client().get_test_description(get_request)
         return TestDescription.from_protobuf(get_response.test_description)
 
-    def query_test_descriptions(self, odata_query: str) -> Iterable[TestDescription]:
+    def query_test_descriptions(self, odata_query: str = "") -> Sequence[TestDescription]:
         """Query test descriptions from the metadata store."""
         query_request = QueryTestDescriptionsRequest(odata_query=odata_query)
         query_response = self._get_metadata_store_client().query_test_descriptions(query_request)
@@ -192,7 +192,7 @@ class MetadataStoreClient:
         get_response = self._get_metadata_store_client().get_test(get_request)
         return Test.from_protobuf(get_response.test)
 
-    def query_tests(self, odata_query: str) -> Iterable[Test]:
+    def query_tests(self, odata_query: str = "") -> Sequence[Test]:
         """Query tests from the metadata store."""
         query_request = QueryTestsRequest(odata_query=odata_query)
         query_response = self._get_metadata_store_client().query_tests(query_request)
@@ -210,7 +210,7 @@ class MetadataStoreClient:
         get_response = self._get_metadata_store_client().get_test_station(get_request)
         return TestStation.from_protobuf(get_response.test_station)
 
-    def query_test_stations(self, odata_query: str) -> Iterable[TestStation]:
+    def query_test_stations(self, odata_query: str = "") -> Sequence[TestStation]:
         """Query test stations from the metadata store."""
         query_request = QueryTestStationsRequest(odata_query=odata_query)
         query_response = self._get_metadata_store_client().query_test_stations(query_request)
@@ -230,7 +230,7 @@ class MetadataStoreClient:
         get_response = self._get_metadata_store_client().get_hardware_item(get_request)
         return HardwareItem.from_protobuf(get_response.hardware_item)
 
-    def query_hardware_items(self, odata_query: str) -> Iterable[HardwareItem]:
+    def query_hardware_items(self, odata_query: str = "") -> Sequence[HardwareItem]:
         """Query hardware items from the metadata store."""
         query_request = QueryHardwareItemsRequest(odata_query=odata_query)
         query_response = self._get_metadata_store_client().query_hardware_items(query_request)
@@ -251,7 +251,7 @@ class MetadataStoreClient:
         get_response = self._get_metadata_store_client().get_software_item(get_request)
         return SoftwareItem.from_protobuf(get_response.software_item)
 
-    def query_software_items(self, odata_query: str) -> Iterable[SoftwareItem]:
+    def query_software_items(self, odata_query: str = "") -> Sequence[SoftwareItem]:
         """Query software items from the metadata store."""
         query_request = QuerySoftwareItemsRequest(odata_query=odata_query)
         query_response = self._get_metadata_store_client().query_software_items(query_request)
@@ -272,7 +272,7 @@ class MetadataStoreClient:
         get_response = self._get_metadata_store_client().get_test_adapter(get_request)
         return TestAdapter.from_protobuf(get_response.test_adapter)
 
-    def query_test_adapters(self, odata_query: str) -> Iterable[TestAdapter]:
+    def query_test_adapters(self, odata_query: str = "") -> Sequence[TestAdapter]:
         """Query test adapters from the metadata store."""
         query_request = QueryTestAdaptersRequest(odata_query=odata_query)
         query_response = self._get_metadata_store_client().query_test_adapters(query_request)
@@ -308,7 +308,7 @@ class MetadataStoreClient:
         register_response = self._get_metadata_store_client().register_schema(register_request)
         return register_response.schema_id
 
-    def list_schemas(self) -> Iterable[ExtensionSchema]:
+    def list_schemas(self) -> Sequence[ExtensionSchema]:
         """List all schemas in the metadata store."""
         list_request = ListSchemasRequest()
         list_response = self._get_metadata_store_client().list_schemas(list_request)
@@ -364,7 +364,7 @@ class MetadataStoreClient:
         delete_response = self._get_metadata_store_client().delete_alias(delete_request)
         return delete_response.unregistered
 
-    def query_aliases(self, odata_query: str) -> Iterable[Alias]:
+    def query_aliases(self, odata_query: str = "") -> Sequence[Alias]:
         """Query aliases from the metadata store."""
         query_request = QueryAliasesRequest(odata_query=odata_query)
         query_response = self._get_metadata_store_client().query_aliases(query_request)
