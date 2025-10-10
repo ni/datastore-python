@@ -20,9 +20,13 @@ def data_store_client(
 ) -> DataStoreClient:
     """Returns the pytest fixture for the data store client."""
     mocker.patch.object(
-        DataStoreClient, "_get_data_store_client", return_value=mocked_data_store_service_client
+        DataStoreClient,
+        "_instantiate_data_store_client",
+        return_value=mocked_data_store_service_client,
     )
-    mocker.patch.object(DataStoreClient, "_get_moniker_client", return_value=mocked_moniker_client)
+    mocker.patch.object(
+        DataStoreClient, "_instantiate_moniker_client", return_value=mocked_moniker_client
+    )
     return DataStoreClient()
 
 
@@ -34,7 +38,7 @@ def metadata_store_client(
     """Returns the pytest fixture for the metadata store client."""
     mocker.patch.object(
         MetadataStoreClient,
-        "_get_metadata_store_client",
+        "_instantiate_metadata_store_client",
         return_value=mocked_metadata_store_service_client,
     )
     return MetadataStoreClient()

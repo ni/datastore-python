@@ -363,14 +363,14 @@ files = [
 
 [[package]]
 name = "ni-datamonikers-v1-client"
-version = "0.1.0.dev0"
+version = "0.1.0.dev1"
 description = "gRPC Client for NI Data Moniker Service"
 optional = false
 python-versions = "<4.0,>=3.9"
 groups = ["main", "dev"]
 files = [
-    {file = "ni_datamonikers_v1_client-0.1.0.dev0-py3-none-any.whl", hash = "sha256:1491badadb77782169e86e51f35cc4a216ed1b1272ff59bc8893b31904f98a58"},
-    {file = "ni_datamonikers_v1_client-0.1.0.dev0.tar.gz", hash = "sha256:757f452b0357ca9e17af8de9fc54cc552e2283f9a21ddcff59a031b977dbb904"},
+    {file = "ni_datamonikers_v1_client-0.1.0.dev1-py3-none-any.whl", hash = "sha256:2820039151831aba11e3acd7071a7eaaa9ead2ce28b00f0da7d4b1179fc46150"},
+    {file = "ni_datamonikers_v1_client-0.1.0.dev1.tar.gz", hash = "sha256:dad00b527795517eb0cb786dde7c3989ccac7f9ee5636b1112e9fdd73f4251ae"},
 ]
 
 [package.dependencies]
@@ -394,7 +394,7 @@ protobuf = ">=4.21"
 
 [[package]]
 name = "ni-datastore"
-version = "0.1.0-dev1"
+version = "0.1.0-dev3"
 description = "APIs for publishing and retrieving data from the NI Measurement Data Store"
 optional = false
 python-versions = "^3.9"
@@ -404,9 +404,9 @@ develop = true
 
 [package.dependencies]
 hightime = ">=0.3.0.dev0"
-ni-datamonikers-v1-client = ">=0.1.0.dev0"
-ni-measurements-data-v1-client = ">=0.1.0.dev0"
-ni-measurements-metadata-v1-client = ">=0.1.0.dev0"
+ni-datamonikers-v1-client = ">=0.1.0.dev1"
+ni-measurements-data-v1-client = ">=0.1.0.dev1"
+ni-measurements-metadata-v1-client = ">=0.1.0.dev1"
 ni-protobuf-types = ">=0.1.0.dev3"
 protobuf = ">=4.21"
 
@@ -465,14 +465,14 @@ protobuf = ">=4.21"
 
 [[package]]
 name = "ni-measurements-data-v1-client"
-version = "0.1.0.dev0"
+version = "0.1.0.dev1"
 description = "gRPC Client for NI Data Store Service"
 optional = false
 python-versions = "<4.0,>=3.9"
 groups = ["main", "dev"]
 files = [
-    {file = "ni_measurements_data_v1_client-0.1.0.dev0-py3-none-any.whl", hash = "sha256:5ce6933fc60d33ebb7d8b9abd205137323bfa4b0df2f5a578321632dd4edc0ff"},
-    {file = "ni_measurements_data_v1_client-0.1.0.dev0.tar.gz", hash = "sha256:88d2ac07f303d9a11e0db91af02aab961951b7684065ec7c586ce141c066e4a6"},
+    {file = "ni_measurements_data_v1_client-0.1.0.dev1-py3-none-any.whl", hash = "sha256:d4261646c65d4832a4b9b409a909681e3ea51da925a440b6dabe375deeabd38b"},
+    {file = "ni_measurements_data_v1_client-0.1.0.dev1.tar.gz", hash = "sha256:f62236a0ef154b84a73a20ea09a67003ae6ee9eaaaf6676c403a4484e85281eb"},
 ]
 
 [package.dependencies]
@@ -499,14 +499,14 @@ protobuf = ">=4.21"
 
 [[package]]
 name = "ni-measurements-metadata-v1-client"
-version = "0.1.0.dev0"
+version = "0.1.0.dev1"
 description = "gRPC Client for NI Metadata Store Service"
 optional = false
 python-versions = "<4.0,>=3.9"
 groups = ["main", "dev"]
 files = [
-    {file = "ni_measurements_metadata_v1_client-0.1.0.dev0-py3-none-any.whl", hash = "sha256:42d4c11d6ac717b2dfca5e57d2136024202f689716f230eae2664b7ac670c424"},
-    {file = "ni_measurements_metadata_v1_client-0.1.0.dev0.tar.gz", hash = "sha256:4b5c3aa2d59d437e7f9d2577d79d9430cfd00955f88e855b1d1a9c75ea8a0228"},
+    {file = "ni_measurements_metadata_v1_client-0.1.0.dev1-py3-none-any.whl", hash = "sha256:4921d59008520f272a6bf13623e029cbe872bb4b77b865b99a3c1a33338811bf"},
+    {file = "ni_measurements_metadata_v1_client-0.1.0.dev1.tar.gz", hash = "sha256:ddd00811c9335a86158ffd5f133cec229b9d66b2a6205ff84cd3639508b295ee"},
 ]
 
 [package.dependencies]
@@ -1066,4 +1066,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9"
-content-hash = "98bb72eb3c054be7c78411b9269798a4b12592b21bcef4f6dcb7a87acbe8b9fa"
+content-hash = "aa547df9b5d1ec087a7d3aae010659794d022381ba760dbe57174d59631ede6c"
