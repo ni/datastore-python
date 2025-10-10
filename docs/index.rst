@@ -10,6 +10,8 @@ Table of Contents
 .. toctree::
    :maxdepth: 4
 
+   reference/data-store-usage
+   examples/index
    autoapi/index
    autoapi/ni/datastore/index
 

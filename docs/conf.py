@@ -77,6 +77,7 @@ exclude_patterns = [
     "_build",
     "Thumbs.db",
     ".DS_Store",
+    "**.ipynb_checkpoints",
 ]
 
 intersphinx_mapping = {
