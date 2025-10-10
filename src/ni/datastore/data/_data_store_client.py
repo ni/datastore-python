@@ -325,12 +325,15 @@ class DataStoreClient:
         if self._data_store_client is None:
             with self._data_store_client_lock:
                 if self._data_store_client is None:
-                    self._data_store_client = DataStoreServiceClient(
-                        discovery_client=self._discovery_client,
-                        grpc_channel=self._grpc_channel,
-                        grpc_channel_pool=self._grpc_channel_pool,
-                    )
+                    self._data_store_client = self._instantiate_data_store_client()
         return self._data_store_client
+
+    def _instantiate_data_store_client(self) -> DataStoreServiceClient:
+        return DataStoreServiceClient(
+            discovery_client=self._discovery_client,
+            grpc_channel=self._grpc_channel,
+            grpc_channel_pool=self._grpc_channel_pool,
+        )
 
     def _get_moniker_client(self, service_location: str) -> MonikerClient:
         if self._closed:
@@ -341,9 +344,12 @@ class DataStoreClient:
             with self._moniker_clients_lock:
                 if parsed_service_location not in self._moniker_clients_by_service_location:
                     self._moniker_clients_by_service_location[parsed_service_location] = (
-                        MonikerClient(
-                            service_location=parsed_service_location,
-                            grpc_channel_pool=self._grpc_channel_pool,
-                        )
+                        self._instantiate_moniker_client(parsed_service_location)
                     )
         return self._moniker_clients_by_service_location[parsed_service_location]
+
+    def _instantiate_moniker_client(self, parsed_service_location: str) -> MonikerClient:
+        return MonikerClient(
+            service_location=parsed_service_location,
+            grpc_channel_pool=self._grpc_channel_pool,
+        )

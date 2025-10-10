@@ -416,9 +416,12 @@ class MetadataStoreClient:
         if self._metadata_store_client is None:
             with self._metadata_store_client_lock:
                 if self._metadata_store_client is None:
-                    self._metadata_store_client = MetadataStoreServiceClient(
-                        discovery_client=self._discovery_client,
-                        grpc_channel=self._grpc_channel,
-                        grpc_channel_pool=self._grpc_channel_pool,
-                    )
+                    self._metadata_store_client = self._instantiate_metadata_store_client()
         return self._metadata_store_client
+
+    def _instantiate_metadata_store_client(self) -> MetadataStoreServiceClient:
+        return MetadataStoreServiceClient(
+            discovery_client=self._discovery_client,
+            grpc_channel=self._grpc_channel,
+            grpc_channel_pool=self._grpc_channel_pool,
+        )
