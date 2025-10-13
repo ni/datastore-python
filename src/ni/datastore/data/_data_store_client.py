@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import logging
+import sys
 from collections.abc import Iterable, Sequence
 from threading import Lock
-from typing import Type, TypeVar, overload
+from types import TracebackType
+from typing import TYPE_CHECKING, Type, TypeVar, overload
 from urllib.parse import urlparse
 
 import hightime as ht
@@ -48,6 +50,12 @@ from ni.protobuf.types.precision_timestamp_conversion import (
 )
 from ni_grpc_extensions.channelpool import GrpcChannelPool
 
+if TYPE_CHECKING:
+    if sys.version_info >= (3, 11):
+        from typing import Self
+    else:
+        from typing_extensions import Self
+
 TRead = TypeVar("TRead")
 
 _logger = logging.getLogger(__name__)
@@ -57,6 +65,7 @@ class DataStoreClient:
     """Data store client for publishing and reading data."""
 
     __slots__ = (
+        "_closed",
         "_discovery_client",
         "_grpc_channel",
         "_grpc_channel_pool",
@@ -66,6 +75,9 @@ class DataStoreClient:
         "_moniker_clients_lock",
     )
 
+    _DATA_STORE_CLIENT_CLOSED_ERROR = "This DataStoreClient has been closed. Create a new DataStoreClient for further interaction with the data store."
+
+    _closed: bool
     _discovery_client: DiscoveryClient | None
     _grpc_channel: Channel | None
     _grpc_channel_pool: GrpcChannelPool | None
@@ -101,6 +113,35 @@ class DataStoreClient:
 
         self._data_store_client_lock = Lock()
         self._moniker_clients_lock = Lock()
+
+        self._closed = False
+
+    def __enter__(self) -> Self:
+        """Enter the runtime context of the data store client."""
+        return self
+
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        traceback: TracebackType | None,
+    ) -> None:
+        """Exit the runtime context of the data store client."""
+        self.close()
+
+    def close(self) -> None:
+        """Close the data store client and clean up resources that it owns."""
+        self._closed = True
+
+        with self._data_store_client_lock:
+            if self._data_store_client is not None:
+                self._data_store_client.close()
+                self._data_store_client = None
+
+        with self._moniker_clients_lock:
+            for _, moniker_client in self._moniker_clients_by_service_location.items():
+                moniker_client.close()
+            self._moniker_clients_by_service_location.clear()
 
     def publish_condition(
         self,
@@ -278,25 +319,37 @@ class DataStoreClient:
         return [Step.from_protobuf(step) for step in query_response.steps]
 
     def _get_data_store_client(self) -> DataStoreServiceClient:
+        if self._closed:
+            raise RuntimeError(self._DATA_STORE_CLIENT_CLOSED_ERROR)
+
         if self._data_store_client is None:
             with self._data_store_client_lock:
                 if self._data_store_client is None:
-                    self._data_store_client = DataStoreServiceClient(
-                        discovery_client=self._discovery_client,
-                        grpc_channel=self._grpc_channel,
-                        grpc_channel_pool=self._grpc_channel_pool,
-                    )
+                    self._data_store_client = self._instantiate_data_store_client()
         return self._data_store_client
 
+    def _instantiate_data_store_client(self) -> DataStoreServiceClient:
+        return DataStoreServiceClient(
+            discovery_client=self._discovery_client,
+            grpc_channel=self._grpc_channel,
+            grpc_channel_pool=self._grpc_channel_pool,
+        )
+
     def _get_moniker_client(self, service_location: str) -> MonikerClient:
+        if self._closed:
+            raise RuntimeError(self._DATA_STORE_CLIENT_CLOSED_ERROR)
+
         parsed_service_location = urlparse(service_location).netloc
         if parsed_service_location not in self._moniker_clients_by_service_location:
             with self._moniker_clients_lock:
                 if parsed_service_location not in self._moniker_clients_by_service_location:
                     self._moniker_clients_by_service_location[parsed_service_location] = (
-                        MonikerClient(
-                            service_location=parsed_service_location,
-                            grpc_channel_pool=self._grpc_channel_pool,
-                        )
+                        self._instantiate_moniker_client(parsed_service_location)
                     )
         return self._moniker_clients_by_service_location[parsed_service_location]
+
+    def _instantiate_moniker_client(self, parsed_service_location: str) -> MonikerClient:
+        return MonikerClient(
+            service_location=parsed_service_location,
+            grpc_channel_pool=self._grpc_channel_pool,
+        )
