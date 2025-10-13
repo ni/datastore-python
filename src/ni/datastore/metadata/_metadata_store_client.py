@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import logging
+import sys
 from collections.abc import Sequence
 from pathlib import Path
 from threading import Lock
+from types import TracebackType
+from typing import TYPE_CHECKING
 
 from grpc import Channel
 from ni.datastore.metadata._types._alias import Alias
@@ -20,7 +23,9 @@ from ni.datastore.metadata._types._test_station import TestStation
 from ni.datastore.metadata._types._uut import Uut
 from ni.datastore.metadata._types._uut_instance import UutInstance
 from ni.measurementlink.discovery.v1.client import DiscoveryClient
-from ni.measurements.metadata.v1.client import MetadataStoreClient as MetadataStoreServiceClient
+from ni.measurements.metadata.v1.client import (
+    MetadataStoreClient as MetadataStoreServiceClient,
+)
 from ni.measurements.metadata.v1.metadata_store_service_pb2 import (
     CreateAliasRequest,
     CreateHardwareItemRequest,
@@ -58,6 +63,12 @@ from ni.measurements.metadata.v1.metadata_store_service_pb2 import (
 )
 from ni_grpc_extensions.channelpool import GrpcChannelPool
 
+if TYPE_CHECKING:
+    if sys.version_info >= (3, 11):
+        from typing import Self
+    else:
+        from typing_extensions import Self
+
 _logger = logging.getLogger(__name__)
 
 
@@ -65,6 +76,7 @@ class MetadataStoreClient:
     """Metadata store client for publishing and reading metadata."""
 
     __slots__ = (
+        "_closed",
         "_discovery_client",
         "_grpc_channel",
         "_grpc_channel_pool",
@@ -72,6 +84,9 @@ class MetadataStoreClient:
         "_metadata_store_client_lock",
     )
 
+    _METADATA_STORE_CLIENT_CLOSED_ERROR = "This MetadataStoreClient has been closed. Create a new MetadataStoreClient for further interaction with the metadata store."
+
+    _closed: bool
     _discovery_client: DiscoveryClient | None
     _grpc_channel: Channel | None
     _grpc_channel_pool: GrpcChannelPool | None
@@ -100,6 +115,30 @@ class MetadataStoreClient:
 
         self._metadata_store_client = None
         self._metadata_store_client_lock = Lock()
+
+        self._closed = False
+
+    def __enter__(self) -> Self:
+        """Enter the runtime context of the metadata store client."""
+        return self
+
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        traceback: TracebackType | None,
+    ) -> None:
+        """Exit the runtime context of the metadata store client."""
+        self.close()
+
+    def close(self) -> None:
+        """Close the metadata store client and clean up resources that it owns."""
+        self._closed = True
+
+        with self._metadata_store_client_lock:
+            if self._metadata_store_client is not None:
+                self._metadata_store_client.close()
+                self._metadata_store_client = None
 
     def create_uut_instance(self, uut_instance: UutInstance) -> str:
         """Create a UUT instance in the metadata store."""
@@ -371,12 +410,18 @@ class MetadataStoreClient:
         return [Alias.from_protobuf(alias) for alias in query_response.aliases]
 
     def _get_metadata_store_client(self) -> MetadataStoreServiceClient:
+        if self._closed:
+            raise RuntimeError(self._METADATA_STORE_CLIENT_CLOSED_ERROR)
+
         if self._metadata_store_client is None:
             with self._metadata_store_client_lock:
                 if self._metadata_store_client is None:
-                    self._metadata_store_client = MetadataStoreServiceClient(
-                        discovery_client=self._discovery_client,
-                        grpc_channel=self._grpc_channel,
-                        grpc_channel_pool=self._grpc_channel_pool,
-                    )
+                    self._metadata_store_client = self._instantiate_metadata_store_client()
         return self._metadata_store_client
+
+    def _instantiate_metadata_store_client(self) -> MetadataStoreServiceClient:
+        return MetadataStoreServiceClient(
+            discovery_client=self._discovery_client,
+            grpc_channel=self._grpc_channel,
+            grpc_channel_pool=self._grpc_channel_pool,
+        )
