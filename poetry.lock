@@ -2394,18 +2394,18 @@ protobuf = ">=4.21"
 
 [[package]]
 name = "ni-protobuf-types"
-version = "0.1.0.dev4"
+version = "1.0.1.dev0"
 description = "Protobuf data types for NI gRPC APIs"
 optional = false
 python-versions = "<4.0,>=3.9"
 groups = ["main"]
 files = [
-    {file = "ni_protobuf_types-0.1.0.dev4-py3-none-any.whl", hash = "sha256:dceac83ca05c286e99b44898340f58b45eac91e9609444e252d89c17a7d7c1ff"},
-    {file = "ni_protobuf_types-0.1.0.dev4.tar.gz", hash = "sha256:11c6a486bcb3984078e100efac93b96d5a84d70f0d8035a2303eb5cf9c0b1532"},
+    {file = "ni_protobuf_types-1.0.1.dev0-py3-none-any.whl", hash = "sha256:2e93e62dee45dbf1bb13f812a28a445b4d3953ae3ee9b2c4dce117abf4f2a514"},
+    {file = "ni_protobuf_types-1.0.1.dev0.tar.gz", hash = "sha256:1a84af2eba688747d66bcf8b4e7c333177c4d31caf96537185250b023f2267e9"},
 ]
 
 [package.dependencies]
-nitypes = ">=0.1.0dev8"
+nitypes = ">=1.1.0dev0"
 protobuf = ">=4.21"
 
 [[package]]
@@ -2441,14 +2441,14 @@ toml = ">=0.10.1"
 
 [[package]]
 name = "nitypes"
-version = "0.1.0.dev10"
+version = "1.1.0.dev0"
 description = "Data types for NI Python APIs"
 optional = false
 python-versions = "<4.0,>=3.9"
 groups = ["main"]
 files = [
-    {file = "nitypes-0.1.0.dev10-py3-none-any.whl", hash = "sha256:c4f097ffdeaf05697a7752a1e2b712760b28e84a4f6f446b4b7b76b349927490"},
-    {file = "nitypes-0.1.0.dev10.tar.gz", hash = "sha256:e319ebbdefca63db8e879b9f119cc4f76a086c550931dea2be0e33e9c10e9d9f"},
+    {file = "nitypes-1.1.0.dev0-py3-none-any.whl", hash = "sha256:1dd0d15bb741294672ea7d61d98e951c5802eec0130d0162f4f19008dd74c0f6"},
+    {file = "nitypes-1.1.0.dev0.tar.gz", hash = "sha256:a82d2f518f514a24bfb3b9c4e023db23097a786ca40155693610d09578d86f10"},
 ]
 
 [package.dependencies]
@@ -2457,6 +2457,7 @@ numpy = [
     {version = ">=1.22", markers = "python_version >= \"3.9\" and python_version < \"3.13\""},
     {version = ">=2.1", markers = "python_version >= \"3.13\" and python_version < \"4.0\""},
 ]
+typing-extensions = ">=4.13.2"
 
 [[package]]
 name = "nodeenv"
@@ -4321,7 +4322,7 @@ version = "4.15.0"
 description = "Backported and Experimental Type Hints for Python 3.9+"
 optional = false
 python-versions = ">=3.9"
-groups = ["dev", "docs", "lint", "test"]
+groups = ["main", "dev", "docs", "lint", "test"]
 files = [
     {file = "typing_extensions-4.15.0-py3-none-any.whl", hash = "sha256:f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548"},
     {file = "typing_extensions-4.15.0.tar.gz", hash = "sha256:0cea48d173cc12fa28ecabc3b837ea3cf6f38c6d1136f85cbaaf598984861466"},
@@ -4450,4 +4451,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9"
-content-hash = "ca729f2b458877a06732a8b638e09f1fcaf44a12d12515ba409928fb28bedd7c"
+content-hash = "742f2cc3649b3b31710b89d14e073515616317148b820a7a08d8088d57fa2fd1"

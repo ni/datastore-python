@@ -29,8 +29,11 @@ from ni.protobuf.types.vector_conversion import vector_to_protobuf
 from ni.protobuf.types.vector_pb2 import Vector as VectorProto
 from ni.protobuf.types.waveform_conversion import float64_analog_waveform_to_protobuf
 from ni.protobuf.types.waveform_pb2 import DoubleAnalogWaveform
+from ni.protobuf.types.xydata_conversion import float64_xydata_to_protobuf
+from ni.protobuf.types.xydata_pb2 import DoubleXYData
 from nitypes.vector import Vector
 from nitypes.waveform import AnalogWaveform, Timing
+from nitypes.xy_data import XYData
 
 
 @pytest.mark.parametrize("value", [True, False])
@@ -116,6 +119,34 @@ def test___publish_analog_waveform_data___calls_data_store_service_client(
     assert request.hardware_item_ids == []
     assert request.software_item_ids == []
     assert request.test_adapter_ids == []
+
+
+def test___publish_float64_xydata___calls_data_store_service_client(
+    data_store_client: DataStoreClient,
+    mocked_data_store_service_client: NonCallableMock,
+) -> None:
+    xydata = XYData.from_arrays_1d(
+        x_array=[1.0, 2.0],
+        y_array=[3.0, 4.0],
+        dtype=np.float64,
+        x_units="Volts",
+        y_units="Seconds",
+    )
+    expected_protobuf_xydata = DoubleXYData()
+    expected_protobuf_xydata.CopyFrom(float64_xydata_to_protobuf(xydata))
+    published_measurement = PublishedMeasurement(published_measurement_id="response_id")
+    expected_response = PublishMeasurementResponse(published_measurement=published_measurement)
+    mocked_data_store_service_client.publish_measurement.return_value = expected_response
+
+    # Now, when client.publish_measurement calls foo.MyClass().publish(), it will use the mock
+    result = data_store_client.publish_measurement("name", xydata, "step_id")
+
+    args, __ = mocked_data_store_service_client.publish_measurement.call_args
+    request = cast(PublishMeasurementRequest, args[0])  # The PublishMeasurementRequest object
+    assert result.published_measurement_id == "response_id"
+    assert request.step_id == "step_id"
+    assert request.measurement_name == "name"
+    assert request.x_y_data == expected_protobuf_xydata
 
 
 @pytest.mark.parametrize(
