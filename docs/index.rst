@@ -11,6 +11,7 @@ Table of Contents
    :maxdepth: 4
 
    reference/data-store-usage
+   reference/digital-thread-metadata
    examples/index
    autoapi/index
    autoapi/ni/datastore/index
