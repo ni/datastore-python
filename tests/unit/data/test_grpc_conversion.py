@@ -21,11 +21,13 @@ from ni.protobuf.types import (
     scalar_pb2,
     vector_pb2,
     waveform_pb2,
+    xydata_pb2,
 )
 from nitypes.complex import ComplexInt32DType
 from nitypes.scalar import Scalar
 from nitypes.vector import Vector
 from nitypes.waveform import AnalogWaveform, ComplexWaveform, DigitalWaveform, Spectrum
+from nitypes.xy_data import XYData
 
 
 # ========================================================
@@ -193,6 +195,21 @@ def test___python_float64_spectrum___populate_measurement___measurement_updated_
     assert request.double_spectrum.frequency_increment == 10.0
 
 
+def test___python_float64_xydata___populate_measurement___measurement_updated_correctly() -> None:
+    xydata = XYData.from_arrays_1d(
+        [1.0, 2.0], [3.0, 4.0], np.float64, x_units="Volts", y_units="Seconds"
+    )
+
+    request = PublishMeasurementRequest()
+    populate_publish_measurement_request_value(request, xydata)
+
+    assert isinstance(request.x_y_data, xydata_pb2.DoubleXYData)
+    assert list(request.x_y_data.x_data) == [1.0, 2.0]
+    assert list(request.x_y_data.y_data) == [3.0, 4.0]
+    assert request.x_y_data.attributes["NI_UnitDescription_X"].string_value == "Volts"
+    assert request.x_y_data.attributes["NI_UnitDescription_Y"].string_value == "Seconds"
+
+
 # ========================================================
 # Populate Measurement Batch
 # ========================================================
@@ -320,6 +337,27 @@ def test___double_spectrum_proto___convert_from_protobuf___valid_python_spectrum
     assert list(result.data) == [1.0, 2.0, 3.0]
     assert result.start_frequency == 100.0
     assert result.frequency_increment == 10.0
+
+
+def test___xydata_proto___convert_from_protobuf___valid_python_xydata() -> None:
+    attrs = {
+        "NI_UnitDescription_X": attribute_value_pb2.AttributeValue(string_value="amps"),
+        "NI_UnitDescription_Y": attribute_value_pb2.AttributeValue(string_value="seconds"),
+    }
+    pb_value = xydata_pb2.DoubleXYData(
+        x_data=[1.0, 2.0],
+        y_data=[3.0, 4.0],
+        attributes=attrs,
+    )
+    packed_any = _pack_into_any(pb_value)
+
+    result = unpack_and_convert_from_protobuf_any(packed_any)
+
+    assert isinstance(result, XYData)
+    assert list(result.x_data) == [1.0, 2.0]
+    assert list(result.y_data) == [3.0, 4.0]
+    assert result.x_units == "amps"
+    assert result.y_units == "seconds"
 
 
 # ========================================================
