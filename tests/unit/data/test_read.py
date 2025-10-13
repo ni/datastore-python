@@ -9,10 +9,11 @@ import numpy as np
 from google.protobuf.any_pb2 import Any as gpAny
 from ni.datamonikers.v1.data_moniker_pb2 import Moniker, ReadFromMonikerResult
 from ni.datastore.data import DataStoreClient
-from ni.protobuf.types import array_pb2, attribute_value_pb2, vector_pb2, waveform_pb2
+from ni.protobuf.types import array_pb2, attribute_value_pb2, vector_pb2, waveform_pb2, xydata_pb2
 from nitypes.complex import ComplexInt32DType
 from nitypes.vector import Vector
 from nitypes.waveform import AnalogWaveform, ComplexWaveform, DigitalWaveform, Spectrum
+from nitypes.xy_data import XYData
 
 
 def test___read_data___calls_moniker_client(
@@ -171,6 +172,34 @@ def test___read_vector___value_correct(
     assert isinstance(actual_vector, Vector)
     assert list(actual_vector) == [1.0, 2.0, 3.0]
     assert actual_vector.units == "amps"
+
+
+def test___read_xydata___value_correct(
+    data_store_client: DataStoreClient, mocked_moniker_client: NonCallableMock
+) -> None:
+    moniker = _init_moniker()
+    result = ReadFromMonikerResult()
+    value_to_read = gpAny()
+    attrs = {
+        "NI_UnitDescription_X": attribute_value_pb2.AttributeValue(string_value="amps"),
+        "NI_UnitDescription_Y": attribute_value_pb2.AttributeValue(string_value="seconds"),
+    }
+    expected_xydata = xydata_pb2.DoubleXYData(
+        x_data=[1.0, 2.0],
+        y_data=[3.0, 4.0],
+        attributes=attrs,
+    )
+    value_to_read.Pack(expected_xydata)
+    result.value.CopyFrom(value_to_read)
+    mocked_moniker_client.read_from_moniker.return_value = result
+
+    actual_xydata = data_store_client.read_data(moniker, XYData)
+
+    assert isinstance(actual_xydata, XYData)
+    assert list(actual_xydata.x_data) == [1.0, 2.0]
+    assert list(actual_xydata.y_data) == [3.0, 4.0]
+    assert actual_xydata.x_units == "amps"
+    assert actual_xydata.y_units == "seconds"
 
 
 def _init_moniker() -> Moniker:

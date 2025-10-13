@@ -44,11 +44,16 @@ from ni.protobuf.types.waveform_pb2 import (
     I16AnalogWaveform,
     I16ComplexWaveform,
 )
+from ni.protobuf.types.xydata_conversion import (
+    float64_xydata_from_protobuf,
+    float64_xydata_to_protobuf,
+)
 from ni.protobuf.types.xydata_pb2 import DoubleXYData
 from nitypes.complex import ComplexInt32DType
 from nitypes.scalar import Scalar
 from nitypes.vector import Vector
 from nitypes.waveform import AnalogWaveform, ComplexWaveform, DigitalWaveform, Spectrum
+from nitypes.xy_data import XYData
 
 _logger = logging.getLogger(__name__)
 
@@ -137,6 +142,11 @@ def populate_publish_measurement_request_value(
             raise TypeError(f"Unsupported Spectrum dtype: {value.dtype}")
     elif isinstance(value, DigitalWaveform):
         publish_request.digital_waveform.CopyFrom(digital_waveform_to_protobuf(value))
+    elif isinstance(value, XYData):
+        if value.dtype == np.float64:
+            publish_request.x_y_data.CopyFrom(float64_xydata_to_protobuf(value))
+        else:
+            raise TypeError(f"Unsupported XYData dtype: {value.dtype}")
     elif isinstance(value, Iterable):
         if not value:
             raise ValueError("Cannot publish an empty Iterable.")
@@ -152,7 +162,6 @@ def populate_publish_measurement_request_value(
         raise TypeError(
             f"Unsupported measurement value type: {type(value)}. Please consult the documentation."
         )
-    # TODO: Implement conversion from proper XYData type
 
 
 def populate_publish_measurement_batch_request_values(
@@ -208,10 +217,7 @@ def unpack_and_convert_from_protobuf_any(read_value: Any) -> object:
     elif value_type == DoubleXYData.DESCRIPTOR.full_name:
         xydata = DoubleXYData()
         read_value.Unpack(xydata)
-        _logger.warning(
-            "DoubleXYData conversion is not yet implemented. Returning the raw protobuf object."
-        )
-        return xydata
+        return float64_xydata_from_protobuf(xydata)
     elif value_type == VectorProto.DESCRIPTOR.full_name:
         vector = VectorProto()
         read_value.Unpack(vector)
