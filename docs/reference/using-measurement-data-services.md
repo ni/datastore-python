@@ -15,13 +15,13 @@ The typical measurement data workflow follows this sequence:
 3. **[Analysis Phase](#analysis-phase)** - Query and analyze results
 
 ```
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│   Setup Phase   │ --> │ Test Execution  │ --> │ Analysis Phase  │
-│                 │     │     Phase       │     │                 │
-│ • Metadata      │     │ • TestResult    │     │ • Query data    │
-│ • Schemas       │     │ • Steps         │     │ • Analysis      │
-│ • Aliases       │     │ • Measurements  │     │ • Reports       │
-└─────────────────┘     └─────────────────┘     └─────────────────┘
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Setup Phase   │───▶│ Test Execution  │───▶│ Analysis Phase  │
+│                 │    │     Phase       │    │                 │
+│ • Metadata      │    │ • TestResult    │    │ • Query data    │
+│ • Schemas       │    │ • Steps         │    │ • Analysis      │
+│ • Aliases       │    │ • Measurements  │    │ • Reports       │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
 ---
