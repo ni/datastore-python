@@ -14,17 +14,6 @@ The typical measurement data workflow follows this sequence:
 2. **[Test Execution Phase](#test-execution-phase)** - Create test sessions and publish data  
 3. **[Analysis Phase](#analysis-phase)** - Query and analyze results
 
-<!-- **Workflow Flow:**
-```
-Setup Phase → Test Execution Phase → Analysis Phase
-``` -->
-
-- **Setup Phase**: Create metadata entities (operators, equipment, UUTs), register schemas, set up aliases
-- **Test Execution Phase**: Create TestResults, organize into Steps, publish Measurements and Conditions  
-- **Analysis Phase**: Query data using OData, perform cross-analysis with metadata context
-
----
-
 ## **Setup Phase**
 
 Before running tests, establish the metadata foundation that describes your test environment and processes.
