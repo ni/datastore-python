@@ -11,18 +11,17 @@ The NI Measurement Data Services provide a comprehensive solution for storing, o
 The typical measurement data workflow follows this sequence:
 
 1. **[Setup Phase](#setup-phase)** - Register metadata entities and schemas
-2. **[Test Execution Phase](#test-execution-phase)** - Create test sessions and publish data
+2. **[Test Execution Phase](#test-execution-phase)** - Create test sessions and publish data  
 3. **[Analysis Phase](#analysis-phase)** - Query and analyze results
 
-```text
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Setup Phase   │--->│ Test Execution  │--->│ Analysis Phase  │
-│                 │    │     Phase       │    │                 │
-│ • Metadata      │    │ • TestResult    │    │ • Query data    │
-│ • Schemas       │    │ • Steps         │    │ • Analysis      │
-│ • Aliases       │    │ • Measurements  │    │ • Reports       │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
+**Workflow Flow:**
 ```
+Setup Phase → Test Execution Phase → Analysis Phase
+```
+
+- **Setup Phase**: Create metadata entities (operators, equipment, UUTs), register schemas, set up aliases
+- **Test Execution Phase**: Create TestResults, organize into Steps, publish Measurements and Conditions  
+- **Analysis Phase**: Query data using OData, perform cross-analysis with metadata context
 
 ---
 
