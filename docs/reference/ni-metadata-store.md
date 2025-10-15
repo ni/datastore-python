@@ -7,12 +7,12 @@ The NI Metadata Store support the digital thread weaving together measurement re
 ## **Operator**
 An **Operator** represents a person who performs tests or operates test equipment. This captures the human element in your test process.
 
-**Properties**:
-- **Operator Name** - The name of the operator
-- **Role** - The role of the operator
-- **Link** - URI to resource describing the operator
-- **Extensions** - Custom metadata fields
-- **Schema ID** - Identifier for extension schema
+**Fields:**
+- `operator_name` (string) - The name of the operator
+- `role` (string) - The role of the operator (e.g., "Test Engineer", "Lab Technician")
+- `link` (string) - URI to resource describing the operator
+- `extensions` (dict) - Custom key-value pairs for additional metadata
+- `schema_id` (string) - ID of the schema for extension validation
 
 **Real-world examples**:
 - "Sarah Johnson" - Test Engineer who runs daily production tests
@@ -24,12 +24,12 @@ Each operator has a role (e.g., "Test Engineer", "Lab Technician", "Quality Insp
 ## **Test Station**
 A **Test Station** represents a physical location or setup where testing is performed. This could be a bench, rack, or dedicated test system.
 
-**Properties**:
-- **Test Station Name** - The name of the test station
-- **Asset Identifier** - For tracking and inventory purposes
-- **Link** - URI to resource describing the test station
-- **Extensions** - Custom metadata fields
-- **Schema ID** - Identifier for extension schema
+**Fields:**
+- `test_station_name` (string) - The name of the test station
+- `asset_identifier` (string) - For tracking and inventory purposes
+- `link` (string) - URI to resource describing the test station
+- `extensions` (dict) - Custom key-value pairs for additional metadata
+- `schema_id` (string) - ID of the schema for extension validation
 
 **Real-world examples**:
 - "Station_A1" - Production line station #1 for power supply testing
@@ -42,14 +42,14 @@ Test stations help track where tests were performed, enabling analysis of statio
 ## **UUT (Unit Under Test)**
 A **UUT** represents a product definition or model being tested. This is the "what" - the type of device or product under test.
 
-**Properties**:
-- **Model Name** - The name of the UUT model
-- **Family** - The UUT family or category
-- **Manufacturers** - List of manufacturers of the UUT
-- **Part Number** - The part number of the UUT
-- **Link** - URI to resource describing the UUT
-- **Extensions** - Custom metadata fields
-- **Schema ID** - Identifier for extension schema
+**Fields:**
+- `model_name` (string) - The name of the UUT model
+- `family` (string) - The UUT family or category
+- `manufacturers` (list of strings) - List of manufacturers of the UUT
+- `part_number` (string) - The part number of the UUT
+- `link` (string) - URI to resource describing the UUT
+- `extensions` (dict) - Custom key-value pairs for additional metadata
+- `schema_id` (string) - ID of the schema for extension validation
 
 **Real-world examples**:
 - Model: "PowerSupply v2.1", Family: "Power" - A specific power supply product
@@ -62,14 +62,14 @@ UUTs represent the product designs, while UUT instances represent individual phy
 ## **UUT Instance**
 A **UUT Instance** represents an individual physical device with a unique serial number. This is a specific unit of the UUT model being tested.
 
-**Properties**:
-- **UUT ID** - The ID of the UUT associated with this instance
-- **Serial Number** - The serial number of the UUT instance
-- **Asset Identifier** - For tracking and inventory purposes
-- **Manufacture Date** - When the instance was manufactured
-- **Link** - URI to resource describing the UUT instance
-- **Extensions** - Custom metadata fields
-- **Schema ID** - Identifier for extension schema
+**Fields:**
+- `uut_id` (string) - The ID of the UUT associated with this instance (GUID or alias)
+- `serial_number` (string) - The serial number of the UUT instance
+- `asset_identifier` (string) - For tracking and inventory purposes
+- `manufacture_date` (string) - When the instance was manufactured
+- `link` (string) - URI to resource describing the UUT instance
+- `extensions` (dict) - Custom key-value pairs for additional metadata
+- `schema_id` (string) - ID of the schema for extension validation
 
 **Real-world examples**:
 - UUT: "PowerSupply v2.1", Serial: "PS-2024-001" - First power supply unit built in 2024
@@ -81,16 +81,16 @@ Each UUT instance tracks the test history for that specific physical device thro
 ## **Hardware Item**
 A **Hardware Item** represents test equipment, instruments, or tools used during testing. This captures what physical equipment was involved in generating the measurements.
 
-**Properties**:
-- **Manufacturer** - The vendor of the hardware item
-- **Model** - The name/model number of the hardware item
-- **Serial Number** - Unique serial number for tracking
-- **Part Number** - Manufacturer's part number
-- **Asset Identifier** - For tracking and inventory purposes
-- **Calibration Due Date** - When calibration expires
-- **Link** - URI to resource describing the hardware item
-- **Extensions** - Custom metadata fields
-- **Schema ID** - Identifier for extension schema
+**Fields:**
+- `manufacturer` (string) - The vendor of the hardware item
+- `model` (string) - The name/model number of the hardware item
+- `serial_number` (string) - Unique serial number for tracking
+- `part_number` (string) - Manufacturer's part number
+- `asset_identifier` (string) - For tracking and inventory purposes
+- `calibration_due_date` (string) - When calibration expires
+- `link` (string) - URI to resource describing the hardware item
+- `extensions` (dict) - Custom key-value pairs for additional metadata
+- `schema_id` (string) - ID of the schema for extension validation
 
 **Real-world examples**:
 - Manufacturer: "NI", Model: "PXIe-4081", Serial: "DMM001" - Digital multimeter
@@ -103,12 +103,12 @@ Hardware items include calibration information and help ensure measurement trace
 ## **Software Item**
 A **Software Item** represents software tools, environments, or versions used during testing. This captures the software context that could affect test results.
 
-**Properties**:
-- **Product** - The software product name (letters, numbers, spaces, hyphens, underscores, parentheses, periods)
-- **Version** - The version of the software item
-- **Link** - URI to resource describing the software item
-- **Extensions** - Custom metadata fields
-- **Schema ID** - Identifier for extension schema
+**Fields:**
+- `product` (string) - The software product name (letters, numbers, spaces, hyphens, underscores, parentheses, periods; must begin and end with letter or number)
+- `version` (string) - The version of the software item
+- `link` (string) - URI to resource describing the software item
+- `extensions` (dict) - Custom key-value pairs for additional metadata
+- `schema_id` (string) - ID of the schema for extension validation
 
 **Real-world examples**:
 - Product: "Python", Version: "3.11.5" - Programming language version
@@ -122,12 +122,12 @@ Software items help identify if software changes affected test results or reprod
 ## **Test Description**
 A **Test Description** represents a defined test procedure or specification for testing a particular UUT. This defines what tests should be performed.
 
-**Properties**:
-- **UUT ID** - The ID of the UUT this test is designed for
-- **Test Description Name** - Name of the test description
-- **Link** - URI to resource describing the test description
-- **Extensions** - Custom metadata fields
-- **Schema ID** - Identifier for extension schema
+**Fields:**
+- `uut_id` (string) - The ID of the UUT this test is designed for
+- `test_description_name` (string) - Name of the test description
+- `link` (string) - URI to resource describing the test description
+- `extensions` (dict) - Custom key-value pairs for additional metadata
+- `schema_id` (string) - ID of the schema for extension validation
 
 **Real-world examples**:
 - "Power Supply Validation Suite" - Complete test suite for power supply products
@@ -138,12 +138,12 @@ A **Test Description** represents a defined test procedure or specification for 
 ## **Test**
 A **Test** represents an individual test procedure or method. This is more granular than a test description and describes specific test steps.
 
-**Properties**:
-- **Test Name** - Name of the test
-- **Description** - Explanation of what the test does
-- **Link** - URI to resource describing the test
-- **Extensions** - Custom metadata fields
-- **Schema ID** - Identifier for extension schema
+**Fields:**
+- `test_name` (string) - Name of the test
+- `description` (string) - Explanation of what the test does
+- `link` (string) - URI to resource describing the test
+- `extensions` (dict) - Custom key-value pairs for additional metadata
+- `schema_id` (string) - ID of the schema for extension validation
 
 **Real-world examples**:
 - "DC Voltage Accuracy Check" - Measures voltage accuracy across specified range
@@ -154,17 +154,17 @@ A **Test** represents an individual test procedure or method. This is more granu
 ## **Test Adapter**
 A **Test Adapter** represents a test fixture, mechanical setup, or interface used to hold, connect, or interface the UUT with the test system.
 
-**Properties**:
-- **Test Adapter Name** - Name or label for the adapter
-- **Manufacturer** - Vendor of the adapter
-- **Model** - Model number or name
-- **Serial Number** - Unique serial number
-- **Part Number** - Manufacturer's part number
-- **Asset Identifier** - For tracking and inventory purposes
-- **Calibration Due Date** - When calibration expires
-- **Link** - URI to resource describing the test adapter
-- **Extensions** - Custom metadata fields
-- **Schema ID** - Identifier for extension schema
+**Fields:**
+- `test_adapter_name` (string) - Name or label for the adapter
+- `manufacturer` (string) - Vendor of the adapter
+- `model` (string) - Model number or name
+- `serial_number` (string) - Unique serial number
+- `part_number` (string) - Manufacturer's part number
+- `asset_identifier` (string) - For tracking and inventory purposes
+- `calibration_due_date` (string) - When calibration expires
+- `link` (string) - URI to resource describing the test adapter
+- `extensions` (dict) - Custom key-value pairs for additional metadata
+- `schema_id` (string) - ID of the schema for extension validation
 
 **Real-world examples**:
 - "PCB Test Fixture v2.1" - Custom fixture for holding circuit boards during test
@@ -175,9 +175,9 @@ A **Test Adapter** represents a test fixture, mechanical setup, or interface use
 ## **Extension Schema**
 An **Extension Schema** defines the structure and validation rules for custom extension fields that can be added to any metadata entity.
 
-**Properties**:
-- **Schema ID** - Unique identifier for the schema
-- **Schema** - The schema definition itself (JSON Schema format)
+**Fields:**
+- `schema_id` (string) - Unique identifier for the schema
+- `schema` (string) - The schema definition itself (JSON Schema format)
 
 **Real-world examples**:
 - Custom fields for tracking calibration certificates
@@ -188,10 +188,10 @@ An **Extension Schema** defines the structure and validation rules for custom ex
 ## **Alias**
 An **Alias** provides a human-readable name that points to any metadata entity. This creates a layer of abstraction that makes test code more maintainable and readable.
 
-**Properties**:
-- **Alias Name** - The registered alias name for the metadata instance
-- **Target Type** - The type of the aliased metadata instance (see `AliasTargetType` enum)
-- **Target ID** - The unique identifier for the aliased metadata instance
+**Fields:**
+- `alias_name` (string) - The registered alias name for the metadata instance
+- `target_type` (enum) - The type of the aliased metadata instance (see `AliasTargetType` enum)
+- `target_id` (string) - The unique identifier for the aliased metadata instance
 
 **Supported Target Types**:
 - `UUT_INSTANCE` - Points to a UUT Instance
