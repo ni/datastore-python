@@ -14,9 +14,9 @@ The typical measurement data workflow follows this sequence:
 2. **[Test Execution Phase](#test-execution-phase)** - Create test sessions and publish data
 3. **[Analysis Phase](#analysis-phase)** - Query and analyze results
 
-```
+```text
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Setup Phase   │───▶│ Test Execution  │───▶│ Analysis Phase  │
+│   Setup Phase   │--->│ Test Execution  │--->│ Analysis Phase  │
 │                 │    │     Phase       │    │                 │
 │ • Metadata      │    │ • TestResult    │    │ • Query data    │
 │ • Schemas       │    │ • Steps         │    │ • Analysis      │
