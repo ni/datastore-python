@@ -1,6 +1,6 @@
-# NI Measurement Data Store
+# NI Data Store
 
-The NI Measurement Data Store includes these objects:
+The NI Data Store includes these objects:
 
 ## **TestResult**
 A **TestResult** represents a complete test session or test execution run for a specific Unit Under Test (UUT). It's the top-level container that captures everything that happened when you tested a particular device.

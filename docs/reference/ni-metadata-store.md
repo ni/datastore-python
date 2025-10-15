@@ -1,6 +1,6 @@
-# NI Digital Thread Metadata
+# NI Metadata Store
 
-The NI Digital Thread captures the metadata that describes **who**, **what**, **where**, and **how** tests are performed. This creates a complete context around your test data, enabling traceability and analysis across your entire test ecosystem.
+The NI Metadata Store support the digital thread weaving together measurement results with metadata that describes **who**, **what**, **where**, and **how** tests are performed. This creates a complete context around your test data, enabling traceability and analysis across your entire test ecosystem.
 
 **Based on:** [`metadata_store.proto`](https://github.com/ni/ni-apis/blob/main/ni/measurements/metadata/v1/metadata_store.proto)
 
@@ -212,7 +212,7 @@ An **Alias** provides a human-readable name that points to any metadata entity. 
 
 Aliases allow you to change which specific equipment or person is referenced without changing test code.
 
-## **The Digital Thread Hierarchy**
+## **The Metadata Store Hierarchy**
 ```
 Complete Test Execution Context:
 ├── WHO: Operator "Alex Smith" (Test Engineer)
@@ -246,6 +246,123 @@ Extension Schemas:
 └── "Asset_Management_Schema" → Company inventory fields
 ```
 
+## **Custom Schemas and Extensions**
+
+Every metadata entity in the NI Metadata Store supports **extensions** - custom key-value pairs that allow you to add organization-specific, industry-specific, or regulatory-specific metadata beyond the standard fields.
+
+### **How Extensions Work**
+
+**Extensions** are a dictionary of custom fields that can be attached to any metadata entity:
+```python
+# Example: Hardware Item with custom extensions
+hardware_item = HardwareItem(
+    manufacturer="NI",
+    model="PXIe-5171", 
+    serial_number="SCOPE001",
+    extensions={
+        "bandwidth": "1 GHz",
+        "manufacture_date": "2024-03-15",
+        "calibration_certificate": "CAL-2024-001234",
+        "asset_tag": "ASSET-SCOPE-789"
+    }
+)
+```
+
+### **Schema Validation**
+
+To ensure consistency and enforce requirements for extension fields, you can register a **schema** that defines:
+- Which extension fields are **required** vs **optional**
+- Data types and validation rules
+- Field descriptions and constraints
+
+**Schema Registration Process:**
+1. **Define the schema** in TOML format (like the example below)
+2. **Register the schema** with the metadata store
+3. **Get a schema_id** returned from registration
+4. **Reference the schema_id** when creating metadata entities
+
+### **Schema Example**
+
+Here's an example schema for oscilloscope hardware items:
+
+```toml
+# scope_schema.toml
+id = "https://example.com/scope.schema.toml"
+
+[hardware_item]
+bandwidth = "*"           # Required field - must be provided
+manufacture_date = "*"    # Required field - must be provided
+calibration_cert = "?"    # Optional field - can be omitted
+asset_tag = "?"          # Optional field - can be omitted
+```
+
+**Field Requirement Indicators:**
+- `"*"` = **Required** - Must be provided when creating the entity
+- `"?"` = **Optional** - Can be provided but not mandatory
+- Additional validation rules can be specified in JSON Schema format
+
+### **Using Schemas in Practice**
+
+```python
+# 1. Register the schema
+schema_content = load_schema_from_file("scope_schema.toml")
+schema_id = metadata_store_client.register_schema(schema_content)
+
+# 2. Create hardware item with schema validation
+hardware_item = HardwareItem(
+    manufacturer="NI",
+    model="PXIe-5171",
+    serial_number="SCOPE001",
+    schema_id=schema_id,  # Links to registered schema
+    extensions={
+        "bandwidth": "1 GHz",        # Required by schema
+        "manufacture_date": "2024-03-15",  # Required by schema
+        "asset_tag": "SCOPE-789"     # Optional field
+        # Missing calibration_cert is OK (optional)
+    }
+)
+
+# 3. The schema validates extensions during creation
+metadata_store_client.create_hardware_item(hardware_item)
+```
+
+### **Benefits of Schema Validation**
+
+- **Consistency** - Ensures all entities of the same type have required fields
+- **Data Quality** - Prevents missing critical information
+- **Documentation** - Schema serves as documentation of expected fields
+- **Evolution** - Schemas can be versioned and updated over time
+- **Integration** - External systems know what fields to expect
+
+### **Schema Inheritance**
+
+When creating metadata entities within a test result context, schema inheritance applies:
+- If the **test result** has a `schema_id`, child entities inherit that schema
+- Child entities can override with their own `schema_id` if needed
+- This allows consistent validation across entire test sessions
+
+**Example:**
+```python
+# Test result with schema
+test_result = TestResult(
+    schema_id="company-standard-v1.2",  # All child entities inherit this
+    uut_instance_id=uut_instance_id,
+    # ...
+)
+
+# Hardware item inherits test result's schema automatically
+hardware_item = HardwareItem(
+    manufacturer="NI", 
+    model="PXIe-4081",
+    # schema_id automatically inherited from test_result
+    extensions={
+        # Fields validated against inherited schema
+    }
+)
+```
+
+
+
 ## **Benefits of the Digital Thread**
 - **Traceability**: Track which operator, equipment, and software were used for any measurement
 - **Root Cause Analysis**: Identify patterns related to specific operators, stations, or equipment  
@@ -269,4 +386,4 @@ All metadata entities support custom extensions through:
 - **Extension schemas** - Formal validation rules for custom fields
 - **Schema inheritance** - Extension schemas can be shared across test results
 
-This allows organizations to add company-specific, industry-specific, or regulatory-specific metadata while maintaining compatibility with the core Digital Thread system.
+This allows organizations to add company-specific, industry-specific, or regulatory-specific metadata while maintaining compatibility with the core Metadata Store schemas.
