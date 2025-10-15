@@ -25,7 +25,21 @@ See [GitHub's official documentation](https://help.github.com/articles/using-pul
 
 # Testing
 
-- TODO: include testing steps here.
+There are pytests in ni.datastore that you can run with poetry. There are two directories of tests:
+`acceptance` and `unit`.
+
+## Unit Tests
+The unit tests in the `unit` folder are the first line of defense to catch regressions. These tests
+will run on any PR that is submitted for `ni.datastore`. You can run these tests manually by running:
+`poetry run pytest tests\unit`
+
+## Acceptance Tests
+Acceptance tests are system level tests that are meant to run against an actual DataStore service.
+You can start the datastore service by building the service in the `ASW` repo and running it. You
+can also install the Measurement Data Services installer on a test machine. If the datastore service
+is not running, these tests will fail. To run the acceptance tests, run this command:
+`poetry run pytest tests\acceptance`
+
 
 # Publishing on PyPI
 
