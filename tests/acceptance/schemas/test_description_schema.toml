@@ -1,5 +1,0 @@
-id = "https://acceptancetests.com/testdescription.schema.toml"
-
-[test_description]
-td1 = "*"
-td2 = "*"

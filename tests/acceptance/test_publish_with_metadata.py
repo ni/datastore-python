@@ -27,8 +27,14 @@ from ni.datastore.metadata import (
 from nitypes.waveform import AnalogWaveform
 
 
-def test___waveform_with_metadata___publish___query_read_returns_correct_data() -> None:
+def test___waveform_with_all_metadata___publish___query_read_returns_correct_data() -> None:
     with MetadataStoreClient() as metadata_store_client, DataStoreClient() as data_store_client:
+        # Load the extensions schema
+        current_directory = os.path.dirname(os.path.abspath(__file__))
+        schema_id = metadata_store_client.register_schema_from_file(
+            os.path.join(current_directory, "schemas", "custom_metadata.toml")
+        )
+
         # Metadata: UUT
         uut = Uut(
             model_name="NI-9205",
@@ -36,6 +42,8 @@ def test___waveform_with_metadata___publish___query_read_returns_correct_data() 
             manufacturers=["Manufacturer A", "Manufacturer B"],
             part_number="Part Number",
             link="Uut Link",
+            extensions={"u1": "one", "u2": "two"},
+            schema_id=schema_id,
         )
         uut_id = metadata_store_client.create_uut(uut)
 
@@ -47,42 +55,54 @@ def test___waveform_with_metadata___publish___query_read_returns_correct_data() 
             firmware_version="Firmware Version",
             hardware_version="Hardware Version",
             link="UutInstance Link",
+            extensions={"ui1": "one", "ui2": "two"},
+            schema_id=schema_id,
         )
         uut_instance_id = metadata_store_client.create_uut_instance(uut_instance=uut_instance)
 
         # Metadata: Operator
         operator_name = "John Bowery"
         operator_role = "Test Operator II"
-        operator = Operator(operator_name=operator_name, role=operator_role)
+        operator = Operator(
+            operator_name=operator_name,
+            role=operator_role,
+            extensions={"o1": "one", "o2": "two"},
+            schema_id=schema_id,
+        )
         operator_id = metadata_store_client.create_operator(operator)
 
-        # Create TestStation metadata
-        test_station = TestStation(test_station_name="TestStation_12")
+        # Metadata: TestStation
+        test_station = TestStation(
+            test_station_name="TestStation_12",
+            asset_identifier="Test Station Asset Identifier",
+            link="Test Station Link",
+            extensions={"ts1": "one", "ts2": "two"},
+            schema_id=schema_id,
+        )
         test_station_id = metadata_store_client.create_test_station(test_station)
 
-        # Test Description metadata
-        # This only works when I provide an absolute path to the schema.
-        current_directory = os.path.dirname(os.path.abspath(__file__))
-        description_schema_id = metadata_store_client.register_schema_from_file(
-            os.path.join(current_directory, "schemas", "test_description_schema.toml")
-        )
+        # Metadata: TestDescription
         test_description = TestDescription(
             uut_id=uut_id,
             test_description_name="Metadata Acceptance Test",
             link="Test Description Link",
             extensions={"td1": "one", "td2": "two"},
-            schema_id=description_schema_id,
+            schema_id=schema_id,
         )
         test_description_id = metadata_store_client.create_test_description(test_description)
 
-        # Create SoftwareItem metadata
-        software_item = SoftwareItem(product="Windows", version="10.0.19044")
+        # Metadata: SoftwareItem
+        software_item = SoftwareItem(
+            product="Windows",
+            version="10.0.19044",
+            link="Windows Link",
+            extensions={"sw1": "one", "sw2": "two"},
+            schema_id=schema_id,
+        )
         software_item_id = metadata_store_client.create_software_item(software_item)
-        software_item_2 = SoftwareItem(product="Python", version="3.12")
-        software_item_2_id = metadata_store_client.create_software_item(software_item_2)
-        software_item_ids = [software_item_id, software_item_2_id]
+        software_item_ids = [software_item_id]
 
-        # Create HardwareItem metadata
+        # Metadata: HardwareItem
         hardware_item = HardwareItem(
             manufacturer="Test Manufacturer",
             model="Test Model",
@@ -91,11 +111,13 @@ def test___waveform_with_metadata___publish___query_read_returns_correct_data() 
             asset_identifier="Test Asset Identifier",
             calibration_due_date="Test Calibration Due Date",
             link="Hardware Item Link",
+            extensions={"hw1": "one", "hw2": "two"},
+            schema_id=schema_id,
         )
         hardware_item_id = metadata_store_client.create_hardware_item(hardware_item)
         hardware_item_ids = [hardware_item_id]
 
-        # Create TestAdapter metadata
+        # Metadata: TestAdapter
         # test_adapter=TestAdapter(
         #     test_adapter_name="Test Adapter Name",
         #     manufacturer="Test Adapter Manufacturer",
@@ -108,9 +130,9 @@ def test___waveform_with_metadata___publish___query_read_returns_correct_data() 
         # test_adapter_id = metadata_store_client.create_test_adapter(test_adapter)
         # test_adapter_ids = [test_adapter_id]
 
-        # Create TestResult metadata
+        # Metadata: TestResult
         test_result_name = "sample test result"
-        found_test_result = TestResult(
+        test_result = TestResult(
             uut_instance_id=uut_instance_id,
             operator_id=operator_id,
             test_station_id=test_station_id,
@@ -120,20 +142,28 @@ def test___waveform_with_metadata___publish___query_read_returns_correct_data() 
             # test_adapter_ids=test_adapter_ids,
             test_result_name=test_result_name,
             link="Test Result Link",
+            extensions={"tr1": "one", "tr2": "two"},
+            schema_id=schema_id,
         )
-        test_result_id = data_store_client.create_test_result(found_test_result)
+        test_result_id = data_store_client.create_test_result(test_result)
 
-        # Create waveform data to publish
+        # Data: Waveform data to publish
         expected_waveform = AnalogWaveform(
             sample_count=3,
             raw_data=np.array([1.0, 2.0, 3.0]),
         )
 
-        # Create Test metadata
-        test = Test(test_name="Test Name", description="Test Description", link="Test Link")
+        # Metadata: Test
+        test = Test(
+            test_name="Test Name",
+            description="Test Description",
+            link="Test Link",
+            extensions={"t1": "one", "t2": "two"},
+            schema_id=schema_id,
+        )
         test_id = metadata_store_client.create_test(test)
 
-        # Publish the waveform data
+        # Data: Step
         step = Step(
             # TODO: This has to be a valid UUID, not just a string.
             # parent_step_id="Parent Step Id",
@@ -143,6 +173,8 @@ def test___waveform_with_metadata___publish___query_read_returns_correct_data() 
             step_type="Step Type",
             notes="Step Notes",
             link="Step Link",
+            extensions={"s1": "one", "s2": "two"},
+            schema_id=schema_id,
         )
         step_id = data_store_client.create_step(step)
 
@@ -151,6 +183,7 @@ def test___waveform_with_metadata___publish___query_read_returns_correct_data() 
             error_code=123, message="Error Message", source="Error Source"
         )
 
+        # Perform publish operation
         published_measurement = data_store_client.publish_measurement(
             measurement_name="Measurement Name",
             value=expected_waveform,
@@ -170,7 +203,7 @@ def test___waveform_with_metadata___publish___query_read_returns_correct_data() 
         found_measurement = next(iter(published_measurements), None)
         assert found_measurement is not None
 
-        # Assert on PublishedMeasurement fields
+        # Check PublishedMeasurement
         assert found_measurement.measurement_notes == "Measurement Notes"
         assert found_measurement.measurement_name == "Measurement Name"
         assert sorted(found_measurement.software_item_ids) == sorted(software_item_ids)
@@ -183,7 +216,7 @@ def test___waveform_with_metadata___publish___query_read_returns_correct_data() 
         # to bintime and back.
         assert found_measurement.start_date_time.day == timestamp.day
 
-        # Assert on TestResult fields.
+        # Check TestResult
         found_test_result = data_store_client.get_test_result(found_measurement.test_result_id)
         assert found_test_result.test_result_name == test_result_name
         assert found_test_result.operator_id == operator_id
@@ -193,13 +226,34 @@ def test___waveform_with_metadata___publish___query_read_returns_correct_data() 
         assert found_test_result.test_description_id == test_description_id
         assert found_test_result.test_station_id == test_station_id
         assert found_test_result.uut_instance_id == uut_instance_id
+        assert found_test_result.extensions == test_result.extensions
 
-        # Asserts for Operator
+        # Check Step
+        found_step = data_store_client.get_step(found_measurement.step_id)
+        assert found_step.parent_step_id == step.parent_step_id
+        assert found_step.test_result_id == step.test_result_id
+        assert found_step.test_id == step.test_id
+        assert found_step.step_name == step.step_name
+        # TODO: File an issue that found_step.step_type is blank.
+        # assert found_step.step_type == step.step_type
+        assert found_step.notes == step.notes
+        assert found_step.link == step.link
+        assert found_step.extensions == step.extensions
+
+        # Check Test
+        found_test = metadata_store_client.get_test(found_step.test_id)
+        assert found_test.description == test.description
+        assert found_test.test_name == test.test_name
+        assert found_test.link == test.link
+        assert found_test.extensions == test.extensions
+
+        # Check Operator
         found_operator = metadata_store_client.get_operator(found_test_result.operator_id)
         assert found_operator.operator_name == operator.operator_name
         assert found_operator.role == operator.role
+        assert found_operator.extensions == operator.extensions
 
-        # Asserts for UutInstance
+        # Check UutInstance
         found_uut_instance = metadata_store_client.get_uut_instance(
             found_test_result.uut_instance_id
         )
@@ -208,20 +262,58 @@ def test___waveform_with_metadata___publish___query_read_returns_correct_data() 
         assert found_uut_instance.firmware_version == uut_instance.firmware_version
         assert found_uut_instance.manufacture_date == uut_instance.manufacture_date
         assert found_uut_instance.hardware_version == uut_instance.hardware_version
+        assert found_uut_instance.extensions == uut_instance.extensions
 
-        # Asserts for Uut
+        # Check Uut
         found_uut = metadata_store_client.get_uut(found_uut_instance.uut_id)
         assert found_uut.model_name == uut.model_name
-        # TODO: GH Issue - https://github.com/ni/datastore-python/issues/47
         assert found_uut.family == uut.family
         # TODO: File an issue about found_uut.manufacturers being a blank list.
         # assert found_uut.manufacturers == uut.manufacturers
         assert found_uut.part_number == uut.part_number
         assert found_uut.link == uut.link
+        assert found_uut.extensions == uut.extensions
 
-        # Asserts for TestStation
-        found_test_station = metadata_store_client.get_test_station(found_test_result.test_station_id)
+        # Check TestStation
+        found_test_station = metadata_store_client.get_test_station(
+            found_test_result.test_station_id
+        )
         assert found_test_station.test_station_name == test_station.test_station_name
+        assert found_test_station.asset_identifier == test_station.asset_identifier
+        assert found_test_station.link == test_station.link
+        assert found_test_station.extensions == test_station.extensions
+
+        # Check TestDescription
+        found_test_description = metadata_store_client.get_test_description(
+            found_test_result.test_description_id
+        )
+        assert (
+            found_test_description.test_description_name == test_description.test_description_name
+        )
+        assert found_test_description.link == test_description.link
+        assert found_test_description.extensions == test_description.extensions
+
+        # Check SoftwareItem
+        found_sw_item = metadata_store_client.get_software_item(
+            found_test_result.software_item_ids[0]
+        )
+        assert found_sw_item.product == software_item.product
+        assert found_sw_item.version == software_item.version
+        assert found_sw_item.link == software_item.link
+        assert found_sw_item.extensions == software_item.extensions
+
+        # Check HardwareItem
+        found_hw_item = metadata_store_client.get_hardware_item(
+            found_test_result.hardware_item_ids[0]
+        )
+        assert found_hw_item.manufacturer == hardware_item.manufacturer
+        assert found_hw_item.model == hardware_item.model
+        assert found_hw_item.serial_number == hardware_item.serial_number
+        assert found_hw_item.part_number == hardware_item.part_number
+        assert found_hw_item.asset_identifier == hardware_item.asset_identifier
+        assert found_hw_item.calibration_due_date == hardware_item.calibration_due_date
+        assert found_hw_item.link == hardware_item.link
+        assert found_hw_item.extensions == hardware_item.extensions
 
         waveform = data_store_client.read_data(found_measurement, expected_type=AnalogWaveform)
         assert waveform == expected_waveform
