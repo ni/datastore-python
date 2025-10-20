@@ -40,6 +40,9 @@ can also install the Measurement Data Services installer on a test machine. If t
 is not running, these tests will fail. To run the acceptance tests, run this command:
 `poetry run pytest tests\acceptance`
 
+> Warning! Running the acceptance tests will publish data and metadata to the default global
+> MDS data store location in the Documents folder.
+
 
 # Publishing on PyPI
 
