@@ -26,6 +26,6 @@ jobs:
       - name: Set up Poetry
         uses: ni/python-actions/setup-poetry@9768589f3e50672173dad75a6fc181e4a85d33fa # v0.7.0
       - name: Analyze Python Project
-        uses: ni/python-actions/analyze-project@0f1df82a288993fe50b6c4aaeab86503af7f85b4
+        uses: ni/python-actions/analyze-project@9768589f3e50672173dad75a6fc181e4a85d33fa # v0.7.0
         with:
           project-directory: ${{ github.workspace }}/examples/${{ matrix.example-name }}
