@@ -32,7 +32,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         # Load the extensions schema
         current_directory = os.path.dirname(os.path.abspath(__file__))
         schema_id = metadata_store_client.register_schema_from_file(
-            os.path.join(current_directory, "schemas", "custom_metadata.toml")
+            os.path.join(current_directory, "schemas", "extensions.toml")
         )
 
         # Metadata: UUT
@@ -164,9 +164,9 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         test_id = metadata_store_client.create_test(test)
 
         # Data: Step
+        parent_step = Step(step_name="Parent Step")
         step = Step(
-            # TODO: This has to be a valid UUID, not just a string.
-            # parent_step_id="Parent Step Id",
+            parent_step_id=parent_step.step_id,
             test_result_id=test_result_id,
             test_id=test_id,
             step_name="Step Name",

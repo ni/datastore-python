@@ -26,15 +26,8 @@ def test___publish_float___read_data_returns_vector() -> None:
         published_measurement = next(iter(published_measurements), None)
         assert published_measurement is not None
 
-        # Query for the measurement id and read/validate data
-        queried_measurements = data_store_client.query_measurements(
-            odata_query=f"$filter=id eq {published_measurement.published_measurement_id}"
-        )
-        found_measurement = next(iter(queried_measurements), None)
-        assert found_measurement is not None
-
         # A published batch floats will be read back as a Vector.
-        vector = data_store_client.read_data(found_measurement, expected_type=Vector)
+        vector = data_store_client.read_data(published_measurement, expected_type=Vector)
         assert vector._values == [1.0, 2.0, 3.0, 4.0]
         assert vector.units == ""
 
@@ -60,13 +53,6 @@ def test___publish_batch_vector___read_data_returns_vector() -> None:
         published_measurement = next(iter(published_measurements), None)
         assert published_measurement is not None
 
-        # Query for the measurement id and read/validate data
-        queried_measurements = data_store_client.query_measurements(
-            odata_query=f"$filter=id eq {published_measurement.published_measurement_id}"
-        )
-        found_measurement = next(iter(queried_measurements), None)
-        assert found_measurement is not None
-
         # A batch published Vector will be read back as a Vector.
-        vector = data_store_client.read_data(found_measurement, expected_type=Vector)
+        vector = data_store_client.read_data(published_measurement, expected_type=Vector)
         assert vector == expected_vector

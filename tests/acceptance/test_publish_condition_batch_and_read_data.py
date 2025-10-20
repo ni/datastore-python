@@ -2,7 +2,6 @@
 
 from ni.datastore.data import (
     DataStoreClient,
-    PublishedCondition,
     Step,
     TestResult,
 )
@@ -15,17 +14,13 @@ def test___publish_batch_float_condition___read_data_returns_vector() -> None:
         step_id = _create_step(data_store_client, "float condition batch")
         published_condition = data_store_client.publish_condition_batch(
             condition_name="python float condition batch",
-            type="float",
+            type="Upper Limits",
             values=expected_value,
             step_id=step_id,
         )
 
-        found_condition = _get_first_condition(
-            data_store_client, published_condition.published_condition_id
-        )
-
         # A batch published float will be read back as a Vector.
-        vector = data_store_client.read_data(found_condition, expected_type=Vector)
+        vector = data_store_client.read_data(published_condition, expected_type=Vector)
         assert vector._values == expected_value
         assert vector.units == ""
 
@@ -36,17 +31,13 @@ def test___publish_batch_integer_condition___read_data_returns_vector() -> None:
         step_id = _create_step(data_store_client, "integer condition batch")
         published_condition = data_store_client.publish_condition_batch(
             condition_name="python integer condition batch",
-            type="integer",
+            type="Lower Limits",
             values=expected_value,
             step_id=step_id,
         )
 
-        found_condition = _get_first_condition(
-            data_store_client, published_condition.published_condition_id
-        )
-
         # A batch published integer will be read back as a Vector.
-        vector = data_store_client.read_data(found_condition, expected_type=Vector)
+        vector = data_store_client.read_data(published_condition, expected_type=Vector)
         assert vector._values == expected_value
         assert vector.units == ""
 
@@ -57,17 +48,13 @@ def test___publish_batch_bool_condition___read_data_returns_vector() -> None:
         step_id = _create_step(data_store_client, "bool condition batch")
         published_condition = data_store_client.publish_condition_batch(
             condition_name="python bool condition batch",
-            type="bool",
+            type="Flags",
             values=expected_value,
             step_id=step_id,
         )
 
-        found_condition = _get_first_condition(
-            data_store_client, published_condition.published_condition_id
-        )
-
         # A batch published bool will be read back as a Vector.
-        vector = data_store_client.read_data(found_condition, expected_type=Vector)
+        vector = data_store_client.read_data(published_condition, expected_type=Vector)
         assert vector._values == expected_value
         assert vector.units == ""
 
@@ -78,17 +65,13 @@ def test___publish_batch_str_condition___read_data_returns_vector() -> None:
         step_id = _create_step(data_store_client, "str condition batch")
         published_condition = data_store_client.publish_condition_batch(
             condition_name="python str condition batch",
-            type="str",
+            type="Environments",
             values=expected_value,
             step_id=step_id,
         )
 
-        found_condition = _get_first_condition(
-            data_store_client, published_condition.published_condition_id
-        )
-
         # A published str will be read back as a Vector.
-        vector = data_store_client.read_data(found_condition, expected_type=Vector)
+        vector = data_store_client.read_data(published_condition, expected_type=Vector)
         assert vector._values == expected_value
         assert vector.units == ""
 
@@ -99,17 +82,13 @@ def test___publish_batch_vector_condition___read_data_returns_vector() -> None:
         expected_vector = Vector(values=[25, 50, 75], units="Amps")
         published_condition = data_store_client.publish_condition_batch(
             condition_name="python vector condition batch",
-            type="Vector",
+            type="Upper Limit",
             values=expected_vector,
             step_id=step_id,
         )
 
-        found_condition = _get_first_condition(
-            data_store_client, published_condition.published_condition_id
-        )
-
         # A batch published Vector will be read back as a Vector.
-        vector = data_store_client.read_data(found_condition, expected_type=Vector)
+        vector = data_store_client.read_data(published_condition, expected_type=Vector)
         assert vector == expected_vector
 
 
@@ -122,15 +101,3 @@ def _create_step(data_store_client: DataStoreClient, datatype_string: str) -> st
     step = Step(step_name=f"Initial step: {datatype_string}", test_result_id=test_result_id)
     step_id = data_store_client.create_step(step)
     return step_id
-
-
-def _get_first_condition(
-    data_store_client: DataStoreClient, published_condition_id: str
-) -> PublishedCondition:
-    # Query for the condition id
-    published_conditions = data_store_client.query_conditions(
-        odata_query=f"$filter=id eq {published_condition_id}"
-    )
-    found_measurement = next(iter(published_conditions), None)
-    assert found_measurement is not None
-    return found_measurement
