@@ -1,4 +1,4 @@
-"""Acceptance tests that publish various values then reads the data back."""
+"""Acceptance tests that publish various batch measurement values then reads the data back."""
 
 from ni.datastore.data import (
     DataStoreClient,
