@@ -75,7 +75,7 @@ Register test equipment and instruments:
 
 ```python
 # Create hardware items (test equipment)
-dmm_id = metadata_store_client.create_hardware_item(HardwareItem(
+dmm = HardwareItem(
     manufacturer="NI",
     model="PXIe-4081",
     serial_number="DMM-001",
@@ -85,7 +85,8 @@ dmm_id = metadata_store_client.create_hardware_item(HardwareItem(
         "accuracy": "7.5 digits",
         "asset_tag": "NI-DMM-001"
     }
-))
+)
+dmm_id = metadata_store_client.create_hardware_item(dmm)
 
 scope_id = metadata_store_client.create_hardware_item(HardwareItem(
     manufacturer="NI", 
@@ -132,7 +133,7 @@ Create UUT definitions and instances:
 #### **UUT (Product Definitions)**
 ```python
 # Define the product being tested
-power_supply_uut_id = metadata_store_client.create_uut(UUT(
+power_supply_uut_id = metadata_store_client.create_uut(Uut(
     model_name="PowerSupply v2.1",
     family="Power",
     manufacturers=["ACME Corp"],
@@ -230,11 +231,10 @@ Set up human-readable names for frequently used entities:
 
 ```python
 # Create aliases for easy reference
-metadata_store_client.create_alias(Alias(
+metadata_store_client.create_alias(
     alias_name="Primary_DMM",
-    target_type=AliasTargetType.HARDWARE_ITEM,
-    target_id=dmm_id
-))
+    alias_target=dmm
+)
 
 metadata_store_client.create_alias(Alias(
     alias_name="Lead_Test_Engineer", 
@@ -365,7 +365,7 @@ data_store_client.publish_measurement(
 )
 ```
 
-#### **Batch Measurements** *(For Parametric Sweeps)*
+#### **Batch Measurements**
 ```python
 # Publish multiple related measurements efficiently
 load_currents = [0.0, 2.5, 5.0, 7.5, 10.0]  # Load current sweep
@@ -396,7 +396,7 @@ Mark test completion and overall outcome:
 ```python
 # Update test result with final outcome
 test_result = data_store_client.get_test_result(test_result_id)
-test_result.end_date_time = datetime.now()
+test_result.start_date_time = datetime.now()
 test_result.outcome = Outcome.OUTCOME_PASSED
 
 # The test result is automatically updated when retrieved again
@@ -416,17 +416,17 @@ Use OData queries to find and filter measurement data:
 ```python
 # Find all measurements from a specific test result
 measurements = data_store_client.query_measurements(
-    f"$filter=test_result_id eq '{test_result_id}'"
+    f"$filter=TestResultId eq {test_result_id}"
 )
 
 # Find failed measurements
 failed_measurements = data_store_client.query_measurements(
-    "$filter=outcome eq 'OUTCOME_FAILED'"
+    "$filter=Outcome eq 'Failed'"
 )
 
 # Find measurements by name
 voltage_measurements = data_store_client.query_measurements(
-    "$filter=contains(measurement_name, 'Voltage')"
+    "$filter=contains(name, 'Voltage')"
 )
 ```
 
@@ -434,17 +434,17 @@ voltage_measurements = data_store_client.query_measurements(
 ```python
 # Find measurements from specific equipment that failed
 equipment_failures = data_store_client.query_measurements(
-    f"$filter=outcome eq 'OUTCOME_FAILED' and contains(hardware_item_ids, '{dmm_id}')"
+    f"$filter=outcome eq 'Failed' and contains(HardwareItemIds, {dmm_id})"
 )
 
 # Find recent measurements
 recent_measurements = data_store_client.query_measurements(
-    "$filter=start_date_time gt 2024-10-01T00:00:00Z&$orderby=start_date_time desc"
+    "$filter=StartTime gt 2024-10-01T00:00:00Z&$orderby=StartTime"
 )
 
 # Find measurements from specific operator
 operator_measurements = data_store_client.query_measurements(
-    f"$filter=contains(test_result_id, '{test_result_id}') and operator_id eq '{sarah_id}'"
+    f"$filter=TestResultId eq {test_result_id} and OperatorId eq {sarah_id}"
 )
 ```
 
@@ -456,12 +456,12 @@ Analyze test metadata to understand patterns:
 ```python
 # Find all test results for a UUT model
 test_results = data_store_client.query_steps(
-    f"$filter=contains(test_result_id, '{test_result_id}')"
+    f"$filter=TestResultId eq {test_result_id}"
 )
 
 # Find tests by operator
 sarah_tests = metadata_store_client.query_operators(
-    "$filter=operator_name eq 'Sarah Johnson'"
+    "$filter=Name eq 'Sarah Johnson'"
 )
 ```
 
@@ -469,12 +469,12 @@ sarah_tests = metadata_store_client.query_operators(
 ```python
 # Find all hardware items due for calibration
 equipment_due = metadata_store_client.query_hardware_items(
-    "$filter=calibration_due_date lt '2024-12-31'"
+    "$filter=CalibrationDueDate lt '2024-12-31'"
 )
 
 # Find measurements using specific equipment
 equipment_usage = data_store_client.query_measurements(
-    f"$filter=contains(hardware_item_ids, '{scope_id}')"
+    f"$filter=HardwareItems/any(h: h/Id eq {scope_id})"
 )
 ```
 
@@ -483,12 +483,12 @@ equipment_usage = data_store_client.query_measurements(
 Access the actual measured values:
 
 ```python
-# Get measurement data using moniker
+# Get measurement data
 for measurement in measurements:
     if measurement.data_type == "Scalar":
         value = data_store_client.read_data(measurement, expected_type=float)
         print(f"{measurement.measurement_name}: {value}")
-    elif measurement.data_type == "AnalogWaveform":
+    else if measurement.data_type == "AnalogWaveform":
         waveform = data_store_client.read_data(measurement, expected_type=AnalogWaveform)
         print(f"{measurement.measurement_name}: {len(waveform.samples)} samples")
 ```
@@ -530,12 +530,12 @@ for measurement in measurements:
 ```python
 # Track performance over time for a UUT model
 uut_instances = metadata_store_client.query_uut_instances(
-    f"$filter=uut_id eq '{power_supply_uut_id}'"
+    f"$filter=UutId eq c26e0057-3732-47d5-9576-3e3487e6e5b9"
 )
 
 for instance in uut_instances:
     measurements = data_store_client.query_measurements(
-        f"$filter=contains(test_result_id, '{instance.uut_instance_id}') and measurement_name eq '5V Output Voltage'"
+        f"$filter=TestResultId eq {instance.uut_instance_id} and Name eq '5V Output Voltage'"
     )
     # Analyze voltage accuracy trends...
 ```
@@ -544,11 +544,11 @@ for instance in uut_instances:
 ```python
 # Analyze calibration impact on measurements
 pre_cal_measurements = data_store_client.query_measurements(
-    f"$filter=contains(hardware_item_ids, '{dmm_id}') and start_date_time lt '2024-06-15'"
+    f"$filter=contains(HardwareItemIds, '{dmm_id}') and start_date_time lt '2024-06-15'"
 )
 
 post_cal_measurements = data_store_client.query_measurements(
-    f"$filter=contains(hardware_item_ids, '{dmm_id}') and start_date_time gt '2024-06-15'"
+    f"$filter=contains(HardwareItemIds, '{dmm_id}') and start_date_time gt '2024-06-15'"
 )
 # Compare measurement accuracy before/after calibration...
 ```
@@ -559,7 +559,7 @@ post_cal_measurements = data_store_client.query_measurements(
 for operator_id in [sarah_id, mike_id]:
     operator = metadata_store_client.get_operator(operator_id)
     measurements = data_store_client.query_measurements(
-        f"$filter=operator_id eq '{operator_id}' and outcome eq 'OUTCOME_FAILED'"
+        f"$filter=OperatorId eq '{operator_id}' and outcome eq 'Failed'"
     )
     failure_rate = len(measurements) / total_measurements_by_operator[operator_id] * 100
     print(f"{operator.operator_name}: {failure_rate:.1f}% failure rate")

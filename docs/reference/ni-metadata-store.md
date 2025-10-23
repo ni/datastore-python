@@ -1,6 +1,6 @@
 # NI Metadata Store
 
-The NI Metadata Store support the digital thread weaving together measurement results with metadata that describes **who**, **what**, **where**, and **how** tests are performed. This creates a complete context around your test data, enabling traceability and analysis across your entire test ecosystem.
+The NI Metadata Store supports the digital thread weaving together measurement results with metadata that describes **who**, **what**, **where**, and **how** tests are performed. This creates a complete context around your test data, enabling traceability and analysis across your entire test ecosystem.
 
 **Based on:** [`metadata_store.proto`](https://github.com/ni/ni-apis/blob/main/ni/measurements/metadata/v1/metadata_store.proto)
 
@@ -276,7 +276,7 @@ To ensure consistency and enforce requirements for extension fields, you can reg
 - Field descriptions and constraints
 
 **Schema Registration Process:**
-1. **Define the schema** in TOML format (like the example below)
+1. **Define the schema** in JSON format (like the example below)
 2. **Register the schema** with the metadata store
 3. **Get a schema_id** returned from registration
 4. **Reference the schema_id** when creating metadata entities
@@ -285,27 +285,52 @@ To ensure consistency and enforce requirements for extension fields, you can reg
 
 Here's an example schema for oscilloscope hardware items:
 
-```toml
-# scope_schema.toml
-id = "https://example.com/scope.schema.toml"
-
-[hardware_item]
-bandwidth = "*"           # Required field - must be provided
-manufacture_date = "*"    # Required field - must be provided
-calibration_cert = "?"    # Optional field - can be omitted
-asset_tag = "?"          # Optional field - can be omitted
+```json
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/scope.schema.json",
+  "title": "Oscilloscope Hardware Item Schema",
+  "description": "Schema for oscilloscope hardware item extensions",
+  "type": "object",
+  "properties": {
+    "hardware_item": {
+      "type": "object",
+      "properties": {
+        "bandwidth": {
+          "type": "string",
+          "description": "Oscilloscope bandwidth specification"
+        },
+        "manufacture_date": {
+          "type": "string",
+          "format": "date",
+          "description": "Date the hardware was manufactured"
+        },
+        "calibration_cert": {
+          "type": "string",
+          "pattern": "^CAL-\\d{4}-\\d{6}$",
+          "description": "Calibration certificate number"
+        },
+        "asset_tag": {
+          "type": "string",
+          "description": "Company asset tag identifier"
+        }
+      },
+      "required": ["bandwidth", "manufacture_date"]
+    }
+  }
+}
 ```
 
-**Field Requirement Indicators:**
-- `"*"` = **Required** - Must be provided when creating the entity
-- `"?"` = **Optional** - Can be provided but not mandatory
-- Additional validation rules can be specified in JSON Schema format
+**Schema Structure:**
+- **Required fields** are listed in the `required` array - must be provided when creating the entity
+- **Optional fields** are defined in `properties` but not listed in `required` - can be omitted
+- **Descriptions** provide documentation for each field
 
 ### **Using Schemas in Practice**
 
 ```python
 # 1. Register the schema
-schema_content = load_schema_from_file("scope_schema.toml")
+schema_content = metadata_store_client.register_schema_from_file("scope_schema.json")  # JSON format
 schema_id = metadata_store_client.register_schema(schema_content)
 
 # 2. Create hardware item with schema validation
@@ -318,7 +343,7 @@ hardware_item = HardwareItem(
         "bandwidth": "1 GHz",        # Required by schema
         "manufacture_date": "2024-03-15",  # Required by schema
         "asset_tag": "SCOPE-789"     # Optional field
-        # Missing calibration_cert is OK (optional)
+        # Missing calibration_cert is OK (not in required array)
     }
 )
 
