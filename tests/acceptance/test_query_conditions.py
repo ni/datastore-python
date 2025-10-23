@@ -3,12 +3,12 @@
 from ni.datastore.data import DataStoreClient
 from nitypes.vector import Vector
 
-from tests.acceptance._utils import append_hashed_time, create_step
+from tests.acceptance._utils import append_hashed_time, create_test_result_and_step
 
 
 def test___query_conditions___filter_by_id___single_condition_returned() -> None:
     with DataStoreClient() as data_store_client:
-        step_id = create_step(data_store_client, "query condition filter by id")
+        step_id = create_test_result_and_step(data_store_client, "query condition filter by id")
 
         # Publish a single condition
         condition_name = "query filter by id condition"
@@ -39,7 +39,7 @@ def test___query_conditions___filter_by_id___single_condition_returned() -> None
 
 def test___query_conditions___filter_by_name___correct_conditions_returned() -> None:
     with DataStoreClient() as data_store_client:
-        step_id = create_step(data_store_client, "query condition filter by name")
+        step_id = create_test_result_and_step(data_store_client, "query condition filter by name")
 
         # Publish several similarly named conditions. These names should be unique for each
         # run of this test to prevent previous results from causing the test to fail.

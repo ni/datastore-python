@@ -9,13 +9,12 @@ from ni.datastore.data import (
 )
 
 
-def create_step(data_store_client: DataStoreClient, description: str) -> str:
+def create_test_result_and_step(data_store_client: DataStoreClient, description: str) -> str:
     """Create a single step within a single test result and return the step_id."""
     test_result_name = f"{description} test result"
     test_result = TestResult(test_result_name=test_result_name)
     test_result_id = data_store_client.create_test_result(test_result)
 
-    # Publish the waveform data
     step = Step(step_name=f"{description} step", test_result_id=test_result_id)
     step_id = data_store_client.create_step(step)
     return step_id

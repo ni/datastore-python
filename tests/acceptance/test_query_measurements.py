@@ -3,12 +3,12 @@
 from ni.datastore.data import DataStoreClient
 from nitypes.vector import Vector
 
-from tests.acceptance._utils import append_hashed_time, create_step
+from tests.acceptance._utils import append_hashed_time, create_test_result_and_step
 
 
 def test___query_measurements___filter_by_id___single_measurement_returned() -> None:
     with DataStoreClient() as data_store_client:
-        step_id = create_step(data_store_client, "query measurement filter by id")
+        step_id = create_test_result_and_step(data_store_client, "query measurement filter by id")
 
         # Publish a single measurement.
         measurement_name = "query filter by id measurement"
@@ -37,7 +37,7 @@ def test___query_measurements___filter_by_id___single_measurement_returned() -> 
 
 def test___query_measurements___filter_by_name___correct_measurements_returned() -> None:
     with DataStoreClient() as data_store_client:
-        step_id = create_step(data_store_client, "query measurement filter by name")
+        step_id = create_test_result_and_step(data_store_client, "query measurement filter by name")
 
         # Publish several similarly named measurements. These names should be unique for each
         # run of this test to prevent previous results from causing the test to fail.
