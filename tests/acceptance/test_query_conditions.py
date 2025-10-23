@@ -1,7 +1,6 @@
 """Acceptance tests that exercise DataStoreClient.query_conditions()."""
 
 from ni.datastore.data import DataStoreClient
-
 from nitypes.vector import Vector
 
 from tests.acceptance._utils import append_hashed_time, create_step
@@ -11,7 +10,7 @@ def test___query_conditions___filter_by_id___single_condition_returned() -> None
     with DataStoreClient() as data_store_client:
         step_id = create_step(data_store_client, "query condition filter by id")
 
-        # Publish a float value
+        # Publish a single condition
         condition_name = "query filter by id condition"
         published_condition = data_store_client.publish_condition(
             condition_name=condition_name,
@@ -20,17 +19,18 @@ def test___query_conditions___filter_by_id___single_condition_returned() -> None
             step_id=step_id,
         )
 
-        # Query based on measurement id. We should get one measurement back.
+        # Query conditions based on id.
         queried_conditions = data_store_client.query_conditions(
             odata_query=f"$filter=id eq {published_condition.published_condition_id}"
         )
 
+        #  We should get one condition back.
         assert len(queried_conditions) == 1
         first_condition = queried_conditions[0]
         assert first_condition is not None
         assert first_condition.condition_name == condition_name
 
-        # A published float will be read back as a Vector.
+        # Check the value of the queried condition.
         vector = data_store_client.read_data(first_condition, expected_type=Vector)
         assert len(vector) == 1
         assert vector[0] == 123.45
@@ -43,7 +43,7 @@ def test___query_conditions___filter_by_name___correct_conditions_returned() -> 
 
         # Publish several similarly named conditions. These names should be unique for each
         # run of this test to prevent previous results from causing the test to fail.
-        condition_name_base = append_hashed_time("query filter by name measurement")
+        condition_name_base = append_hashed_time("query filter by name condition")
         for index in range(0, 3):
             condition_name = f"{condition_name_base} {index}"
             data_store_client.publish_condition(
@@ -61,15 +61,17 @@ def test___query_conditions___filter_by_name___correct_conditions_returned() -> 
             step_id=step_id,
         )
 
-        # Query based on condition name. We should get three conditions back.
+        # Query conditions based on name.
         queried_conditions = data_store_client.query_conditions(
             odata_query=f"$filter=contains(Name,'{condition_name_base}')"
         )
+
+        # We should get three conditions back.
         assert len(queried_conditions) == 3
+
+        # Check the value of each queried condition.
         for condition in queried_conditions:
             assert condition is not None
-
-            # Read and check the value
             vector = data_store_client.read_data(condition, expected_type=Vector)
             assert condition.condition_name == f"{condition_name_base} {vector[0]}"
             assert vector.units == ""

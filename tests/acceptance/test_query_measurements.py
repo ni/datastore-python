@@ -1,7 +1,6 @@
 """Acceptance tests that exercise DataStoreClient.query_measurements()."""
 
 from ni.datastore.data import DataStoreClient
-
 from nitypes.vector import Vector
 
 from tests.acceptance._utils import append_hashed_time, create_step
@@ -11,7 +10,7 @@ def test___query_measurements___filter_by_id___single_measurement_returned() -> 
     with DataStoreClient() as data_store_client:
         step_id = create_step(data_store_client, "query measurement filter by id")
 
-        # Publish a float value
+        # Publish a single measurement.
         measurement_name = "query filter by id measurement"
         published_measurement = data_store_client.publish_measurement(
             measurement_name=measurement_name,
@@ -19,17 +18,18 @@ def test___query_measurements___filter_by_id___single_measurement_returned() -> 
             step_id=step_id,
         )
 
-        # Query based on measurement id. We should get one measurement back.
+        # Query measurements based on id.
         queried_measurements = data_store_client.query_measurements(
             odata_query=f"$filter=id eq {published_measurement.published_measurement_id}"
         )
+
+        # We should get one measurement back.
         assert len(queried_measurements) == 1
         first_measurement = queried_measurements[0]
         assert first_measurement is not None
         assert first_measurement.measurement_name == measurement_name
 
-
-        # A published float will be read back as a Vector.
+        # Check the value of the queried measurement.
         vector = data_store_client.read_data(first_measurement, expected_type=Vector)
         assert vector[0] == 123.45
         assert vector.units == ""
@@ -57,15 +57,17 @@ def test___query_measurements___filter_by_name___correct_measurements_returned()
             step_id=step_id,
         )
 
-        # Query based on measurement name. We should get three measurements back.
+        # Query measurements based on name.
         queried_measurements = data_store_client.query_measurements(
             odata_query=f"$filter=contains(Name,'{measurement_name_base}')"
         )
+
+        # We should get three measurements back.
         assert len(queried_measurements) == 3
+
+        # Check the value of each queried measurement.
         for measurement in queried_measurements:
             assert measurement is not None
-
-            # Read and check the value
             vector = data_store_client.read_data(measurement, expected_type=Vector)
             assert measurement.measurement_name == f"{measurement_name_base} {vector[0]}"
             assert vector.units == ""
