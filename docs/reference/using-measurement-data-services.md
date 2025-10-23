@@ -148,7 +148,7 @@ power_supply_uut_id = metadata_store_client.create_uut(Uut(
 #### **UUT Instances (Physical Devices)**
 ```python
 # Create specific device instances
-uut_instance_id = metadata_store_client.create_uut_instance(UUTInstance(
+uut_instance_id = metadata_store_client.create_uut_instance(UutInstance(
     uut_id=power_supply_uut_id,
     serial_number="PS-2024-001456",
     manufacture_date="2024-10-01",
@@ -454,12 +454,12 @@ Analyze test metadata to understand patterns:
 
 #### **Test Results Analysis**
 ```python
-# Find all test results for a UUT model
+# Find all steps for a particular test results
 test_results = data_store_client.query_steps(
     f"$filter=TestResultId eq {test_result_id}"
 )
 
-# Find tests by operator
+# Find operator named 'Sarah Johnson'
 sarah_tests = metadata_store_client.query_operators(
     "$filter=Name eq 'Sarah Johnson'"
 )
