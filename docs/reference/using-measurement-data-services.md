@@ -30,6 +30,7 @@ Register the people who will be running tests:
 sarah_id = metadata_store_client.create_operator(Operator(
     operator_name="Sarah Johnson",
     role="Test Engineer",
+    schema_id=schema_id,
     extensions={
         "department": "Quality Assurance",
         "certification": "Level 2 Test Technician"
@@ -39,6 +40,7 @@ sarah_id = metadata_store_client.create_operator(Operator(
 mike_id = metadata_store_client.create_operator(Operator(
     operator_name="Mike Chen", 
     role="Senior Technician",
+    schema_id=schema_id,
     extensions={
         "department": "Manufacturing",
         "specialization": "RF Testing"
@@ -54,6 +56,7 @@ Define the physical locations where testing occurs:
 station_a1_id = metadata_store_client.create_test_station(TestStation(
     test_station_name="Station_A1",
     asset_identifier="STA-001",
+    schema_id=schema_id,
     extensions={
         "location": "Building A, Floor 1",
         "station_type": "Production Line"
@@ -63,6 +66,7 @@ station_a1_id = metadata_store_client.create_test_station(TestStation(
 rf_lab_id = metadata_store_client.create_test_station(TestStation(
     test_station_name="RF_Lab_Bench_1",
     asset_identifier="RFL-001", 
+    schema_id=schema_id,
     extensions={
         "location": "R&D Lab, Building B",
         "station_type": "Development"
@@ -81,6 +85,7 @@ dmm = HardwareItem(
     serial_number="DMM-001",
     part_number="781061-01",
     calibration_due_date="2025-06-15",
+    schema_id=schema_id,
     extensions={
         "accuracy": "7.5 digits",
         "asset_tag": "NI-DMM-001"
@@ -94,6 +99,7 @@ scope_id = metadata_store_client.create_hardware_item(HardwareItem(
     serial_number="SCOPE-001",
     part_number="783513-01",
     calibration_due_date="2025-08-20",
+    schema_id=schema_id,
     extensions={
         "bandwidth": "1 GHz", 
         "sample_rate": "1.25 GS/s"
@@ -119,6 +125,7 @@ nidaqmx_id = metadata_store_client.create_software_item(SoftwareItem(
 custom_app_id = metadata_store_client.create_software_item(SoftwareItem(
     product="PowerSupply Test Suite",
     version="v2.1.4",
+    schema_id=schema_id,
     extensions={
         "build_date": "2024-09-15",
         "git_commit": "a1b2c3d4"
@@ -138,6 +145,7 @@ power_supply_uut_id = metadata_store_client.create_uut(Uut(
     family="Power",
     manufacturers=["ACME Corp"],
     part_number="PS-v2.1-001",
+    schema_id=schema_id,
     extensions={
         "max_output": "24V, 10A",
         "efficiency": ">90%"
@@ -152,6 +160,7 @@ uut_instance_id = metadata_store_client.create_uut_instance(UutInstance(
     uut_id=power_supply_uut_id,
     serial_number="PS-2024-001456",
     manufacture_date="2024-10-01",
+    schema_id=schema_id,
     extensions={
         "lot_number": "L2024-Q4-001",
         "assembly_line": "Line 3"
@@ -169,6 +178,7 @@ Create test specifications and procedures:
 power_test_desc_id = metadata_store_client.create_test_description(TestDescription(
     uut_id=power_supply_uut_id,
     test_description_name="Power Supply Validation Suite",
+    schema_id=schema_id,
     extensions={
         "version": "v2.1",
         "compliance": "IEC 62368-1"
@@ -182,6 +192,7 @@ power_test_desc_id = metadata_store_client.create_test_description(TestDescripti
 voltage_test_id = metadata_store_client.create_test(Test(
     test_name="DC Voltage Accuracy Test",
     description="Measures DC voltage accuracy across 5V, 12V, and 24V outputs",
+    schema_id=schema_id,
     extensions={
         "test_limits": "±0.1% of reading",
         "test_duration": "~5 minutes"
@@ -191,6 +202,7 @@ voltage_test_id = metadata_store_client.create_test(Test(
 load_test_id = metadata_store_client.create_test(Test(
     test_name="Load Regulation Test", 
     description="Tests voltage stability under varying load conditions",
+    schema_id=schema_id,
     extensions={
         "load_range": "0% to 100% rated current",
         "regulation_limit": "±0.5%"
@@ -269,6 +281,7 @@ test_result_id = data_store_client.create_test_result(TestResult(
     software_item_ids=[python_id, nidaqmx_id, custom_app_id],
     hardware_item_ids=[dmm_id, scope_id],  # or use aliases
     test_result_name="PowerSupply PS-2024-001456 Validation",
+    schema_id=schema_id,
     extensions={
         "test_operator_notes": "First production unit validation",
         "ambient_temperature": "23°C"
