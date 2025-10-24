@@ -27,7 +27,7 @@ Register the people who will be running tests:
 
 ```python
 # Create operators
-sarah_id = metadata_store_client.create_operator(Operator(
+sarah = Operator(
     operator_name="Sarah Johnson",
     role="Test Engineer",
     schema_id=schema_id,
@@ -35,7 +35,8 @@ sarah_id = metadata_store_client.create_operator(Operator(
         "department": "Quality Assurance",
         "certification": "Level 2 Test Technician"
     }
-))
+)
+sarah_id = metadata_store_client.create_operator(sarah)
 
 mike_id = metadata_store_client.create_operator(Operator(
     operator_name="Mike Chen", 
@@ -140,7 +141,7 @@ Create UUT definitions and instances:
 #### **UUT (Product Definitions)**
 ```python
 # Define the product being tested
-power_supply_uut_id = metadata_store_client.create_uut(Uut(
+power_supply_uut = Uut(
     model_name="PowerSupply v2.1",
     family="Power",
     manufacturers=["ACME Corp"],
@@ -150,7 +151,8 @@ power_supply_uut_id = metadata_store_client.create_uut(Uut(
         "max_output": "24V, 10A",
         "efficiency": ">90%"
     }
-))
+)
+power_supply_uut_id = metadata_store_client.create_uut(uut)
 ```
 
 #### **UUT Instances (Physical Devices)**
@@ -248,16 +250,14 @@ metadata_store_client.create_alias(
     alias_target=dmm
 )
 
-metadata_store_client.create_alias(Alias(
-    alias_name="Lead_Test_Engineer", 
-    target_type=AliasTargetType.OPERATOR,
-    target_id=sarah_id
-))
+metadata_store_client.create_alias(
+    alias_name="Lead_Test_Engineer",
+    alias_target=sarah
+)
 
-metadata_store_client.create_alias(Alias(
+metadata_store_client.create_alias(
     alias_name="Current_PowerSupply_Design",
-    target_type=AliasTargetType.UUT, 
-    target_id=power_supply_uut_id
+    alias_target=power_supply_uut
 ))
 ```
 
@@ -402,21 +402,6 @@ data_store_client.publish_condition_batch(
 )
 ```
 
-### **5. Update Test Results**
-
-Mark test completion and overall outcome:
-
-```python
-# Update test result with final outcome
-test_result = data_store_client.get_test_result(test_result_id)
-test_result.start_date_time = datetime.now()
-test_result.outcome = Outcome.OUTCOME_PASSED
-
-# The test result is automatically updated when retrieved again
-```
-
----
-
 ## **Analysis Phase**
 
 Query and analyze the stored measurement data and metadata.
@@ -480,11 +465,6 @@ sarah_tests = metadata_store_client.query_operators(
 
 #### **Equipment Usage Tracking**
 ```python
-# Find all hardware items due for calibration
-equipment_due = metadata_store_client.query_hardware_items(
-    "$filter=CalibrationDueDate lt '2024-12-31'"
-)
-
 # Find measurements using specific equipment
 equipment_usage = data_store_client.query_measurements(
     f"$filter=HardwareItems/any(h: h/Id eq {scope_id})"
