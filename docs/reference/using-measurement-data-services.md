@@ -318,24 +318,27 @@ Record environmental and setup conditions during testing:
 
 ```python
 # Publish conditions (environmental/setup parameters)
+voltage = Scalar(value=120.0, units="V")
 data_store_client.publish_condition(
     condition_name="Supply Voltage",
     type="Input Parameter", 
-    value=120.0,  # 120V AC input
+    value=voltage,
     step_id=voltage_step_id
 )
 
+temperature = Scalar(value=23.5, units="DegC")
 data_store_client.publish_condition(
     condition_name="Temperature",
     type="Environment",
-    value=23.5,  # °C
+    value=temperature
     step_id=voltage_step_id
 )
 
+humidity = Scalar(value=45.2, units="%RH")
 data_store_client.publish_condition(
     condition_name="Humidity", 
     type="Environment",
-    value=45.2,  # %RH
+    value=humidity
     step_id=voltage_step_id
 )
 ```
@@ -478,11 +481,11 @@ Access the actual measured values:
 ```python
 # Get measurement data
 for measurement in measurements:
-    if measurement.data_type == "Scalar":
-        value = data_store_client.read_data(measurement, expected_type=float)
+    if measurement.data_type == "type.googleapis.com/ni.protobuf.types.Vector":
+        value = data_store_client.read_data(measurement, expected_type=Vector)
         print(f"{measurement.measurement_name}: {value}")
-    else if measurement.data_type == "AnalogWaveform":
-        waveform = data_store_client.read_data(measurement, expected_type=AnalogWaveform)
+    else if measurement.data_type == "type.googleapis.com/ni.protobuf.types.DoubleAnalogWaveform":
+        waveform = data_store_client.read_data(measurement, expected_type=DoubleAnalogWaveform)
         print(f"{measurement.measurement_name}: {len(waveform.samples)} samples")
 ```
 
