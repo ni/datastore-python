@@ -3,7 +3,6 @@
 import numpy as np
 from ni.datastore.data import (
     DataStoreClient,
-    PublishedMeasurement,
     Step,
     TestResult,
 )
@@ -22,12 +21,8 @@ def test___publish_float___read_data_returns_vector() -> None:
             step_id=step_id,
         )
 
-        found_measurement = _get_first_measurement(
-            data_store_client, published_measurement.published_measurement_id
-        )
-
         # A published integer will be read back as a Vector.
-        vector = data_store_client.read_data(found_measurement, expected_type=Vector)
+        vector = data_store_client.read_data(published_measurement, expected_type=Vector)
         assert vector[0] == 123.45
         assert vector.units == ""
 
@@ -42,12 +37,8 @@ def test___publish_scalar___read_data_returns_vector() -> None:
             step_id=step_id,
         )
 
-        found_measurement = _get_first_measurement(
-            data_store_client, published_measurement.published_measurement_id
-        )
-
         # A published Scalar will be read back as a Vector.
-        vector = data_store_client.read_data(found_measurement, expected_type=Vector)
+        vector = data_store_client.read_data(published_measurement, expected_type=Vector)
         assert vector[0] == expected_scalar.value
         assert vector.units == expected_scalar.units
 
@@ -68,10 +59,7 @@ def test___publish_xydata___read_data_returns_xydata() -> None:
             step_id=step_id,
         )
 
-        found_measurement = _get_first_measurement(
-            data_store_client, published_measurement.published_measurement_id
-        )
-        xydata = data_store_client.read_data(found_measurement, expected_type=XYData)
+        xydata = data_store_client.read_data(published_measurement, expected_type=XYData)
         assert xydata == expected_xydata
 
 
@@ -91,10 +79,7 @@ def test___publish_spectrum___read_data_returns_spectrum() -> None:
             step_id=step_id,
         )
 
-        found_measurement = _get_first_measurement(
-            data_store_client, published_measurement.published_measurement_id
-        )
-        spectrum = data_store_client.read_data(found_measurement, expected_type=Spectrum)
+        spectrum = data_store_client.read_data(published_measurement, expected_type=Spectrum)
         assert spectrum == expected_spectrum
 
 
@@ -112,10 +97,7 @@ def test___publish_analog_waveform___read_data_returns_analog_waveform() -> None
             step_id=step_id,
         )
 
-        found_measurement = _get_first_measurement(
-            data_store_client, published_measurement.published_measurement_id
-        )
-        waveform = data_store_client.read_data(found_measurement, expected_type=AnalogWaveform)
+        waveform = data_store_client.read_data(published_measurement, expected_type=AnalogWaveform)
         assert waveform == expected_waveform
 
 
@@ -129,10 +111,7 @@ def test___publish_digital_waveform___read_data_returns_digital_waveform() -> No
             step_id=step_id,
         )
 
-        found_measurement = _get_first_measurement(
-            data_store_client, published_measurement.published_measurement_id
-        )
-        waveform = data_store_client.read_data(found_measurement, expected_type=DigitalWaveform)
+        waveform = data_store_client.read_data(published_measurement, expected_type=DigitalWaveform)
         assert waveform == expected_waveform
 
 
@@ -146,10 +125,7 @@ def test___publish_complex_waveform___read_data_returns_complex_waveform() -> No
             step_id=step_id,
         )
 
-        found_measurement = _get_first_measurement(
-            data_store_client, published_measurement.published_measurement_id
-        )
-        waveform = data_store_client.read_data(found_measurement, expected_type=ComplexWaveform)
+        waveform = data_store_client.read_data(published_measurement, expected_type=ComplexWaveform)
         assert waveform == expected_waveform
 
 
@@ -162,15 +138,3 @@ def _create_step(data_store_client: DataStoreClient, datatype_string: str) -> st
     step = Step(step_name=f"Initial step: {datatype_string}", test_result_id=test_result_id)
     step_id = data_store_client.create_step(step)
     return step_id
-
-
-def _get_first_measurement(
-    data_store_client: DataStoreClient, published_measurement_id: str
-) -> PublishedMeasurement:
-    # Query for the measurement id and read/validate data
-    published_measurements = data_store_client.query_measurements(
-        odata_query=f"$filter=id eq {published_measurement_id}"
-    )
-    found_measurement = next(iter(published_measurements), None)
-    assert found_measurement is not None
-    return found_measurement

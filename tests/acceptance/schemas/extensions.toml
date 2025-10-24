@@ -1,0 +1,41 @@
+id = "https://acceptancetests.com/custommetadata.schema.toml"
+
+[uut]
+u1 = "*"
+u2 = "*"
+
+[uut_instance]
+ui1 = "*"
+ui2 = "*"
+
+[operator]
+o1 = "*"
+o2 = "*"
+
+[test_station]
+ts1 = "*"
+ts2 = "*"
+
+[test_description]
+td1 = "*"
+td2 = "*"
+
+[software_item]
+sw1 = "*"
+sw2 = "*"
+
+[hardware_item]
+hw1 = "*"
+hw2 = "*"
+
+[test_result]
+tr1 = "*"
+tr2 = "*"
+
+[step]
+s1 = "*"
+s2 = "*"
+
+[test]
+t1 = "*"
+t2 = "*"
