@@ -150,7 +150,30 @@ class DataStoreClient:
         value: object,
         step_id: str,
     ) -> PublishedCondition:
-        """Publish a condition value to the data store."""
+        """Publish a condition value to the data store.
+
+        Args:
+            condition_name: An identifier describing the condition value.
+                For example, "Voltage" or "Temperature".
+
+            type: The type of this condition. For example, "Upper Limit",
+                "Environment", or "Setup".
+
+            value: The single value for this condition to publish on the test
+                step. This should be a scalar value that can be converted to
+                the appropriate protobuf scalar type.
+
+            step_id: The ID of the step associated with this condition. This
+                value is expected to be a parsable GUID.
+
+        Returns:
+            PublishedCondition: The published condition containing:
+                - A moniker for retrieving the condition data (returns a
+                  ScalarArray)
+                - The unique ID of the condition for referencing in queries
+                - Metadata including condition name, type, step ID and test
+                  result ID
+        """
         publish_request = PublishConditionRequest(
             condition_name=condition_name,
             type=type,
@@ -163,7 +186,31 @@ class DataStoreClient:
     def publish_condition_batch(
         self, condition_name: str, type: str, values: object, step_id: str
     ) -> PublishedCondition:
-        """Publish a batch of N values for a condition to the data store."""
+        """Publish a batch of N values for a condition to the data store.
+
+        Args:
+            condition_name: An identifier describing the condition values.
+                For example, "Voltage" or "Temperature".
+
+            type: The type of this condition. For example, "Upper Limit",
+                "Environment", or "Setup".
+
+            values: The values for this condition across all publishes on the
+                test step. This should be a collection of scalar values that
+                can be converted to the appropriate protobuf vector type.
+
+            step_id: The ID of the step associated with this batch of condition
+                values. This value is expected to be a parsable GUID.
+
+        Returns:
+            PublishedCondition: A shared value for *all* condition measurements
+                present for the specified step, containing:
+                - A moniker for retrieving the condition data (returns a
+                  ScalarArray)
+                - The unique ID of the condition for referencing in queries
+                - Metadata including condition name, type, step ID and test
+                  result ID
+        """
         publish_request = PublishConditionBatchRequest(
             condition_name=condition_name,
             type=type,
