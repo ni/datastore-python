@@ -14,7 +14,11 @@ from ni.measurements.metadata.v1.metadata_store_pb2 import (
 
 
 class SoftwareItem:
-    """Information about a software item."""
+    """Represents the metadata of the software item used to take measurements.
+
+    A software item contains information about the software product and version
+    used during testing.
+    """
 
     __slots__ = (
         "product",

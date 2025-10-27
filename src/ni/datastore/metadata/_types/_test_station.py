@@ -14,7 +14,12 @@ from ni.measurements.metadata.v1.metadata_store_pb2 import (
 
 
 class TestStation:
-    """Information about a test station."""
+    """Represents the metadata of a test station.
+
+    A test station contains information about the physical location or setup
+    where testing is performed, including its name and asset identifier for
+    tracking and inventory purposes.
+    """
 
     __slots__ = (
         "test_station_name",

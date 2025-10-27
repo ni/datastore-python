@@ -14,7 +14,13 @@ from ni.measurements.metadata.v1.metadata_store_pb2 import (
 
 
 class TestAdapter:
-    """Information about a test adapter."""
+    """Represents a test adapter or mechanical setup.
+
+    This is a board or device that is used to hold, connect, or interface the
+    UUT with the test system. Test adapters may also be referred to as test
+    fixtures, interface boards, breakout boxes, mechanical fixtures, or
+    connection adapters.
+    """
 
     __slots__ = (
         "test_adapter_name",

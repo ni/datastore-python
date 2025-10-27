@@ -14,7 +14,11 @@ from ni.measurements.metadata.v1.metadata_store_pb2 import (
 
 
 class Test:
-    """Information about a test."""
+    """Represents the metadata of a test.
+
+    A test contains information about a specific test procedure, including its
+    name and description of what the test does.
+    """
 
     __slots__ = (
         "test_name",

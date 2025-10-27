@@ -8,7 +8,11 @@ from ni.measurements.metadata.v1.metadata_store_pb2 import (
 
 
 class ExtensionSchema:
-    """Information about an extension schema."""
+    """Represents an extension schema stored in the system.
+
+    An extension schema contains the schema ID and the schema definition
+    itself, which can be used to validate extension data in metadata instances.
+    """
 
     __slots__ = (
         "schema_id",
@@ -21,7 +25,13 @@ class ExtensionSchema:
         schema_id: str = "",
         schema: str = "",
     ) -> None:
-        """Initialize an ExtensionSchema instance."""
+        """Initialize an ExtensionSchema instance.
+
+        Args:
+            schema_id: The ID of the schema.
+
+            schema: The schema itself.
+        """
         self.schema_id = schema_id
         self.schema = schema
 

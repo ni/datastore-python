@@ -14,7 +14,12 @@ from ni.measurements.metadata.v1.metadata_store_pb2 import (
 
 
 class UutInstance:
-    """Information about a Unit Under Test (UUT) instance."""
+    """Represents the metadata of a UUT instance.
+
+    A UUT instance represents a specific physical instance of a Unit Under
+    Test, with properties like serial number, manufacture date, and firmware
+    version that distinguish it from other instances of the same UUT model.
+    """
 
     __slots__ = (
         "uut_id",
@@ -44,7 +49,31 @@ class UutInstance:
         extensions: Mapping[str, str] | None = None,
         schema_id: str = "",
     ) -> None:
-        """Initialize a UutInstance instance."""
+        """Initialize a UutInstance instance.
+
+        Args:
+            uut_id: The ID of the UUT associated with this UUT instance. This
+                value is expected to be a parsable GUID or an alias.
+
+            serial_number: The serial number of the UUT instance.
+
+            manufacture_date: The date the UUT instance was manufactured.
+
+            firmware_version: Version of the firmware on the UUT instance.
+
+            hardware_version: Hardware version of the UUT instance.
+
+            link: A link to a resource that describes the UUT instance. This
+                value is expected to be a valid URI.
+
+            extensions: Any extensions to be associated with the UUT instance.
+
+            schema_id: The unique identifier of the schema that applies to this
+                instance's extension. If any extension is associated with this
+                instance, a schema_id must be provided, unless the UUT instance
+                is created within the context of a test result, in which case
+                the test result must have a schema_id.
+        """
         self.uut_id = uut_id
         self.serial_number = serial_number
         self.manufacture_date = manufacture_date

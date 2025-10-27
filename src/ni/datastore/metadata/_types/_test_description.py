@@ -14,7 +14,11 @@ from ni.measurements.metadata.v1.metadata_store_pb2 import (
 
 
 class TestDescription:
-    """Information about a test description."""
+    """Represents the metadata of a test description.
+
+    A test description contains information about a test procedure designed for
+    a specific UUT, including the UUT ID and test description name.
+    """
 
     __slots__ = (
         "uut_id",

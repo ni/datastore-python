@@ -14,7 +14,12 @@ from ni.measurements.metadata.v1.metadata_store_pb2 import (
 
 
 class HardwareItem:
-    """Information about a hardware item."""
+    """Represents the metadata of a hardware item used to take measurements.
+
+    A hardware item contains information about physical test equipment
+    including manufacturer, model, serial number, calibration dates, and asset
+    tracking information.
+    """
 
     __slots__ = (
         "manufacturer",
