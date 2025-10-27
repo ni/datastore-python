@@ -121,7 +121,7 @@ class PublishedMeasurement:
                 PublishedCondition.from_protobuf(cond)
                 for cond in published_measurement_proto.published_conditions
             ],
-            published_measurement_id=published_measurement_proto.published_measurement_id,
+            published_measurement_id=published_measurement_proto.id,
             test_result_id=published_measurement_proto.test_result_id,
             step_id=published_measurement_proto.step_id,
             software_item_ids=published_measurement_proto.software_item_ids,
@@ -156,7 +156,7 @@ class PublishedMeasurement:
             published_conditions=[
                 condition.to_protobuf() for condition in self.published_conditions
             ],
-            published_measurement_id=self.published_measurement_id,
+            id=self.published_measurement_id,
             test_result_id=self.test_result_id,
             step_id=self.step_id,
             software_item_ids=self.software_item_ids,

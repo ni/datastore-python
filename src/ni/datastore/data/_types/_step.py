@@ -86,7 +86,7 @@ class Step:
     def from_protobuf(step_proto: StepProto) -> "Step":
         """Create a Step instance from a protobuf Step message."""
         step = Step(
-            step_id=step_proto.step_id,
+            step_id=step_proto.id,
             parent_step_id=step_proto.parent_step_id,
             test_result_id=step_proto.test_result_id,
             test_id=step_proto.test_id,
@@ -112,7 +112,7 @@ class Step:
     def to_protobuf(self) -> StepProto:
         """Convert this Step to a protobuf Step message."""
         step_proto = StepProto(
-            step_id=self.step_id,
+            id=self.step_id,
             parent_step_id=self.parent_step_id,
             test_result_id=self.test_result_id,
             test_id=self.test_id,

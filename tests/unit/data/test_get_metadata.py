@@ -34,7 +34,7 @@ def test___get_step___calls_data_store_service_client(
     start_time = datetime.now(tz=std_datetime.timezone.utc)
     end_time = datetime.now(tz=std_datetime.timezone.utc)
     step = StepProto(
-        step_id="step_id",
+        id="step_id",
         parent_step_id="parent_step_id",
         test_result_id="test_result",
         test_id="test_id",
@@ -61,7 +61,7 @@ def test___get_test_result___calls_data_store_service_client(
     start_time = datetime.now(tz=std_datetime.timezone.utc)
     end_time = datetime.now(tz=std_datetime.timezone.utc)
     test_result = TestResultProto(
-        test_result_id="test_result_id",
+        id="test_result_id",
         uut_instance_id="uut_instance_id",
         operator_id="operator_id",
         test_station_id="test_station_id",

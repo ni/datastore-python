@@ -121,7 +121,7 @@ class TestResult:
     def from_protobuf(test_result_proto: TestResultProto) -> "TestResult":
         """Create a TestResult instance from a protobuf TestResult message."""
         test_result = TestResult(
-            test_result_id=test_result_proto.test_result_id,
+            test_result_id=test_result_proto.id,
             uut_instance_id=test_result_proto.uut_instance_id,
             operator_id=test_result_proto.operator_id,
             test_station_id=test_result_proto.test_station_id,
@@ -152,7 +152,7 @@ class TestResult:
     def to_protobuf(self) -> TestResultProto:
         """Convert this TestResult to a protobuf TestResult message."""
         test_result_proto = TestResultProto(
-            test_result_id=self.test_result_id,
+            id=self.test_result_id,
             uut_instance_id=self.uut_instance_id,
             operator_id=self.operator_id,
             test_station_id=self.test_station_id,

@@ -239,7 +239,7 @@ def test___get_test_adapter___calls_metadata_store_service_client(
     mocked_metadata_store_service_client: NonCallableMock,
 ) -> None:
     test_adapter = TestAdapterProto(
-        test_adapter_name="test_adapter_name",
+        name="test_adapter_name",
         manufacturer="manufacturer",
         model="model",
         serial_number="serial_number",

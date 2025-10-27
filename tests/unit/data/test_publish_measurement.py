@@ -43,7 +43,7 @@ def test___publish_boolean_data___calls_data_store_service_client(
     value: bool,
 ) -> None:
     timestamp = datetime.now(tz=std_datetime.timezone.utc)
-    published_measurement = PublishedMeasurement(published_measurement_id="response_id")
+    published_measurement = PublishedMeasurement(id="response_id")
     expected_response = PublishMeasurementResponse(published_measurement=published_measurement)
     mocked_data_store_service_client.publish_measurement.return_value = expected_response
 
@@ -88,7 +88,7 @@ def test___publish_analog_waveform_data___calls_data_store_service_client(
     )
     expected_protobuf_waveform = DoubleAnalogWaveform()
     expected_protobuf_waveform.CopyFrom(float64_analog_waveform_to_protobuf(analog_waveform))
-    published_measurement = PublishedMeasurement(published_measurement_id="response_id")
+    published_measurement = PublishedMeasurement(id="response_id")
     expected_response = PublishMeasurementResponse(published_measurement=published_measurement)
     mocked_data_store_service_client.publish_measurement.return_value = expected_response
 
@@ -134,7 +134,7 @@ def test___publish_float64_xydata___calls_data_store_service_client(
     )
     expected_protobuf_xydata = DoubleXYData()
     expected_protobuf_xydata.CopyFrom(float64_xydata_to_protobuf(xydata))
-    published_measurement = PublishedMeasurement(published_measurement_id="response_id")
+    published_measurement = PublishedMeasurement(id="response_id")
     expected_response = PublishMeasurementResponse(published_measurement=published_measurement)
     mocked_data_store_service_client.publish_measurement.return_value = expected_response
 
@@ -160,7 +160,7 @@ def test___publish_basic_iterable_data___calls_data_store_service_client(
     expected_vector = Vector(value)
     expected_protobuf_vector = VectorProto()
     expected_protobuf_vector.CopyFrom(vector_to_protobuf(expected_vector))
-    published_measurement = PublishedMeasurement(published_measurement_id="response_id")
+    published_measurement = PublishedMeasurement(id="response_id")
     expected_response = PublishMeasurementResponse(published_measurement=published_measurement)
     mocked_data_store_service_client.publish_measurement.return_value = expected_response
 
@@ -199,7 +199,7 @@ def test___publish_analog_waveform_data_without_timestamp_parameter___uses_wavef
         raw_data=np.array(waveform_values, dtype=np.float64),
         timing=Timing.create_with_regular_interval(timedelta(seconds=1), timestamp),
     )
-    published_measurement = PublishedMeasurement(published_measurement_id="response_id")
+    published_measurement = PublishedMeasurement(id="response_id")
     publish_measurement_response = PublishMeasurementResponse(
         published_measurement=published_measurement
     )
@@ -219,7 +219,7 @@ def test___publish_analog_waveform_data_without_t0___uses_timestamp_parameter(
 ) -> None:
     timestamp = datetime.now(tz=std_datetime.timezone.utc)
     analog_waveform = AnalogWaveform.from_array_1d([1.0, 2.0, 3.0], dtype=float)
-    published_measurement = PublishedMeasurement(published_measurement_id="response_id")
+    published_measurement = PublishedMeasurement(id="response_id")
     publish_measurement_response = PublishMeasurementResponse(
         published_measurement=published_measurement
     )
@@ -269,7 +269,7 @@ def test___vector___publish_measurement_batch___calls_data_store_service_client(
     mocked_data_store_service_client: NonCallableMock,
 ) -> None:
     timestamp = datetime.now(tz=std_datetime.timezone.utc)
-    published_measurement = PublishedMeasurement(published_measurement_id="response_id")
+    published_measurement = PublishedMeasurement(id="response_id")
     expected_response = PublishMeasurementBatchResponse(
         published_measurements=[published_measurement]
     )
@@ -307,7 +307,7 @@ def test___int_list___publish_measurement_batch___calls_data_store_service_clien
     mocked_data_store_service_client: NonCallableMock,
 ) -> None:
     timestamp = datetime.now(tz=std_datetime.timezone.utc)
-    published_measurement = PublishedMeasurement(published_measurement_id="response_id")
+    published_measurement = PublishedMeasurement(id="response_id")
     expected_response = PublishMeasurementBatchResponse(
         published_measurements=[published_measurement]
     )
@@ -340,7 +340,7 @@ def test___float_list___publish_measurement_batch___calls_data_store_service_cli
     mocked_data_store_service_client: NonCallableMock,
 ) -> None:
     timestamp = datetime.now(tz=std_datetime.timezone.utc)
-    published_measurement = PublishedMeasurement(published_measurement_id="response_id")
+    published_measurement = PublishedMeasurement(id="response_id")
     expected_response = PublishMeasurementBatchResponse(
         published_measurements=[published_measurement]
     )
@@ -373,7 +373,7 @@ def test___bool_list___publish_measurement_batch___calls_data_store_service_clie
     mocked_data_store_service_client: NonCallableMock,
 ) -> None:
     timestamp = datetime.now(tz=std_datetime.timezone.utc)
-    published_measurement = PublishedMeasurement(published_measurement_id="response_id")
+    published_measurement = PublishedMeasurement(id="response_id")
     expected_response = PublishMeasurementBatchResponse(
         published_measurements=[published_measurement]
     )
@@ -406,7 +406,7 @@ def test___str_list___publish_measurement_batch___calls_data_store_service_clien
     mocked_data_store_service_client: NonCallableMock,
 ) -> None:
     timestamp = datetime.now(tz=std_datetime.timezone.utc)
-    published_measurement = PublishedMeasurement(published_measurement_id="response_id")
+    published_measurement = PublishedMeasurement(id="response_id")
     expected_response = PublishMeasurementBatchResponse(
         published_measurements=[published_measurement]
     )

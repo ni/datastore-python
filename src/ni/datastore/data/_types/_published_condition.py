@@ -47,7 +47,7 @@ class PublishedCondition:
                 if published_condition_proto.HasField("moniker")
                 else None
             ),
-            published_condition_id=published_condition_proto.published_condition_id,
+            published_condition_id=published_condition_proto.id,
             condition_name=published_condition_proto.condition_name,
             condition_type=published_condition_proto.condition_type,
             step_id=published_condition_proto.step_id,
@@ -58,7 +58,7 @@ class PublishedCondition:
         """Convert this PublishedCondition instance to a protobuf PublishedCondition message."""
         return PublishedConditionProto(
             moniker=self.moniker,
-            published_condition_id=self.published_condition_id,
+            id=self.published_condition_id,
             condition_name=self.condition_name,
             condition_type=self.condition_type,
             step_id=self.step_id,

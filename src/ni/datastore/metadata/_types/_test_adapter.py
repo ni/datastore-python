@@ -66,7 +66,7 @@ class TestAdapter:
     def from_protobuf(test_adapter_proto: TestAdapterProto) -> "TestAdapter":
         """Create a TestAdapter instance from a protobuf TestAdapter message."""
         test_adapter = TestAdapter(
-            test_adapter_name=test_adapter_proto.test_adapter_name,
+            test_adapter_name=test_adapter_proto.name,
             manufacturer=test_adapter_proto.manufacturer,
             model=test_adapter_proto.model,
             serial_number=test_adapter_proto.serial_number,
@@ -84,7 +84,7 @@ class TestAdapter:
     def to_protobuf(self) -> TestAdapterProto:
         """Convert this TestAdapter to a protobuf TestAdapter message."""
         test_adapter_proto = TestAdapterProto(
-            test_adapter_name=self.test_adapter_name,
+            name=self.test_adapter_name,
             manufacturer=self.manufacturer,
             model=self.model,
             serial_number=self.serial_number,
