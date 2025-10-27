@@ -141,19 +141,42 @@ class MetadataStoreClient:
                 self._metadata_store_client = None
 
     def create_uut_instance(self, uut_instance: UutInstance) -> str:
-        """Create a UUT instance in the metadata store."""
+        """Create a new UUT instance in the metadata store.
+
+        Args:
+            uut_instance: The metadata of the UUT instance to be created.
+
+        Returns:
+            str: The identifier of the created UUT instance.
+        """
         create_request = CreateUutInstanceRequest(uut_instance=uut_instance.to_protobuf())
         create_response = self._get_metadata_store_client().create_uut_instance(create_request)
         return create_response.uut_instance_id
 
     def get_uut_instance(self, uut_instance_id: str) -> UutInstance:
-        """Get a UUT instance from the metadata store."""
+        """Get the UUT instance associated with the given identifier.
+
+        Args:
+            uut_instance_id: The identifier of the desired UUT instance.
+
+        Returns:
+            UutInstance: The metadata of the requested UUT instance.
+        """
         get_request = GetUutInstanceRequest(uut_instance_id=uut_instance_id)
         get_response = self._get_metadata_store_client().get_uut_instance(get_request)
         return UutInstance.from_protobuf(get_response.uut_instance)
 
     def query_uut_instances(self, odata_query: str = "") -> Sequence[UutInstance]:
-        """Query UUT instances from the metadata store."""
+        """Perform an OData query on UUT instances.
+
+        Args:
+            odata_query: An OData query string. Example: "$filter=name eq
+                'Value'". $expand is not supported.
+
+        Returns:
+            Sequence[UutInstance]: The list of UUT instances that match the
+                query.
+        """
         query_request = QueryUutInstancesRequest(odata_query=odata_query)
         query_response = self._get_metadata_store_client().query_uut_instances(query_request)
         return [
@@ -161,37 +184,81 @@ class MetadataStoreClient:
         ]
 
     def create_uut(self, uut: Uut) -> str:
-        """Create a UUT in the metadata store."""
+        """Create a new UUT in the metadata store.
+
+        Args:
+            uut: The metadata of the UUT to be created.
+
+        Returns:
+            str: The identifier of the created UUT.
+        """
         create_request = CreateUutRequest(uut=uut.to_protobuf())
         create_response = self._get_metadata_store_client().create_uut(create_request)
         return create_response.uut_id
 
     def get_uut(self, uut_id: str) -> Uut:
-        """Get a UUT from the metadata store."""
+        """Get the UUT associated with the given identifier.
+
+        Args:
+            uut_id: The identifier of the desired UUT.
+
+        Returns:
+            Uut: The metadata of the requested UUT.
+        """
         get_request = GetUutRequest(uut_id=uut_id)
         get_response = self._get_metadata_store_client().get_uut(get_request)
         return Uut.from_protobuf(get_response.uut)
 
     def query_uuts(self, odata_query: str = "") -> Sequence[Uut]:
-        """Query UUTs from the metadata store."""
+        """Perform an OData query on UUTs.
+
+        Args:
+            odata_query: An OData query string. Example: "$filter=name eq
+                'Value'". $expand is not supported.
+
+        Returns:
+            Sequence[Uut]: The list of UUTs that match the query.
+        """
         query_request = QueryUutsRequest(odata_query=odata_query)
         query_response = self._get_metadata_store_client().query_uuts(query_request)
         return [Uut.from_protobuf(uut) for uut in query_response.uuts]
 
     def create_operator(self, operator: Operator) -> str:
-        """Create an operator in the metadata store."""
+        """Create a new operator in the metadata store.
+
+        Args:
+            operator: The metadata of the operator to be created.
+
+        Returns:
+            str: The identifier of the created operator.
+        """
         create_request = CreateOperatorRequest(operator=operator.to_protobuf())
         create_response = self._get_metadata_store_client().create_operator(create_request)
         return create_response.operator_id
 
     def get_operator(self, operator_id: str) -> Operator:
-        """Get an operator from the metadata store."""
+        """Get the operator associated with the given identifier.
+
+        Args:
+            operator_id: The identifier of the desired operator.
+
+        Returns:
+            Operator: The metadata of the requested operator.
+        """
         get_request = GetOperatorRequest(operator_id=operator_id)
         get_response = self._get_metadata_store_client().get_operator(get_request)
         return Operator.from_protobuf(get_response.operator)
 
     def query_operators(self, odata_query: str = "") -> Sequence[Operator]:
-        """Query operators from the metadata store."""
+        """Perform an OData query on operators.
+
+        Args:
+            odata_query: An OData query string. Example: "$filter=name eq
+                'Value'". $expand is not supported.
+
+        Returns:
+            Sequence[Operator]: The list of operators that match the query.
+        """
         query_request = QueryOperatorsRequest(odata_query=odata_query)
         query_response = self._get_metadata_store_client().query_operators(query_request)
         return [Operator.from_protobuf(operator) for operator in query_response.operators]
@@ -340,15 +407,27 @@ class MetadataStoreClient:
     def register_schema(self, schema_contents: str) -> str:
         """Register a schema in the metadata store.
 
+        Once a schema has been published, it cannot be modified or removed.
+
         Args:
-            schema_contents: The contents of the schema to register
+            schema_contents: The contents of the JSON or TOML schema. This
+                should be a well-formed JSON or TOML schema. Validation will
+                be performed, and an error will be returned if the schema is
+                not valid.
+
+        Returns:
+            str: The ID of the schema.
         """
         register_request = RegisterSchemaRequest(schema=schema_contents)
         register_response = self._get_metadata_store_client().register_schema(register_request)
         return register_response.schema_id
 
     def list_schemas(self) -> Sequence[ExtensionSchema]:
-        """List all schemas in the metadata store."""
+        """List the schemas that have been previously registered.
+
+        Returns:
+            Sequence[ExtensionSchema]: The list of registered schemas.
+        """
         list_request = ListSchemasRequest()
         list_response = self._get_metadata_store_client().list_schemas(list_request)
         return [ExtensionSchema.from_protobuf(schema) for schema in list_response.schemas]
@@ -368,7 +447,24 @@ class MetadataStoreClient:
             | TestStation
         ),
     ) -> Alias:
-        """Create an alias in the metadata store."""
+        """Create (register) an alias of the specified metadata.
+
+        The specified metadata must have already been created prior to the
+        alias registration. This method may be called with an already
+        registered alias name in order to update the target mapped for that
+        existing alias.
+
+        Args:
+            alias_name: The alias name to register.
+
+            alias_target: The metadata instance to alias. The metadata
+                instance to alias must have already been created in the
+                metadata store in order to register an alias for it.
+
+        Returns:
+            Alias: The created alias containing the alias name, target type,
+                and target ID.
+        """
         create_request = CreateAliasRequest(alias_name=alias_name)
         if isinstance(alias_target, UutInstance):
             create_request.uut_instance.CopyFrom(alias_target.to_protobuf())
@@ -392,19 +488,43 @@ class MetadataStoreClient:
         return Alias.from_protobuf(response.alias)
 
     def get_alias(self, alias_name: str) -> Alias:
-        """Get an alias from the metadata store."""
+        """Get an alias and its target (the underlying metadata it represents).
+
+        Args:
+            alias_name: The name of the alias to retrieve.
+
+        Returns:
+            Alias: The alias containing the alias name, target type, and
+                target ID of the underlying metadata.
+        """
         get_request = GetAliasRequest(alias_name=alias_name)
         get_response = self._get_metadata_store_client().get_alias(get_request)
         return Alias.from_protobuf(get_response.alias)
 
     def delete_alias(self, alias_name: str) -> bool:
-        """Delete an alias from the metadata store."""
+        """Remove a registered alias.
+
+        Args:
+            alias_name: The name of the alias to unregister.
+
+        Returns:
+            bool: Whether the action resulted in the specified alias becoming
+                unregistered. False if the alias does not exist.
+        """
         delete_request = DeleteAliasRequest(alias_name=alias_name)
         delete_response = self._get_metadata_store_client().delete_alias(delete_request)
         return delete_response.unregistered
 
     def query_aliases(self, odata_query: str = "") -> Sequence[Alias]:
-        """Query aliases from the metadata store."""
+        """Perform an OData query on the registered aliases.
+
+        Args:
+            odata_query: An OData query string. Example: "$filter=name eq
+                'Value'". $expand is not supported.
+
+        Returns:
+            Sequence[Alias]: The list of aliases that match the query.
+        """
         query_request = QueryAliasesRequest(odata_query=odata_query)
         query_response = self._get_metadata_store_client().query_aliases(query_request)
         return [Alias.from_protobuf(alias) for alias in query_response.aliases]
