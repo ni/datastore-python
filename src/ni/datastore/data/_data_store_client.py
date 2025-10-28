@@ -44,6 +44,7 @@ from ni.measurements.data.v1.data_store_service_pb2 import (
     QueryConditionsRequest,
     QueryMeasurementsRequest,
     QueryStepsRequest,
+    QueryTestResultsRequest,
 )
 from ni.protobuf.types.precision_timestamp_conversion import (
     hightime_datetime_to_protobuf,
@@ -310,6 +311,14 @@ class DataStoreClient:
         return [
             PublishedMeasurement.from_protobuf(published_measurement)
             for published_measurement in query_response.published_measurements
+        ]
+
+    def query_test_results(self, odata_query: str = "") -> Sequence[TestResult]:
+        """Query test results from the data store."""
+        query_request = QueryTestResultsRequest(odata_query=odata_query)
+        query_response = self._get_data_store_client().query_test_results(query_request)
+        return [
+            TestResult.from_protobuf(test_result) for test_result in query_response.test_results
         ]
 
     def query_steps(self, odata_query: str = "") -> Sequence[Step]:

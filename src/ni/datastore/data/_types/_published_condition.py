@@ -13,7 +13,7 @@ class PublishedCondition:
 
     __slots__ = (
         "moniker",
-        "published_condition_id",
+        "id",
         "condition_name",
         "condition_type",
         "step_id",
@@ -24,7 +24,7 @@ class PublishedCondition:
         self,
         *,
         moniker: Moniker | None = None,
-        published_condition_id: str = "",
+        id: str = "",
         condition_name: str = "",
         condition_type: str = "",
         step_id: str = "",
@@ -32,7 +32,7 @@ class PublishedCondition:
     ) -> None:
         """Initialize a PublishedCondition instance."""
         self.moniker = moniker
-        self.published_condition_id = published_condition_id
+        self.id = id
         self.condition_name = condition_name
         self.condition_type = condition_type
         self.step_id = step_id
@@ -47,7 +47,7 @@ class PublishedCondition:
                 if published_condition_proto.HasField("moniker")
                 else None
             ),
-            published_condition_id=published_condition_proto.published_condition_id,
+            id=published_condition_proto.id,
             condition_name=published_condition_proto.condition_name,
             condition_type=published_condition_proto.condition_type,
             step_id=published_condition_proto.step_id,
@@ -58,7 +58,7 @@ class PublishedCondition:
         """Convert this PublishedCondition instance to a protobuf PublishedCondition message."""
         return PublishedConditionProto(
             moniker=self.moniker,
-            published_condition_id=self.published_condition_id,
+            id=self.id,
             condition_name=self.condition_name,
             condition_type=self.condition_type,
             step_id=self.step_id,
@@ -71,7 +71,7 @@ class PublishedCondition:
             return NotImplemented
         return (
             self.moniker == other.moniker
-            and self.published_condition_id == other.published_condition_id
+            and self.id == other.id
             and self.condition_name == other.condition_name
             and self.condition_type == other.condition_type
             and self.step_id == other.step_id

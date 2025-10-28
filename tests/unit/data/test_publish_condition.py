@@ -21,7 +21,7 @@ def test___publish_condition___calls_data_store_service_client(
     data_store_client: DataStoreClient,
     mocked_data_store_service_client: NonCallableMock,
 ) -> None:
-    published_condition = PublishedCondition(published_condition_id="response_id")
+    published_condition = PublishedCondition(id="response_id")
     expected_response = PublishConditionResponse(published_condition=published_condition)
     mocked_data_store_service_client.publish_condition.return_value = expected_response
 
@@ -34,7 +34,7 @@ def test___publish_condition___calls_data_store_service_client(
 
     args, __ = mocked_data_store_service_client.publish_condition.call_args
     request = cast(PublishConditionRequest, args[0])
-    assert result.published_condition_id == "response_id"
+    assert result.id == "response_id"
     assert request.step_id == "MyStep"
     assert request.condition_name == "TestCondition"
     assert request.type == "ConditionType"
@@ -59,7 +59,7 @@ def test___vector___publish_condition_batch___calls_data_store_service_client(
     data_store_client: DataStoreClient,
     mocked_data_store_service_client: NonCallableMock,
 ) -> None:
-    published_condition = PublishedCondition(published_condition_id="response_id")
+    published_condition = PublishedCondition(id="response_id")
     expected_response = PublishConditionBatchResponse(published_condition=published_condition)
     mocked_data_store_service_client.publish_condition_batch.return_value = expected_response
 
@@ -72,7 +72,7 @@ def test___vector___publish_condition_batch___calls_data_store_service_client(
 
     args, __ = mocked_data_store_service_client.publish_condition_batch.call_args
     request = cast(PublishConditionBatchRequest, args[0])
-    assert result.published_condition_id == "response_id"
+    assert result.id == "response_id"
     assert request.step_id == "MyStep"
     assert request.condition_name == "TestCondition"
     assert request.type == "ConditionType"
@@ -84,7 +84,7 @@ def test___int_list___publish_condition_batch___calls_data_store_service_client(
     data_store_client: DataStoreClient,
     mocked_data_store_service_client: NonCallableMock,
 ) -> None:
-    published_condition = PublishedCondition(published_condition_id="response_id")
+    published_condition = PublishedCondition(id="response_id")
     expected_response = PublishConditionBatchResponse(published_condition=published_condition)
     mocked_data_store_service_client.publish_condition_batch.return_value = expected_response
 
@@ -97,7 +97,7 @@ def test___int_list___publish_condition_batch___calls_data_store_service_client(
 
     args, __ = mocked_data_store_service_client.publish_condition_batch.call_args
     request = cast(PublishConditionBatchRequest, args[0])
-    assert result.published_condition_id == "response_id"
+    assert result.id == "response_id"
     assert list(request.scalar_values.sint32_array.values) == [1, 2, 3]
     assert request.scalar_values.attributes["NI_UnitDescription"].string_value == ""
 
@@ -106,7 +106,7 @@ def test___float_list___publish_condition_batch___calls_data_store_service_clien
     data_store_client: DataStoreClient,
     mocked_data_store_service_client: NonCallableMock,
 ) -> None:
-    published_condition = PublishedCondition(published_condition_id="response_id")
+    published_condition = PublishedCondition(id="response_id")
     expected_response = PublishConditionBatchResponse(published_condition=published_condition)
     mocked_data_store_service_client.publish_condition_batch.return_value = expected_response
 
@@ -119,7 +119,7 @@ def test___float_list___publish_condition_batch___calls_data_store_service_clien
 
     args, __ = mocked_data_store_service_client.publish_condition_batch.call_args
     request = cast(PublishConditionBatchRequest, args[0])
-    assert result.published_condition_id == "response_id"
+    assert result.id == "response_id"
     assert list(request.scalar_values.double_array.values) == [1.0, 2.0, 3.0]
     assert request.scalar_values.attributes["NI_UnitDescription"].string_value == ""
 
@@ -128,7 +128,7 @@ def test___bool_list___publish_condition_batch___calls_data_store_service_client
     data_store_client: DataStoreClient,
     mocked_data_store_service_client: NonCallableMock,
 ) -> None:
-    published_condition = PublishedCondition(published_condition_id="response_id")
+    published_condition = PublishedCondition(id="response_id")
     expected_response = PublishConditionBatchResponse(published_condition=published_condition)
     mocked_data_store_service_client.publish_condition_batch.return_value = expected_response
 
@@ -141,7 +141,7 @@ def test___bool_list___publish_condition_batch___calls_data_store_service_client
 
     args, __ = mocked_data_store_service_client.publish_condition_batch.call_args
     request = cast(PublishConditionBatchRequest, args[0])
-    assert result.published_condition_id == "response_id"
+    assert result.id == "response_id"
     assert list(request.scalar_values.bool_array.values) == [True, False, True]
     assert request.scalar_values.attributes["NI_UnitDescription"].string_value == ""
 
@@ -150,7 +150,7 @@ def test___string_list___publish_condition_batch___calls_data_store_service_clie
     data_store_client: DataStoreClient,
     mocked_data_store_service_client: NonCallableMock,
 ) -> None:
-    published_condition = PublishedCondition(published_condition_id="response_id")
+    published_condition = PublishedCondition(id="response_id")
     expected_response = PublishConditionBatchResponse(published_condition=published_condition)
     mocked_data_store_service_client.publish_condition_batch.return_value = expected_response
 
@@ -163,7 +163,7 @@ def test___string_list___publish_condition_batch___calls_data_store_service_clie
 
     args, __ = mocked_data_store_service_client.publish_condition_batch.call_args
     request = cast(PublishConditionBatchRequest, args[0])
-    assert result.published_condition_id == "response_id"
+    assert result.id == "response_id"
     assert list(request.scalar_values.string_array.values) == ["one", "two", "three"]
     assert request.scalar_values.attributes["NI_UnitDescription"].string_value == ""
 

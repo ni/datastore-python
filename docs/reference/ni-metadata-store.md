@@ -8,6 +8,7 @@ The NI Metadata Store supports the digital thread weaving together measurement r
 An **Operator** represents a person who performs tests or operates test equipment. This captures the human element in your test process.
 
 **Fields:**
+- `id` (string) - The id of the operator
 - `operator_name` (string) - The name of the operator
 - `role` (string) - The role of the operator (e.g., "Test Engineer", "Lab Technician")
 - `link` (string) - URI to resource describing the operator
@@ -25,6 +26,7 @@ Each operator has a role (e.g., "Test Engineer", "Lab Technician", "Quality Insp
 A **Test Station** represents a physical location or setup where testing is performed. This could be a bench, rack, or dedicated test system.
 
 **Fields:**
+- `id` (string) - The id of the test station
 - `test_station_name` (string) - The name of the test station
 - `asset_identifier` (string) - For tracking and inventory purposes
 - `link` (string) - URI to resource describing the test station
@@ -43,6 +45,7 @@ Test stations help track where tests were performed, enabling analysis of statio
 A **UUT** represents a product definition or model being tested. This is the "what" - the type of device or product under test.
 
 **Fields:**
+- `id` (string) - The id of the UUT
 - `model_name` (string) - The name of the UUT model
 - `family` (string) - The UUT family or category
 - `manufacturers` (list of strings) - List of manufacturers of the UUT
@@ -63,6 +66,7 @@ UUTs represent the product designs, while UUT instances represent individual phy
 A **UUT Instance** represents an individual physical device with a unique serial number. This is a specific unit of the UUT model being tested.
 
 **Fields:**
+- `id` (string) - The id of the UUT instance
 - `uut_id` (string) - The ID of the UUT associated with this instance (GUID or alias)
 - `serial_number` (string) - The serial number of the UUT instance
 - `asset_identifier` (string) - For tracking and inventory purposes
@@ -82,6 +86,7 @@ Each UUT instance tracks the test history for that specific physical device thro
 A **Hardware Item** represents test equipment, instruments, or tools used during testing. This captures what physical equipment was involved in generating the measurements.
 
 **Fields:**
+- `id` (string) - The id of the hardware item
 - `manufacturer` (string) - The vendor of the hardware item
 - `model` (string) - The name/model number of the hardware item
 - `serial_number` (string) - Unique serial number for tracking
@@ -104,6 +109,7 @@ Hardware items include calibration information and help ensure measurement trace
 A **Software Item** represents software tools, environments, or versions used during testing. This captures the software context that could affect test results.
 
 **Fields:**
+- `id` (string) - The id of the software item
 - `product` (string) - The software product name (letters, numbers, spaces, hyphens, underscores, parentheses, periods; must begin and end with letter or number)
 - `version` (string) - The version of the software item
 - `link` (string) - URI to resource describing the software item
@@ -123,6 +129,7 @@ Software items help identify if software changes affected test results or reprod
 A **Test Description** represents a defined test procedure or specification for testing a particular UUT. This defines what tests should be performed.
 
 **Fields:**
+- `id` (string) - The id of the test description
 - `uut_id` (string) - The ID of the UUT this test is designed for
 - `test_description_name` (string) - Name of the test description
 - `link` (string) - URI to resource describing the test description
@@ -139,6 +146,7 @@ A **Test Description** represents a defined test procedure or specification for 
 A **Test** represents an individual test procedure or method. This is more granular than a test description and describes specific test steps.
 
 **Fields:**
+- `id` (string) - The id of the test
 - `test_name` (string) - Name of the test
 - `description` (string) - Explanation of what the test does
 - `link` (string) - URI to resource describing the test
@@ -155,7 +163,8 @@ A **Test** represents an individual test procedure or method. This is more granu
 A **Test Adapter** represents a test fixture, mechanical setup, or interface used to hold, connect, or interface the UUT with the test system.
 
 **Fields:**
-- `test_adapter_name` (string) - Name or label for the adapter
+- `id` (string) - The id of the test adapter
+- `name` (string) - Name or label for the adapter
 - `manufacturer` (string) - Vendor of the adapter
 - `model` (string) - Model number or name
 - `serial_number` (string) - Unique serial number
