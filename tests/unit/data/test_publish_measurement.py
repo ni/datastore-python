@@ -62,7 +62,7 @@ def test___publish_boolean_data___calls_data_store_service_client(
 
     args, __ = mocked_data_store_service_client.publish_measurement.call_args
     request = args[0]  # The PublishMeasurementRequest object
-    assert result.published_measurement_id == "response_id"
+    assert result.id == "response_id"
     assert request.step_id == "step_id"
     assert request.measurement_name == "name"
     assert request.notes == "notes"
@@ -108,7 +108,7 @@ def test___publish_analog_waveform_data___calls_data_store_service_client(
 
     args, __ = mocked_data_store_service_client.publish_measurement.call_args
     request = cast(PublishMeasurementRequest, args[0])  # The PublishMeasurementRequest object
-    assert result.published_measurement_id == "response_id"
+    assert result.id == "response_id"
     assert request.step_id == "step_id"
     assert request.measurement_name == "name"
     assert request.notes == "notes"
@@ -143,7 +143,7 @@ def test___publish_float64_xydata___calls_data_store_service_client(
 
     args, __ = mocked_data_store_service_client.publish_measurement.call_args
     request = cast(PublishMeasurementRequest, args[0])  # The PublishMeasurementRequest object
-    assert result.published_measurement_id == "response_id"
+    assert result.id == "response_id"
     assert request.step_id == "step_id"
     assert request.measurement_name == "name"
     assert request.x_y_data == expected_protobuf_xydata
@@ -169,7 +169,7 @@ def test___publish_basic_iterable_data___calls_data_store_service_client(
 
     args, __ = mocked_data_store_service_client.publish_measurement.call_args
     request = cast(PublishMeasurementRequest, args[0])  # The PublishMeasurementRequest object
-    assert result.published_measurement_id == "response_id"
+    assert result.id == "response_id"
     assert request.step_id == "step_id"
     assert request.measurement_name == "name"
     assert request.vector == expected_protobuf_vector
@@ -209,7 +209,7 @@ def test___publish_analog_waveform_data_without_timestamp_parameter___uses_wavef
 
     args, __ = mocked_data_store_service_client.publish_measurement.call_args
     request = cast(PublishMeasurementRequest, args[0])  # The PublishMeasurementRequest object
-    assert result.published_measurement_id == "response_id"
+    assert result.id == "response_id"
     assert request.timestamp == hightime_datetime_to_protobuf(timestamp)
 
 
@@ -229,7 +229,7 @@ def test___publish_analog_waveform_data_without_t0___uses_timestamp_parameter(
 
     args, __ = mocked_data_store_service_client.publish_measurement.call_args
     request = cast(PublishMeasurementRequest, args[0])  # The PublishMeasurementRequest object
-    assert result.published_measurement_id == "response_id"
+    assert result.id == "response_id"
     assert request.timestamp == hightime_datetime_to_protobuf(timestamp)
 
 
@@ -289,7 +289,7 @@ def test___vector___publish_measurement_batch___calls_data_store_service_client(
 
     args, __ = mocked_data_store_service_client.publish_measurement_batch.call_args
     request = cast(PublishMeasurementBatchRequest, args[0])
-    assert next(iter(response)).published_measurement_id == "response_id"
+    assert next(iter(response)).id == "response_id"
     assert request.step_id == "step_id"
     assert request.measurement_name == "name"
     assert request.timestamp == [hightime_datetime_to_protobuf(timestamp)]
@@ -327,7 +327,7 @@ def test___int_list___publish_measurement_batch___calls_data_store_service_clien
 
     args, __ = mocked_data_store_service_client.publish_measurement_batch.call_args
     request = cast(PublishMeasurementBatchRequest, args[0])
-    assert next(iter(response)).published_measurement_id == "response_id"
+    assert next(iter(response)).id == "response_id"
     assert request.step_id == "step_id"
     assert request.measurement_name == "name"
     assert request.timestamp == [hightime_datetime_to_protobuf(timestamp)]
@@ -360,7 +360,7 @@ def test___float_list___publish_measurement_batch___calls_data_store_service_cli
 
     args, __ = mocked_data_store_service_client.publish_measurement_batch.call_args
     request = cast(PublishMeasurementBatchRequest, args[0])
-    assert next(iter(response)).published_measurement_id == "response_id"
+    assert next(iter(response)).id == "response_id"
     assert request.step_id == "step_id"
     assert request.measurement_name == "name"
     assert request.timestamp == [hightime_datetime_to_protobuf(timestamp)]
@@ -393,7 +393,7 @@ def test___bool_list___publish_measurement_batch___calls_data_store_service_clie
 
     args, __ = mocked_data_store_service_client.publish_measurement_batch.call_args
     request = cast(PublishMeasurementBatchRequest, args[0])
-    assert next(iter(response)).published_measurement_id == "response_id"
+    assert next(iter(response)).id == "response_id"
     assert request.step_id == "step_id"
     assert request.measurement_name == "name"
     assert request.timestamp == [hightime_datetime_to_protobuf(timestamp)]
@@ -426,7 +426,7 @@ def test___str_list___publish_measurement_batch___calls_data_store_service_clien
 
     args, __ = mocked_data_store_service_client.publish_measurement_batch.call_args
     request = cast(PublishMeasurementBatchRequest, args[0])
-    assert next(iter(response)).published_measurement_id == "response_id"
+    assert next(iter(response)).id == "response_id"
     assert request.step_id == "step_id"
     assert request.measurement_name == "name"
     assert request.timestamp == [hightime_datetime_to_protobuf(timestamp)]

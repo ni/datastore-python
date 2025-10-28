@@ -23,7 +23,7 @@ class TestResult:
     """Information about a test result."""
 
     __slots__ = (
-        "test_result_id",
+        "_id",
         "uut_instance_id",
         "operator_id",
         "test_station_id",
@@ -75,10 +75,15 @@ class TestResult:
         """The extensions of the test result."""
         return self._extensions
 
+    @property
+    def id(self) -> str:
+        """The id string associated with the test result."""
+        return self._id
+
     def __init__(
         self,
         *,
-        test_result_id: str = "",
+        id: str = "",
         uut_instance_id: str = "",
         operator_id: str = "",
         test_station_id: str = "",
@@ -92,7 +97,7 @@ class TestResult:
         schema_id: str = "",
     ) -> None:
         """Initialize a TestResult instance."""
-        self.test_result_id = test_result_id
+        self._id = id
         self.uut_instance_id = uut_instance_id
         self.operator_id = operator_id
         self.test_station_id = test_station_id
@@ -121,7 +126,7 @@ class TestResult:
     def from_protobuf(test_result_proto: TestResultProto) -> "TestResult":
         """Create a TestResult instance from a protobuf TestResult message."""
         test_result = TestResult(
-            test_result_id=test_result_proto.id,
+            id=test_result_proto.id,
             uut_instance_id=test_result_proto.uut_instance_id,
             operator_id=test_result_proto.operator_id,
             test_station_id=test_result_proto.test_station_id,
@@ -152,7 +157,7 @@ class TestResult:
     def to_protobuf(self) -> TestResultProto:
         """Convert this TestResult to a protobuf TestResult message."""
         test_result_proto = TestResultProto(
-            id=self.test_result_id,
+            id=self.id,
             uut_instance_id=self.uut_instance_id,
             operator_id=self.operator_id,
             test_station_id=self.test_station_id,
@@ -181,7 +186,7 @@ class TestResult:
         if not isinstance(other, TestResult):
             return NotImplemented
         return (
-            self.test_result_id == other.test_result_id
+            self.id == other.id
             and self.uut_instance_id == other.uut_instance_id
             and self.operator_id == other.operator_id
             and self.test_station_id == other.test_station_id

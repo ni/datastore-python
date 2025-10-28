@@ -24,7 +24,7 @@ class PublishedMeasurement:
     __slots__ = (
         "moniker",
         "_published_conditions",
-        "published_measurement_id",
+        "_id",
         "test_result_id",
         "step_id",
         "_software_item_ids",
@@ -60,12 +60,17 @@ class PublishedMeasurement:
         """The test adapter IDs associated with the published measurement."""
         return self._test_adapter_ids
 
+    @property
+    def id(self) -> str:
+        """The id string associated with the published measurement."""
+        return self._id
+
     def __init__(
         self,
         *,
         moniker: Moniker | None = None,
         published_conditions: Iterable[PublishedCondition] | None = None,
-        published_measurement_id: str = "",
+        id: str = "",
         test_result_id: str = "",
         step_id: str = "",
         software_item_ids: Iterable[str] | None = None,
@@ -85,7 +90,7 @@ class PublishedMeasurement:
         self._published_conditions: MutableSequence[PublishedCondition] = (
             list(published_conditions) if published_conditions is not None else []
         )
-        self.published_measurement_id = published_measurement_id
+        self._id = id
         self.test_result_id = test_result_id
         self.step_id = step_id
         self._software_item_ids: MutableSequence[str] = (
@@ -121,7 +126,7 @@ class PublishedMeasurement:
                 PublishedCondition.from_protobuf(cond)
                 for cond in published_measurement_proto.published_conditions
             ],
-            published_measurement_id=published_measurement_proto.id,
+            id=published_measurement_proto.id,
             test_result_id=published_measurement_proto.test_result_id,
             step_id=published_measurement_proto.step_id,
             software_item_ids=published_measurement_proto.software_item_ids,
@@ -156,7 +161,7 @@ class PublishedMeasurement:
             published_conditions=[
                 condition.to_protobuf() for condition in self.published_conditions
             ],
-            id=self.published_measurement_id,
+            id=self.id,
             test_result_id=self.test_result_id,
             step_id=self.step_id,
             software_item_ids=self.software_item_ids,
@@ -187,7 +192,7 @@ class PublishedMeasurement:
         return (
             self.moniker == other.moniker
             and self.published_conditions == other.published_conditions
-            and self.published_measurement_id == other.published_measurement_id
+            and self.id == other.id
             and self.test_result_id == other.test_result_id
             and self.step_id == other.step_id
             and self.software_item_ids == other.software_item_ids

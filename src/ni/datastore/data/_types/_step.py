@@ -22,7 +22,7 @@ class Step:
     """Information about a step into which measurements and conditions are published."""
 
     __slots__ = (
-        "step_id",
+        "_id",
         "parent_step_id",
         "test_result_id",
         "test_id",
@@ -51,10 +51,15 @@ class Step:
         """The extensions of the step."""
         return self._extensions
 
+    @property
+    def id(self) -> str:
+        """The id string associated with the step."""
+        return self._id
+
     def __init__(
         self,
         *,
-        step_id: str = "",
+        id: str = "",
         parent_step_id: str = "",
         test_result_id: str = "",
         test_id: str = "",
@@ -66,7 +71,7 @@ class Step:
         schema_id: str = "",
     ) -> None:
         """Initialize a Step instance."""
-        self.step_id = step_id
+        self._id = id
         self.parent_step_id = parent_step_id
         self.test_result_id = test_result_id
         self.test_id = test_id
@@ -86,7 +91,7 @@ class Step:
     def from_protobuf(step_proto: StepProto) -> "Step":
         """Create a Step instance from a protobuf Step message."""
         step = Step(
-            step_id=step_proto.id,
+            id=step_proto.id,
             parent_step_id=step_proto.parent_step_id,
             test_result_id=step_proto.test_result_id,
             test_id=step_proto.test_id,
@@ -112,7 +117,7 @@ class Step:
     def to_protobuf(self) -> StepProto:
         """Convert this Step to a protobuf Step message."""
         step_proto = StepProto(
-            id=self.step_id,
+            id=self.id,
             parent_step_id=self.parent_step_id,
             test_result_id=self.test_result_id,
             test_id=self.test_id,
@@ -138,7 +143,7 @@ class Step:
         if not isinstance(other, Step):
             return NotImplemented
         return (
-            self.step_id == other.step_id
+            self.id == other.id
             and self.parent_step_id == other.parent_step_id
             and self.test_result_id == other.test_result_id
             and self.test_id == other.test_id
