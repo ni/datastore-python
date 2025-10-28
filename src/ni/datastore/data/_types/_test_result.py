@@ -23,7 +23,7 @@ class TestResult:
     """Information about a test result."""
 
     __slots__ = (
-        "_id",
+        "id",
         "uut_instance_id",
         "operator_id",
         "test_station_id",
@@ -75,11 +75,6 @@ class TestResult:
         """The extensions of the test result."""
         return self._extensions
 
-    @property
-    def id(self) -> str:
-        """The id string associated with the test result."""
-        return self._id
-
     def __init__(
         self,
         *,
@@ -97,7 +92,7 @@ class TestResult:
         schema_id: str = "",
     ) -> None:
         """Initialize a TestResult instance."""
-        self._id = id
+        self.id = id
         self.uut_instance_id = uut_instance_id
         self.operator_id = operator_id
         self.test_station_id = test_station_id

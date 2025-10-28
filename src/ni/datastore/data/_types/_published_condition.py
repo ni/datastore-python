@@ -13,17 +13,12 @@ class PublishedCondition:
 
     __slots__ = (
         "moniker",
-        "_id",
+        "id",
         "condition_name",
         "condition_type",
         "step_id",
         "test_result_id",
     )
-
-    @property
-    def id(self) -> str:
-        """The id string associated with the published condition."""
-        return self._id
 
     def __init__(
         self,
@@ -37,7 +32,7 @@ class PublishedCondition:
     ) -> None:
         """Initialize a PublishedCondition instance."""
         self.moniker = moniker
-        self._id = id
+        self.id = id
         self.condition_name = condition_name
         self.condition_type = condition_type
         self.step_id = step_id

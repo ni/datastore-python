@@ -24,7 +24,7 @@ class PublishedMeasurement:
     __slots__ = (
         "moniker",
         "_published_conditions",
-        "_id",
+        "id",
         "test_result_id",
         "step_id",
         "_software_item_ids",
@@ -60,11 +60,6 @@ class PublishedMeasurement:
         """The test adapter IDs associated with the published measurement."""
         return self._test_adapter_ids
 
-    @property
-    def id(self) -> str:
-        """The id string associated with the published measurement."""
-        return self._id
-
     def __init__(
         self,
         *,
@@ -90,7 +85,7 @@ class PublishedMeasurement:
         self._published_conditions: MutableSequence[PublishedCondition] = (
             list(published_conditions) if published_conditions is not None else []
         )
-        self._id = id
+        self.id = id
         self.test_result_id = test_result_id
         self.step_id = step_id
         self._software_item_ids: MutableSequence[str] = (

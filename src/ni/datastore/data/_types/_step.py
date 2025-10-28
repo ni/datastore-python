@@ -22,7 +22,7 @@ class Step:
     """Information about a step into which measurements and conditions are published."""
 
     __slots__ = (
-        "_id",
+        "id",
         "parent_step_id",
         "test_result_id",
         "test_id",
@@ -51,11 +51,6 @@ class Step:
         """The extensions of the step."""
         return self._extensions
 
-    @property
-    def id(self) -> str:
-        """The id string associated with the step."""
-        return self._id
-
     def __init__(
         self,
         *,
@@ -71,7 +66,7 @@ class Step:
         schema_id: str = "",
     ) -> None:
         """Initialize a Step instance."""
-        self._id = id
+        self.id = id
         self.parent_step_id = parent_step_id
         self.test_result_id = test_result_id
         self.test_id = test_id
