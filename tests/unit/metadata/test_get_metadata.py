@@ -55,6 +55,7 @@ def test___get_uut_instance___calls_metadata_store_service_client(
     mocked_metadata_store_service_client: NonCallableMock,
 ) -> None:
     uut_instance = UutInstanceProto(
+        id="uut_instance_id",
         uut_id="uut_id",
         serial_number="serial_number",
         manufacture_date="manufacture_date",
@@ -80,6 +81,7 @@ def test___get_uut___calls_metadata_store_service_client(
     mocked_metadata_store_service_client: NonCallableMock,
 ) -> None:
     uut = UutProto(
+        id="uut_id",
         model_name="model_name",
         family="family",
         manufacturers=None,
@@ -104,6 +106,7 @@ def test___get_operator___calls_metadata_store_service_client(
     mocked_metadata_store_service_client: NonCallableMock,
 ) -> None:
     operator = OperatorProto(
+        id="operator_id",
         operator_name="operator_name",
         role="role",
         link="link",
@@ -126,6 +129,7 @@ def test___get_test_description___calls_metadata_store_service_client(
     mocked_metadata_store_service_client: NonCallableMock,
 ) -> None:
     test_description = TestDescriptionProto(
+        id="test_description_id",
         uut_id="uut_id",
         test_description_name="test_description_name",
         link="link",
@@ -148,6 +152,7 @@ def test___get_test___calls_metadata_store_service_client(
     mocked_metadata_store_service_client: NonCallableMock,
 ) -> None:
     test = TestProto(
+        id="test_id",
         test_name="test_name",
         description="description",
         extensions=None,
@@ -169,6 +174,7 @@ def test___get_test_station___calls_metadata_store_service_client(
     mocked_metadata_store_service_client: NonCallableMock,
 ) -> None:
     test_station = TestStationProto(
+        id="test_station_id",
         test_station_name="test_station_name",
         asset_identifier="asset_identifier",
         link="link",
@@ -191,6 +197,7 @@ def test___get_hardware_item___calls_metadata_store_service_client(
     mocked_metadata_store_service_client: NonCallableMock,
 ) -> None:
     hardware_item = HardwareItemProto(
+        id="hardware_item_id",
         manufacturer="manufacturer",
         model="model",
         serial_number="serial_number",
@@ -217,6 +224,7 @@ def test___get_software_item___calls_metadata_store_service_client(
     mocked_metadata_store_service_client: NonCallableMock,
 ) -> None:
     software_item = SoftwareItemProto(
+        id="software_item_id",
         product="product",
         version="version",
         link="link",
@@ -239,6 +247,7 @@ def test___get_test_adapter___calls_metadata_store_service_client(
     mocked_metadata_store_service_client: NonCallableMock,
 ) -> None:
     test_adapter = TestAdapterProto(
+        id="test_adapter_id",
         name="test_adapter_name",
         manufacturer="manufacturer",
         model="model",
