@@ -16,7 +16,7 @@ Operating System Support
 Python Version Support
 ----------------------
 
-``ni.datastore`` supports CPython 3.9+.
+``ni.datastore`` supports CPython 3.10+.
 
 Installation
 ------------

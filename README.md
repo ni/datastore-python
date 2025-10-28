@@ -1,9 +1,11 @@
 # Table of Contents
 
 - [Table of Contents](#table-of-contents)
+- [Measurement Data Store API for Python](#measurement-data-store-api-for-python)
 - [About](#about)
   - [Operating System Support](#operating-system-support)
   - [Python Version Support](#python-version-support)
+  - [Installation](#installation)
 
 # Measurement Data Store API for Python
 
@@ -25,7 +27,7 @@ NI created and supports this package.
 
 ## Python Version Support
 
-`ni.datastore` supports CPython 3.9+.
+`ni.datastore` supports CPython 3.10+.
 
 ## Installation
 
