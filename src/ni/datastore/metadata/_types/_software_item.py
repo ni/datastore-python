@@ -33,6 +33,7 @@ class SoftwareItem:
     """
 
     __slots__ = (
+        "_id",
         "product",
         "version",
         "link",
@@ -45,6 +46,11 @@ class SoftwareItem:
         """The extensions of the software item."""
         return self._extensions
 
+    @property
+    def id(self) -> str:
+        """The string id of the software item."""
+        return self._id
+
     def __init__(
         self,
         *,
@@ -55,6 +61,7 @@ class SoftwareItem:
         schema_id: str = "",
     ) -> None:
         """Initialize a SoftwareItem instance."""
+        self._id = ""
         self.product = product
         self.version = version
         self.link = link
@@ -75,11 +82,13 @@ class SoftwareItem:
         populate_from_extension_value_message_map(
             software_item.extensions, software_item_proto.extensions
         )
+        software_item._id = software_item_proto.id
         return software_item
 
     def to_protobuf(self) -> SoftwareItemProto:
         """Convert this SoftwareItem to a protobuf SoftwareItem message."""
         software_item_proto = SoftwareItemProto(
+            id=self.id,
             product=self.product,
             version=self.version,
             link=self.link,
@@ -93,7 +102,8 @@ class SoftwareItem:
         if not isinstance(other, SoftwareItem):
             return NotImplemented
         return (
-            self.product == other.product
+            self.id == other.id
+            and self.product == other.product
             and self.version == other.version
             and self.link == other.link
             and self.extensions == other.extensions

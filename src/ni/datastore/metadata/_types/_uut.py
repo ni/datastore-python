@@ -36,6 +36,7 @@ class Uut:
     """
 
     __slots__ = (
+        "_id",
         "model_name",
         "family",
         "_manufacturers",
@@ -55,6 +56,11 @@ class Uut:
         """The extensions of the UUT."""
         return self._extensions
 
+    @property
+    def id(self) -> str:
+        """The string id of the uut."""
+        return self._id
+
     def __init__(
         self,
         *,
@@ -67,6 +73,7 @@ class Uut:
         schema_id: str = "",
     ) -> None:
         """Initialize a Uut instance."""
+        self._id = ""
         self.model_name = model_name
         self.family = family
         self._manufacturers: MutableSequence[str] = (
@@ -91,11 +98,13 @@ class Uut:
             schema_id=uut_proto.schema_id,
         )
         populate_from_extension_value_message_map(uut.extensions, uut_proto.extensions)
+        uut._id = uut_proto.id
         return uut
 
     def to_protobuf(self) -> UutProto:
         """Convert this Uut to a protobuf Uut message."""
         uut_proto = UutProto(
+            id=self.id,
             model_name=self.model_name,
             family=self.family,
             manufacturers=self.manufacturers,
@@ -111,7 +120,8 @@ class Uut:
         if not isinstance(other, Uut):
             return NotImplemented
         return (
-            self.model_name == other.model_name
+            self.id == other.id
+            and self.model_name == other.model_name
             and self.family == other.family
             and self.manufacturers == other.manufacturers
             and self.part_number == other.part_number

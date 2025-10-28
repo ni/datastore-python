@@ -33,6 +33,7 @@ class Test:
     """
 
     __slots__ = (
+        "_id",
         "test_name",
         "description",
         "link",
@@ -45,6 +46,11 @@ class Test:
         """The extensions of the test."""
         return self._extensions
 
+    @property
+    def id(self) -> str:
+        """The string id of the test."""
+        return self._id
+
     def __init__(
         self,
         *,
@@ -55,6 +61,7 @@ class Test:
         schema_id: str = "",
     ) -> None:
         """Initialize a Test instance."""
+        self._id = ""
         self.test_name = test_name
         self.description = description
         self.link = link
@@ -73,11 +80,13 @@ class Test:
             schema_id=test_proto.schema_id,
         )
         populate_from_extension_value_message_map(test.extensions, test_proto.extensions)
+        test._id = test_proto.id
         return test
 
     def to_protobuf(self) -> TestProto:
         """Convert this Test to a protobuf Test message."""
         test_proto = TestProto(
+            id=self.id,
             test_name=self.test_name,
             description=self.description,
             link=self.link,
@@ -91,7 +100,8 @@ class Test:
         if not isinstance(other, Test):
             return NotImplemented
         return (
-            self.test_name == other.test_name
+            self.id == other.id
+            and self.test_name == other.test_name
             and self.description == other.description
             and self.link == other.link
             and self.extensions == other.extensions

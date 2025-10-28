@@ -23,7 +23,7 @@ def test___create_step___calls_data_store_service_client(
     mocked_data_store_service_client: NonCallableMock,
 ) -> None:
     step = Step(
-        step_id="step_id",
+        id="step_id",
         parent_step_id="parent_step_id",
         test_result_id="test_result",
         test_id="test_id",
@@ -47,7 +47,7 @@ def test___create_test_result___calls_data_store_service_client(
     mocked_data_store_service_client: NonCallableMock,
 ) -> None:
     test_result = TestResult(
-        test_result_id="test_result_id",
+        id="test_result_id",
         uut_instance_id="uut_instance_id",
         operator_id="operator_id",
         test_station_id="test_station_id",

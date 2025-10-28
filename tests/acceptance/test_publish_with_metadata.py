@@ -119,7 +119,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
 
         # Metadata: TestAdapter
         # test_adapter=TestAdapter(
-        #     test_adapter_name="Test Adapter Name",
+        #     name="Test Adapter Name",
         #     manufacturer="Test Adapter Manufacturer",
         #     serial_number="Test Adapter Serial Number",
         #     part_number="Test Adapter Part Number",
@@ -166,7 +166,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         # Data: Step
         parent_step = Step(step_name="Parent Step")
         step = Step(
-            parent_step_id=parent_step.step_id,
+            parent_step_id=parent_step.id,
             test_result_id=test_result_id,
             test_id=test_id,
             step_name="Step Name",
@@ -198,7 +198,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         )
 
         published_measurements = data_store_client.query_measurements(
-            odata_query=f"$filter=id eq {published_measurement.published_measurement_id}"
+            odata_query=f"$filter=id eq {published_measurement.id}"
         )
         found_measurement = next(iter(published_measurements), None)
         assert found_measurement is not None

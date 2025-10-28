@@ -38,6 +38,7 @@ class HardwareItem:
     """
 
     __slots__ = (
+        "_id",
         "manufacturer",
         "model",
         "serial_number",
@@ -54,6 +55,11 @@ class HardwareItem:
         """The extensions of the hardware item."""
         return self._extensions
 
+    @property
+    def id(self) -> str:
+        """The string id of the hardware item."""
+        return self._id
+
     def __init__(
         self,
         *,
@@ -68,6 +74,7 @@ class HardwareItem:
         schema_id: str = "",
     ) -> None:
         """Initialize a HardwareItem instance."""
+        self._id = ""
         self.manufacturer = manufacturer
         self.model = model
         self.serial_number = serial_number
@@ -96,11 +103,13 @@ class HardwareItem:
         populate_from_extension_value_message_map(
             hardware_item.extensions, hardware_item_proto.extensions
         )
+        hardware_item._id = hardware_item_proto.id
         return hardware_item
 
     def to_protobuf(self) -> HardwareItemProto:
         """Convert this HardwareItem to a protobuf HardwareItem message."""
         hardware_item_proto = HardwareItemProto(
+            id=self.id,
             manufacturer=self.manufacturer,
             model=self.model,
             serial_number=self.serial_number,
@@ -118,7 +127,8 @@ class HardwareItem:
         if not isinstance(other, HardwareItem):
             return NotImplemented
         return (
-            self.manufacturer == other.manufacturer
+            self.id == other.id
+            and self.manufacturer == other.manufacturer
             and self.model == other.model
             and self.serial_number == other.serial_number
             and self.part_number == other.part_number

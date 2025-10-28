@@ -34,6 +34,7 @@ class TestDescription:
     """
 
     __slots__ = (
+        "_id",
         "uut_id",
         "test_description_name",
         "link",
@@ -46,6 +47,11 @@ class TestDescription:
         """The extensions of the test description."""
         return self._extensions
 
+    @property
+    def id(self) -> str:
+        """The string id of the test description."""
+        return self._id
+
     def __init__(
         self,
         *,
@@ -56,6 +62,7 @@ class TestDescription:
         schema_id: str = "",
     ) -> None:
         """Initialize a TestDescription instance."""
+        self._id = ""
         self.uut_id = uut_id
         self.test_description_name = test_description_name
         self.link = link
@@ -76,11 +83,13 @@ class TestDescription:
         populate_from_extension_value_message_map(
             test_description.extensions, test_description_proto.extensions
         )
+        test_description._id = test_description_proto.id
         return test_description
 
     def to_protobuf(self) -> TestDescriptionProto:
         """Convert this TestDescription to a protobuf TestDescription message."""
         test_description_proto = TestDescriptionProto(
+            id=self.id,
             uut_id=self.uut_id,
             test_description_name=self.test_description_name,
             link=self.link,
@@ -94,7 +103,8 @@ class TestDescription:
         if not isinstance(other, TestDescription):
             return NotImplemented
         return (
-            self.uut_id == other.uut_id
+            self.id == other.id
+            and self.uut_id == other.uut_id
             and self.test_description_name == other.test_description_name
             and self.link == other.link
             and self.extensions == other.extensions

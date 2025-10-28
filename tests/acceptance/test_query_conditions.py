@@ -21,7 +21,7 @@ def test___query_conditions___filter_by_id___single_condition_returned() -> None
 
         # Query conditions based on id.
         queried_conditions = data_store_client.query_conditions(
-            odata_query=f"$filter=id eq {published_condition.published_condition_id}"
+            odata_query=f"$filter=id eq {published_condition.id}"
         )
 
         #  We should get one condition back.

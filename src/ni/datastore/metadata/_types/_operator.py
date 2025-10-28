@@ -33,6 +33,7 @@ class Operator:
     """
 
     __slots__ = (
+        "_id",
         "operator_name",
         "role",
         "link",
@@ -45,6 +46,11 @@ class Operator:
         """The extensions of the operator."""
         return self._extensions
 
+    @property
+    def id(self) -> str:
+        """The string id of the operator."""
+        return self._id
+
     def __init__(
         self,
         *,
@@ -55,6 +61,7 @@ class Operator:
         schema_id: str = "",
     ) -> None:
         """Initialize an Operator instance."""
+        self._id = ""
         self.operator_name = operator_name
         self.role = role
         self.link = link
@@ -73,11 +80,13 @@ class Operator:
             schema_id=operator_proto.schema_id,
         )
         populate_from_extension_value_message_map(operator.extensions, operator_proto.extensions)
+        operator._id = operator_proto.id
         return operator
 
     def to_protobuf(self) -> OperatorProto:
         """Convert this Operator to a protobuf Operator message."""
         operator_proto = OperatorProto(
+            id=self.id,
             operator_name=self.operator_name,
             role=self.role,
             link=self.link,
@@ -91,7 +100,8 @@ class Operator:
         if not isinstance(other, Operator):
             return NotImplemented
         return (
-            self.operator_name == other.operator_name
+            self.id == other.id
+            and self.operator_name == other.operator_name
             and self.role == other.role
             and self.link == other.link
             and self.extensions == other.extensions

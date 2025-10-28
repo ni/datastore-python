@@ -8,7 +8,7 @@ The NI Data Store provides a structured way to store and organize test data. It 
 A **TestResult** represents a complete test session or test execution run for a specific Unit Under Test (UUT). It's the top-level container that captures everything that happened when you tested a particular device.
 
 **Fields:**
-- `test_result_id` (string) - Unique identifier (GUID)
+- `id` (string) - Unique identifier (GUID)
 - `uut_instance_id` (string) - ID of the Unit Under Test instance
 - `operator_id` (string) - ID of the operator who ran the test
 - `test_station_id` (string) - ID of the test station used
@@ -30,7 +30,7 @@ A **TestResult** represents a complete test session or test execution run for a 
 A **Step** represents an individual test procedure or operation within a larger test sequence. Each step typically tests a specific aspect or function of the UUT and serves as a container for related measurements and conditions.
 
 **Fields:**
-- `step_id` (string) - Unique identifier (GUID) 
+- `id` (string) - Unique identifier (GUID) 
 - `parent_step_id` (string) - ID of parent step (for hierarchical steps)
 - `test_result_id` (string) - ID of the associated TestResult
 - `test_id` (string) - ID of the test definition/specification
@@ -58,7 +58,7 @@ A **PublishedMeasurement** represents actual measurement data captured during a 
 **Fields:**
 - `moniker` (Moniker) - Data location identifier for retrieving the actual measurement values
 - `published_conditions` (list) - Environmental conditions present during measurement
-- `published_measurement_id` (string) - Unique identifier for this measurement
+- `id` (string) - Unique identifier for this measurement
 - `test_result_id` (string) - ID of the associated TestResult
 - `step_id` (string) - ID of the associated Step
 - `software_item_ids` (list of strings) - Software used to capture this measurement
@@ -94,7 +94,7 @@ A **PublishedCondition** represents environmental or contextual information that
 
 **Fields:**
 - `moniker` (Moniker) - Data location identifier for retrieving the condition value
-- `published_condition_id` (string) - Unique identifier for this condition
+- `id` (string) - Unique identifier for this condition
 - `condition_name` (string) - Name of the condition (e.g., "Temperature", "Supply Voltage")
 - `condition_type` (string) - Type/category of the condition (e.g., "Environment", "Input Parameter")
 - `step_id` (string) - ID of the associated Step

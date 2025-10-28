@@ -38,6 +38,7 @@ class UutInstance:
     """
 
     __slots__ = (
+        "_id",
         "uut_id",
         "serial_number",
         "manufacture_date",
@@ -53,6 +54,11 @@ class UutInstance:
         """The extensions of the UUT instance."""
         return self._extensions
 
+    @property
+    def id(self) -> str:
+        """The string id of the uut instance."""
+        return self._id
+
     def __init__(
         self,
         *,
@@ -66,6 +72,7 @@ class UutInstance:
         schema_id: str = "",
     ) -> None:
         """Initialize a UutInstance instance."""
+        self._id = ""
         self.uut_id = uut_id
         self.serial_number = serial_number
         self.manufacture_date = manufacture_date
@@ -92,11 +99,13 @@ class UutInstance:
         populate_from_extension_value_message_map(
             uut_instance.extensions, uut_instance_proto.extensions
         )
+        uut_instance._id = uut_instance_proto.id
         return uut_instance
 
     def to_protobuf(self) -> UutInstanceProto:
         """Convert this UutInstance to a protobuf UutInstance message."""
         uut_instance_proto = UutInstanceProto(
+            id=self.id,
             uut_id=self.uut_id,
             serial_number=self.serial_number,
             manufacture_date=self.manufacture_date,
@@ -113,7 +122,8 @@ class UutInstance:
         if not isinstance(other, UutInstance):
             return NotImplemented
         return (
-            self.uut_id == other.uut_id
+            self.id == other.id
+            and self.uut_id == other.uut_id
             and self.serial_number == other.serial_number
             and self.manufacture_date == other.manufacture_date
             and self.firmware_version == other.firmware_version

@@ -83,10 +83,10 @@ def publish_data() -> str:
             step_id=step_id,
         )
         print(
-            f"Published measurement: '{published_measurement.measurement_name}' with id {published_measurement.published_measurement_id}"
+            f"Published measurement: '{published_measurement.measurement_name}' with id {published_measurement.id}"
         )
 
-    return published_measurement.published_measurement_id
+    return published_measurement.id
 
 
 def query_data(published_measurement_id: str) -> None:
@@ -99,7 +99,7 @@ def query_data(published_measurement_id: str) -> None:
 
         if found_measurement is not None:
             print(
-                f"Found published measurement: '{found_measurement.measurement_name}' with id {found_measurement.published_measurement_id}"
+                f"Found published measurement: '{found_measurement.measurement_name}' with id {found_measurement.id}"
             )
             test_result = data_store_client.get_test_result(found_measurement.test_result_id)
             print(f"test_result: {test_result.test_result_name}")
