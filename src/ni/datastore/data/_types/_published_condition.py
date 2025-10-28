@@ -39,7 +39,7 @@ class PublishedCondition:
 
         Args:
             moniker: The moniker of the condition that this value is associated
-                with. This moniker returns a ScalarArray when used to read
+                with. This moniker returns a Vector when used to read
                 data.
 
             published_condition_id: The unique identifier of the condition.

@@ -24,7 +24,7 @@ class Step:
     Represents a hierarchical execution step within a test that can contain measurements
     and conditions. Steps can be nested (via parent_step_id) to create test hierarchies
     and are associated with test results. Each step has execution timing, metadata,
-    and optional extensions for custom data.
+    and optional extensions for custom metadata.
     """
 
     __slots__ = (

@@ -169,7 +169,7 @@ class DataStoreClient:
         Returns:
             PublishedCondition: The published condition containing:
                 - A moniker for retrieving the condition data (returns a
-                  ScalarArray)
+                  Vector)
                 - The unique ID of the condition for referencing in queries
                 - Metadata including condition name, type, step ID and test
                   result ID
@@ -203,11 +203,11 @@ class DataStoreClient:
                 values. This value is expected to be a parsable GUID.
 
         Returns:
-            PublishedCondition: A shared value for *all* condition measurements
-                present for the specified step, containing:
+            PublishedCondition: Represents all the values published with
+                this call, containing:
 
                 - A moniker for retrieving the condition data (returns a
-                  ScalarArray)
+                  Vector)
                 - The unique ID of the condition for referencing in queries
                 - Metadata including condition name, type, step ID and test
                   result ID
@@ -242,8 +242,18 @@ class DataStoreClient:
                 iterations. For example, "Temperature" can be used for
                 associating temperature readings across multiple iterations.
 
-            value: The value of the measurement being published. Can be scalar,
-                vector, waveform, XY data, or other supported types.
+            value: The value of the measurement being published. Supported types:
+
+                - Scalar: Single numeric or boolean values
+                - Vector: Array of numeric values
+                - DoubleAnalogWaveform: Analog waveform with double precision
+                - DoubleXYData: XY coordinate data with double precision
+                - I16AnalogWaveform: Analog waveform with 16-bit integer precision
+                - DoubleComplexWaveform: Complex waveform with double precision
+                - I16ComplexWaveform: Complex waveform with 16-bit integer precision
+                - DoubleSpectrum: Frequency spectrum data with double precision
+                - DigitalWaveform: Digital waveform data
+
 
             step_id: The ID of the step associated with this measurement. This
                 value is expected to be a parsable GUID.
@@ -351,7 +361,10 @@ class DataStoreClient:
 
         Returns:
             Sequence[PublishedMeasurement]: The monikers of the published
-                measurements and their corresponding metadata.
+                measurements and their corresponding metadata. NOTE: Using
+                a Sequence is for future flexibility. This sequence
+                will currently always have a single PublishedMeasurement
+                returned.
         """
         publish_request = PublishMeasurementBatchRequest(
             measurement_name=measurement_name,
@@ -434,7 +447,8 @@ class DataStoreClient:
         """Create a new step in the data store.
 
         A step is owned by a test result and is a logical grouping of published
-        measurements. All measurements must be associated with a step.
+        measurements and conditions. All measurements and conditions must be
+        associated with a step.
 
         Args:
             step: The metadata of the step to be created.
@@ -463,8 +477,9 @@ class DataStoreClient:
         """Create a test result object for publishing measurements.
 
         Once a test result is created, you can publish an arbitrary number of
-        measurements to the test result. The measurements will be associated
-        with each of the metadata types specified in the test result.
+        measurements to the test result. The measurements will be published
+        to a step owned by the test result associated with each of the metadata
+        types specified in the test result.
 
         Args:
             test_result: The metadata of the test result to be created.
