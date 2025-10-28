@@ -477,9 +477,7 @@ class DataStoreClient:
         """Create a test result object for publishing measurements.
 
         Once a test result is created, you can publish an arbitrary number of
-        measurements to the test result. The measurements will be published
-        to a step owned by the test result associated with each of the metadata
-        types specified in the test result.
+        measurements and conditions to a step which is owned by the test result.
 
         Args:
             test_result: The metadata of the test result to be created.

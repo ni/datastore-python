@@ -39,8 +39,7 @@ class PublishedCondition:
 
         Args:
             moniker: The moniker of the condition that this value is associated
-                with. This moniker returns a Vector when used to read
-                data.
+                with. This moniker returns a Vector when read.
 
             published_condition_id: The unique identifier of the condition.
                 This can be used to reference and find the condition in the

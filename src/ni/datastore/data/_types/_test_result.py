@@ -25,7 +25,8 @@ class TestResult:
     Represents the results of executing a test sequence, including metadata about
     the execution environment (UUT, operator, test station), timing information,
     outcome, and associations with hardware/software components and test adapters.
-    Contains steps and measurements published during test execution.
+    Contains steps which reference measurements and conditions published
+    during test execution.
     """
 
     __slots__ = (
