@@ -197,6 +197,7 @@ class DataStoreClient:
 
             values: The values for this condition across all publishes on the
                 test step. This should be a Vector of N values.
+                
             step_id: The ID of the step associated with this batch of condition
                 values. This value is expected to be a parsable GUID.
 

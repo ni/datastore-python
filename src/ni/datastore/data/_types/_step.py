@@ -25,6 +25,20 @@ class Step:
     and conditions. Steps can be nested (via parent_step_id) to create test hierarchies
     and are associated with test results. Each step has execution timing, metadata,
     and optional extensions for custom metadata.
+
+    Attributes:
+        step_id: Unique identifier for the step.
+        parent_step_id: ID of the parent step if this is a nested step.
+        test_result_id: ID of the test result this step belongs to.
+        test_id: ID of the test associated with this step.
+        step_name: Human-readable name of the step.
+        step_type: Type or category of the step.
+        notes: Additional notes or comments about the step.
+        start_date_time: The start date and time of the step execution.
+        end_date_time: The end date and time of the step execution.
+        link: Optional link to external resources for this step.
+        extensions: Additional custom metadata as key-value pairs.
+        schema_id: ID of the extension schema for validating extensions.
     """
 
     __slots__ = (
@@ -71,20 +85,7 @@ class Step:
         extensions: Mapping[str, str] | None = None,
         schema_id: str = "",
     ) -> None:
-        """Initialize a Step instance.
-
-        Args:
-            step_id: Unique identifier for the step.
-            parent_step_id: ID of the parent step if this is a nested step.
-            test_result_id: ID of the test result this step belongs to.
-            test_id: ID of the test associated with this step.
-            step_name: Human-readable name of the step.
-            step_type: Type or category of the step.
-            notes: Additional notes or comments about the step.
-            link: Optional link to external resources for this step.
-            extensions: Additional custom metadata as key-value pairs.
-            schema_id: ID of the extension schema for validating extensions.
-        """
+        """Initialize a Step instance."""
         self.step_id = step_id
         self.parent_step_id = parent_step_id
         self.test_result_id = test_result_id

@@ -25,6 +25,38 @@ class PublishedMeasurement:
     and its metadata, including associated conditions from the test step,
     measurement metadata (name, type, timestamps, outcome), and associated
     hardware, software, and test adapter IDs.
+
+    Attributes:
+        moniker: The moniker of the measurement that this value is
+            associated with. This moniker can be used to read the
+            measurement data from the data store.
+        published_conditions: The published conditions associated with this
+            measurement from the test step.
+        published_measurement_id: The unique identifier of the measurement.
+            This can be used to reference and find the measurement in the
+            data store.
+        test_result_id: The ID of the test result with which this
+            measurement is associated.
+        step_id: The ID of the step with which this measurement is
+            associated.
+        software_item_ids: The IDs of the software items associated with
+            this measurement.
+        hardware_item_ids: The IDs of the hardware items associated with
+            this measurement.
+        test_adapter_ids: The IDs of the test adapters associated with this
+            measurement.
+        measurement_name: The name of the measurement.
+        data_type: The data type of the measurement value.
+        measurement_notes: Additional notes or comments about the
+            measurement.
+        start_date_time: The start timestamp of the measurement.
+        end_date_time: The end timestamp of the measurement.
+        outcome: The outcome of the measurement (PASSED, FAILED,
+            INDETERMINATE, or UNSPECIFIED).
+        parametric_index: The index of this measurement in a parametric
+            sweep or batch operation.
+        error_information: Error or exception information in case of
+            measurement failure.
     """
 
     __slots__ = (
@@ -86,55 +118,7 @@ class PublishedMeasurement:
         parametric_index: int = 0,
         error_information: ErrorInformation | None = None,
     ) -> None:
-        """Initialize a PublishedMeasurement instance.
-
-        Args:
-            moniker: The moniker of the measurement that this value is
-                associated with. This moniker can be used to read the
-                measurement data from the data store.
-
-            published_conditions: The published conditions associated with this
-                measurement from the test step.
-
-            published_measurement_id: The unique identifier of the measurement.
-                This can be used to reference and find the measurement in the
-                data store.
-
-            test_result_id: The ID of the test result with which this
-                measurement is associated.
-
-            step_id: The ID of the step with which this measurement is
-                associated.
-
-            software_item_ids: The IDs of the software items associated with
-                this measurement.
-
-            hardware_item_ids: The IDs of the hardware items associated with
-                this measurement.
-
-            test_adapter_ids: The IDs of the test adapters associated with this
-                measurement.
-
-            measurement_name: The name of the measurement.
-
-            data_type: The data type of the measurement value.
-
-            measurement_notes: Additional notes or comments about the
-                measurement.
-
-            start_date_time: The start timestamp of the measurement.
-
-            end_date_time: The end timestamp of the measurement.
-
-            outcome: The outcome of the measurement (PASSED, FAILED,
-                INDETERMINATE, or UNSPECIFIED).
-
-            parametric_index: The index of this measurement in a parametric
-                sweep.
-
-            error_information: Error or exception information in case of
-                measurement failure.
-        """
+        """Initialize a PublishedMeasurement instance."""
         self.moniker = moniker
         self._published_conditions: MutableSequence[PublishedCondition] = (
             list(published_conditions) if published_conditions is not None else []

@@ -19,6 +19,22 @@ class HardwareItem:
     A hardware item contains information about physical test equipment
     including manufacturer, model, serial number, calibration dates, and asset
     tracking information.
+
+    Attributes:
+        manufacturer: The manufacturer of the hardware item.
+        model: The model of the hardware item.
+        serial_number: The serial number of the hardware item.
+        part_number: The part number of the hardware item.
+        asset_identifier: The asset identifier of the hardware item.
+        calibration_due_date: The calibration due date of the hardware item.
+        link: A link to a resource that describes the hardware item. This
+            value is expected to be a valid URI.
+        extensions: Any extensions to be associated with the hardware item.
+        schema_id: The unique identifier of the schema that applies to this
+            instance's extension. If any extension is associated with this
+            instance, a schema_id must be provided, unless the hardware item
+            is created within the context of a test result, in which case
+            the test result must have a schema_id.
     """
 
     __slots__ = (
