@@ -205,6 +205,7 @@ class DataStoreClient:
         Returns:
             PublishedCondition: A shared value for *all* condition measurements
                 present for the specified step, containing:
+
                 - A moniker for retrieving the condition data (returns a
                   ScalarArray)
                 - The unique ID of the condition for referencing in queries
