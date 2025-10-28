@@ -14,12 +14,6 @@ class Alias:
     An alias provides a user-friendly name that maps to a specific metadata
     instance, containing the alias name, the type of the aliased metadata
     instance, and the unique identifier for the aliased metadata instance.
-
-    Attributes:
-        alias_name: The registered alias name for the aliased metadata
-            instance.
-        target_type: The type of the aliased metadata instance.
-        target_id: The unique identifier for the aliased metadata instance.
     """
 
     __slots__ = (
@@ -35,7 +29,14 @@ class Alias:
         target_type: AliasTargetType.ValueType = AliasTargetType.ALIAS_TARGET_TYPE_UNSPECIFIED,
         target_id: str = "",
     ) -> None:
-        """Initialize an Alias instance."""
+        """Initialize an Alias instance.
+
+        Args:
+            alias_name: The registered alias name for the aliased metadata
+                instance.
+            target_type: The type of the aliased metadata instance.
+            target_id: The unique identifier for the aliased metadata instance.
+        """
         self.alias_name = alias_name
         self.target_type = target_type
         self.target_id = target_id

@@ -20,23 +20,6 @@ class TestAdapter:
     UUT with the test system. Test adapters may also be referred to as test
     fixtures, interface boards, breakout boxes, mechanical fixtures, or
     connection adapters.
-
-    Attributes:
-        test_adapter_name: The name of the test adapter.
-        manufacturer: The manufacturer of the test adapter.
-        model: The model of the test adapter.
-        serial_number: The serial number of the test adapter.
-        part_number: The part number of the test adapter.
-        asset_identifier: The asset identifier of the test adapter.
-        calibration_due_date: The calibration due date of the test adapter.
-        link: A link to a resource that describes the test adapter. This
-            value is expected to be a valid URI.
-        extensions: Any extensions to be associated with the test adapter.
-        schema_id: The unique identifier of the schema that applies to this
-            instance's extension. If any extension is associated with this
-            instance, a schema_id must be provided, unless the test adapter
-            is created within the context of a test result, in which case
-            the test result must have a schema_id.
     """
 
     __slots__ = (
@@ -77,7 +60,25 @@ class TestAdapter:
         extensions: Mapping[str, str] | None = None,
         schema_id: str = "",
     ) -> None:
-        """Initialize a TestAdapter instance."""
+        """Initialize a TestAdapter instance.
+
+        Args:
+            name: The name of the test adapter.
+            manufacturer: The manufacturer of the test adapter.
+            model: The model of the test adapter.
+            serial_number: The serial number of the test adapter.
+            part_number: The part number of the test adapter.
+            asset_identifier: The asset identifier of the test adapter.
+            calibration_due_date: The calibration due date of the test adapter.
+            link: A link to a resource that describes the test adapter. This
+                value is expected to be a valid URI.
+            extensions: Any extensions to be associated with the test adapter.
+            schema_id: The unique identifier of the schema that applies to this
+                instance's extension. If any extension is associated with this
+                instance, a schema_id must be provided, unless the test adapter
+                is created within the context of a test result, in which case
+                the test result must have a schema_id.
+        """
         self._id = ""
         self.name = name
         self.manufacturer = manufacturer

@@ -27,23 +27,6 @@ class TestResult:
     outcome, and associations with hardware/software components and test adapters.
     Contains steps which reference measurements and conditions published
     during test execution.
-
-    Attributes:
-        id: Unique identifier for the test result.
-        uut_instance_id: ID of the UUT instance that was tested.
-        operator_id: ID of the operator who ran the test.
-        test_station_id: ID of the test station used.
-        test_description_id: ID of the test description that was executed.
-        software_item_ids: IDs of software items used in the test.
-        hardware_item_ids: IDs of hardware items used in the test.
-        test_adapter_ids: IDs of test adapters used in the test.
-        test_result_name: Human-readable name for the test result.
-        start_date_time: The start date and time of the test execution.
-        end_date_time: The end date and time of the test execution.
-        outcome: The outcome of the test execution.
-        link: Optional link to external resources for this test result.
-        extensions: Additional custom metadata as key-value pairs.
-        schema_id: ID of the extension schema for validating extensions.
     """
 
     __slots__ = (
@@ -115,7 +98,22 @@ class TestResult:
         extensions: Mapping[str, str] | None = None,
         schema_id: str = "",
     ) -> None:
-        """Initialize a TestResult instance."""
+        """Initialize a TestResult instance.
+
+        Args:
+            id: Unique identifier for the test result.
+            uut_instance_id: ID of the UUT instance that was tested.
+            operator_id: ID of the operator who ran the test.
+            test_station_id: ID of the test station used.
+            test_description_id: ID of the test description that was executed.
+            software_item_ids: IDs of software items used in the test.
+            hardware_item_ids: IDs of hardware items used in the test.
+            test_adapter_ids: IDs of test adapters used in the test.
+            test_result_name: Human-readable name for the test result.
+            link: Optional link to external resources for this test result.
+            extensions: Additional custom metadata as key-value pairs.
+            schema_id: ID of the extension schema for validating extensions.
+        """
         self.id = id
         self.uut_instance_id = uut_instance_id
         self.operator_id = operator_id

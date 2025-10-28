@@ -12,10 +12,6 @@ class ExtensionSchema:
 
     An extension schema contains the schema ID and the schema definition
     itself, which can be used to validate extension data in metadata instances.
-
-    Attributes:
-        schema_id: The ID of the schema.
-        schema: The schema itself.
     """
 
     __slots__ = (
@@ -29,7 +25,12 @@ class ExtensionSchema:
         schema_id: str = "",
         schema: str = "",
     ) -> None:
-        """Initialize an ExtensionSchema instance."""
+        """Initialize an ExtensionSchema instance.
+
+        Args:
+            schema_id: The ID of the schema.
+            schema: The schema itself.
+        """
         self.schema_id = schema_id
         self.schema = schema
 

@@ -20,19 +20,7 @@ class Uut:
     information like model name, family, manufacturers, and part number that
     describe the UUT type rather than specific instances.
 
-    Attributes:
-        model_name: The name of the UUT model.
-        family: The UUT family.
-        manufacturers: List of manufacturers of the UUT.
-        part_number: The part number of the UUT.
-        link: A link to a resource that describes the UUT. This value is
-            expected to be a valid URI.
-        extensions: Any extensions to be associated with the UUT.
-        schema_id: The unique identifier of the schema that applies to this
-            instance's extension. If any extension is associated with this
-            instance, a schema_id must be provided, unless the UUT is
-            created within the context of a test result, in which case the
-            test result must have a schema_id.
+
     """
 
     __slots__ = (
@@ -72,7 +60,22 @@ class Uut:
         extensions: Mapping[str, str] | None = None,
         schema_id: str = "",
     ) -> None:
-        """Initialize a Uut instance."""
+        """Initialize a Uut instance.
+
+        Args:
+            model_name: The name of the UUT model.
+            family: The UUT family.
+            manufacturers: List of manufacturers of the UUT.
+            part_number: The part number of the UUT.
+            link: A link to a resource that describes the UUT. This value is
+                expected to be a valid URI.
+            extensions: Any extensions to be associated with the UUT.
+            schema_id: The unique identifier of the schema that applies to this
+                instance's extension. If any extension is associated with this
+                instance, a schema_id must be provided, unless the UUT is
+                created within the context of a test result, in which case the
+                test result must have a schema_id.
+        """
         self._id = ""
         self.model_name = model_name
         self.family = family

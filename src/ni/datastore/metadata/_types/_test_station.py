@@ -20,17 +20,7 @@ class TestStation:
     where testing is performed, including its name and asset identifier for
     tracking and inventory purposes.
 
-    Attributes:
-        test_station_name: The name of the test station.
-        asset_identifier: The asset identifier of the test station.
-        link: A link to a resource that describes the test station. This
-            value is expected to be a valid URI.
-        extensions: Any extensions to be associated with the test station.
-        schema_id: The unique identifier of the schema that applies to this
-            instance's extension. If any extension is associated with this
-            instance, a schema_id must be provided, unless the test station
-            is created within the context of a test result, in which case
-            the test result must have a schema_id.
+
     """
 
     __slots__ = (
@@ -61,7 +51,20 @@ class TestStation:
         extensions: Mapping[str, str] | None = None,
         schema_id: str = "",
     ) -> None:
-        """Initialize a TestStation instance."""
+        """Initialize a TestStation instance.
+
+        Args:
+            test_station_name: The name of the test station.
+            asset_identifier: The asset identifier of the test station.
+            link: A link to a resource that describes the test station. This
+                value is expected to be a valid URI.
+            extensions: Any extensions to be associated with the test station.
+            schema_id: The unique identifier of the schema that applies to this
+                instance's extension. If any extension is associated with this
+                instance, a schema_id must be provided, unless the test station
+                is created within the context of a test result, in which case
+                the test result must have a schema_id.
+        """
         self._id = ""
         self.test_station_name = test_station_name
         self.asset_identifier = asset_identifier
