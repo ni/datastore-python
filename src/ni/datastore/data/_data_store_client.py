@@ -196,9 +196,7 @@ class DataStoreClient:
                 "Environment", or "Setup".
 
             values: The values for this condition across all publishes on the
-                test step. This should be a collection of scalar values that
-                can be converted to the appropriate protobuf vector type.
-
+                test step. This should be a Vector of N values.
             step_id: The ID of the step associated with this batch of condition
                 values. This value is expected to be a parsable GUID.
 
@@ -244,8 +242,8 @@ class DataStoreClient:
 
             value: The value of the measurement being published. Supported types:
 
-                - Scalar: Single numeric or boolean values
-                - Vector: Array of numeric values
+                - Scalar: Single float, int, str or boolean
+                - Vector: Array of float, int, str or boolean values
                 - DoubleAnalogWaveform: Analog waveform with double precision
                 - DoubleXYData: XY coordinate data with double precision
                 - I16AnalogWaveform: Analog waveform with 16-bit integer precision
@@ -253,7 +251,6 @@ class DataStoreClient:
                 - I16ComplexWaveform: Complex waveform with 16-bit integer precision
                 - DoubleSpectrum: Frequency spectrum data with double precision
                 - DigitalWaveform: Digital waveform data
-
 
             step_id: The ID of the step associated with this measurement. This
                 value is expected to be a parsable GUID.
