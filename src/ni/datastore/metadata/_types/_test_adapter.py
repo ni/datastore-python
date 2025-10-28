@@ -17,7 +17,7 @@ class TestAdapter:
     """Information about a test adapter."""
 
     __slots__ = (
-        "test_adapter_name",
+        "name",
         "manufacturer",
         "model",
         "serial_number",
@@ -37,7 +37,7 @@ class TestAdapter:
     def __init__(
         self,
         *,
-        test_adapter_name: str = "",
+        name: str = "",
         manufacturer: str = "",
         model: str = "",
         serial_number: str = "",
@@ -49,7 +49,7 @@ class TestAdapter:
         schema_id: str = "",
     ) -> None:
         """Initialize a TestAdapter instance."""
-        self.test_adapter_name = test_adapter_name
+        self.name = name
         self.manufacturer = manufacturer
         self.model = model
         self.serial_number = serial_number
@@ -66,7 +66,7 @@ class TestAdapter:
     def from_protobuf(test_adapter_proto: TestAdapterProto) -> "TestAdapter":
         """Create a TestAdapter instance from a protobuf TestAdapter message."""
         test_adapter = TestAdapter(
-            test_adapter_name=test_adapter_proto.name,
+            name=test_adapter_proto.name,
             manufacturer=test_adapter_proto.manufacturer,
             model=test_adapter_proto.model,
             serial_number=test_adapter_proto.serial_number,
@@ -84,7 +84,7 @@ class TestAdapter:
     def to_protobuf(self) -> TestAdapterProto:
         """Convert this TestAdapter to a protobuf TestAdapter message."""
         test_adapter_proto = TestAdapterProto(
-            name=self.test_adapter_name,
+            name=self.name,
             manufacturer=self.manufacturer,
             model=self.model,
             serial_number=self.serial_number,
@@ -102,7 +102,7 @@ class TestAdapter:
         if not isinstance(other, TestAdapter):
             return NotImplemented
         return (
-            self.test_adapter_name == other.test_adapter_name
+            self.name == other.name
             and self.manufacturer == other.manufacturer
             and self.model == other.model
             and self.serial_number == other.serial_number

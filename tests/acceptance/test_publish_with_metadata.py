@@ -119,7 +119,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
 
         # Metadata: TestAdapter
         # test_adapter=TestAdapter(
-        #     test_adapter_name="Test Adapter Name",
+        #     name="Test Adapter Name",
         #     manufacturer="Test Adapter Manufacturer",
         #     serial_number="Test Adapter Serial Number",
         #     part_number="Test Adapter Part Number",

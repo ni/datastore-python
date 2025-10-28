@@ -155,7 +155,7 @@ A **Test** represents an individual test procedure or method. This is more granu
 A **Test Adapter** represents a test fixture, mechanical setup, or interface used to hold, connect, or interface the UUT with the test system.
 
 **Fields:**
-- `test_adapter_name` (string) - Name or label for the adapter
+- `name` (string) - Name or label for the adapter
 - `manufacturer` (string) - Vendor of the adapter
 - `model` (string) - Model number or name
 - `serial_number` (string) - Unique serial number
