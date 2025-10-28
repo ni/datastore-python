@@ -17,6 +17,7 @@ class TestStation:
     """Information about a test station."""
 
     __slots__ = (
+        "_id",
         "test_station_name",
         "asset_identifier",
         "link",
@@ -29,6 +30,11 @@ class TestStation:
         """The extensions of the test station."""
         return self._extensions
 
+    @property
+    def id(self) -> str:
+        """The string id of the test station."""
+        return self._id
+
     def __init__(
         self,
         *,
@@ -39,6 +45,7 @@ class TestStation:
         schema_id: str = "",
     ) -> None:
         """Initialize a TestStation instance."""
+        self._id = ""
         self.test_station_name = test_station_name
         self.asset_identifier = asset_identifier
         self.link = link
@@ -59,11 +66,13 @@ class TestStation:
         populate_from_extension_value_message_map(
             test_station.extensions, test_station_proto.extensions
         )
+        test_station._id = test_station_proto.id
         return test_station
 
     def to_protobuf(self) -> TestStationProto:
         """Convert this TestStation to a protobuf TestStation message."""
         test_station_proto = TestStationProto(
+            id=self.id,
             test_station_name=self.test_station_name,
             asset_identifier=self.asset_identifier,
             link=self.link,
@@ -77,7 +86,8 @@ class TestStation:
         if not isinstance(other, TestStation):
             return NotImplemented
         return (
-            self.test_station_name == other.test_station_name
+            self.id == other.id
+            and self.test_station_name == other.test_station_name
             and self.asset_identifier == other.asset_identifier
             and self.link == other.link
             and self.extensions == other.extensions
