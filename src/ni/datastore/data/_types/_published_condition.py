@@ -18,7 +18,7 @@ class PublishedCondition:
     Attributes:
         moniker: The moniker of the condition that this value is associated
             with. This moniker returns a Vector when read.
-        published_condition_id: The unique identifier of the condition. This
+        id: The unique identifier of the condition. This
             can be used to reference and find the condition in the data store.
         condition_name: The name of the condition.
         condition_type: The type of the condition. For example, "Setup" or

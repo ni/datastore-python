@@ -32,7 +32,7 @@ class PublishedMeasurement:
             measurement data from the data store.
         published_conditions: The published conditions associated with this
             measurement from the test step.
-        published_measurement_id: The unique identifier of the measurement.
+        id: The unique identifier of the measurement.
             This can be used to reference and find the measurement in the
             data store.
         test_result_id: The ID of the test result with which this

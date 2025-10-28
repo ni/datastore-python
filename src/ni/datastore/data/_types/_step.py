@@ -27,7 +27,7 @@ class Step:
     and optional extensions for custom metadata.
 
     Attributes:
-        step_id: Unique identifier for the step.
+        id: Unique identifier for the step.
         parent_step_id: ID of the parent step if this is a nested step.
         test_result_id: ID of the test result this step belongs to.
         test_id: ID of the test associated with this step.

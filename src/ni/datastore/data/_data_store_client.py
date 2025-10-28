@@ -549,7 +549,21 @@ class DataStoreClient:
         ]
 
     def query_test_results(self, odata_query: str = "") -> Sequence[TestResult]:
-        """Query test results from the data store."""
+        """Query test results using OData query syntax.
+
+        Args:
+            odata_query: An OData query string. Example: "$filter=name eq
+                'Value'". An empty string will return all test results.
+                $expand, $count, and $select are not supported. For more
+                information, see https://learn.microsoft.com/en-us/odata/
+                concepts/queryoptions-overview.
+
+        Returns:
+            Sequence[TestResult]: The list of matching test results. Each
+                item contains the metadata associated with the test result,
+                including test result ID, name, timestamps, and other
+                properties.
+        """
         query_request = QueryTestResultsRequest(odata_query=odata_query)
         query_response = self._get_data_store_client().query_test_results(query_request)
         return [

@@ -29,7 +29,7 @@ class TestResult:
     during test execution.
 
     Attributes:
-        test_result_id: Unique identifier for the test result.
+        id: Unique identifier for the test result.
         uut_instance_id: ID of the UUT instance that was tested.
         operator_id: ID of the operator who ran the test.
         test_station_id: ID of the test station used.
