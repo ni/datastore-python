@@ -54,7 +54,7 @@ class PublishedMeasurement:
         outcome: The outcome of the measurement (PASSED, FAILED,
             INDETERMINATE, or UNSPECIFIED).
         parametric_index: The index of this measurement in a parametric
-            sweep or batch operation.
+            sweep operation.
         error_information: Error or exception information in case of
             measurement failure.
     """

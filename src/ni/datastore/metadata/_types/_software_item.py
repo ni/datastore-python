@@ -18,6 +18,18 @@ class SoftwareItem:
 
     A software item contains information about the software product and version
     used during testing.
+
+    Attributes:
+        product: The product name of the software item.
+        version: The version of the software item.
+        link: A link to a resource that describes the software item. This
+            value is expected to be a valid URI.
+        extensions: Any extensions to be associated with the software item.
+        schema_id: The unique identifier of the schema that applies to this
+            instance's extension. If any extension is associated with this
+            instance, a schema_id must be provided, unless the software item
+            is created within the context of a test result, in which case
+            the test result must have a schema_id.
     """
 
     __slots__ = (

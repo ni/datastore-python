@@ -18,6 +18,19 @@ class TestDescription:
 
     A test description contains information about a test procedure designed for
     a specific UUT, including the UUT ID and test description name.
+
+    Attributes:
+        uut_id: The ID of the UUT associated with this test description.
+            This value is expected to be a parsable GUID or an alias.
+        test_description_name: The name of the test description.
+        link: A link to a resource that describes the test description. This
+            value is expected to be a valid URI.
+        extensions: Any extensions to be associated with the test description.
+        schema_id: The unique identifier of the schema that applies to this
+            instance's extension. If any extension is associated with this
+            instance, a schema_id must be provided, unless the test description
+            is created within the context of a test result, in which case
+            the test result must have a schema_id.
     """
 
     __slots__ = (
