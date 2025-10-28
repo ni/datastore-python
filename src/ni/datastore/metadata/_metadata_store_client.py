@@ -264,7 +264,14 @@ class MetadataStoreClient:
         return [Operator.from_protobuf(operator) for operator in query_response.operators]
 
     def create_test_description(self, test_description: TestDescription) -> str:
-        """Create a test description in the metadata store."""
+        """Create a test description in the metadata store.
+
+        Args:
+            test_description: The metadata of the test description to be created.
+
+        Returns:
+            str: The identifier of the created test description.
+        """
         create_request = CreateTestDescriptionRequest(
             test_description=test_description.to_protobuf()
         )
@@ -272,13 +279,29 @@ class MetadataStoreClient:
         return create_response.test_description_id
 
     def get_test_description(self, test_description_id: str) -> TestDescription:
-        """Get a test description from the metadata store."""
+        """Get a test description from the metadata store.
+
+        Args:
+            test_description_id: The identifier of the desired test description.
+
+        Returns:
+            TestDescription: The metadata of the requested test description.
+        """
         get_request = GetTestDescriptionRequest(test_description_id=test_description_id)
         get_response = self._get_metadata_store_client().get_test_description(get_request)
         return TestDescription.from_protobuf(get_response.test_description)
 
     def query_test_descriptions(self, odata_query: str = "") -> Sequence[TestDescription]:
-        """Query test descriptions from the metadata store."""
+        """Query test descriptions from the metadata store.
+
+        Args:
+            odata_query: An OData query string. Example: "$filter=name eq
+                'Value'". $expand is not supported.
+
+        Returns:
+            Sequence[TestDescription]: The list of test descriptions that match
+                the query.
+        """
         query_request = QueryTestDescriptionsRequest(odata_query=odata_query)
         query_response = self._get_metadata_store_client().query_test_descriptions(query_request)
         return [
@@ -287,13 +310,27 @@ class MetadataStoreClient:
         ]
 
     def create_test(self, test: Test) -> str:
-        """Create a test in the metadata store."""
+        """Create a test in the metadata store.
+
+        Args:
+            test: The metadata of the test to be created.
+
+        Returns:
+            str: The identifier of the created test.
+        """
         create_request = CreateTestRequest(test=test.to_protobuf())
         create_response = self._get_metadata_store_client().create_test(create_request)
         return create_response.test_id
 
     def get_test(self, test_id: str) -> Test:
-        """Get a test from the metadata store."""
+        """Get a test from the metadata store.
+
+        Args:
+            test_id: The identifier of the desired test.
+
+        Returns:
+            Test: The metadata of the requested test.
+        """
         get_request = GetTestRequest(test_id=test_id)
         get_response = self._get_metadata_store_client().get_test(get_request)
         return Test.from_protobuf(get_response.test)
@@ -305,13 +342,27 @@ class MetadataStoreClient:
         return [Test.from_protobuf(test) for test in query_response.tests]
 
     def create_test_station(self, test_station: TestStation) -> str:
-        """Create a test station in the metadata store."""
+        """Create a test station in the metadata store.
+
+        Args:
+            test_station: The metadata of the test station to be created.
+
+        Returns:
+            str: The identifier of the created test station.
+        """
         create_request = CreateTestStationRequest(test_station=test_station.to_protobuf())
         create_response = self._get_metadata_store_client().create_test_station(create_request)
         return create_response.test_station_id
 
     def get_test_station(self, test_station_id: str) -> TestStation:
-        """Get a test station from the metadata store."""
+        """Get a test station from the metadata store.
+
+        Args:
+            test_station_id: The identifier of the desired test station.
+
+        Returns:
+            TestStation: The metadata of the requested test station.
+        """
         get_request = GetTestStationRequest(test_station_id=test_station_id)
         get_response = self._get_metadata_store_client().get_test_station(get_request)
         return TestStation.from_protobuf(get_response.test_station)
@@ -325,13 +376,27 @@ class MetadataStoreClient:
         ]
 
     def create_hardware_item(self, hardware_item: HardwareItem) -> str:
-        """Create a hardware item in the metadata store."""
+        """Create a hardware item in the metadata store.
+
+        Args:
+            hardware_item: The metadata of the hardware item to be created.
+
+        Returns:
+            str: The identifier of the created hardware item.
+        """
         create_request = CreateHardwareItemRequest(hardware_item=hardware_item.to_protobuf())
         create_response = self._get_metadata_store_client().create_hardware_item(create_request)
         return create_response.hardware_item_id
 
     def get_hardware_item(self, hardware_item_id: str) -> HardwareItem:
-        """Get a hardware item from the metadata store."""
+        """Get a hardware item from the metadata store.
+
+        Args:
+            hardware_item_id: The identifier of the desired hardware item.
+
+        Returns:
+            HardwareItem: The metadata of the requested hardware item.
+        """
         get_request = GetHardwareItemRequest(hardware_item_id=hardware_item_id)
         get_response = self._get_metadata_store_client().get_hardware_item(get_request)
         return HardwareItem.from_protobuf(get_response.hardware_item)
@@ -346,13 +411,27 @@ class MetadataStoreClient:
         ]
 
     def create_software_item(self, software_item: SoftwareItem) -> str:
-        """Create a software item in the metadata store."""
+        """Create a software item in the metadata store.
+
+        Args:
+            software_item: The metadata of the software item to be created.
+
+        Returns:
+            str: The identifier of the created software item.
+        """
         create_request = CreateSoftwareItemRequest(software_item=software_item.to_protobuf())
         create_response = self._get_metadata_store_client().create_software_item(create_request)
         return create_response.software_item_id
 
     def get_software_item(self, software_item_id: str) -> SoftwareItem:
-        """Get a software item from the metadata store."""
+        """Get a software item from the metadata store.
+
+        Args:
+            software_item_id: The identifier of the desired software item.
+
+        Returns:
+            SoftwareItem: The metadata of the requested software item.
+        """
         get_request = GetSoftwareItemRequest(software_item_id=software_item_id)
         get_response = self._get_metadata_store_client().get_software_item(get_request)
         return SoftwareItem.from_protobuf(get_response.software_item)
@@ -367,13 +446,27 @@ class MetadataStoreClient:
         ]
 
     def create_test_adapter(self, test_adapter: TestAdapter) -> str:
-        """Create a test adapter in the metadata store."""
+        """Create a test adapter in the metadata store.
+
+        Args:
+            test_adapter: The metadata of the test adapter to be created.
+
+        Returns:
+            str: The identifier of the created test adapter.
+        """
         create_request = CreateTestAdapterRequest(test_adapter=test_adapter.to_protobuf())
         create_response = self._get_metadata_store_client().create_test_adapter(create_request)
         return create_response.test_adapter_id
 
     def get_test_adapter(self, test_adapter_id: str) -> TestAdapter:
-        """Get a test adapter from the metadata store."""
+        """Get a test adapter from the metadata store.
+
+        Args:
+            test_adapter_id: The identifier of the desired test adapter.
+
+        Returns:
+            TestAdapter: The metadata of the requested test adapter.
+        """
         get_request = GetTestAdapterRequest(test_adapter_id=test_adapter_id)
         get_response = self._get_metadata_store_client().get_test_adapter(get_request)
         return TestAdapter.from_protobuf(get_response.test_adapter)
