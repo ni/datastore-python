@@ -19,7 +19,13 @@ from ni.protobuf.types.precision_timestamp_conversion import (
 
 
 class PublishedMeasurement:
-    """Information about a measurement published to the data store."""
+    """Represents a measurement that has been published to the data store.
+
+    A published measurement contains the moniker of the published measurement
+    and its metadata, including associated conditions from the test step,
+    measurement metadata (name, type, timestamps, outcome), and associated
+    hardware, software, and test adapter IDs.
+    """
 
     __slots__ = (
         "moniker",
