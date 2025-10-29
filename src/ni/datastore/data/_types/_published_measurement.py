@@ -19,7 +19,12 @@ from ni.protobuf.types.precision_timestamp_conversion import (
 
 
 class PublishedMeasurement:
-    """Information about a measurement published to the data store."""
+    """Represents a measurement that has been published to the data store.
+
+    A published measurement contains the measurement data and the associated
+    metadata (name, type, timestamps, outcome, hardware, software, and test
+    adapter IDs).
+    """
 
     __slots__ = (
         "moniker",
@@ -80,7 +85,39 @@ class PublishedMeasurement:
         parametric_index: int = 0,
         error_information: ErrorInformation | None = None,
     ) -> None:
-        """Initialize a PublishedMeasurement instance."""
+        """Initialize a PublishedMeasurement instance.
+
+        Args:
+            moniker: The moniker of the measurement that this value is
+                associated with.
+            published_conditions: The published conditions associated with this
+                measurement from the test step.
+            id: The unique identifier of the measurement.
+                This can be used to reference and find the measurement in the
+                data store.
+            test_result_id: The ID of the test result with which this
+                measurement is associated.
+            step_id: The ID of the step with which this measurement is
+                associated.
+            software_item_ids: The IDs of the software items associated with
+                this measurement.
+            hardware_item_ids: The IDs of the hardware items associated with
+                this measurement.
+            test_adapter_ids: The IDs of the test adapters associated with this
+                measurement.
+            measurement_name: The name of the measurement.
+            data_type: The data type of the measurement value.
+            measurement_notes: Additional notes or comments about the
+                measurement.
+            start_date_time: The start timestamp of the measurement.
+            end_date_time: The end timestamp of the measurement.
+            outcome: The outcome of the measurement (PASSED, FAILED,
+                INDETERMINATE, or UNSPECIFIED).
+            parametric_index: The index of this measurement in a parametric
+                sweep operation.
+            error_information: Error or exception information in case of
+                measurement failure.
+        """
         self.moniker = moniker
         self._published_conditions: MutableSequence[PublishedCondition] = (
             list(published_conditions) if published_conditions is not None else []

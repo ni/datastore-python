@@ -151,7 +151,30 @@ class DataStoreClient:
         value: object,
         step_id: str,
     ) -> PublishedCondition:
-        """Publish a condition value to the data store."""
+        """Publish a condition value to the data store.
+
+        Args:
+            condition_name: An identifier describing the condition value.
+                For example, "Voltage" or "Temperature".
+
+            type: The type of this condition. For example, "Upper Limit",
+                "Environment", or "Setup".
+
+            value: The single value for this condition to publish on the test
+                step. This should be a scalar value that can be converted to
+                the appropriate protobuf scalar type.
+
+            step_id: The ID of the step associated with this condition. This
+                value is expected to be a parsable GUID.
+
+        Returns:
+            PublishedCondition: The published condition containing:
+                - A moniker for retrieving the condition data (returns a
+                  Vector)
+                - The unique ID of the condition for referencing in queries
+                - Metadata including condition name, type, step ID and test
+                  result ID
+        """
         publish_request = PublishConditionRequest(
             condition_name=condition_name,
             type=type,
@@ -164,7 +187,31 @@ class DataStoreClient:
     def publish_condition_batch(
         self, condition_name: str, type: str, values: object, step_id: str
     ) -> PublishedCondition:
-        """Publish a batch of N values for a condition to the data store."""
+        """Publish a batch of N values for a condition to the data store.
+
+        Args:
+            condition_name: An identifier describing the condition values.
+                For example, "Voltage" or "Temperature".
+
+            type: The type of this condition. For example, "Upper Limit",
+                "Environment", or "Setup".
+
+            values: The values for this condition across all publishes on the
+                test step. This should be a Vector of N values.
+
+            step_id: The ID of the step associated with this batch of condition
+                values. This value is expected to be a parsable GUID.
+
+        Returns:
+            PublishedCondition: Represents all the values published with
+                this call, containing:
+
+                - A moniker for retrieving the condition data (returns a
+                  Vector)
+                - The unique ID of the condition for referencing in queries
+                - Metadata including condition name, type, step ID and test
+                  result ID
+        """
         publish_request = PublishConditionBatchRequest(
             condition_name=condition_name,
             type=type,
@@ -187,7 +234,60 @@ class DataStoreClient:
         software_item_ids: Iterable[str] = tuple(),
         notes: str = "",
     ) -> PublishedMeasurement:
-        """Publish a measurement value to the data store."""
+        """Publish a single measurement value associated with a test step.
+
+        Args:
+            measurement_name: The name used for associating/grouping
+                conceptually alike measurements across multiple publish
+                iterations. For example, "Temperature" can be used for
+                associating temperature readings across multiple iterations.
+
+            value: The value of the measurement being published. Supported types:
+
+                - Scalar: Single float, int, str or boolean
+                - Vector: Array of float, int, str or boolean values
+                - DoubleAnalogWaveform: Analog waveform with double precision
+                - DoubleXYData: XY coordinate data with double precision
+                - I16AnalogWaveform: Analog waveform with 16-bit integer precision
+                - DoubleComplexWaveform: Complex waveform with double precision
+                - I16ComplexWaveform: Complex waveform with 16-bit integer precision
+                - DoubleSpectrum: Frequency spectrum data with double precision
+                - DigitalWaveform: Digital waveform data
+
+            step_id: The ID of the step associated with this measurement. This
+                value is expected to be a parsable GUID.
+
+            timestamp: The timestamp of the measurement. If None, the current
+                time will be used.
+
+            outcome: The outcome of the measurement (PASSED, FAILED,
+                INDETERMINATE, or UNSPECIFIED).
+
+            error_information: Error or exception information in case of
+                measurement failure.
+
+            hardware_item_ids: The IDs of the hardware items associated with
+                this measurement. These values are expected to be parsable
+                GUIDs or aliases.
+
+            test_adapter_ids: The IDs of the test adapters associated with this
+                measurement. These values are expected to be parsable GUIDs or
+                aliases.
+
+            software_item_ids: The IDs of the software items associated with
+                this measurement. These values are expected to be parsable
+                GUIDs or aliases.
+
+            notes: Any notes to be associated with the captured measurement.
+
+        Returns:
+            PublishedMeasurement: The moniker of the published measurement and
+                its metadata, including:
+                - A moniker for retrieving the measurement data
+                - Associated conditions from the test step
+                - Measurement metadata (name, type, timestamps, outcome)
+                - Associated hardware, software, and test adapter IDs
+        """
         publish_request = PublishMeasurementRequest(
             measurement_name=measurement_name,
             step_id=step_id,
@@ -217,7 +317,54 @@ class DataStoreClient:
         test_adapter_ids: Iterable[str] = tuple(),
         software_item_ids: Iterable[str] = tuple(),
     ) -> Sequence[PublishedMeasurement]:
-        """Publish a batch of N values of a measurement to the data store."""
+        """Publish multiple scalar measurements at once for parametric sweeps.
+
+        Args:
+            measurement_name: The name used for associating/grouping
+                conceptually alike measurements across multiple publish
+                iterations. For example, "Temperature" can be used for
+                associating temperature readings across multiple iterations.
+
+            values: The values of the (scalar) measurement being published
+                across N iterations.
+
+            step_id: The ID of the step associated with this measurement. This
+                value is expected to be a parsable GUID.
+
+            timestamps: The timestamps corresponding to the N iterations of
+                batched measurement being published. Can be empty (no timestamp
+                info), single value (applied to all), or N values (one per
+                measurement).
+
+            outcomes: The outcomes corresponding to the N iterations of batched
+                measurement being published. Can be empty (no outcome info),
+                single value (applied to all), or N values (one per
+                measurement).
+
+            error_information: The error information corresponding to the N
+                iterations of batched measurement being published. Can be empty
+                (no error info), single value (applied to all), or N values
+                (one per measurement).
+
+            hardware_item_ids: The IDs of the hardware items associated with
+                this measurement. These values are expected to be parsable
+                GUIDs or aliases.
+
+            test_adapter_ids: The IDs of the test adapters associated with this
+                measurement. These values are expected to be parsable GUIDs or
+                aliases.
+
+            software_item_ids: The IDs of the software items associated with
+                this measurement. These values are expected to be parsable
+                GUIDs or aliases.
+
+        Returns:
+            Sequence[PublishedMeasurement]: The monikers of the published
+                measurements and their corresponding metadata. NOTE: Using
+                a Sequence is for future flexibility. This sequence
+                will currently always have a single PublishedMeasurement
+                returned.
+        """
         publish_request = PublishMeasurementBatchRequest(
             measurement_name=measurement_name,
             step_id=step_id,
@@ -252,7 +399,31 @@ class DataStoreClient:
         moniker_source: Moniker | PublishedMeasurement | PublishedCondition,
         expected_type: Type[TRead] | None = None,
     ) -> TRead | object:
-        """Read data published to the data store."""
+        """Read data published to the data store.
+
+        Args:
+            moniker_source: The source from which to read data. Can be:
+                - A Moniker directly
+                - A PublishedMeasurement (uses its moniker)
+                - A PublishedCondition (uses its moniker)
+
+            expected_type: Optional type to validate the returned data against.
+                If provided, a TypeError will be raised if the actual data type
+                doesn't match.
+
+        Returns:
+            The data retrieved from the data store. The return type depends on
+            what was originally published:
+            - Scalar measurements return as Vectors
+            - Other types are returned as originally published
+            If expected_type is specified, the return value is guaranteed to be
+            of that type.
+
+        Raises:
+            ValueError: If the moniker_source doesn't have a valid moniker.
+            TypeError: If expected_type is provided and the actual data type
+                doesn't match.
+        """
         if isinstance(moniker_source, Moniker):
             moniker = moniker_source
         elif isinstance(moniker_source, PublishedMeasurement):
@@ -272,31 +443,82 @@ class DataStoreClient:
         return converted_data
 
     def create_step(self, step: Step) -> str:
-        """Create a step in the data store."""
+        """Create a new step in the data store.
+
+        A step is owned by a test result and is a logical grouping of published
+        measurements and conditions. All measurements and conditions must be
+        associated with a step.
+
+        Args:
+            step: The metadata of the step to be created.
+
+        Returns:
+            str: The identifier of the created step.
+        """
         create_request = CreateStepRequest(step=step.to_protobuf())
         create_response = self._get_data_store_client().create_step(create_request)
         return create_response.step_id
 
     def get_step(self, step_id: str) -> Step:
-        """Get a step from the data store."""
+        """Get the step associated with the given identifier.
+
+        Args:
+            step_id: The identifier of the desired step.
+
+        Returns:
+            Step: The metadata of the requested step.
+        """
         get_request = GetStepRequest(step_id=step_id)
         get_response = self._get_data_store_client().get_step(get_request)
         return Step.from_protobuf(get_response.step)
 
     def create_test_result(self, test_result: TestResult) -> str:
-        """Create a test result in the data store."""
+        """Create a test result object for publishing measurements.
+
+        Once a test result is created, you can publish an arbitrary number of
+        measurements and conditions to a step which is owned by the test result.
+
+        Args:
+            test_result: The metadata of the test result to be created.
+
+        Returns:
+            str: The test result ID. Generated if not specified in the request.
+        """
         create_request = CreateTestResultRequest(test_result=test_result.to_protobuf())
         create_response = self._get_data_store_client().create_test_result(create_request)
         return create_response.test_result_id
 
     def get_test_result(self, test_result_id: str) -> TestResult:
-        """Get a test result from the data store."""
+        """Get the test result associated with the given identifier.
+
+        Args:
+            test_result_id: The ID of the desired test result. This value is
+                expected to be a parsable GUID.
+
+        Returns:
+            TestResult: The TestResult object that corresponds to the
+                requested ID.
+        """
         get_request = GetTestResultRequest(test_result_id=test_result_id)
         get_response = self._get_data_store_client().get_test_result(get_request)
         return TestResult.from_protobuf(get_response.test_result)
 
     def query_conditions(self, odata_query: str = "") -> Sequence[PublishedCondition]:
-        """Query conditions from the data store."""
+        """Query conditions using OData query syntax.
+
+        Args:
+            odata_query: An OData query string. Example: "$filter=name eq
+                'Value'". An empty string will return all conditions. $expand,
+                $count, and $select are not supported. For more information,
+                see https://learn.microsoft.com/en-us/odata/concepts/
+                queryoptions-overview.
+
+        Returns:
+            Sequence[PublishedCondition]: The list of matching conditions. Each
+                item contains a moniker for retrieving the condition
+                measurements, as well as the metadata associated with the
+                condition.
+        """
         query_request = QueryConditionsRequest(odata_query=odata_query)
         query_response = self._get_data_store_client().query_conditions(query_request)
         return [
@@ -305,7 +527,20 @@ class DataStoreClient:
         ]
 
     def query_measurements(self, odata_query: str = "") -> Sequence[PublishedMeasurement]:
-        """Query measurements from the data store."""
+        """Query measurements using OData query syntax.
+
+        Args:
+            odata_query: An OData query string. Example: "$filter=name eq
+                'Value'". An empty string will return all measurements.
+                $expand, $count, and $select are not supported. For more
+                information, see https://learn.microsoft.com/en-us/odata/
+                concepts/queryoptions-overview.
+
+        Returns:
+            Sequence[PublishedMeasurement]: The list of matching measurements.
+                Each item contains a moniker for retrieving the measurement, as
+                well as the metadata associated with the measurement.
+        """
         query_request = QueryMeasurementsRequest(odata_query=odata_query)
         query_response = self._get_data_store_client().query_measurements(query_request)
         return [
@@ -314,7 +549,21 @@ class DataStoreClient:
         ]
 
     def query_test_results(self, odata_query: str = "") -> Sequence[TestResult]:
-        """Query test results from the data store."""
+        """Query test results using OData query syntax.
+
+        Args:
+            odata_query: An OData query string. Example: "$filter=name eq
+                'Value'". An empty string will return all test results.
+                $expand, $count, and $select are not supported. For more
+                information, see https://learn.microsoft.com/en-us/odata/
+                concepts/queryoptions-overview.
+
+        Returns:
+            Sequence[TestResult]: The list of matching test results. Each
+                item contains the metadata associated with the test result,
+                including test result ID, name, timestamps, and other
+                properties.
+        """
         query_request = QueryTestResultsRequest(odata_query=odata_query)
         query_response = self._get_data_store_client().query_test_results(query_request)
         return [
@@ -322,7 +571,18 @@ class DataStoreClient:
         ]
 
     def query_steps(self, odata_query: str = "") -> Sequence[Step]:
-        """Query steps from the data store."""
+        """Query for steps matching the given OData query.
+
+        Args:
+            odata_query: An OData query string. Example: "$filter=name eq
+                'Value'". An empty string will return all steps. $expand,
+                $count, and $select are not supported. For more information,
+                see https://learn.microsoft.com/en-us/odata/concepts/
+                queryoptions-overview.
+
+        Returns:
+            Sequence[Step]: The list of steps that match the query.
+        """
         query_request = QueryStepsRequest(odata_query=odata_query)
         query_response = self._get_data_store_client().query_steps(query_request)
         return [Step.from_protobuf(step) for step in query_response.steps]

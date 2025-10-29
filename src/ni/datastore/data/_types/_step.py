@@ -19,7 +19,14 @@ from ni.protobuf.types.precision_timestamp_conversion import (
 
 
 class Step:
-    """Information about a step into which measurements and conditions are published."""
+    """Information about a step into which measurements and conditions are published.
+
+    Represents a hierarchical execution step within a test result that can
+    contain measurements and conditions. Steps are linked to a test result and
+    can be organized into hierarchical structures using parent_step_id. Each
+    step has test execution time, metadata, and optional extensions for custom
+    metadata.
+    """
 
     __slots__ = (
         "id",
@@ -65,7 +72,20 @@ class Step:
         extensions: Mapping[str, str] | None = None,
         schema_id: str = "",
     ) -> None:
-        """Initialize a Step instance."""
+        """Initialize a Step instance.
+
+        Args:
+            id: Unique identifier for the step.
+            parent_step_id: ID of the parent step if this is a nested step.
+            test_result_id: ID of the test result this step belongs to.
+            test_id: ID of the test associated with this step.
+            step_name: Human-readable name of the step.
+            step_type: Type or category of the step.
+            notes: Additional notes or comments about the step.
+            link: Optional link to external resources for this step.
+            extensions: Additional custom metadata as key-value pairs.
+            schema_id: ID of the extension schema for validating extensions.
+        """
         self.id = id
         self.parent_step_id = parent_step_id
         self.test_result_id = test_result_id
