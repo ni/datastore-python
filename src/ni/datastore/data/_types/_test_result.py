@@ -22,11 +22,11 @@ from ni.protobuf.types.precision_timestamp_conversion import (
 class TestResult:
     """Information about a test result.
 
-    Represents the results of executing a test sequence, including metadata about
-    the execution environment (UUT, operator, test station), timing information,
-    outcome, and associations with hardware/software components and test adapters.
-    Contains steps which reference measurements and conditions published
-    during test execution.
+    Represents the results of executing a test sequence, including metadata
+    about the execution environment (UUT, operator, test station), test
+    execution time, outcome, and associations with hardware/software components
+    and test adapters. Each step which references measurement data and
+    conditions is associated with a test result.
     """
 
     __slots__ = (
