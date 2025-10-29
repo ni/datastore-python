@@ -9,7 +9,12 @@ from ni.measurements.data.v1.data_store_pb2 import (
 
 
 class PublishedCondition:
-    """Information about a condition published to the data store."""
+    """Represents a condition that has been published to the data store.
+
+    A published condition contains metadata about a condition value that was
+    published, including a moniker for data retrieval and associated metadata
+    like condition name, type, and associated step/test result IDs.
+    """
 
     __slots__ = (
         "moniker",
@@ -30,7 +35,20 @@ class PublishedCondition:
         step_id: str = "",
         test_result_id: str = "",
     ) -> None:
-        """Initialize a PublishedCondition instance."""
+        """Initialize a PublishedCondition instance.
+
+        Args:
+            moniker: The moniker of the condition that this value is associated
+                with. This moniker returns a Vector when read.
+            id: The unique identifier of the condition. This
+                can be used to reference and find the condition in the data store.
+            condition_name: The name of the condition.
+            condition_type: The type of the condition. For example, "Setup" or
+                "Environment".
+            step_id: The ID of the step with which this condition is associated.
+            test_result_id: The ID of the test result with which this condition
+                is associated.
+        """
         self.moniker = moniker
         self.id = id
         self.condition_name = condition_name
