@@ -19,13 +19,12 @@ from ni.protobuf.types.precision_timestamp_conversion import (
 
 
 class Step:
-    """Information about a step into which measurements and conditions are
-    published.
+    """Information about a step into which measurements and conditions are published.
 
     Represents a hierarchical execution step within a test result that can
     contain measurements and conditions. Steps are linked to a test result and
     can be organized into hierarchical structures using parent_step_id. Each
-    step has execution timing, metadata, and optional extensions for custom
+    step has test execution time, metadata, and optional extensions for custom
     metadata.
     """
 
