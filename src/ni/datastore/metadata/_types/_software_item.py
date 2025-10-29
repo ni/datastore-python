@@ -14,7 +14,11 @@ from ni.measurements.metadata.v1.metadata_store_pb2 import (
 
 
 class SoftwareItem:
-    """Information about a software item."""
+    """Represents the metadata of the software item used to take measurements.
+
+    A software item contains information about the software product and version
+    used during testing.
+    """
 
     __slots__ = (
         "_id",
@@ -44,7 +48,20 @@ class SoftwareItem:
         extensions: Mapping[str, str] | None = None,
         schema_id: str = "",
     ) -> None:
-        """Initialize a SoftwareItem instance."""
+        """Initialize a SoftwareItem instance.
+
+        Args:
+            product: The product name of the software item.
+            version: The version of the software item.
+            link: A link to a resource that describes the software item. This
+                value is expected to be a valid URI.
+            extensions: Any extensions to be associated with the software item.
+            schema_id: The unique identifier of the schema that applies to this
+                instance's extension. If any extension is associated with this
+                instance, a schema_id must be provided, unless the software item
+                is created within the context of a test result, in which case
+                the test result must have a schema_id.
+        """
         self._id = ""
         self.product = product
         self.version = version

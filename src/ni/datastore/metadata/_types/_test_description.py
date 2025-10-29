@@ -14,7 +14,11 @@ from ni.measurements.metadata.v1.metadata_store_pb2 import (
 
 
 class TestDescription:
-    """Information about a test description."""
+    """Represents the metadata of a test description.
+
+    A test description contains information about a test procedure designed for
+    a specific UUT, including the UUT ID and test description name.
+    """
 
     __slots__ = (
         "_id",
@@ -44,7 +48,21 @@ class TestDescription:
         extensions: Mapping[str, str] | None = None,
         schema_id: str = "",
     ) -> None:
-        """Initialize a TestDescription instance."""
+        """Initialize a TestDescription instance.
+
+        Args:
+            uut_id: The ID of the UUT associated with this test description.
+                This value is expected to be a parsable GUID or an alias.
+            test_description_name: The name of the test description.
+            link: A link to a resource that describes the test description. This
+                value is expected to be a valid URI.
+            extensions: Any extensions to be associated with the test description.
+            schema_id: The unique identifier of the schema that applies to this
+                instance's extension. If any extension is associated with this
+                instance, a schema_id must be provided, unless the test description
+                is created within the context of a test result, in which case
+                the test result must have a schema_id.
+        """
         self._id = ""
         self.uut_id = uut_id
         self.test_description_name = test_description_name
