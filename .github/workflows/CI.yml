@@ -18,13 +18,25 @@ jobs:
   check_docs:
     name: Check docs for ni.datastore
     uses: ./.github/workflows/check_docs.yml
+  checks_succeeded:
+      name: Checks succeeded
+      needs: [check_analyzers, check_examples, check_docs]
+      runs-on: ubuntu-latest
+      steps:
+        - run: exit 0
   run_unit_tests:
     strategy:
       matrix:
         os: [windows-latest, ubuntu-latest]
-        python-version: [3.9, '3.10', 3.11, 3.12, 3.13]
+        python-version: ['3.10', 3.11, 3.12, 3.13, 3.14]
     name: Run unit tests
     uses: ./.github/workflows/run_unit_tests.yml
     with:
       python-version: ${{ matrix.python-version }}
       os: ${{ matrix.os }}
+  tests_succeeded:
+    name: Unit tests succeeded
+    needs: [run_unit_tests]
+    runs-on: ubuntu-latest
+    steps:
+      - run: exit 0
