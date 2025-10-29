@@ -22,7 +22,8 @@ Installation
 ------------
 
 As a prerequisite to using the ``ni.datastore`` module, you must install Measurement Data Services
-Software on your system. You can download and install this software using NI Package Manager.
+Software 2026 Q1 or later on your system. You can download and install this software using
+NI Package Manager.
 
 You can directly install the ``ni.datastore`` package using ``pip`` or by listing it as a dependency in
 your project's ``pyproject.toml`` file.
