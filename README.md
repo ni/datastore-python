@@ -1,21 +1,23 @@
 # Table of Contents
 
 - [Table of Contents](#table-of-contents)
+- [Measurement Data Services API for Python](#measurement-data-services-api-for-python)
 - [About](#about)
   - [Operating System Support](#operating-system-support)
   - [Python Version Support](#python-version-support)
+  - [Installation](#installation)
 
-# Measurement Data Store API for Python
+# Measurement Data Services API for Python
 
 `datastore-python` contains Python code for writing to and reading from
-the [NI Measurement Data Store](https://github.com/ni/datastore-service).
+[NI Measurement Data Services](https://github.com/ni/datastore-service).
 It will include examples of how to use the Python API.
 
 # About
 
 `ni.datastore` is the main Python package in this repo that
 provides APIs for publishing and retrieving data from the NI
-Measurement Data Store
+Measurement Data Services
 
 NI created and supports this package.
 
@@ -25,7 +27,7 @@ NI created and supports this package.
 
 ## Python Version Support
 
-`ni.datastore` supports CPython 3.9+.
+`ni.datastore` supports CPython 3.10+.
 
 ## Installation
 
