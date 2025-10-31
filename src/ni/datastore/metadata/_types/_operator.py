@@ -75,7 +75,7 @@ class Operator:
     def from_protobuf(operator_proto: OperatorProto) -> "Operator":
         """Create an Operator instance from a protobuf Operator message."""
         operator = Operator(
-            operator_name=operator_proto.operator_name,
+            operator_name=operator_proto.name,
             role=operator_proto.role,
             link=operator_proto.link,
             schema_id=operator_proto.schema_id,
@@ -88,7 +88,7 @@ class Operator:
         """Convert this Operator to a protobuf Operator message."""
         operator_proto = OperatorProto(
             id=self.id,
-            operator_name=self.operator_name,
+            name=self.operator_name,
             role=self.role,
             link=self.link,
             schema_id=self.schema_id,

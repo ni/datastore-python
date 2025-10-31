@@ -2350,14 +2350,14 @@ ni-measurements-data-v1-proto = ">=0.1.0.dev2"
 
 [[package]]
 name = "ni-measurements-data-v1-proto"
-version = "0.1.0.dev2"
+version = "0.1.0.dev3"
 description = "Protobuf data types and service stubs for NI data store gRPC APIs"
 optional = false
 python-versions = "<4.0,>=3.9"
 groups = ["main"]
 files = [
-    {file = "ni_measurements_data_v1_proto-0.1.0.dev2-py3-none-any.whl", hash = "sha256:ac2e8e960f3e830368535fa48ce68236a4ecede1c34385c7fc698e2a2c885db3"},
-    {file = "ni_measurements_data_v1_proto-0.1.0.dev2.tar.gz", hash = "sha256:d7b9180282a0760b1e81b6f8317406255bc86a9ddf890016edfd280ea4b7de83"},
+    {file = "ni_measurements_data_v1_proto-0.1.0.dev3-py3-none-any.whl", hash = "sha256:d50f07b94946aedbf3f8689511dff8b91e532bd40dad647822b82d5ec1bad24c"},
+    {file = "ni_measurements_data_v1_proto-0.1.0.dev3.tar.gz", hash = "sha256:0d43ce0fc2ce129296024ae80a1e1864a01657fea3b44eec009af19564e7deab"},
 ]
 
 [package.dependencies]
@@ -2384,14 +2384,14 @@ ni-measurements-metadata-v1-proto = ">=0.1.0.dev2"
 
 [[package]]
 name = "ni-measurements-metadata-v1-proto"
-version = "0.1.0.dev2"
+version = "0.1.0.dev3"
 description = "Protobuf data types and service stub for NI metadata store gRPC APIs"
 optional = false
 python-versions = "<4.0,>=3.9"
 groups = ["main"]
 files = [
-    {file = "ni_measurements_metadata_v1_proto-0.1.0.dev2-py3-none-any.whl", hash = "sha256:e460171ccc5f44c52856dcb182ac5d09a552c0b74e43c766ec77da1d5956dd19"},
-    {file = "ni_measurements_metadata_v1_proto-0.1.0.dev2.tar.gz", hash = "sha256:50e202d9d688e2ec4675aa0c3cfa4b60045d5b276947aae769ab05e3099ea754"},
+    {file = "ni_measurements_metadata_v1_proto-0.1.0.dev3-py3-none-any.whl", hash = "sha256:8800a3ed141f2269eae01cd022b81e42b2c7f9ebca67060002fbd3b22b8abad5"},
+    {file = "ni_measurements_metadata_v1_proto-0.1.0.dev3.tar.gz", hash = "sha256:3e9c0b6aa7c9f6a2d2e571fa863c765afa91803be85e052193814b8cd4e2573b"},
 ]
 
 [package.dependencies]
@@ -4276,14 +4276,14 @@ files = [
 
 [[package]]
 name = "webcolors"
-version = "24.11.1"
+version = "25.10.0"
 description = "A library for working with the color formats defined by HTML and CSS."
 optional = false
-python-versions = ">=3.9"
+python-versions = ">=3.10"
 groups = ["dev"]
 files = [
-    {file = "webcolors-24.11.1-py3-none-any.whl", hash = "sha256:515291393b4cdf0eb19c155749a096f779f7d909f7cceea072791cb9095b92e9"},
-    {file = "webcolors-24.11.1.tar.gz", hash = "sha256:ecb3d768f32202af770477b8b65f318fa4f566c22948673a977b00d589dd80f6"},
+    {file = "webcolors-25.10.0-py3-none-any.whl", hash = "sha256:032c727334856fc0b968f63daa252a1ac93d33db2f5267756623c210e57a4f1d"},
+    {file = "webcolors-25.10.0.tar.gz", hash = "sha256:62abae86504f66d0f6364c2a8520de4a0c47b80c03fc3a5f1815fedbef7c19bf"},
 ]
 
 [[package]]

@@ -38,14 +38,14 @@ class ExtensionSchema:
     def from_protobuf(extension_schema_proto: ExtensionSchemaProto) -> "ExtensionSchema":
         """Create an ExtensionSchema instance from a protobuf ExtensionSchema message."""
         return ExtensionSchema(
-            schema_id=extension_schema_proto.schema_id,
+            schema_id=extension_schema_proto.id,
             schema=extension_schema_proto.schema,
         )
 
     def to_protobuf(self) -> ExtensionSchemaProto:
         """Convert this ExtensionSchema to a protobuf ExtensionSchema message."""
         return ExtensionSchemaProto(
-            schema_id=self.schema_id,
+            id=self.schema_id,
             schema=self.schema,
         )
 

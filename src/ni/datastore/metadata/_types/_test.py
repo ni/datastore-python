@@ -75,7 +75,7 @@ class Test:
     def from_protobuf(test_proto: TestProto) -> "Test":
         """Create a Test instance from a protobuf Test message."""
         test = Test(
-            test_name=test_proto.test_name,
+            test_name=test_proto.name,
             description=test_proto.description,
             link=test_proto.link,
             schema_id=test_proto.schema_id,
@@ -88,7 +88,7 @@ class Test:
         """Convert this Test to a protobuf Test message."""
         test_proto = TestProto(
             id=self.id,
-            test_name=self.test_name,
+            name=self.test_name,
             description=self.description,
             link=self.link,
             schema_id=self.schema_id,

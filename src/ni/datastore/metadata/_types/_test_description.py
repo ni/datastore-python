@@ -77,7 +77,7 @@ class TestDescription:
         """Create a TestDescription instance from a protobuf TestDescription message."""
         test_description = TestDescription(
             uut_id=test_description_proto.uut_id,
-            test_description_name=test_description_proto.test_description_name,
+            test_description_name=test_description_proto.name,
             link=test_description_proto.link,
             schema_id=test_description_proto.schema_id,
         )
@@ -92,7 +92,7 @@ class TestDescription:
         test_description_proto = TestDescriptionProto(
             id=self.id,
             uut_id=self.uut_id,
-            test_description_name=self.test_description_name,
+            name=self.test_description_name,
             link=self.link,
             schema_id=self.schema_id,
         )

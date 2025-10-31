@@ -110,8 +110,8 @@ class Step:
             parent_step_id=step_proto.parent_step_id,
             test_result_id=step_proto.test_result_id,
             test_id=step_proto.test_id,
-            step_name=step_proto.step_name,
-            step_type=step_proto.step_type,
+            step_name=step_proto.name,
+            step_type=step_proto.type,
             notes=step_proto.notes,
             link=step_proto.link,
             schema_id=step_proto.schema_id,
@@ -136,8 +136,8 @@ class Step:
             parent_step_id=self.parent_step_id,
             test_result_id=self.test_result_id,
             test_id=self.test_id,
-            step_name=self.step_name,
-            step_type=self.step_type,
+            name=self.step_name,
+            type=self.step_type,
             notes=self.notes,
             start_date_time=(
                 hightime_datetime_to_protobuf(self.start_date_time)

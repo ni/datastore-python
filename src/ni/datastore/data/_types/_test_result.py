@@ -151,7 +151,7 @@ class TestResult:
             software_item_ids=test_result_proto.software_item_ids,
             hardware_item_ids=test_result_proto.hardware_item_ids,
             test_adapter_ids=test_result_proto.test_adapter_ids,
-            test_result_name=test_result_proto.test_result_name,
+            test_result_name=test_result_proto.name,
             link=test_result_proto.link,
             schema_id=test_result_proto.schema_id,
         )
@@ -182,7 +182,7 @@ class TestResult:
             software_item_ids=self.software_item_ids,
             hardware_item_ids=self.hardware_item_ids,
             test_adapter_ids=self.test_adapter_ids,
-            test_result_name=self.test_result_name,
+            name=self.test_result_name,
             start_date_time=(
                 hightime_datetime_to_protobuf(self.start_date_time)
                 if self.start_date_time

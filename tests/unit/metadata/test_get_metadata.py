@@ -107,7 +107,7 @@ def test___get_operator___calls_metadata_store_service_client(
 ) -> None:
     operator = OperatorProto(
         id="operator_id",
-        operator_name="operator_name",
+        name="operator_name",
         role="role",
         link="link",
         extensions=None,
@@ -131,7 +131,7 @@ def test___get_test_description___calls_metadata_store_service_client(
     test_description = TestDescriptionProto(
         id="test_description_id",
         uut_id="uut_id",
-        test_description_name="test_description_name",
+        name="test_description_name",
         link="link",
         extensions=None,
         schema_id="schema_id",
@@ -153,7 +153,7 @@ def test___get_test___calls_metadata_store_service_client(
 ) -> None:
     test = TestProto(
         id="test_id",
-        test_name="test_name",
+        name="test_name",
         description="description",
         extensions=None,
         schema_id="schema_id",
@@ -175,7 +175,7 @@ def test___get_test_station___calls_metadata_store_service_client(
 ) -> None:
     test_station = TestStationProto(
         id="test_station_id",
-        test_station_name="test_station_name",
+        name="test_station_name",
         asset_identifier="asset_identifier",
         link="link",
         extensions=None,

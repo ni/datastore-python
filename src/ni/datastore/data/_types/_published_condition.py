@@ -66,8 +66,8 @@ class PublishedCondition:
                 else None
             ),
             id=published_condition_proto.id,
-            condition_name=published_condition_proto.condition_name,
-            condition_type=published_condition_proto.condition_type,
+            condition_name=published_condition_proto.name,
+            condition_type=published_condition_proto.type,
             step_id=published_condition_proto.step_id,
             test_result_id=published_condition_proto.test_result_id,
         )
@@ -77,8 +77,8 @@ class PublishedCondition:
         return PublishedConditionProto(
             moniker=self.moniker,
             id=self.id,
-            condition_name=self.condition_name,
-            condition_type=self.condition_type,
+            name=self.condition_name,
+            type=self.condition_type,
             step_id=self.step_id,
             test_result_id=self.test_result_id,
         )

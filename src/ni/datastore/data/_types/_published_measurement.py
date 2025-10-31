@@ -164,9 +164,9 @@ class PublishedMeasurement:
             software_item_ids=published_measurement_proto.software_item_ids,
             hardware_item_ids=published_measurement_proto.hardware_item_ids,
             test_adapter_ids=published_measurement_proto.test_adapter_ids,
-            measurement_name=published_measurement_proto.measurement_name,
+            measurement_name=published_measurement_proto.name,
             data_type=published_measurement_proto.data_type,
-            measurement_notes=published_measurement_proto.measurement_notes,
+            measurement_notes=published_measurement_proto.notes,
             start_date_time=(
                 hightime_datetime_from_protobuf(published_measurement_proto.start_date_time)
                 if published_measurement_proto.HasField("start_date_time")
@@ -199,9 +199,9 @@ class PublishedMeasurement:
             software_item_ids=self.software_item_ids,
             hardware_item_ids=self.hardware_item_ids,
             test_adapter_ids=self.test_adapter_ids,
-            measurement_name=self.measurement_name,
+            name=self.measurement_name,
             data_type=self.data_type,
-            measurement_notes=self.measurement_notes,
+            notes=self.measurement_notes,
             start_date_time=(
                 hightime_datetime_to_protobuf(self.start_date_time)
                 if self.start_date_time is not None

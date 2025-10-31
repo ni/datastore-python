@@ -45,7 +45,7 @@ class Alias:
     def from_protobuf(alias_proto: AliasProto) -> "Alias":
         """Create an Alias instance from a protobuf Alias message."""
         return Alias(
-            alias_name=alias_proto.alias_name,
+            alias_name=alias_proto.name,
             target_type=alias_proto.target_type,
             target_id=alias_proto.target_id,
         )
@@ -53,7 +53,7 @@ class Alias:
     def to_protobuf(self) -> AliasProto:
         """Convert this Alias to a protobuf Alias message."""
         return AliasProto(
-            alias_name=self.alias_name,
+            name=self.alias_name,
             target_type=self.target_type,
             target_id=self.target_id,
         )

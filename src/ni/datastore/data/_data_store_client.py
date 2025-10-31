@@ -368,8 +368,8 @@ class DataStoreClient:
         publish_request = PublishMeasurementBatchRequest(
             measurement_name=measurement_name,
             step_id=step_id,
-            timestamp=[hightime_datetime_to_protobuf(ts) for ts in timestamps],
-            outcome=outcomes,
+            timestamps=[hightime_datetime_to_protobuf(ts) for ts in timestamps],
+            outcomes=outcomes,
             error_information=error_information,
             hardware_item_ids=hardware_item_ids,
             test_adapter_ids=test_adapter_ids,

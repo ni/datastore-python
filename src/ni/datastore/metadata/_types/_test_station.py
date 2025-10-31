@@ -78,7 +78,7 @@ class TestStation:
     def from_protobuf(test_station_proto: TestStationProto) -> "TestStation":
         """Create a TestStation instance from a protobuf TestStation message."""
         test_station = TestStation(
-            test_station_name=test_station_proto.test_station_name,
+            test_station_name=test_station_proto.name,
             asset_identifier=test_station_proto.asset_identifier,
             link=test_station_proto.link,
             schema_id=test_station_proto.schema_id,
@@ -93,7 +93,7 @@ class TestStation:
         """Convert this TestStation to a protobuf TestStation message."""
         test_station_proto = TestStationProto(
             id=self.id,
-            test_station_name=self.test_station_name,
+            name=self.test_station_name,
             asset_identifier=self.asset_identifier,
             link=self.link,
             schema_id=self.schema_id,
