@@ -66,7 +66,7 @@ def test___publish_boolean_data___calls_data_store_service_client(
     assert request.step_id == "step_id"
     assert request.measurement_name == "name"
     assert request.notes == "notes"
-    assert request.timestamps == unittest.mock.ANY
+    assert request.timestamp == unittest.mock.ANY
     assert request.scalar.bool_value == value
     assert request.outcome == Outcome.OUTCOME_PASSED
     assert request.error_information == ErrorInformation()
