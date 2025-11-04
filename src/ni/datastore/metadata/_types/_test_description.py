@@ -23,7 +23,7 @@ class TestDescription:
     __slots__ = (
         "_id",
         "uut_id",
-        "test_description_name",
+        "name",
         "link",
         "_extensions",
         "schema_id",
@@ -43,7 +43,7 @@ class TestDescription:
         self,
         *,
         uut_id: str = "",
-        test_description_name: str = "",
+        name: str = "",
         link: str = "",
         extensions: Mapping[str, str] | None = None,
         schema_id: str = "",
@@ -53,7 +53,7 @@ class TestDescription:
         Args:
             uut_id: The ID of the UUT associated with this test description.
                 This value is expected to be a parsable GUID or an alias.
-            test_description_name: The name of the test description.
+            name: The name of the test description.
             link: A link to a resource that describes the test description. This
                 value is expected to be a valid URI.
             extensions: Any extensions to be associated with the test description.
@@ -65,7 +65,7 @@ class TestDescription:
         """
         self._id = ""
         self.uut_id = uut_id
-        self.test_description_name = test_description_name
+        self.name = name
         self.link = link
         self._extensions: MutableMapping[str, str] = (
             dict(extensions) if extensions is not None else {}
@@ -77,7 +77,7 @@ class TestDescription:
         """Create a TestDescription instance from a protobuf TestDescription message."""
         test_description = TestDescription(
             uut_id=test_description_proto.uut_id,
-            test_description_name=test_description_proto.name,
+            name=test_description_proto.name,
             link=test_description_proto.link,
             schema_id=test_description_proto.schema_id,
         )
@@ -92,7 +92,7 @@ class TestDescription:
         test_description_proto = TestDescriptionProto(
             id=self.id,
             uut_id=self.uut_id,
-            name=self.test_description_name,
+            name=self.name,
             link=self.link,
             schema_id=self.schema_id,
         )
@@ -106,7 +106,7 @@ class TestDescription:
         return (
             self.id == other.id
             and self.uut_id == other.uut_id
-            and self.test_description_name == other.test_description_name
+            and self.name == other.name
             and self.link == other.link
             and self.extensions == other.extensions
             and self.schema_id == other.schema_id

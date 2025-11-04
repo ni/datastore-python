@@ -22,7 +22,7 @@ class Operator:
 
     __slots__ = (
         "_id",
-        "operator_name",
+        "name",
         "role",
         "link",
         "_extensions",
@@ -42,7 +42,7 @@ class Operator:
     def __init__(
         self,
         *,
-        operator_name: str = "",
+        name: str = "",
         role: str = "",
         link: str = "",
         extensions: Mapping[str, str] | None = None,
@@ -51,7 +51,7 @@ class Operator:
         """Initialize an Operator instance.
 
         Args:
-            operator_name: The name of the operator.
+            name: The name of the operator.
             role: The role of the operator.
             link: A link to a resource that describes the operator. This value
                 is expected to be a valid URI.
@@ -63,7 +63,7 @@ class Operator:
                 test result must have a schema_id.
         """
         self._id = ""
-        self.operator_name = operator_name
+        self.name = name
         self.role = role
         self.link = link
         self._extensions: MutableMapping[str, str] = (
@@ -75,7 +75,7 @@ class Operator:
     def from_protobuf(operator_proto: OperatorProto) -> "Operator":
         """Create an Operator instance from a protobuf Operator message."""
         operator = Operator(
-            operator_name=operator_proto.name,
+            name=operator_proto.name,
             role=operator_proto.role,
             link=operator_proto.link,
             schema_id=operator_proto.schema_id,
@@ -88,7 +88,7 @@ class Operator:
         """Convert this Operator to a protobuf Operator message."""
         operator_proto = OperatorProto(
             id=self.id,
-            name=self.operator_name,
+            name=self.name,
             role=self.role,
             link=self.link,
             schema_id=self.schema_id,
@@ -102,7 +102,7 @@ class Operator:
             return NotImplemented
         return (
             self.id == other.id
-            and self.operator_name == other.operator_name
+            and self.name == other.name
             and self.role == other.role
             and self.link == other.link
             and self.extensions == other.extensions

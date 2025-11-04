@@ -36,12 +36,12 @@ def publish_data() -> str:
         uut_instance_id = metadata_store_client.create_uut_instance(uut_instance=uut_instance)
 
         # Create Operator metadata
-        operator = Operator(operator_name="James Bowery", role="Test Operator")
+        operator = Operator(name="James Bowery", role="Test Operator")
         operator_id = metadata_store_client.create_operator(operator)
         print(f"created operator_id: {operator_id}")
 
         # Create TestStation metadata
-        test_station = TestStation(test_station_name="TestStation_12")
+        test_station = TestStation(name="TestStation_12")
         test_station_id = metadata_store_client.create_test_station(test_station)
         print(f"created test_station_id: {test_station_id}")
 

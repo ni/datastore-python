@@ -64,7 +64,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         operator_name = "John Bowery"
         operator_role = "Test Operator II"
         operator = Operator(
-            operator_name=operator_name,
+            name=operator_name,
             role=operator_role,
             extensions={"o1": "one", "o2": "two"},
             schema_id=schema_id,
@@ -73,7 +73,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
 
         # Metadata: TestStation
         test_station = TestStation(
-            test_station_name="TestStation_12",
+            name="TestStation_12",
             asset_identifier="Test Station Asset Identifier",
             link="Test Station Link",
             extensions={"ts1": "one", "ts2": "two"},
@@ -84,7 +84,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         # Metadata: TestDescription
         test_description = TestDescription(
             uut_id=uut_id,
-            test_description_name="Metadata Acceptance Test",
+            name="Metadata Acceptance Test",
             link="Test Description Link",
             extensions={"td1": "one", "td2": "two"},
             schema_id=schema_id,
@@ -155,7 +155,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
 
         # Metadata: Test
         test = Test(
-            test_name="Test Name",
+            name="Test Name",
             description="Test Description",
             link="Test Link",
             extensions={"t1": "one", "t2": "two"},
@@ -243,13 +243,13 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         # Check Test
         found_test = metadata_store_client.get_test(found_step.test_id)
         assert found_test.description == test.description
-        assert found_test.test_name == test.test_name
+        assert found_test.name == test.name
         assert found_test.link == test.link
         assert found_test.extensions == test.extensions
 
         # Check Operator
         found_operator = metadata_store_client.get_operator(found_test_result.operator_id)
-        assert found_operator.operator_name == operator.operator_name
+        assert found_operator.name == operator.name
         assert found_operator.role == operator.role
         assert found_operator.extensions == operator.extensions
 
@@ -278,7 +278,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         found_test_station = metadata_store_client.get_test_station(
             found_test_result.test_station_id
         )
-        assert found_test_station.test_station_name == test_station.test_station_name
+        assert found_test_station.name == test_station.name
         assert found_test_station.asset_identifier == test_station.asset_identifier
         assert found_test_station.link == test_station.link
         assert found_test_station.extensions == test_station.extensions
@@ -288,7 +288,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
             found_test_result.test_description_id
         )
         assert (
-            found_test_description.test_description_name == test_description.test_description_name
+            found_test_description.name == test_description.name
         )
         assert found_test_description.link == test_description.link
         assert found_test_description.extensions == test_description.extensions

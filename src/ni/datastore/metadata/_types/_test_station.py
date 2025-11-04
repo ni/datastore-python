@@ -25,7 +25,7 @@ class TestStation:
 
     __slots__ = (
         "_id",
-        "test_station_name",
+        "name",
         "asset_identifier",
         "link",
         "_extensions",
@@ -45,7 +45,7 @@ class TestStation:
     def __init__(
         self,
         *,
-        test_station_name: str = "",
+        name: str = "",
         asset_identifier: str = "",
         link: str = "",
         extensions: Mapping[str, str] | None = None,
@@ -54,7 +54,7 @@ class TestStation:
         """Initialize a TestStation instance.
 
         Args:
-            test_station_name: The name of the test station.
+            name: The name of the test station.
             asset_identifier: The asset identifier of the test station.
             link: A link to a resource that describes the test station. This
                 value is expected to be a valid URI.
@@ -66,7 +66,7 @@ class TestStation:
                 the test result must have a schema_id.
         """
         self._id = ""
-        self.test_station_name = test_station_name
+        self.name = name
         self.asset_identifier = asset_identifier
         self.link = link
         self._extensions: MutableMapping[str, str] = (
@@ -78,7 +78,7 @@ class TestStation:
     def from_protobuf(test_station_proto: TestStationProto) -> "TestStation":
         """Create a TestStation instance from a protobuf TestStation message."""
         test_station = TestStation(
-            test_station_name=test_station_proto.name,
+            name=test_station_proto.name,
             asset_identifier=test_station_proto.asset_identifier,
             link=test_station_proto.link,
             schema_id=test_station_proto.schema_id,
@@ -93,7 +93,7 @@ class TestStation:
         """Convert this TestStation to a protobuf TestStation message."""
         test_station_proto = TestStationProto(
             id=self.id,
-            name=self.test_station_name,
+            name=self.name,
             asset_identifier=self.asset_identifier,
             link=self.link,
             schema_id=self.schema_id,
@@ -107,7 +107,7 @@ class TestStation:
             return NotImplemented
         return (
             self.id == other.id
-            and self.test_station_name == other.test_station_name
+            and self.name == other.name
             and self.asset_identifier == other.asset_identifier
             and self.link == other.link
             and self.extensions == other.extensions

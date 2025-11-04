@@ -93,7 +93,7 @@ def test___create_operator___calls_metadata_store_service_client(
     mocked_metadata_store_service_client: NonCallableMock,
 ) -> None:
     operator = Operator(
-        operator_name="operator_name",
+        name="operator_name",
         role="role",
         link="link",
         extensions=None,
@@ -116,7 +116,7 @@ def test___create_test_description___calls_metadata_store_service_client(
 ) -> None:
     test_description = TestDescription(
         uut_id="uut_id",
-        test_description_name="test_description_name",
+        name="test_description_name",
         link="link",
         extensions=None,
         schema_id="schema_id",
@@ -137,7 +137,7 @@ def test___create_test___calls_metadata_store_service_client(
     mocked_metadata_store_service_client: NonCallableMock,
 ) -> None:
     test = Test(
-        test_name="test_name",
+        name="test_name",
         description="description",
         extensions=None,
         schema_id="schema_id",
@@ -158,7 +158,7 @@ def test___create_test_station___calls_metadata_store_service_client(
     mocked_metadata_store_service_client: NonCallableMock,
 ) -> None:
     test_station = TestStation(
-        test_station_name="test_station_name",
+        name="test_station_name",
         asset_identifier="asset_identifier",
         link="link",
         extensions=None,
