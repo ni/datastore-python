@@ -13,7 +13,8 @@ from urllib.parse import urlparse
 import hightime as ht
 from grpc import Channel
 from ni.datamonikers.v1.client import MonikerClient
-from ni.datamonikers.v1.data_moniker_pb2 import Moniker
+from ni.datamonikers.v1.data_moniker_pb2 import Moniker as GrpcMoniker
+from ni.datastore.data._types._moniker import Moniker
 from ni.datastore.data._grpc_conversion import (
     get_publish_measurement_timestamp,
     populate_publish_condition_batch_request_values,
@@ -390,26 +391,27 @@ class DataStoreClient:
     @overload
     def read_data(
         self,
-        moniker_source: Moniker | PublishedMeasurement | PublishedCondition,
+        moniker_source: Moniker | GrpcMoniker | PublishedMeasurement | PublishedCondition,
         expected_type: Type[TRead],
     ) -> TRead: ...
 
     @overload
     def read_data(
         self,
-        moniker_source: Moniker | PublishedMeasurement | PublishedCondition,
+        moniker_source: Moniker | GrpcMoniker | PublishedMeasurement | PublishedCondition,
     ) -> object: ...
 
     def read_data(
         self,
-        moniker_source: Moniker | PublishedMeasurement | PublishedCondition,
+        moniker_source: Moniker | GrpcMoniker | PublishedMeasurement | PublishedCondition,
         expected_type: Type[TRead] | None = None,
     ) -> TRead | object:
         """Read data published to the data store.
 
         Args:
             moniker_source: The source from which to read data. Can be:
-                - A Moniker directly
+                - A Moniker (wrapper type) directly
+                - A GrpcMoniker (protobuf type) directly (for backward compatibility)
                 - A PublishedMeasurement (uses its moniker)
                 - A PublishedCondition (uses its moniker)
 
@@ -430,19 +432,25 @@ class DataStoreClient:
             TypeError: If expected_type is provided and the actual data type
                 doesn't match.
         """
+        grpc_moniker: GrpcMoniker
+        
         if isinstance(moniker_source, Moniker):
-            moniker = moniker_source
+            grpc_moniker = moniker_source.to_protobuf()
+        elif isinstance(moniker_source, GrpcMoniker):
+            grpc_moniker = moniker_source
         elif isinstance(moniker_source, PublishedMeasurement):
             if moniker_source.moniker is None:
                 raise ValueError("PublishedMeasurement must have a Moniker to read data")
-            moniker = moniker_source.moniker
+            grpc_moniker = moniker_source.moniker.to_protobuf()
         elif isinstance(moniker_source, PublishedCondition):
             if moniker_source.moniker is None:
                 raise ValueError("PublishedCondition must have a Moniker to read data")
-            moniker = moniker_source.moniker
+            grpc_moniker = moniker_source.moniker.to_protobuf()
+        else:
+            raise TypeError(f"Unsupported moniker_source type: {type(moniker_source)}")
 
-        moniker_client = self._get_moniker_client(moniker.service_location)
-        read_result = moniker_client.read_from_moniker(moniker)
+        moniker_client = self._get_moniker_client(grpc_moniker.service_location)
+        read_result = moniker_client.read_from_moniker(grpc_moniker)
         converted_data = unpack_and_convert_from_protobuf_any(read_result.value)
         if expected_type is not None and not isinstance(converted_data, expected_type):
             raise TypeError(f"Expected type {expected_type}, got {type(converted_data)}")

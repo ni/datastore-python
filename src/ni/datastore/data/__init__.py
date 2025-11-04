@@ -1,6 +1,6 @@
 """Public API for accessing the NI Data Store."""
 
-from ni.datamonikers.v1.data_moniker_pb2 import Moniker
+from ni.datastore.data._types._moniker import Moniker
 from ni.datastore.data._data_store_client import DataStoreClient
 from ni.datastore.data._types._error_information import ErrorInformation
 from ni.datastore.data._types._published_condition import PublishedCondition

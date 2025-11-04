@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from ni.datamonikers.v1.data_moniker_pb2 import Moniker
+from ni.datastore.data._types._moniker import Moniker
 from ni.measurements.data.v1.data_store_pb2 import (
     PublishedCondition as PublishedConditionProto,
 )
@@ -61,7 +61,7 @@ class PublishedCondition:
         """Create a PublishedCondition instance from a protobuf PublishedCondition message."""
         return PublishedCondition(
             moniker=(
-                published_condition_proto.moniker
+                Moniker.from_protobuf(published_condition_proto.moniker)
                 if published_condition_proto.HasField("moniker")
                 else None
             ),
@@ -75,7 +75,7 @@ class PublishedCondition:
     def to_protobuf(self) -> PublishedConditionProto:
         """Convert this PublishedCondition instance to a protobuf PublishedCondition message."""
         return PublishedConditionProto(
-            moniker=self.moniker,
+            moniker=self.moniker.to_protobuf() if self.moniker is not None else None,
             id=self.id,
             name=self.name,
             type=self.type,

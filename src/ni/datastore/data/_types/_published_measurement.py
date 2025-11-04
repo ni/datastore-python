@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Iterable, MutableSequence
 
 import hightime as ht
-from ni.datamonikers.v1.data_moniker_pb2 import Moniker
+from ni.datastore.data._types._moniker import Moniker
 from ni.datastore.data._types._published_condition import PublishedCondition
 from ni.measurements.data.v1.data_store_pb2 import (
     Outcome,
@@ -151,7 +151,7 @@ class PublishedMeasurement:
         """Create a PublishedMeasurement instance from a protobuf PublishedMeasurement message."""
         return PublishedMeasurement(
             moniker=(
-                published_measurement_proto.moniker
+                Moniker.from_protobuf(published_measurement_proto.moniker)
                 if published_measurement_proto.HasField("moniker")
                 else None
             ),
@@ -190,7 +190,7 @@ class PublishedMeasurement:
     def to_protobuf(self) -> PublishedMeasurementProto:
         """Convert this PublishedMeasurement instance to a protobuf PublishedMeasurement message."""
         return PublishedMeasurementProto(
-            moniker=self.moniker,
+            moniker=self.moniker.to_protobuf() if self.moniker is not None else None,
             published_conditions=[
                 condition.to_protobuf() for condition in self.published_conditions
             ],
