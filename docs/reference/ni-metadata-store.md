@@ -9,7 +9,7 @@ An **Operator** represents a person who performs tests or operates test equipmen
 
 **Fields:**
 - `id` (string) - The id of the operator
-- `operator_name` (string) - The name of the operator
+- `name` (string) - The name of the operator
 - `role` (string) - The role of the operator (e.g., "Test Engineer", "Lab Technician")
 - `link` (string) - URI to resource describing the operator
 - `extensions` (dict) - Custom key-value pairs for additional metadata
@@ -69,16 +69,17 @@ A **UUT Instance** represents an individual physical device with a unique serial
 - `id` (string) - The id of the UUT instance
 - `uut_id` (string) - The ID of the UUT associated with this instance (GUID or alias)
 - `serial_number` (string) - The serial number of the UUT instance
-- `asset_identifier` (string) - For tracking and inventory purposes
 - `manufacture_date` (string) - When the instance was manufactured
+- `firmware_version` (string) - Version of the firmware on the UUT instance
+- `hardware_version` (string) - Hardware version of the UUT instance
 - `link` (string) - URI to resource describing the UUT instance
 - `extensions` (dict) - Custom key-value pairs for additional metadata
 - `schema_id` (string) - ID of the schema for extension validation
 
 **Real-world examples**:
-- UUT: "PowerSupply v2.1", Serial: "PS-2024-001" - First power supply unit built in 2024
-- UUT: "Audio Amplifier v1.3", Serial: "AMP-2024-456" - Specific amplifier with serial number
-- UUT: "RF Transceiver Gen3", Serial: "RF-X7G9-2024-789" - Individual transceiver unit
+- UUT: "PowerSupply v2.1", Serial: "PS-2024-001", FW: "1.2.3", HW: "Rev C" - First power supply unit built in 2024
+- UUT: "Audio Amplifier v1.3", Serial: "AMP-2024-456", FW: "2.0.1", HW: "Rev B" - Specific amplifier with serial number
+- UUT: "RF Transceiver Gen3", Serial: "RF-X7G9-2024-789", FW: "3.1.0", HW: "Rev A" - Individual transceiver unit
 
 Each UUT instance tracks the test history for that specific physical device throughout its lifecycle.
 
@@ -185,7 +186,7 @@ A **Test Adapter** represents a test fixture, mechanical setup, or interface use
 An **Extension Schema** defines the structure and validation rules for custom extension fields that can be added to any metadata entity.
 
 **Fields:**
-- `schema_id` (string) - Unique identifier for the schema
+- `id` (string) - Unique identifier for the schema
 - `schema` (string) - The schema definition itself (JSON Schema format)
 
 **Real-world examples**:
@@ -198,7 +199,7 @@ An **Extension Schema** defines the structure and validation rules for custom ex
 An **Alias** provides a human-readable name that points to any metadata entity. This creates a layer of abstraction that makes test code more maintainable and readable.
 
 **Fields:**
-- `alias_name` (string) - The registered alias name for the metadata instance
+- `name` (string) - The registered alias name for the metadata instance
 - `target_type` (enum) - The type of the aliased metadata instance (see `AliasTargetType` enum)
 - `target_id` (string) - The unique identifier for the aliased metadata instance
 
