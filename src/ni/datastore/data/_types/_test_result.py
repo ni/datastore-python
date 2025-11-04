@@ -39,7 +39,7 @@ class TestResult:
         "_software_item_ids",
         "_hardware_item_ids",
         "_test_adapter_ids",
-        "test_result_name",
+        "name",
         "_start_date_time",
         "_end_date_time",
         "_outcome",
@@ -95,7 +95,7 @@ class TestResult:
         software_item_ids: Iterable[str] | None = None,
         hardware_item_ids: Iterable[str] | None = None,
         test_adapter_ids: Iterable[str] | None = None,
-        test_result_name: str = "",
+        name: str = "",
         link: str = "",
         extensions: Mapping[str, str] | None = None,
         schema_id: str = "",
@@ -112,7 +112,7 @@ class TestResult:
             software_item_ids: IDs of software items used in the test.
             hardware_item_ids: IDs of hardware items used in the test.
             test_adapter_ids: IDs of test adapters used in the test.
-            test_result_name: Human-readable name for the test result.
+            name: Human-readable name for the test result.
             link: Optional link to external resources for this test result.
             extensions: Additional custom metadata as key-value pairs.
             schema_id: ID of the extension schema for validating extensions.
@@ -133,7 +133,7 @@ class TestResult:
         self._test_adapter_ids: MutableSequence[str] = (
             list(test_adapter_ids) if test_adapter_ids is not None else []
         )
-        self.test_result_name = test_result_name
+        self.name = name
         self.link = link
         self._extensions: MutableMapping[str, str] = (
             dict(extensions) if extensions is not None else {}
@@ -157,7 +157,7 @@ class TestResult:
             software_item_ids=test_result_proto.software_item_ids,
             hardware_item_ids=test_result_proto.hardware_item_ids,
             test_adapter_ids=test_result_proto.test_adapter_ids,
-            test_result_name=test_result_proto.name,
+            name=test_result_proto.name,
             link=test_result_proto.link,
             schema_id=test_result_proto.schema_id,
         )
@@ -193,7 +193,7 @@ class TestResult:
             software_item_ids=self.software_item_ids,
             hardware_item_ids=self.hardware_item_ids,
             test_adapter_ids=self.test_adapter_ids,
-            name=self.test_result_name,
+            name=self.name,
             start_date_time=(
                 hightime_datetime_to_protobuf(self.start_date_time)
                 if self.start_date_time
@@ -223,7 +223,7 @@ class TestResult:
             and self.software_item_ids == other.software_item_ids
             and self.hardware_item_ids == other.hardware_item_ids
             and self.test_adapter_ids == other.test_adapter_ids
-            and self.test_result_name == other.test_result_name
+            and self.name == other.name
             and self.start_date_time == other.start_date_time
             and self.end_date_time == other.end_date_time
             and self.outcome == other.outcome
