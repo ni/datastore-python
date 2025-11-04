@@ -10,6 +10,7 @@ from ni.datastore.metadata._grpc_conversion import (
     populate_from_extension_value_message_map,
 )
 from ni.measurements.data.v1.data_store_pb2 import (
+    ErrorInformation,
     Outcome,
     TestResult as TestResultProto,
 )
@@ -45,6 +46,7 @@ class TestResult:
         "link",
         "_extensions",
         "schema_id",
+        "error_information",
     )
 
     @property
@@ -97,6 +99,7 @@ class TestResult:
         link: str = "",
         extensions: Mapping[str, str] | None = None,
         schema_id: str = "",
+        error_information: ErrorInformation | None = None,
     ) -> None:
         """Initialize a TestResult instance.
 
@@ -113,6 +116,8 @@ class TestResult:
             link: Optional link to external resources for this test result.
             extensions: Additional custom metadata as key-value pairs.
             schema_id: ID of the extension schema for validating extensions.
+            error_information: Error or exception information in case of
+                test result failure.
         """
         self.id = id
         self.uut_instance_id = uut_instance_id
@@ -134,6 +139,7 @@ class TestResult:
             dict(extensions) if extensions is not None else {}
         )
         self.schema_id = schema_id
+        self.error_information = error_information
 
         self._start_date_time: ht.datetime | None = None
         self._end_date_time: ht.datetime | None = None
@@ -166,6 +172,11 @@ class TestResult:
             else None
         )
         test_result._outcome = test_result_proto.outcome
+        test_result.error_information = (
+            test_result_proto.error_information
+            if test_result_proto.HasField("error_information")
+            else None
+        )
         populate_from_extension_value_message_map(
             test_result.extensions, test_result_proto.extensions
         )
@@ -194,6 +205,7 @@ class TestResult:
             outcome=self.outcome,
             link=self.link,
             schema_id=self.schema_id,
+            error_information=self.error_information,
         )
         populate_extension_value_message_map(test_result_proto.extensions, self.extensions)
         return test_result_proto
@@ -218,6 +230,7 @@ class TestResult:
             and self.link == other.link
             and self.extensions == other.extensions
             and self.schema_id == other.schema_id
+            and self.error_information == other.error_information
         )
 
     def __str__(self) -> str:
