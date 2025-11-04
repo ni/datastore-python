@@ -10,6 +10,7 @@ from ni.datastore.metadata._grpc_conversion import (
     populate_from_extension_value_message_map,
 )
 from ni.measurements.data.v1.data_store_pb2 import (
+    ErrorInformation,
     Step as StepProto,
 )
 from ni.protobuf.types.precision_timestamp_conversion import (
@@ -41,6 +42,7 @@ class Step:
         "link",
         "_extensions",
         "schema_id",
+        "error_information",
     )
 
     @property
@@ -71,6 +73,7 @@ class Step:
         link: str = "",
         extensions: Mapping[str, str] | None = None,
         schema_id: str = "",
+        error_information: ErrorInformation | None = None,
     ) -> None:
         """Initialize a Step instance.
 
@@ -85,6 +88,8 @@ class Step:
             link: Optional link to external resources for this step.
             extensions: Additional custom metadata as key-value pairs.
             schema_id: ID of the extension schema for validating extensions.
+            error_information: Error or exception information in case of
+                step failure.
         """
         self.id = id
         self.parent_step_id = parent_step_id
@@ -98,6 +103,7 @@ class Step:
             dict(extensions) if extensions is not None else {}
         )
         self.schema_id = schema_id
+        self.error_information = error_information
 
         self._start_date_time: ht.datetime | None = None
         self._end_date_time: ht.datetime | None = None
@@ -126,6 +132,9 @@ class Step:
             if step_proto.HasField("end_date_time")
             else None
         )
+        step.error_information = (
+            step_proto.error_information if step_proto.HasField("error_information") else None
+        )
         populate_from_extension_value_message_map(step.extensions, step_proto.extensions)
         return step
 
@@ -149,6 +158,7 @@ class Step:
             ),
             link=self.link,
             schema_id=self.schema_id,
+            error_information=self.error_information,
         )
         populate_extension_value_message_map(step_proto.extensions, self.extensions)
         return step_proto
@@ -170,6 +180,7 @@ class Step:
             and self.link == other.link
             and self.extensions == other.extensions
             and self.schema_id == other.schema_id
+            and self.error_information == other.error_information
         )
 
     def __str__(self) -> str:
