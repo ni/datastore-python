@@ -11,18 +11,18 @@ from ni.measurements.data.v1.data_store_pb2 import Outcome as OutcomeProto
 
 def test___enum_values___match_protobuf_values() -> None:
     """Test that enum values match the protobuf enum values."""
-    assert Outcome.UNSPECIFIED == OutcomeProto.OUTCOME_UNSPECIFIED
-    assert Outcome.PASSED == OutcomeProto.OUTCOME_PASSED
-    assert Outcome.FAILED == OutcomeProto.OUTCOME_FAILED
-    assert Outcome.INDETERMINATE == OutcomeProto.OUTCOME_INDETERMINATE
+    assert Outcome.UNSPECIFIED.value == OutcomeProto.OUTCOME_UNSPECIFIED
+    assert Outcome.PASSED.value == OutcomeProto.OUTCOME_PASSED
+    assert Outcome.FAILED.value == OutcomeProto.OUTCOME_FAILED
+    assert Outcome.INDETERMINATE.value == OutcomeProto.OUTCOME_INDETERMINATE
 
 
 def test___enum_values___have_expected_integer_values() -> None:
     """Test that enum has the expected integer values."""
-    assert Outcome.UNSPECIFIED == 0
-    assert Outcome.PASSED == 1
-    assert Outcome.FAILED == 2
-    assert Outcome.INDETERMINATE == 3
+    assert Outcome.UNSPECIFIED.value == 0
+    assert Outcome.PASSED.value == 1
+    assert Outcome.FAILED.value == 2
+    assert Outcome.INDETERMINATE.value == 3
 
 
 def test___to_protobuf___converts_enum_to_protobuf_value() -> None:

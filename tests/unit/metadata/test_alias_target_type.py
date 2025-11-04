@@ -13,32 +13,32 @@ from ni.measurements.metadata.v1.metadata_store_pb2 import (
 
 def test___enum_values___match_protobuf_values() -> None:
     """Test that enum values match the protobuf enum values."""
-    assert AliasTargetType.UNSPECIFIED == AliasTargetTypeProto.ALIAS_TARGET_TYPE_UNSPECIFIED
-    assert AliasTargetType.UUT_INSTANCE == AliasTargetTypeProto.ALIAS_TARGET_TYPE_UUT_INSTANCE
-    assert AliasTargetType.UUT == AliasTargetTypeProto.ALIAS_TARGET_TYPE_UUT
-    assert AliasTargetType.HARDWARE_ITEM == AliasTargetTypeProto.ALIAS_TARGET_TYPE_HARDWARE_ITEM
-    assert AliasTargetType.SOFTWARE_ITEM == AliasTargetTypeProto.ALIAS_TARGET_TYPE_SOFTWARE_ITEM
-    assert AliasTargetType.OPERATOR == AliasTargetTypeProto.ALIAS_TARGET_TYPE_OPERATOR
+    assert AliasTargetType.UNSPECIFIED.value == AliasTargetTypeProto.ALIAS_TARGET_TYPE_UNSPECIFIED
+    assert AliasTargetType.UUT_INSTANCE.value == AliasTargetTypeProto.ALIAS_TARGET_TYPE_UUT_INSTANCE
+    assert AliasTargetType.UUT.value == AliasTargetTypeProto.ALIAS_TARGET_TYPE_UUT
+    assert AliasTargetType.HARDWARE_ITEM.value == AliasTargetTypeProto.ALIAS_TARGET_TYPE_HARDWARE_ITEM
+    assert AliasTargetType.SOFTWARE_ITEM.value == AliasTargetTypeProto.ALIAS_TARGET_TYPE_SOFTWARE_ITEM
+    assert AliasTargetType.OPERATOR.value == AliasTargetTypeProto.ALIAS_TARGET_TYPE_OPERATOR
     assert (
-        AliasTargetType.TEST_DESCRIPTION == AliasTargetTypeProto.ALIAS_TARGET_TYPE_TEST_DESCRIPTION
+        AliasTargetType.TEST_DESCRIPTION.value == AliasTargetTypeProto.ALIAS_TARGET_TYPE_TEST_DESCRIPTION
     )
-    assert AliasTargetType.TEST == AliasTargetTypeProto.ALIAS_TARGET_TYPE_TEST
-    assert AliasTargetType.TEST_STATION == AliasTargetTypeProto.ALIAS_TARGET_TYPE_TEST_STATION
-    assert AliasTargetType.TEST_ADAPTER == AliasTargetTypeProto.ALIAS_TARGET_TYPE_TEST_ADAPTER
+    assert AliasTargetType.TEST.value == AliasTargetTypeProto.ALIAS_TARGET_TYPE_TEST
+    assert AliasTargetType.TEST_STATION.value == AliasTargetTypeProto.ALIAS_TARGET_TYPE_TEST_STATION
+    assert AliasTargetType.TEST_ADAPTER.value == AliasTargetTypeProto.ALIAS_TARGET_TYPE_TEST_ADAPTER
 
 
 def test___enum_values___have_expected_integer_values() -> None:
     """Test that enum has the expected integer values."""
-    assert AliasTargetType.UNSPECIFIED == 0
-    assert AliasTargetType.UUT_INSTANCE == 1
-    assert AliasTargetType.UUT == 2
-    assert AliasTargetType.HARDWARE_ITEM == 3
-    assert AliasTargetType.SOFTWARE_ITEM == 4
-    assert AliasTargetType.OPERATOR == 5
-    assert AliasTargetType.TEST_DESCRIPTION == 6
-    assert AliasTargetType.TEST == 7
-    assert AliasTargetType.TEST_STATION == 8
-    assert AliasTargetType.TEST_ADAPTER == 9
+    assert AliasTargetType.UNSPECIFIED.value == 0
+    assert AliasTargetType.UUT_INSTANCE.value == 1
+    assert AliasTargetType.UUT.value == 2
+    assert AliasTargetType.HARDWARE_ITEM.value == 3
+    assert AliasTargetType.SOFTWARE_ITEM.value == 4
+    assert AliasTargetType.OPERATOR.value == 5
+    assert AliasTargetType.TEST_DESCRIPTION.value == 6
+    assert AliasTargetType.TEST.value == 7
+    assert AliasTargetType.TEST_STATION.value == 8
+    assert AliasTargetType.TEST_ADAPTER.value == 9
 
 
 def test___to_protobuf___converts_enum_to_protobuf_value() -> None:
@@ -178,8 +178,8 @@ def test___enum___supports_integer_operations() -> None:
     assert AliasTargetType.TEST - 1 == 6
 
     # Can be compared with integers
-    assert AliasTargetType.UNSPECIFIED == 0
-    assert AliasTargetType.TEST_ADAPTER == 9
+    assert AliasTargetType.UNSPECIFIED.value == 0
+    assert AliasTargetType.TEST_ADAPTER.value == 9
 
     # Can be used in arithmetic contexts
     values = [AliasTargetType.UNSPECIFIED, AliasTargetType.UUT_INSTANCE, AliasTargetType.UUT]

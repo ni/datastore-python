@@ -189,7 +189,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
             value=expected_waveform,
             step_id=step_id,
             timestamp=timestamp,
-            outcome=Outcome.OUTCOME_PASSED,
+            outcome=Outcome.PASSED,
             error_information=error_information,
             hardware_item_ids=hardware_item_ids,
             test_adapter_ids=test_adapter_ids,
@@ -210,7 +210,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         assert sorted(found_measurement.hardware_item_ids) == sorted(hardware_item_ids)
         assert found_measurement.test_adapter_ids == test_adapter_ids
         assert found_measurement.error_information == error_information
-        assert found_measurement.outcome == Outcome.OUTCOME_PASSED
+        assert found_measurement.outcome == Outcome.PASSED
         assert isinstance(found_measurement.start_date_time, ht.datetime)
         # We can't directly compare these datetimes because of bruising when converting
         # to bintime and back.

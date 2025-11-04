@@ -6,14 +6,12 @@ from typing import Mapping, MutableMapping
 
 import hightime as ht
 from ni.datastore.data._types._error_information import ErrorInformation
+from ni.datastore.data._types._outcome import Outcome
 from ni.datastore.metadata._grpc_conversion import (
     populate_extension_value_message_map,
     populate_from_extension_value_message_map,
 )
-from ni.measurements.data.v1.data_store_pb2 import (
-    Outcome,
-    Step as StepProto,
-)
+from ni.measurements.data.v1.data_store_pb2 import Step as StepProto
 from ni.protobuf.types.precision_timestamp_conversion import (
     hightime_datetime_from_protobuf,
     hightime_datetime_to_protobuf,
@@ -68,7 +66,7 @@ class Step:
         extensions: Mapping[str, str] | None = None,
         schema_id: str = "",
         error_information: ErrorInformation | None = None,
-        outcome: Outcome.ValueType = Outcome.OUTCOME_UNSPECIFIED,
+        outcome: Outcome = Outcome.UNSPECIFIED,
     ) -> None:
         """Initialize a Step instance.
 
@@ -135,7 +133,7 @@ class Step:
                 if step_proto.HasField("error_information")
                 else None
             ),
-            outcome=step_proto.outcome,
+            outcome=Outcome.from_protobuf(step_proto.outcome),
         )
         populate_from_extension_value_message_map(step.extensions, step_proto.extensions)
         return step
@@ -163,7 +161,7 @@ class Step:
             error_information=(
                 self.error_information.to_protobuf() if self.error_information is not None else None
             ),
-            outcome=self.outcome,
+            outcome=self.outcome.to_protobuf(),
         )
         populate_extension_value_message_map(step_proto.extensions, self.extensions)
         return step_proto
