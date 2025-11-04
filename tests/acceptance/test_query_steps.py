@@ -23,7 +23,7 @@ def test___query_steps___filter_by_name___correct_steps_returned() -> None:
     with DataStoreClient() as data_store_client:
         description = "query steps filter by name"
         test_result_name = f"{description} test result"
-        test_result = TestResult(test_result_name=test_result_name)
+        test_result = TestResult(name=test_result_name)
         test_result_id = data_store_client.create_test_result(test_result)
 
         # Create multiple similarly named steps and published a measurement for each.

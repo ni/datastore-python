@@ -131,7 +131,7 @@ def test___publish_complex_waveform___read_data_returns_complex_waveform() -> No
 
 def _create_step(data_store_client: DataStoreClient, datatype_string: str) -> str:
     test_result_name = f"python publish {datatype_string} acceptance test"
-    test_result = TestResult(test_result_name=test_result_name)
+    test_result = TestResult(name=test_result_name)
     test_result_id = data_store_client.create_test_result(test_result)
 
     # Publish the waveform data

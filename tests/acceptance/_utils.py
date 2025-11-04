@@ -21,7 +21,7 @@ def create_test_result_and_step(data_store_client: DataStoreClient, description:
 def create_test_result(data_store_client: DataStoreClient, description: str) -> str:
     """Create a single TestResult and return that test result's id."""
     test_result_name = f"{description} test result"
-    test_result = TestResult(test_result_name=test_result_name)
+    test_result = TestResult(name=test_result_name)
     test_result_id = data_store_client.create_test_result(test_result)
     return test_result_id
 

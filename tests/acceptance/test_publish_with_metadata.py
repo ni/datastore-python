@@ -140,7 +140,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
             software_item_ids=software_item_ids,
             hardware_item_ids=hardware_item_ids,
             # test_adapter_ids=test_adapter_ids,
-            test_result_name=test_result_name,
+            name=test_result_name,
             link="Test Result Link",
             extensions={"tr1": "one", "tr2": "two"},
             schema_id=schema_id,
@@ -204,8 +204,8 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         assert found_measurement is not None
 
         # Check PublishedMeasurement
-        assert found_measurement.measurement_notes == "Measurement Notes"
-        assert found_measurement.measurement_name == "Measurement Name"
+        assert found_measurement.notes == "Measurement Notes"
+        assert found_measurement.name == "Measurement Name"
         assert sorted(found_measurement.software_item_ids) == sorted(software_item_ids)
         assert sorted(found_measurement.hardware_item_ids) == sorted(hardware_item_ids)
         # assert found_measurement.test_adapter_ids == test_adapter_ids
@@ -218,7 +218,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
 
         # Check TestResult
         found_test_result = data_store_client.get_test_result(found_measurement.test_result_id)
-        assert found_test_result.test_result_name == test_result_name
+        assert found_test_result.name == test_result_name
         assert found_test_result.operator_id == operator_id
         assert sorted(found_test_result.software_item_ids) == sorted(software_item_ids)
         assert sorted(found_test_result.hardware_item_ids) == sorted(hardware_item_ids)
