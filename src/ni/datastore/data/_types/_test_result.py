@@ -40,29 +40,14 @@ class TestResult:
         "_hardware_item_ids",
         "_test_adapter_ids",
         "name",
-        "_start_date_time",
-        "_end_date_time",
-        "_outcome",
+        "start_date_time",
+        "end_date_time",
+        "outcome",
         "link",
         "_extensions",
         "schema_id",
         "error_information",
     )
-
-    @property
-    def start_date_time(self) -> ht.datetime | None:
-        """Get the start date and time of the test execution."""
-        return self._start_date_time
-
-    @property
-    def end_date_time(self) -> ht.datetime | None:
-        """Get the end date and time of the test execution."""
-        return self._end_date_time
-
-    @property
-    def outcome(self) -> Outcome.ValueType:
-        """Get the outcome of the test execution."""
-        return self._outcome
 
     @property
     def software_item_ids(self) -> MutableSequence[str]:
@@ -96,6 +81,9 @@ class TestResult:
         hardware_item_ids: Iterable[str] | None = None,
         test_adapter_ids: Iterable[str] | None = None,
         name: str = "",
+        start_date_time: ht.datetime | None = None,
+        end_date_time: ht.datetime | None = None,
+        outcome: Outcome.ValueType = Outcome.OUTCOME_UNSPECIFIED,
         link: str = "",
         extensions: Mapping[str, str] | None = None,
         schema_id: str = "",
@@ -113,6 +101,10 @@ class TestResult:
             hardware_item_ids: IDs of hardware items used in the test.
             test_adapter_ids: IDs of test adapters used in the test.
             name: Human-readable name for the test result.
+            start_date_time: The start date and time of the test execution.
+            end_date_time: The end date and time of the test execution.
+            outcome: The outcome of the test execution (PASSED, FAILED,
+                INDETERMINATE, or UNSPECIFIED).
             link: Optional link to external resources for this test result.
             extensions: Additional custom metadata as key-value pairs.
             schema_id: ID of the extension schema for validating extensions.
@@ -134,16 +126,15 @@ class TestResult:
             list(test_adapter_ids) if test_adapter_ids is not None else []
         )
         self.name = name
+        self.start_date_time = start_date_time
+        self.end_date_time = end_date_time
+        self.outcome = outcome
         self.link = link
         self._extensions: MutableMapping[str, str] = (
             dict(extensions) if extensions is not None else {}
         )
         self.schema_id = schema_id
         self.error_information = error_information
-
-        self._start_date_time: ht.datetime | None = None
-        self._end_date_time: ht.datetime | None = None
-        self._outcome: Outcome.ValueType = Outcome.OUTCOME_UNSPECIFIED
 
     @staticmethod
     def from_protobuf(test_result_proto: TestResultProto) -> "TestResult":
@@ -158,24 +149,24 @@ class TestResult:
             hardware_item_ids=test_result_proto.hardware_item_ids,
             test_adapter_ids=test_result_proto.test_adapter_ids,
             name=test_result_proto.name,
+            start_date_time=(
+                hightime_datetime_from_protobuf(test_result_proto.start_date_time)
+                if test_result_proto.HasField("start_date_time")
+                else None
+            ),
+            end_date_time=(
+                hightime_datetime_from_protobuf(test_result_proto.end_date_time)
+                if test_result_proto.HasField("end_date_time")
+                else None
+            ),
+            outcome=test_result_proto.outcome,
             link=test_result_proto.link,
             schema_id=test_result_proto.schema_id,
-        )
-        test_result._start_date_time = (
-            hightime_datetime_from_protobuf(test_result_proto.start_date_time)
-            if test_result_proto.HasField("start_date_time")
-            else None
-        )
-        test_result._end_date_time = (
-            hightime_datetime_from_protobuf(test_result_proto.end_date_time)
-            if test_result_proto.HasField("end_date_time")
-            else None
-        )
-        test_result._outcome = test_result_proto.outcome
-        test_result.error_information = (
-            test_result_proto.error_information
-            if test_result_proto.HasField("error_information")
-            else None
+            error_information=(
+                test_result_proto.error_information
+                if test_result_proto.HasField("error_information")
+                else None
+            ),
         )
         populate_from_extension_value_message_map(
             test_result.extensions, test_result_proto.extensions
