@@ -29,10 +29,8 @@ from ni.datastore.data._types._step import Step
 from ni.datastore.data._types._test_result import TestResult
 from ni.measurementlink.discovery.v1.client import DiscoveryClient
 from ni.measurements.data.v1.client import DataStoreClient as DataStoreServiceClient
-from ni.measurements.data.v1.data_store_pb2 import (
-    Outcome,
-)
 from ni.datastore.data._types._error_information import ErrorInformation
+from ni.datastore.data._types._outcome import Outcome
 from ni.measurements.data.v1.data_store_service_pb2 import (
     CreateStepRequest,
     CreateTestResultRequest,
@@ -228,7 +226,7 @@ class DataStoreClient:
         value: object,  # More strongly typed Union[bool, AnalogWaveform] can be used if needed
         step_id: str,
         timestamp: ht.datetime | None = None,
-        outcome: Outcome.ValueType = Outcome.OUTCOME_UNSPECIFIED,
+        outcome: Outcome = Outcome.UNSPECIFIED,
         error_information: ErrorInformation | None = None,
         hardware_item_ids: Iterable[str] = tuple(),
         test_adapter_ids: Iterable[str] = tuple(),
@@ -292,7 +290,7 @@ class DataStoreClient:
         publish_request = PublishMeasurementRequest(
             measurement_name=measurement_name,
             step_id=step_id,
-            outcome=outcome,
+            outcome=outcome.to_protobuf(),
             error_information=(
                 error_information.to_protobuf() if error_information is not None else None
             ),
@@ -314,7 +312,7 @@ class DataStoreClient:
         values: object,
         step_id: str,
         timestamps: Iterable[ht.datetime] = tuple(),
-        outcomes: Iterable[Outcome.ValueType] = tuple(),
+        outcomes: Iterable[Outcome] = tuple(),
         error_information: Iterable[ErrorInformation] = tuple(),
         hardware_item_ids: Iterable[str] = tuple(),
         test_adapter_ids: Iterable[str] = tuple(),
@@ -375,7 +373,7 @@ class DataStoreClient:
             measurement_name=measurement_name,
             step_id=step_id,
             timestamps=[hightime_datetime_to_protobuf(ts) for ts in timestamps],
-            outcomes=outcomes,
+            outcomes=[outcome.to_protobuf() for outcome in outcomes],
             error_information=[ei.to_protobuf() for ei in error_information],
             hardware_item_ids=hardware_item_ids,
             test_adapter_ids=test_adapter_ids,

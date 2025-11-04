@@ -3,11 +3,11 @@
 from ni.datastore.data._types._moniker import Moniker
 from ni.datastore.data._data_store_client import DataStoreClient
 from ni.datastore.data._types._error_information import ErrorInformation
+from ni.datastore.data._types._outcome import Outcome
 from ni.datastore.data._types._published_condition import PublishedCondition
 from ni.datastore.data._types._published_measurement import PublishedMeasurement
 from ni.datastore.data._types._step import Step
 from ni.datastore.data._types._test_result import TestResult
-from ni.measurements.data.v1.data_store_pb2 import Outcome
 
 __all__ = [
     "DataStoreClient",
