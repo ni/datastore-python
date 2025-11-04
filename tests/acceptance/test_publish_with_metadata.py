@@ -139,7 +139,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
             test_description_id=test_description_id,
             software_item_ids=software_item_ids,
             hardware_item_ids=hardware_item_ids,
-            # test_adapter_ids=test_adapter_ids,
+            test_adapter_ids=test_adapter_ids,
             name=test_result_name,
             link="Test Result Link",
             extensions={"tr1": "one", "tr2": "two"},
@@ -208,7 +208,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         assert found_measurement.name == "Measurement Name"
         assert sorted(found_measurement.software_item_ids) == sorted(software_item_ids)
         assert sorted(found_measurement.hardware_item_ids) == sorted(hardware_item_ids)
-        # assert found_measurement.test_adapter_ids == test_adapter_ids
+        assert found_measurement.test_adapter_ids == test_adapter_ids
         assert found_measurement.error_information == error_information
         assert found_measurement.outcome == Outcome.OUTCOME_PASSED
         assert isinstance(found_measurement.start_date_time, ht.datetime)
@@ -234,8 +234,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         assert found_step.test_result_id == step.test_result_id
         assert found_step.test_id == step.test_id
         assert found_step.name == step.name
-        # TODO: File an issue that found_step.type is blank.
-        # assert found_step.type == step.type
+        assert found_step.type == step.type
         assert found_step.notes == step.notes
         assert found_step.link == step.link
         assert found_step.extensions == step.extensions
