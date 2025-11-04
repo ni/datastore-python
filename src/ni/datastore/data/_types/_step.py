@@ -35,8 +35,8 @@ class Step:
         "parent_step_id",
         "test_result_id",
         "test_id",
-        "step_name",
-        "step_type",
+        "name",
+        "type",
         "notes",
         "_start_date_time",
         "_end_date_time",
@@ -69,8 +69,8 @@ class Step:
         parent_step_id: str = "",
         test_result_id: str = "",
         test_id: str = "",
-        step_name: str = "",
-        step_type: str = "",
+        name: str = "",
+        type: str = "",
         notes: str = "",
         link: str = "",
         extensions: Mapping[str, str] | None = None,
@@ -85,8 +85,8 @@ class Step:
             parent_step_id: ID of the parent step if this is a nested step.
             test_result_id: ID of the test result this step belongs to.
             test_id: ID of the test associated with this step.
-            step_name: Human-readable name of the step.
-            step_type: Type or category of the step.
+            name: Human-readable name of the step.
+            type: Type or category of the step.
             notes: Additional notes or comments about the step.
             link: Optional link to external resources for this step.
             extensions: Additional custom metadata as key-value pairs.
@@ -100,8 +100,8 @@ class Step:
         self.parent_step_id = parent_step_id
         self.test_result_id = test_result_id
         self.test_id = test_id
-        self.step_name = step_name
-        self.step_type = step_type
+        self.name = name
+        self.type = type
         self.notes = notes
         self.link = link
         self._extensions: MutableMapping[str, str] = (
@@ -122,8 +122,8 @@ class Step:
             parent_step_id=step_proto.parent_step_id,
             test_result_id=step_proto.test_result_id,
             test_id=step_proto.test_id,
-            step_name=step_proto.name,
-            step_type=step_proto.type,
+            name=step_proto.name,
+            type=step_proto.type,
             notes=step_proto.notes,
             link=step_proto.link,
             schema_id=step_proto.schema_id,
@@ -152,8 +152,8 @@ class Step:
             parent_step_id=self.parent_step_id,
             test_result_id=self.test_result_id,
             test_id=self.test_id,
-            name=self.step_name,
-            type=self.step_type,
+            name=self.name,
+            type=self.type,
             notes=self.notes,
             start_date_time=(
                 hightime_datetime_to_protobuf(self.start_date_time)
@@ -180,8 +180,8 @@ class Step:
             and self.parent_step_id == other.parent_step_id
             and self.test_result_id == other.test_result_id
             and self.test_id == other.test_id
-            and self.step_name == other.step_name
-            and self.step_type == other.step_type
+            and self.name == other.name
+            and self.type == other.type
             and self.notes == other.notes
             and self.start_date_time == other.start_date_time
             and self.end_date_time == other.end_date_time

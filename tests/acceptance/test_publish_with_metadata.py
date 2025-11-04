@@ -164,13 +164,13 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         test_id = metadata_store_client.create_test(test)
 
         # Data: Step
-        parent_step = Step(step_name="Parent Step")
+        parent_step = Step(name="Parent Step")
         step = Step(
             parent_step_id=parent_step.id,
             test_result_id=test_result_id,
             test_id=test_id,
-            step_name="Step Name",
-            step_type="Step Type",
+            name="Step Name",
+            type="Step Type",
             notes="Step Notes",
             link="Step Link",
             extensions={"s1": "one", "s2": "two"},
@@ -233,9 +233,9 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         assert found_step.parent_step_id == step.parent_step_id
         assert found_step.test_result_id == step.test_result_id
         assert found_step.test_id == step.test_id
-        assert found_step.step_name == step.step_name
-        # TODO: File an issue that found_step.step_type is blank.
-        # assert found_step.step_type == step.step_type
+        assert found_step.name == step.name
+        # TODO: File an issue that found_step.type is blank.
+        # assert found_step.type == step.type
         assert found_step.notes == step.notes
         assert found_step.link == step.link
         assert found_step.extensions == step.extensions
