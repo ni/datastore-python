@@ -14,7 +14,6 @@ import hightime as ht
 from grpc import Channel
 from ni.datamonikers.v1.client import MonikerClient
 from ni.datamonikers.v1.data_moniker_pb2 import Moniker as GrpcMoniker
-from ni.datastore.data._types._moniker import Moniker
 from ni.datastore.data._grpc_conversion import (
     get_publish_measurement_timestamp,
     populate_publish_condition_batch_request_values,
@@ -23,14 +22,15 @@ from ni.datastore.data._grpc_conversion import (
     populate_publish_measurement_request_value,
     unpack_and_convert_from_protobuf_any,
 )
+from ni.datastore.data._types._error_information import ErrorInformation
+from ni.datastore.data._types._moniker import Moniker
+from ni.datastore.data._types._outcome import Outcome
 from ni.datastore.data._types._published_condition import PublishedCondition
 from ni.datastore.data._types._published_measurement import PublishedMeasurement
 from ni.datastore.data._types._step import Step
 from ni.datastore.data._types._test_result import TestResult
 from ni.measurementlink.discovery.v1.client import DiscoveryClient
 from ni.measurements.data.v1.client import DataStoreClient as DataStoreServiceClient
-from ni.datastore.data._types._error_information import ErrorInformation
-from ni.datastore.data._types._outcome import Outcome
 from ni.measurements.data.v1.data_store_service_pb2 import (
     CreateStepRequest,
     CreateTestResultRequest,
@@ -431,7 +431,7 @@ class DataStoreClient:
                 doesn't match.
         """
         grpc_moniker: GrpcMoniker
-        
+
         if isinstance(moniker_source, Moniker):
             grpc_moniker = moniker_source.to_protobuf()
         elif isinstance(moniker_source, GrpcMoniker):

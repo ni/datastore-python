@@ -5,14 +5,13 @@ from __future__ import annotations
 from typing import Iterable, MutableSequence
 
 import hightime as ht
+from ni.datastore.data._types._error_information import ErrorInformation
 from ni.datastore.data._types._moniker import Moniker
 from ni.datastore.data._types._published_condition import PublishedCondition
 from ni.measurements.data.v1.data_store_pb2 import (
     Outcome,
     PublishedMeasurement as PublishedMeasurementProto,
 )
-
-from ni.datastore.data._types._error_information import ErrorInformation
 from ni.protobuf.types.precision_timestamp_conversion import (
     hightime_datetime_from_protobuf,
     hightime_datetime_to_protobuf,
@@ -216,9 +215,7 @@ class PublishedMeasurement:
             outcome=self.outcome,
             parametric_index=self.parametric_index,
             error_information=(
-                self.error_information.to_protobuf()
-                if self.error_information is not None
-                else None
+                self.error_information.to_protobuf() if self.error_information is not None else None
             ),
         )
 

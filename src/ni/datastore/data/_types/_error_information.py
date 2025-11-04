@@ -2,13 +2,15 @@
 
 from __future__ import annotations
 
-from ni.measurements.data.v1.data_store_pb2 import ErrorInformation as ErrorInformationProto
+from ni.measurements.data.v1.data_store_pb2 import (
+    ErrorInformation as ErrorInformationProto,
+)
 
 
 class ErrorInformation:
     """Represents error or exception information in case of measurement failure.
 
-    An ErrorInformation contains an error code, descriptive message, and 
+    An ErrorInformation contains an error code, descriptive message, and
     source information to help identify and diagnose issues during measurement
     execution.
     """

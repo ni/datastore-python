@@ -20,7 +20,7 @@ class Outcome(IntEnum):
     PASSED = OutcomeProto.OUTCOME_PASSED
     """The measurement or test passed successfully."""
 
-    FAILED = OutcomeProto.OUTCOME_FAILED  
+    FAILED = OutcomeProto.OUTCOME_FAILED
     """The measurement or test failed."""
 
     INDETERMINATE = OutcomeProto.OUTCOME_INDETERMINATE
@@ -29,13 +29,13 @@ class Outcome(IntEnum):
     @classmethod
     def from_protobuf(cls, outcome_proto: OutcomeProto.ValueType) -> "Outcome":
         """Create an Outcome instance from a protobuf Outcome value.
-        
+
         Args:
             outcome_proto: The protobuf Outcome value.
-            
+
         Returns:
             The corresponding Outcome enum value.
-            
+
         Raises:
             ValueError: If the protobuf value doesn't correspond to a known Outcome.
         """
@@ -46,7 +46,7 @@ class Outcome(IntEnum):
 
     def to_protobuf(self) -> OutcomeProto.ValueType:
         """Convert this Outcome instance to a protobuf Outcome value.
-        
+
         Returns:
             The corresponding protobuf Outcome value.
         """

@@ -6,7 +6,9 @@ from typing import cast
 
 import pytest
 from ni.datastore.metadata import AliasTargetType
-from ni.measurements.metadata.v1.metadata_store_pb2 import AliasTargetType as AliasTargetTypeProto
+from ni.measurements.metadata.v1.metadata_store_pb2 import (
+    AliasTargetType as AliasTargetTypeProto,
+)
 
 
 def test___enum_values___match_protobuf_values() -> None:
@@ -17,7 +19,9 @@ def test___enum_values___match_protobuf_values() -> None:
     assert AliasTargetType.HARDWARE_ITEM == AliasTargetTypeProto.ALIAS_TARGET_TYPE_HARDWARE_ITEM
     assert AliasTargetType.SOFTWARE_ITEM == AliasTargetTypeProto.ALIAS_TARGET_TYPE_SOFTWARE_ITEM
     assert AliasTargetType.OPERATOR == AliasTargetTypeProto.ALIAS_TARGET_TYPE_OPERATOR
-    assert AliasTargetType.TEST_DESCRIPTION == AliasTargetTypeProto.ALIAS_TARGET_TYPE_TEST_DESCRIPTION
+    assert (
+        AliasTargetType.TEST_DESCRIPTION == AliasTargetTypeProto.ALIAS_TARGET_TYPE_TEST_DESCRIPTION
+    )
     assert AliasTargetType.TEST == AliasTargetTypeProto.ALIAS_TARGET_TYPE_TEST
     assert AliasTargetType.TEST_STATION == AliasTargetTypeProto.ALIAS_TARGET_TYPE_TEST_STATION
     assert AliasTargetType.TEST_ADAPTER == AliasTargetTypeProto.ALIAS_TARGET_TYPE_TEST_ADAPTER
@@ -39,30 +43,81 @@ def test___enum_values___have_expected_integer_values() -> None:
 
 def test___to_protobuf___converts_enum_to_protobuf_value() -> None:
     """Test converting enum to protobuf value."""
-    assert AliasTargetType.UNSPECIFIED.to_protobuf() == AliasTargetTypeProto.ALIAS_TARGET_TYPE_UNSPECIFIED
-    assert AliasTargetType.UUT_INSTANCE.to_protobuf() == AliasTargetTypeProto.ALIAS_TARGET_TYPE_UUT_INSTANCE
+    assert (
+        AliasTargetType.UNSPECIFIED.to_protobuf()
+        == AliasTargetTypeProto.ALIAS_TARGET_TYPE_UNSPECIFIED
+    )
+    assert (
+        AliasTargetType.UUT_INSTANCE.to_protobuf()
+        == AliasTargetTypeProto.ALIAS_TARGET_TYPE_UUT_INSTANCE
+    )
     assert AliasTargetType.UUT.to_protobuf() == AliasTargetTypeProto.ALIAS_TARGET_TYPE_UUT
-    assert AliasTargetType.HARDWARE_ITEM.to_protobuf() == AliasTargetTypeProto.ALIAS_TARGET_TYPE_HARDWARE_ITEM
-    assert AliasTargetType.SOFTWARE_ITEM.to_protobuf() == AliasTargetTypeProto.ALIAS_TARGET_TYPE_SOFTWARE_ITEM
+    assert (
+        AliasTargetType.HARDWARE_ITEM.to_protobuf()
+        == AliasTargetTypeProto.ALIAS_TARGET_TYPE_HARDWARE_ITEM
+    )
+    assert (
+        AliasTargetType.SOFTWARE_ITEM.to_protobuf()
+        == AliasTargetTypeProto.ALIAS_TARGET_TYPE_SOFTWARE_ITEM
+    )
     assert AliasTargetType.OPERATOR.to_protobuf() == AliasTargetTypeProto.ALIAS_TARGET_TYPE_OPERATOR
-    assert AliasTargetType.TEST_DESCRIPTION.to_protobuf() == AliasTargetTypeProto.ALIAS_TARGET_TYPE_TEST_DESCRIPTION
+    assert (
+        AliasTargetType.TEST_DESCRIPTION.to_protobuf()
+        == AliasTargetTypeProto.ALIAS_TARGET_TYPE_TEST_DESCRIPTION
+    )
     assert AliasTargetType.TEST.to_protobuf() == AliasTargetTypeProto.ALIAS_TARGET_TYPE_TEST
-    assert AliasTargetType.TEST_STATION.to_protobuf() == AliasTargetTypeProto.ALIAS_TARGET_TYPE_TEST_STATION
-    assert AliasTargetType.TEST_ADAPTER.to_protobuf() == AliasTargetTypeProto.ALIAS_TARGET_TYPE_TEST_ADAPTER
+    assert (
+        AliasTargetType.TEST_STATION.to_protobuf()
+        == AliasTargetTypeProto.ALIAS_TARGET_TYPE_TEST_STATION
+    )
+    assert (
+        AliasTargetType.TEST_ADAPTER.to_protobuf()
+        == AliasTargetTypeProto.ALIAS_TARGET_TYPE_TEST_ADAPTER
+    )
 
 
 def test___from_protobuf___converts_protobuf_value_to_enum() -> None:
     """Test converting protobuf value to enum."""
-    assert AliasTargetType.from_protobuf(AliasTargetTypeProto.ALIAS_TARGET_TYPE_UNSPECIFIED) == AliasTargetType.UNSPECIFIED
-    assert AliasTargetType.from_protobuf(AliasTargetTypeProto.ALIAS_TARGET_TYPE_UUT_INSTANCE) == AliasTargetType.UUT_INSTANCE
-    assert AliasTargetType.from_protobuf(AliasTargetTypeProto.ALIAS_TARGET_TYPE_UUT) == AliasTargetType.UUT
-    assert AliasTargetType.from_protobuf(AliasTargetTypeProto.ALIAS_TARGET_TYPE_HARDWARE_ITEM) == AliasTargetType.HARDWARE_ITEM
-    assert AliasTargetType.from_protobuf(AliasTargetTypeProto.ALIAS_TARGET_TYPE_SOFTWARE_ITEM) == AliasTargetType.SOFTWARE_ITEM
-    assert AliasTargetType.from_protobuf(AliasTargetTypeProto.ALIAS_TARGET_TYPE_OPERATOR) == AliasTargetType.OPERATOR
-    assert AliasTargetType.from_protobuf(AliasTargetTypeProto.ALIAS_TARGET_TYPE_TEST_DESCRIPTION) == AliasTargetType.TEST_DESCRIPTION
-    assert AliasTargetType.from_protobuf(AliasTargetTypeProto.ALIAS_TARGET_TYPE_TEST) == AliasTargetType.TEST
-    assert AliasTargetType.from_protobuf(AliasTargetTypeProto.ALIAS_TARGET_TYPE_TEST_STATION) == AliasTargetType.TEST_STATION
-    assert AliasTargetType.from_protobuf(AliasTargetTypeProto.ALIAS_TARGET_TYPE_TEST_ADAPTER) == AliasTargetType.TEST_ADAPTER
+    assert (
+        AliasTargetType.from_protobuf(AliasTargetTypeProto.ALIAS_TARGET_TYPE_UNSPECIFIED)
+        == AliasTargetType.UNSPECIFIED
+    )
+    assert (
+        AliasTargetType.from_protobuf(AliasTargetTypeProto.ALIAS_TARGET_TYPE_UUT_INSTANCE)
+        == AliasTargetType.UUT_INSTANCE
+    )
+    assert (
+        AliasTargetType.from_protobuf(AliasTargetTypeProto.ALIAS_TARGET_TYPE_UUT)
+        == AliasTargetType.UUT
+    )
+    assert (
+        AliasTargetType.from_protobuf(AliasTargetTypeProto.ALIAS_TARGET_TYPE_HARDWARE_ITEM)
+        == AliasTargetType.HARDWARE_ITEM
+    )
+    assert (
+        AliasTargetType.from_protobuf(AliasTargetTypeProto.ALIAS_TARGET_TYPE_SOFTWARE_ITEM)
+        == AliasTargetType.SOFTWARE_ITEM
+    )
+    assert (
+        AliasTargetType.from_protobuf(AliasTargetTypeProto.ALIAS_TARGET_TYPE_OPERATOR)
+        == AliasTargetType.OPERATOR
+    )
+    assert (
+        AliasTargetType.from_protobuf(AliasTargetTypeProto.ALIAS_TARGET_TYPE_TEST_DESCRIPTION)
+        == AliasTargetType.TEST_DESCRIPTION
+    )
+    assert (
+        AliasTargetType.from_protobuf(AliasTargetTypeProto.ALIAS_TARGET_TYPE_TEST)
+        == AliasTargetType.TEST
+    )
+    assert (
+        AliasTargetType.from_protobuf(AliasTargetTypeProto.ALIAS_TARGET_TYPE_TEST_STATION)
+        == AliasTargetType.TEST_STATION
+    )
+    assert (
+        AliasTargetType.from_protobuf(AliasTargetTypeProto.ALIAS_TARGET_TYPE_TEST_ADAPTER)
+        == AliasTargetType.TEST_ADAPTER
+    )
 
 
 def test___round_trip_conversion___preserves_enum_value() -> None:
@@ -121,11 +176,11 @@ def test___enum___supports_integer_operations() -> None:
     assert AliasTargetType.UNSPECIFIED + 1 == 1
     assert AliasTargetType.UUT_INSTANCE * 2 == 2
     assert AliasTargetType.TEST - 1 == 6
-    
+
     # Can be compared with integers
     assert AliasTargetType.UNSPECIFIED == 0
     assert AliasTargetType.TEST_ADAPTER == 9
-    
+
     # Can be used in arithmetic contexts
     values = [AliasTargetType.UNSPECIFIED, AliasTargetType.UUT_INSTANCE, AliasTargetType.UUT]
     assert sum(values) == 3  # 0 + 1 + 2

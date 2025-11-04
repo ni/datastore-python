@@ -4,7 +4,9 @@ from __future__ import annotations
 
 from enum import IntEnum
 
-from ni.measurements.metadata.v1.metadata_store_pb2 import AliasTargetType as AliasTargetTypeProto
+from ni.measurements.metadata.v1.metadata_store_pb2 import (
+    AliasTargetType as AliasTargetTypeProto,
+)
 
 
 class AliasTargetType(IntEnum):
@@ -45,15 +47,17 @@ class AliasTargetType(IntEnum):
     """The alias targets a test adapter."""
 
     @classmethod
-    def from_protobuf(cls, alias_target_type_proto: AliasTargetTypeProto.ValueType) -> "AliasTargetType":
+    def from_protobuf(
+        cls, alias_target_type_proto: AliasTargetTypeProto.ValueType
+    ) -> "AliasTargetType":
         """Create an AliasTargetType instance from a protobuf AliasTargetType value.
-        
+
         Args:
             alias_target_type_proto: The protobuf AliasTargetType value.
-            
+
         Returns:
             The corresponding AliasTargetType enum value.
-            
+
         Raises:
             ValueError: If the protobuf value doesn't correspond to a known AliasTargetType.
         """
@@ -64,7 +68,7 @@ class AliasTargetType(IntEnum):
 
     def to_protobuf(self) -> AliasTargetTypeProto.ValueType:
         """Convert this AliasTargetType instance to a protobuf AliasTargetType value.
-        
+
         Returns:
             The corresponding protobuf AliasTargetType value.
         """

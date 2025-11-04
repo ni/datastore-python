@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Mapping, MutableMapping
 
 import hightime as ht
+from ni.datastore.data._types._error_information import ErrorInformation
 from ni.datastore.metadata._grpc_conversion import (
     populate_extension_value_message_map,
     populate_from_extension_value_message_map,
@@ -13,8 +14,6 @@ from ni.measurements.data.v1.data_store_pb2 import (
     Outcome,
     Step as StepProto,
 )
-
-from ni.datastore.data._types._error_information import ErrorInformation
 from ni.protobuf.types.precision_timestamp_conversion import (
     hightime_datetime_from_protobuf,
     hightime_datetime_to_protobuf,
@@ -162,9 +161,7 @@ class Step:
             link=self.link,
             schema_id=self.schema_id,
             error_information=(
-                self.error_information.to_protobuf()
-                if self.error_information is not None
-                else None
+                self.error_information.to_protobuf() if self.error_information is not None else None
             ),
             outcome=self.outcome,
         )
