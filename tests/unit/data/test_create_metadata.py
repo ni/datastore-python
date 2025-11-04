@@ -27,8 +27,8 @@ def test___create_step___calls_data_store_service_client(
         parent_step_id="parent_step_id",
         test_result_id="test_result",
         test_id="test_id",
-        step_name="step_name",
-        step_type="step_type",
+        name="step_name",
+        type="step_type",
         notes="step_notes",
     )
     expected_response = CreateStepResponse(step_id="response_id")
@@ -55,7 +55,7 @@ def test___create_test_result___calls_data_store_service_client(
         software_item_ids=[],
         hardware_item_ids=[],
         test_adapter_ids=[],
-        test_result_name="test_result_name",
+        name="test_result_name",
     )
     expected_response = CreateTestResultResponse(test_result_id="response_id")
     mocked_data_store_service_client.create_test_result.return_value = expected_response

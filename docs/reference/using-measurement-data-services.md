@@ -14,6 +14,25 @@ The typical measurement data workflow follows this sequence:
 2. [**Test Execution Phase**](#test-execution-phase) - Create test sessions and publish data  
 3. [**Analysis Phase**](#analysis-phase) - Query and analyze results
 
+## **Required Imports**
+
+Before using the services, import the necessary classes and types:
+
+```python
+from datetime import datetime
+from ni.datastore.data import DataStoreClient
+from ni.datastore.metadata import MetadataStoreClient
+from ni.datastore.data._types import TestResult, Step
+from ni.datastore.metadata._types import (
+    Operator, TestStation, HardwareItem, SoftwareItem, 
+    Uut, UutInstance, TestDescription, Test, TestAdapter
+)
+from ni.measurements.data.v1.data_store_pb2 import Outcome
+from nitypes.scalar import Scalar
+from nitypes.vector import Vector
+from nitypes.waveform import AnalogWaveform
+```
+
 ## **Setup Phase**
 
 Before running tests, establish the metadata foundation that describes your test environment and processes.
@@ -28,7 +47,7 @@ Register the people who will be running tests:
 ```python
 # Create operators
 sarah = Operator(
-    operator_name="Sarah Johnson",
+    name="Sarah Johnson",
     role="Test Engineer",
     schema_id=schema_id,
     extensions={
@@ -39,7 +58,7 @@ sarah = Operator(
 sarah_id = metadata_store_client.create_operator(sarah)
 
 mike_id = metadata_store_client.create_operator(Operator(
-    operator_name="Mike Chen", 
+    name="Mike Chen", 
     role="Senior Technician",
     schema_id=schema_id,
     extensions={
@@ -55,7 +74,7 @@ Define the physical locations where testing occurs:
 ```python
 # Create test stations
 station_a1_id = metadata_store_client.create_test_station(TestStation(
-    test_station_name="Station_A1",
+    name="Station_A1",
     asset_identifier="STA-001",
     schema_id=schema_id,
     extensions={
@@ -65,7 +84,7 @@ station_a1_id = metadata_store_client.create_test_station(TestStation(
 ))
 
 rf_lab_id = metadata_store_client.create_test_station(TestStation(
-    test_station_name="RF_Lab_Bench_1",
+    name="RF_Lab_Bench_1",
     asset_identifier="RFL-001", 
     schema_id=schema_id,
     extensions={
@@ -152,7 +171,7 @@ power_supply_uut = Uut(
         "efficiency": ">90%"
     }
 )
-power_supply_uut_id = metadata_store_client.create_uut(uut)
+power_supply_uut_id = metadata_store_client.create_uut(power_supply_uut)
 ```
 
 #### **UUT Instances (Physical Devices)**
@@ -179,7 +198,7 @@ Create test specifications and procedures:
 # Create comprehensive test suites
 power_test_desc_id = metadata_store_client.create_test_description(TestDescription(
     uut_id=power_supply_uut_id,
-    test_description_name="Power Supply Validation Suite",
+    name="Power Supply Validation Suite",
     schema_id=schema_id,
     extensions={
         "version": "v2.1",
@@ -192,7 +211,7 @@ power_test_desc_id = metadata_store_client.create_test_description(TestDescripti
 ```python
 # Create specific test procedures
 voltage_test_id = metadata_store_client.create_test(Test(
-    test_name="DC Voltage Accuracy Test",
+    name="DC Voltage Accuracy Test",
     description="Measures DC voltage accuracy across 5V, 12V, and 24V outputs",
     schema_id=schema_id,
     extensions={
@@ -202,7 +221,7 @@ voltage_test_id = metadata_store_client.create_test(Test(
 ))
 
 load_test_id = metadata_store_client.create_test(Test(
-    test_name="Load Regulation Test", 
+    name="Load Regulation Test", 
     description="Tests voltage stability under varying load conditions",
     schema_id=schema_id,
     extensions={
@@ -258,7 +277,7 @@ metadata_store_client.create_alias(
 metadata_store_client.create_alias(
     alias_name="Current_PowerSupply_Design",
     alias_target=power_supply_uut
-))
+)
 ```
 
 ---
@@ -280,7 +299,7 @@ test_result_id = data_store_client.create_test_result(TestResult(
     test_description_id=power_test_desc_id,
     software_item_ids=[python_id, nidaqmx_id, custom_app_id],
     hardware_item_ids=[dmm_id, scope_id],  # or use aliases
-    test_result_name="PowerSupply PS-2024-001456 Validation",
+    name="PowerSupply PS-2024-001456 Validation",
     schema_id=schema_id,
     extensions={
         "test_operator_notes": "First production unit validation",
@@ -298,16 +317,16 @@ Organize measurements into logical **Steps**:
 voltage_step_id = data_store_client.create_step(Step(
     test_result_id=test_result_id,
     test_id=voltage_test_id,
-    step_name="DC Voltage Accuracy Check",
-    step_type="Measurement",
+    name="DC Voltage Accuracy Check",
+    type="Measurement",
     notes="Testing 5V, 12V, and 24V outputs under no load"
 ))
 
 load_step_id = data_store_client.create_step(Step(
     test_result_id=test_result_id, 
     test_id=load_test_id,
-    step_name="Load Regulation Test",
-    step_type="Measurement", 
+    name="Load Regulation Test",
+    type="Measurement", 
     notes="Variable load from 0% to 100% rated current"
 ))
 ```
@@ -330,7 +349,7 @@ temperature = Scalar(value=23.5, units="DegC")
 data_store_client.publish_condition(
     condition_name="Temperature",
     type="Environment",
-    value=temperature
+    value=temperature,
     step_id=voltage_step_id
 )
 
@@ -338,7 +357,7 @@ humidity = Scalar(value=45.2, units="%RH")
 data_store_client.publish_condition(
     condition_name="Humidity", 
     type="Environment",
-    value=humidity
+    value=humidity,
     step_id=voltage_step_id
 )
 ```
@@ -483,10 +502,10 @@ Access the actual measured values:
 for measurement in measurements:
     if measurement.data_type == "type.googleapis.com/ni.protobuf.types.Vector":
         value = data_store_client.read_data(measurement, expected_type=Vector)
-        print(f"{measurement.measurement_name}: {value}")
-    else if measurement.data_type == "type.googleapis.com/ni.protobuf.types.DoubleAnalogWaveform":
-        waveform = data_store_client.read_data(measurement, expected_type=DoubleAnalogWaveform)
-        print(f"{measurement.measurement_name}: {len(waveform.samples)} samples")
+        print(f"{measurement.name}: {value}")
+    elif measurement.data_type == "type.googleapis.com/ni.protobuf.types.DoubleAnalogWaveform":
+        waveform = data_store_client.read_data(measurement, expected_type=AnalogWaveform)
+        print(f"{measurement.name}: {len(waveform.raw_data)} samples")
 ```
 
 ### **4. Cross-Reference with Metadata**
@@ -526,14 +545,19 @@ for measurement in measurements:
 ```python
 # Track performance over time for a UUT model
 uut_instances = metadata_store_client.query_uut_instances(
-    f"$filter=UutId eq c26e0057-3732-47d5-9576-3e3487e6e5b9"
+    f"$filter=UutId eq '{power_supply_uut_id}'"
 )
 
 for instance in uut_instances:
-    measurements = data_store_client.query_measurements(
-        f"$filter=TestResultId eq {instance.uut_instance_id} and Name eq '5V Output Voltage'"
+    # Get test results for this UUT instance
+    test_results = data_store_client.query_test_results(
+        f"$filter=UutInstanceId eq '{instance.id}'"
     )
-    # Analyze voltage accuracy trends...
+    for test_result in test_results:
+        measurements = data_store_client.query_measurements(
+            f"$filter=TestResultId eq '{test_result.id}' and Name eq '5V Output Voltage'"
+        )
+        # Analyze voltage accuracy trends...
 ```
 
 #### **Equipment Performance Analysis**

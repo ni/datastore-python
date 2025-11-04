@@ -35,9 +35,9 @@ class PublishedMeasurement:
         "_software_item_ids",
         "_hardware_item_ids",
         "_test_adapter_ids",
-        "measurement_name",
+        "name",
         "data_type",
-        "measurement_notes",
+        "notes",
         "start_date_time",
         "end_date_time",
         "outcome",
@@ -76,9 +76,9 @@ class PublishedMeasurement:
         software_item_ids: Iterable[str] | None = None,
         hardware_item_ids: Iterable[str] | None = None,
         test_adapter_ids: Iterable[str] | None = None,
-        measurement_name: str = "",
+        name: str = "",
         data_type: str = "",
-        measurement_notes: str = "",
+        notes: str = "",
         start_date_time: ht.datetime | None = None,
         end_date_time: ht.datetime | None = None,
         outcome: Outcome.ValueType = Outcome.OUTCOME_UNSPECIFIED,
@@ -105,9 +105,9 @@ class PublishedMeasurement:
                 this measurement.
             test_adapter_ids: The IDs of the test adapters associated with this
                 measurement.
-            measurement_name: The name of the measurement.
+            name: The name of the measurement.
             data_type: The data type of the measurement value.
-            measurement_notes: Additional notes or comments about the
+            notes: Additional notes or comments about the
                 measurement.
             start_date_time: The start timestamp of the measurement.
             end_date_time: The end timestamp of the measurement.
@@ -134,9 +134,9 @@ class PublishedMeasurement:
         self._test_adapter_ids: MutableSequence[str] = (
             list(test_adapter_ids) if test_adapter_ids is not None else []
         )
-        self.measurement_name = measurement_name
+        self.name = name
         self.data_type = data_type
-        self.measurement_notes = measurement_notes
+        self.notes = notes
         self.start_date_time = start_date_time
         self.end_date_time = end_date_time
         self.outcome = outcome
@@ -164,9 +164,9 @@ class PublishedMeasurement:
             software_item_ids=published_measurement_proto.software_item_ids,
             hardware_item_ids=published_measurement_proto.hardware_item_ids,
             test_adapter_ids=published_measurement_proto.test_adapter_ids,
-            measurement_name=published_measurement_proto.measurement_name,
+            name=published_measurement_proto.name,
             data_type=published_measurement_proto.data_type,
-            measurement_notes=published_measurement_proto.measurement_notes,
+            notes=published_measurement_proto.notes,
             start_date_time=(
                 hightime_datetime_from_protobuf(published_measurement_proto.start_date_time)
                 if published_measurement_proto.HasField("start_date_time")
@@ -199,9 +199,9 @@ class PublishedMeasurement:
             software_item_ids=self.software_item_ids,
             hardware_item_ids=self.hardware_item_ids,
             test_adapter_ids=self.test_adapter_ids,
-            measurement_name=self.measurement_name,
+            name=self.name,
             data_type=self.data_type,
-            measurement_notes=self.measurement_notes,
+            notes=self.notes,
             start_date_time=(
                 hightime_datetime_to_protobuf(self.start_date_time)
                 if self.start_date_time is not None
@@ -230,9 +230,9 @@ class PublishedMeasurement:
             and self.software_item_ids == other.software_item_ids
             and self.hardware_item_ids == other.hardware_item_ids
             and self.test_adapter_ids == other.test_adapter_ids
-            and self.measurement_name == other.measurement_name
+            and self.name == other.name
             and self.data_type == other.data_type
-            and self.measurement_notes == other.measurement_notes
+            and self.notes == other.notes
             and self.start_date_time == other.start_date_time
             and self.end_date_time == other.end_date_time
             and self.outcome == other.outcome

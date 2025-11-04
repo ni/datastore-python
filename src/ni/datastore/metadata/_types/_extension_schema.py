@@ -15,37 +15,37 @@ class ExtensionSchema:
     """
 
     __slots__ = (
-        "schema_id",
+        "id",
         "schema",
     )
 
     def __init__(
         self,
         *,
-        schema_id: str = "",
+        id: str = "",
         schema: str = "",
     ) -> None:
         """Initialize an ExtensionSchema instance.
 
         Args:
-            schema_id: The ID of the schema.
+            id: The ID of the schema.
             schema: The schema itself.
         """
-        self.schema_id = schema_id
+        self.id = id
         self.schema = schema
 
     @staticmethod
     def from_protobuf(extension_schema_proto: ExtensionSchemaProto) -> "ExtensionSchema":
         """Create an ExtensionSchema instance from a protobuf ExtensionSchema message."""
         return ExtensionSchema(
-            schema_id=extension_schema_proto.schema_id,
+            id=extension_schema_proto.id,
             schema=extension_schema_proto.schema,
         )
 
     def to_protobuf(self) -> ExtensionSchemaProto:
         """Convert this ExtensionSchema to a protobuf ExtensionSchema message."""
         return ExtensionSchemaProto(
-            schema_id=self.schema_id,
+            id=self.id,
             schema=self.schema,
         )
 
@@ -53,7 +53,7 @@ class ExtensionSchema:
         """Determine equality."""
         if not isinstance(other, ExtensionSchema):
             return NotImplemented
-        return self.schema_id == other.schema_id and self.schema == other.schema
+        return self.id == other.id and self.schema == other.schema
 
     def __str__(self) -> str:
         """Return a string representation of the ExtensionSchema."""

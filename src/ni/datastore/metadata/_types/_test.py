@@ -22,7 +22,7 @@ class Test:
 
     __slots__ = (
         "_id",
-        "test_name",
+        "name",
         "description",
         "link",
         "_extensions",
@@ -42,7 +42,7 @@ class Test:
     def __init__(
         self,
         *,
-        test_name: str = "",
+        name: str = "",
         description: str = "",
         link: str = "",
         extensions: Mapping[str, str] | None = None,
@@ -51,7 +51,7 @@ class Test:
         """Initialize a Test instance.
 
         Args:
-            test_name: The name of the test.
+            name: The name of the test.
             description: A description of what the test does.
             link: A link to a resource that describes the test. This
                 value is expected to be a valid URI.
@@ -63,7 +63,7 @@ class Test:
                 the test result must have a schema_id.
         """
         self._id = ""
-        self.test_name = test_name
+        self.name = name
         self.description = description
         self.link = link
         self._extensions: MutableMapping[str, str] = (
@@ -75,7 +75,7 @@ class Test:
     def from_protobuf(test_proto: TestProto) -> "Test":
         """Create a Test instance from a protobuf Test message."""
         test = Test(
-            test_name=test_proto.test_name,
+            name=test_proto.name,
             description=test_proto.description,
             link=test_proto.link,
             schema_id=test_proto.schema_id,
@@ -88,7 +88,7 @@ class Test:
         """Convert this Test to a protobuf Test message."""
         test_proto = TestProto(
             id=self.id,
-            test_name=self.test_name,
+            name=self.name,
             description=self.description,
             link=self.link,
             schema_id=self.schema_id,
@@ -102,7 +102,7 @@ class Test:
             return NotImplemented
         return (
             self.id == other.id
-            and self.test_name == other.test_name
+            and self.name == other.name
             and self.description == other.description
             and self.link == other.link
             and self.extensions == other.extensions

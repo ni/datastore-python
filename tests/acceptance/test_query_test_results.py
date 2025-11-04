@@ -19,7 +19,7 @@ def test___query_test_results___filter_by_id___single_test_result_returned() -> 
         assert len(queried_test_results) == 1
         first_test_result = queried_test_results[0]
         assert first_test_result is not None
-        assert first_test_result.test_result_name == f"{description} test result"
+        assert first_test_result.name == f"{description} test result"
 
 
 def test___query_steps___filter_by_name___correct_steps_returned() -> None:

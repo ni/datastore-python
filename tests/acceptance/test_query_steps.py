@@ -16,25 +16,25 @@ def test___query_steps___filter_by_id___single_step_returned() -> None:
         assert len(queried_steps) == 1
         first_step = queried_steps[0]
         assert first_step is not None
-        assert first_step.step_name == "query steps filter by id step"
+        assert first_step.name == "query steps filter by id step"
 
 
 def test___query_steps___filter_by_name___correct_steps_returned() -> None:
     with DataStoreClient() as data_store_client:
         description = "query steps filter by name"
         test_result_name = f"{description} test result"
-        test_result = TestResult(test_result_name=test_result_name)
+        test_result = TestResult(name=test_result_name)
         test_result_id = data_store_client.create_test_result(test_result)
 
         # Create multiple similarly named steps and published a measurement for each.
         step_name_base = append_hashed_time(description)
         for index in range(0, 3):
             step_name = f"{step_name_base} {index}"
-            step = Step(step_name=step_name, test_result_id=test_result_id)
+            step = Step(name=step_name, test_result_id=test_result_id)
             _ = data_store_client.create_step(step)
 
         # Create and publish one more step/measurement that doesn't match the naming pattern.
-        step = Step(step_name="some other step name", test_result_id=test_result_id)
+        step = Step(name="some other step name", test_result_id=test_result_id)
         _ = data_store_client.create_step(step)
 
         # Query steps based on name.

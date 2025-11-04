@@ -10,6 +10,7 @@ from ni.datastore.metadata._grpc_conversion import (
     populate_from_extension_value_message_map,
 )
 from ni.measurements.data.v1.data_store_pb2 import (
+    ErrorInformation,
     Outcome,
     TestResult as TestResultProto,
 )
@@ -38,29 +39,15 @@ class TestResult:
         "_software_item_ids",
         "_hardware_item_ids",
         "_test_adapter_ids",
-        "test_result_name",
-        "_start_date_time",
-        "_end_date_time",
-        "_outcome",
+        "name",
+        "start_date_time",
+        "end_date_time",
+        "outcome",
         "link",
         "_extensions",
         "schema_id",
+        "error_information",
     )
-
-    @property
-    def start_date_time(self) -> ht.datetime | None:
-        """Get the start date and time of the test execution."""
-        return self._start_date_time
-
-    @property
-    def end_date_time(self) -> ht.datetime | None:
-        """Get the end date and time of the test execution."""
-        return self._end_date_time
-
-    @property
-    def outcome(self) -> Outcome.ValueType:
-        """Get the outcome of the test execution."""
-        return self._outcome
 
     @property
     def software_item_ids(self) -> MutableSequence[str]:
@@ -93,10 +80,14 @@ class TestResult:
         software_item_ids: Iterable[str] | None = None,
         hardware_item_ids: Iterable[str] | None = None,
         test_adapter_ids: Iterable[str] | None = None,
-        test_result_name: str = "",
+        name: str = "",
+        start_date_time: ht.datetime | None = None,
+        end_date_time: ht.datetime | None = None,
+        outcome: Outcome.ValueType = Outcome.OUTCOME_UNSPECIFIED,
         link: str = "",
         extensions: Mapping[str, str] | None = None,
         schema_id: str = "",
+        error_information: ErrorInformation | None = None,
     ) -> None:
         """Initialize a TestResult instance.
 
@@ -109,10 +100,16 @@ class TestResult:
             software_item_ids: IDs of software items used in the test.
             hardware_item_ids: IDs of hardware items used in the test.
             test_adapter_ids: IDs of test adapters used in the test.
-            test_result_name: Human-readable name for the test result.
+            name: Human-readable name for the test result.
+            start_date_time: The start date and time of the test execution.
+            end_date_time: The end date and time of the test execution.
+            outcome: The outcome of the test execution (PASSED, FAILED,
+                INDETERMINATE, or UNSPECIFIED).
             link: Optional link to external resources for this test result.
             extensions: Additional custom metadata as key-value pairs.
             schema_id: ID of the extension schema for validating extensions.
+            error_information: Error or exception information in case of
+                test result failure.
         """
         self.id = id
         self.uut_instance_id = uut_instance_id
@@ -128,16 +125,16 @@ class TestResult:
         self._test_adapter_ids: MutableSequence[str] = (
             list(test_adapter_ids) if test_adapter_ids is not None else []
         )
-        self.test_result_name = test_result_name
+        self.name = name
+        self.start_date_time = start_date_time
+        self.end_date_time = end_date_time
+        self.outcome = outcome
         self.link = link
         self._extensions: MutableMapping[str, str] = (
             dict(extensions) if extensions is not None else {}
         )
         self.schema_id = schema_id
-
-        self._start_date_time: ht.datetime | None = None
-        self._end_date_time: ht.datetime | None = None
-        self._outcome: Outcome.ValueType = Outcome.OUTCOME_UNSPECIFIED
+        self.error_information = error_information
 
     @staticmethod
     def from_protobuf(test_result_proto: TestResultProto) -> "TestResult":
@@ -151,21 +148,26 @@ class TestResult:
             software_item_ids=test_result_proto.software_item_ids,
             hardware_item_ids=test_result_proto.hardware_item_ids,
             test_adapter_ids=test_result_proto.test_adapter_ids,
-            test_result_name=test_result_proto.test_result_name,
+            name=test_result_proto.name,
+            start_date_time=(
+                hightime_datetime_from_protobuf(test_result_proto.start_date_time)
+                if test_result_proto.HasField("start_date_time")
+                else None
+            ),
+            end_date_time=(
+                hightime_datetime_from_protobuf(test_result_proto.end_date_time)
+                if test_result_proto.HasField("end_date_time")
+                else None
+            ),
+            outcome=test_result_proto.outcome,
             link=test_result_proto.link,
             schema_id=test_result_proto.schema_id,
+            error_information=(
+                test_result_proto.error_information
+                if test_result_proto.HasField("error_information")
+                else None
+            ),
         )
-        test_result._start_date_time = (
-            hightime_datetime_from_protobuf(test_result_proto.start_date_time)
-            if test_result_proto.HasField("start_date_time")
-            else None
-        )
-        test_result._end_date_time = (
-            hightime_datetime_from_protobuf(test_result_proto.end_date_time)
-            if test_result_proto.HasField("end_date_time")
-            else None
-        )
-        test_result._outcome = test_result_proto.outcome
         populate_from_extension_value_message_map(
             test_result.extensions, test_result_proto.extensions
         )
@@ -182,7 +184,7 @@ class TestResult:
             software_item_ids=self.software_item_ids,
             hardware_item_ids=self.hardware_item_ids,
             test_adapter_ids=self.test_adapter_ids,
-            test_result_name=self.test_result_name,
+            name=self.name,
             start_date_time=(
                 hightime_datetime_to_protobuf(self.start_date_time)
                 if self.start_date_time
@@ -194,6 +196,7 @@ class TestResult:
             outcome=self.outcome,
             link=self.link,
             schema_id=self.schema_id,
+            error_information=self.error_information,
         )
         populate_extension_value_message_map(test_result_proto.extensions, self.extensions)
         return test_result_proto
@@ -211,13 +214,14 @@ class TestResult:
             and self.software_item_ids == other.software_item_ids
             and self.hardware_item_ids == other.hardware_item_ids
             and self.test_adapter_ids == other.test_adapter_ids
-            and self.test_result_name == other.test_result_name
+            and self.name == other.name
             and self.start_date_time == other.start_date_time
             and self.end_date_time == other.end_date_time
             and self.outcome == other.outcome
             and self.link == other.link
             and self.extensions == other.extensions
             and self.schema_id == other.schema_id
+            and self.error_information == other.error_information
         )
 
     def __str__(self) -> str:

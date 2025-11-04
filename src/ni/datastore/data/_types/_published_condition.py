@@ -19,8 +19,8 @@ class PublishedCondition:
     __slots__ = (
         "moniker",
         "id",
-        "condition_name",
-        "condition_type",
+        "name",
+        "type",
         "step_id",
         "test_result_id",
     )
@@ -30,8 +30,8 @@ class PublishedCondition:
         *,
         moniker: Moniker | None = None,
         id: str = "",
-        condition_name: str = "",
-        condition_type: str = "",
+        name: str = "",
+        type: str = "",
         step_id: str = "",
         test_result_id: str = "",
     ) -> None:
@@ -42,8 +42,8 @@ class PublishedCondition:
                 with. This moniker returns a Vector when read.
             id: The unique identifier of the condition. This
                 can be used to reference and find the condition in the data store.
-            condition_name: The name of the condition.
-            condition_type: The type of the condition. For example, "Setup" or
+            name: The name of the condition.
+            type: The type of the condition. For example, "Setup" or
                 "Environment".
             step_id: The ID of the step with which this condition is associated.
             test_result_id: The ID of the test result with which this condition
@@ -51,8 +51,8 @@ class PublishedCondition:
         """
         self.moniker = moniker
         self.id = id
-        self.condition_name = condition_name
-        self.condition_type = condition_type
+        self.name = name
+        self.type = type
         self.step_id = step_id
         self.test_result_id = test_result_id
 
@@ -66,8 +66,8 @@ class PublishedCondition:
                 else None
             ),
             id=published_condition_proto.id,
-            condition_name=published_condition_proto.condition_name,
-            condition_type=published_condition_proto.condition_type,
+            name=published_condition_proto.name,
+            type=published_condition_proto.type,
             step_id=published_condition_proto.step_id,
             test_result_id=published_condition_proto.test_result_id,
         )
@@ -77,8 +77,8 @@ class PublishedCondition:
         return PublishedConditionProto(
             moniker=self.moniker,
             id=self.id,
-            condition_name=self.condition_name,
-            condition_type=self.condition_type,
+            name=self.name,
+            type=self.type,
             step_id=self.step_id,
             test_result_id=self.test_result_id,
         )
@@ -90,8 +90,8 @@ class PublishedCondition:
         return (
             self.moniker == other.moniker
             and self.id == other.id
-            and self.condition_name == other.condition_name
-            and self.condition_type == other.condition_type
+            and self.name == other.name
+            and self.type == other.type
             and self.step_id == other.step_id
             and self.test_result_id == other.test_result_id
         )

@@ -96,10 +96,10 @@ def test___publish_scalar_condition___read_data_returns_vector() -> None:
 
 def _create_step(data_store_client: DataStoreClient, datatype_string: str) -> str:
     test_result_name = f"python publish {datatype_string} acceptance test"
-    test_result = TestResult(test_result_name=test_result_name)
+    test_result = TestResult(name=test_result_name)
     test_result_id = data_store_client.create_test_result(test_result)
 
     # Publish the waveform data
-    step = Step(step_name=f"Initial step: {datatype_string}", test_result_id=test_result_id)
+    step = Step(name=f"Initial step: {datatype_string}", test_result_id=test_result_id)
     step_id = data_store_client.create_step(step)
     return step_id

@@ -18,7 +18,7 @@ from ni.datastore.metadata import (
     Operator,
     SoftwareItem,
     Test,
-    # TestAdapter,
+    TestAdapter,
     TestDescription,
     TestStation,
     Uut,
@@ -64,7 +64,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         operator_name = "John Bowery"
         operator_role = "Test Operator II"
         operator = Operator(
-            operator_name=operator_name,
+            name=operator_name,
             role=operator_role,
             extensions={"o1": "one", "o2": "two"},
             schema_id=schema_id,
@@ -73,7 +73,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
 
         # Metadata: TestStation
         test_station = TestStation(
-            test_station_name="TestStation_12",
+            name="TestStation_12",
             asset_identifier="Test Station Asset Identifier",
             link="Test Station Link",
             extensions={"ts1": "one", "ts2": "two"},
@@ -84,7 +84,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         # Metadata: TestDescription
         test_description = TestDescription(
             uut_id=uut_id,
-            test_description_name="Metadata Acceptance Test",
+            name="Metadata Acceptance Test",
             link="Test Description Link",
             extensions={"td1": "one", "td2": "two"},
             schema_id=schema_id,
@@ -118,17 +118,17 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         hardware_item_ids = [hardware_item_id]
 
         # Metadata: TestAdapter
-        # test_adapter=TestAdapter(
-        #     name="Test Adapter Name",
-        #     manufacturer="Test Adapter Manufacturer",
-        #     serial_number="Test Adapter Serial Number",
-        #     part_number="Test Adapter Part Number",
-        #     asset_identifier="Test Adapter Asset Identifier",
-        #     calibration_due_date="Test Adapter Calibration Due Date",
-        #     link="Test Adapter Link",
-        # )
-        # test_adapter_id = metadata_store_client.create_test_adapter(test_adapter)
-        # test_adapter_ids = [test_adapter_id]
+        test_adapter = TestAdapter(
+            name="Test Adapter Name",
+            manufacturer="Test Adapter Manufacturer",
+            serial_number="Test Adapter Serial Number",
+            part_number="Test Adapter Part Number",
+            asset_identifier="Test Adapter Asset Identifier",
+            calibration_due_date="Test Adapter Calibration Due Date",
+            link="Test Adapter Link",
+        )
+        test_adapter_id = metadata_store_client.create_test_adapter(test_adapter)
+        test_adapter_ids = [test_adapter_id]
 
         # Metadata: TestResult
         test_result_name = "sample test result"
@@ -139,8 +139,8 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
             test_description_id=test_description_id,
             software_item_ids=software_item_ids,
             hardware_item_ids=hardware_item_ids,
-            # test_adapter_ids=test_adapter_ids,
-            test_result_name=test_result_name,
+            test_adapter_ids=test_adapter_ids,
+            name=test_result_name,
             link="Test Result Link",
             extensions={"tr1": "one", "tr2": "two"},
             schema_id=schema_id,
@@ -155,7 +155,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
 
         # Metadata: Test
         test = Test(
-            test_name="Test Name",
+            name="Test Name",
             description="Test Description",
             link="Test Link",
             extensions={"t1": "one", "t2": "two"},
@@ -164,13 +164,13 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         test_id = metadata_store_client.create_test(test)
 
         # Data: Step
-        parent_step = Step(step_name="Parent Step")
+        parent_step = Step(name="Parent Step")
         step = Step(
             parent_step_id=parent_step.id,
             test_result_id=test_result_id,
             test_id=test_id,
-            step_name="Step Name",
-            step_type="Step Type",
+            name="Step Name",
+            type="Step Type",
             notes="Step Notes",
             link="Step Link",
             extensions={"s1": "one", "s2": "two"},
@@ -192,7 +192,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
             outcome=Outcome.OUTCOME_PASSED,
             error_information=error_information,
             hardware_item_ids=hardware_item_ids,
-            # test_adapter_ids=test_adapter_ids,
+            test_adapter_ids=test_adapter_ids,
             software_item_ids=software_item_ids,
             notes="Measurement Notes",
         )
@@ -204,11 +204,11 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         assert found_measurement is not None
 
         # Check PublishedMeasurement
-        assert found_measurement.measurement_notes == "Measurement Notes"
-        assert found_measurement.measurement_name == "Measurement Name"
+        assert found_measurement.notes == "Measurement Notes"
+        assert found_measurement.name == "Measurement Name"
         assert sorted(found_measurement.software_item_ids) == sorted(software_item_ids)
         assert sorted(found_measurement.hardware_item_ids) == sorted(hardware_item_ids)
-        # assert found_measurement.test_adapter_ids == test_adapter_ids
+        assert found_measurement.test_adapter_ids == test_adapter_ids
         assert found_measurement.error_information == error_information
         assert found_measurement.outcome == Outcome.OUTCOME_PASSED
         assert isinstance(found_measurement.start_date_time, ht.datetime)
@@ -218,7 +218,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
 
         # Check TestResult
         found_test_result = data_store_client.get_test_result(found_measurement.test_result_id)
-        assert found_test_result.test_result_name == test_result_name
+        assert found_test_result.name == test_result_name
         assert found_test_result.operator_id == operator_id
         assert sorted(found_test_result.software_item_ids) == sorted(software_item_ids)
         assert sorted(found_test_result.hardware_item_ids) == sorted(hardware_item_ids)
@@ -233,9 +233,8 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         assert found_step.parent_step_id == step.parent_step_id
         assert found_step.test_result_id == step.test_result_id
         assert found_step.test_id == step.test_id
-        assert found_step.step_name == step.step_name
-        # TODO: File an issue that found_step.step_type is blank.
-        # assert found_step.step_type == step.step_type
+        assert found_step.name == step.name
+        assert found_step.type == step.type
         assert found_step.notes == step.notes
         assert found_step.link == step.link
         assert found_step.extensions == step.extensions
@@ -243,13 +242,13 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         # Check Test
         found_test = metadata_store_client.get_test(found_step.test_id)
         assert found_test.description == test.description
-        assert found_test.test_name == test.test_name
+        assert found_test.name == test.name
         assert found_test.link == test.link
         assert found_test.extensions == test.extensions
 
         # Check Operator
         found_operator = metadata_store_client.get_operator(found_test_result.operator_id)
-        assert found_operator.operator_name == operator.operator_name
+        assert found_operator.name == operator.name
         assert found_operator.role == operator.role
         assert found_operator.extensions == operator.extensions
 
@@ -278,7 +277,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         found_test_station = metadata_store_client.get_test_station(
             found_test_result.test_station_id
         )
-        assert found_test_station.test_station_name == test_station.test_station_name
+        assert found_test_station.name == test_station.name
         assert found_test_station.asset_identifier == test_station.asset_identifier
         assert found_test_station.link == test_station.link
         assert found_test_station.extensions == test_station.extensions
@@ -287,9 +286,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         found_test_description = metadata_store_client.get_test_description(
             found_test_result.test_description_id
         )
-        assert (
-            found_test_description.test_description_name == test_description.test_description_name
-        )
+        assert found_test_description.name == test_description.name
         assert found_test_description.link == test_description.link
         assert found_test_description.extensions == test_description.extensions
 

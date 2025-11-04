@@ -12,11 +12,11 @@ def test___publish_float___read_data_returns_vector() -> None:
     with DataStoreClient() as data_store_client:
         # Create TestResult metadata
         test_result_name = "python batch publish float acceptance test"
-        test_result = TestResult(test_result_name=test_result_name)
+        test_result = TestResult(name=test_result_name)
         test_result_id = data_store_client.create_test_result(test_result)
 
         # Publish the waveform data
-        step = Step(step_name="Initial step", test_result_id=test_result_id)
+        step = Step(name="Initial step", test_result_id=test_result_id)
         step_id = data_store_client.create_step(step)
         published_measurements = data_store_client.publish_measurement_batch(
             measurement_name="python batch publish float",
@@ -36,14 +36,14 @@ def test___publish_batch_vector___read_data_returns_vector() -> None:
     with DataStoreClient() as data_store_client:
         # Create TestResult metadata
         test_result_name = "python publish scalar acceptance test"
-        test_result = TestResult(test_result_name=test_result_name)
+        test_result = TestResult(name=test_result_name)
         test_result_id = data_store_client.create_test_result(test_result)
 
         # Create a Vector data to publish
         expected_vector = Vector(values=[1, 2, 3], units="Volts")
 
         # Batch publish the vector
-        step = Step(step_name="Initial step", test_result_id=test_result_id)
+        step = Step(name="Initial step", test_result_id=test_result_id)
         step_id = data_store_client.create_step(step)
         published_measurements = data_store_client.publish_measurement_batch(
             measurement_name="python publish scalar",

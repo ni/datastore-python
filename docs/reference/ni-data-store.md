@@ -16,13 +16,14 @@ A **TestResult** represents a complete test session or test execution run for a 
 - `software_item_ids` (list of strings) - IDs of software used during testing
 - `hardware_item_ids` (list of strings) - IDs of hardware used during testing  
 - `test_adapter_ids` (list of strings) - IDs of test adapters used
-- `test_result_name` (string) - Human-readable name for the test run
+- `name` (string) - Human-readable name for the test run
 - `start_date_time` (timestamp) - When the test execution started
 - `end_date_time` (timestamp) - When the test execution finished
 - `outcome` (enum) - Overall test result (PASSED, FAILED, INDETERMINATE, UNSPECIFIED)
 - `link` (string) - Optional link to additional resources
 - `extensions` (dict) - Custom key-value pairs for additional metadata
 - `schema_id` (string) - ID of the schema for extension validation
+- `error_information` (ErrorInformation) - Error details if test result failed
 
 **Real-world example**: When you put a circuit board on a test station and run a complete validation sequence, that entire session becomes one TestResult. It includes metadata like who ran the test, when it was run, what test station was used, and links to all the measurements and steps that were performed.
 
@@ -34,14 +35,16 @@ A **Step** represents an individual test procedure or operation within a larger 
 - `parent_step_id` (string) - ID of parent step (for hierarchical steps)
 - `test_result_id` (string) - ID of the associated TestResult
 - `test_id` (string) - ID of the test definition/specification
-- `step_name` (string) - Human-readable name for the step
-- `step_type` (string) - Type/category of the step
+- `name` (string) - Human-readable name for the step
+- `type` (string) - Type/category of the step
 - `notes` (string) - Additional notes about the step
 - `start_date_time` (timestamp) - When the step started executing
 - `end_date_time` (timestamp) - When the step finished executing
+- `outcome` (enum) - Result of this step (PASSED, FAILED, INDETERMINATE, UNSPECIFIED)
 - `link` (string) - Optional link to additional resources
 - `extensions` (dict) - Custom key-value pairs for additional metadata
 - `schema_id` (string) - ID of the schema for extension validation
+- `error_information` (ErrorInformation) - Error details if step failed
 
 **Real-world examples**:
 - "Measure DC Voltage on Pin 5" 
@@ -64,9 +67,9 @@ A **PublishedMeasurement** represents actual measurement data captured during a 
 - `software_item_ids` (list of strings) - Software used to capture this measurement
 - `hardware_item_ids` (list of strings) - Hardware used to capture this measurement
 - `test_adapter_ids` (list of strings) - Test adapters used to capture this measurement
-- `measurement_name` (string) - Name used to group related measurements
+- `name` (string) - Name used to group related measurements
 - `data_type` (string) - Type of data (e.g., "Scalar", "AnalogWaveform", "Spectrum")
-- `measurement_notes` (string) - Additional notes about the measurement
+- `notes` (string) - Additional notes about the measurement
 - `start_date_time` (timestamp) - When measurement capture started
 - `end_date_time` (timestamp) - When measurement capture finished
 - `outcome` (enum) - Result of this measurement (PASSED, FAILED, INDETERMINATE, UNSPECIFIED)
@@ -95,8 +98,8 @@ A **PublishedCondition** represents environmental or contextual information that
 **Fields:**
 - `moniker` (Moniker) - Data location identifier for retrieving the condition value
 - `id` (string) - Unique identifier for this condition
-- `condition_name` (string) - Name of the condition (e.g., "Temperature", "Supply Voltage")
-- `condition_type` (string) - Type/category of the condition (e.g., "Environment", "Input Parameter")
+- `name` (string) - Name of the condition (e.g., "Temperature", "Supply Voltage")
+- `type` (string) - Type/category of the condition (e.g., "Environment", "Input Parameter")
 - `step_id` (string) - ID of the associated Step
 - `test_result_id` (string) - ID of the associated TestResult
 

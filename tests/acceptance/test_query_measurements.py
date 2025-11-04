@@ -27,7 +27,7 @@ def test___query_measurements___filter_by_id___single_measurement_returned() -> 
         assert len(queried_measurements) == 1
         first_measurement = queried_measurements[0]
         assert first_measurement is not None
-        assert first_measurement.measurement_name == measurement_name
+        assert first_measurement.name == measurement_name
 
         # Check the value of the queried measurement.
         vector = data_store_client.read_data(first_measurement, expected_type=Vector)
@@ -69,5 +69,5 @@ def test___query_measurements___filter_by_name___correct_measurements_returned()
         for measurement in queried_measurements:
             assert measurement is not None
             vector = data_store_client.read_data(measurement, expected_type=Vector)
-            assert measurement.measurement_name == f"{measurement_name_base} {vector[0]}"
+            assert measurement.name == f"{measurement_name_base} {vector[0]}"
             assert vector.units == ""

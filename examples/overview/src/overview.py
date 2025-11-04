@@ -36,12 +36,12 @@ def publish_data() -> str:
         uut_instance_id = metadata_store_client.create_uut_instance(uut_instance=uut_instance)
 
         # Create Operator metadata
-        operator = Operator(operator_name="James Bowery", role="Test Operator")
+        operator = Operator(name="James Bowery", role="Test Operator")
         operator_id = metadata_store_client.create_operator(operator)
         print(f"created operator_id: {operator_id}")
 
         # Create TestStation metadata
-        test_station = TestStation(test_station_name="TestStation_12")
+        test_station = TestStation(name="TestStation_12")
         test_station_id = metadata_store_client.create_test_station(test_station)
         print(f"created test_station_id: {test_station_id}")
 
@@ -55,7 +55,7 @@ def publish_data() -> str:
 
         # Create TestResult metadata
         test_result = TestResult(
-            test_result_name="sample test result",
+            name="sample test result",
             operator_id=operator_id,
             test_station_id=test_station_id,
             software_item_ids=[software_item_id, software_item_2_id],
@@ -75,7 +75,7 @@ def publish_data() -> str:
         )
 
         # Publish the test step with the waveform data
-        step = Step(step_name="Initial step", test_result_id=test_result_id)
+        step = Step(name="Initial step", test_result_id=test_result_id)
         step_id = data_store_client.create_step(step)
         published_measurement = data_store_client.publish_measurement(
             measurement_name=name,
@@ -83,7 +83,7 @@ def publish_data() -> str:
             step_id=step_id,
         )
         print(
-            f"Published measurement: '{published_measurement.measurement_name}' with id {published_measurement.id}"
+            f"Published measurement: '{published_measurement.name}' with id {published_measurement.id}"
         )
 
     return published_measurement.id
@@ -99,10 +99,10 @@ def query_data(published_measurement_id: str) -> None:
 
         if found_measurement is not None:
             print(
-                f"Found published measurement: '{found_measurement.measurement_name}' with id {found_measurement.id}"
+                f"Found published measurement: '{found_measurement.name}' with id {found_measurement.id}"
             )
             test_result = data_store_client.get_test_result(found_measurement.test_result_id)
-            print(f"test_result: {test_result.test_result_name}")
+            print(f"test_result: {test_result.name}")
             operator = metadata_store_client.get_operator(test_result.operator_id)
             print(f"operator: {operator}")
 
