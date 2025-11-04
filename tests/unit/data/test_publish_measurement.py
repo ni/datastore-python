@@ -10,9 +10,9 @@ from unittest.mock import NonCallableMock
 import numpy as np
 import pytest
 from hightime import datetime, timedelta
-from ni.datastore.data import DataStoreClient
+from ni.datastore.data import DataStoreClient, ErrorInformation
 from ni.measurements.data.v1.data_store_pb2 import (
-    ErrorInformation,
+    ErrorInformation as ErrorInformationProto,
     Outcome,
     PublishedMeasurement,
 )
@@ -69,7 +69,7 @@ def test___publish_boolean_data___calls_data_store_service_client(
     assert request.timestamp == unittest.mock.ANY
     assert request.scalar.bool_value == value
     assert request.outcome == Outcome.OUTCOME_PASSED
-    assert request.error_information == ErrorInformation()
+    assert request.error_information == ErrorInformationProto()
     assert request.hardware_item_ids == []
     assert request.software_item_ids == []
     assert request.test_adapter_ids == []
@@ -115,7 +115,7 @@ def test___publish_analog_waveform_data___calls_data_store_service_client(
     assert request.timestamp == hightime_datetime_to_protobuf(timestamp)
     assert request.double_analog_waveform == expected_protobuf_waveform
     assert request.outcome == Outcome.OUTCOME_PASSED
-    assert request.error_information == ErrorInformation()
+    assert request.error_information == ErrorInformationProto()
     assert request.hardware_item_ids == []
     assert request.software_item_ids == []
     assert request.test_adapter_ids == []
@@ -296,7 +296,7 @@ def test___vector___publish_measurement_batch___calls_data_store_service_client(
     assert request.scalar_values.double_array.values == [1.0, 2.0, 3.0]
     assert request.scalar_values.attributes["NI_UnitDescription"].string_value == "BatchUnits"
     assert request.outcomes == [Outcome.OUTCOME_PASSED]
-    assert request.error_information == [ErrorInformation()]
+    assert request.error_information == [ErrorInformationProto()]
     assert request.hardware_item_ids == []
     assert request.software_item_ids == []
     assert request.test_adapter_ids == []

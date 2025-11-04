@@ -8,10 +8,11 @@ import hightime as ht
 from ni.datamonikers.v1.data_moniker_pb2 import Moniker
 from ni.datastore.data._types._published_condition import PublishedCondition
 from ni.measurements.data.v1.data_store_pb2 import (
-    ErrorInformation,
     Outcome,
     PublishedMeasurement as PublishedMeasurementProto,
 )
+
+from ni.datastore.data._types._error_information import ErrorInformation
 from ni.protobuf.types.precision_timestamp_conversion import (
     hightime_datetime_from_protobuf,
     hightime_datetime_to_protobuf,
@@ -180,7 +181,7 @@ class PublishedMeasurement:
             outcome=published_measurement_proto.outcome,
             parametric_index=published_measurement_proto.parametric_index,
             error_information=(
-                published_measurement_proto.error_information
+                ErrorInformation.from_protobuf(published_measurement_proto.error_information)
                 if published_measurement_proto.HasField("error_information")
                 else None
             ),
@@ -214,7 +215,11 @@ class PublishedMeasurement:
             ),
             outcome=self.outcome,
             parametric_index=self.parametric_index,
-            error_information=self.error_information,
+            error_information=(
+                self.error_information.to_protobuf()
+                if self.error_information is not None
+                else None
+            ),
         )
 
     def __eq__(self, other: object) -> bool:

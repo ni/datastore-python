@@ -10,10 +10,11 @@ from ni.datastore.metadata._grpc_conversion import (
     populate_from_extension_value_message_map,
 )
 from ni.measurements.data.v1.data_store_pb2 import (
-    ErrorInformation,
     Outcome,
     Step as StepProto,
 )
+
+from ni.datastore.data._types._error_information import ErrorInformation
 from ni.protobuf.types.precision_timestamp_conversion import (
     hightime_datetime_from_protobuf,
     hightime_datetime_to_protobuf,
@@ -131,7 +132,9 @@ class Step:
             link=step_proto.link,
             schema_id=step_proto.schema_id,
             error_information=(
-                step_proto.error_information if step_proto.HasField("error_information") else None
+                ErrorInformation.from_protobuf(step_proto.error_information)
+                if step_proto.HasField("error_information")
+                else None
             ),
             outcome=step_proto.outcome,
         )
@@ -158,7 +161,11 @@ class Step:
             ),
             link=self.link,
             schema_id=self.schema_id,
-            error_information=self.error_information,
+            error_information=(
+                self.error_information.to_protobuf()
+                if self.error_information is not None
+                else None
+            ),
             outcome=self.outcome,
         )
         populate_extension_value_message_map(step_proto.extensions, self.extensions)
