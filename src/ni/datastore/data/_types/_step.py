@@ -38,24 +38,14 @@ class Step:
         "name",
         "type",
         "notes",
-        "_start_date_time",
-        "_end_date_time",
+        "start_date_time",
+        "end_date_time",
         "link",
         "_extensions",
         "schema_id",
         "error_information",
         "outcome",
     )
-
-    @property
-    def start_date_time(self) -> ht.datetime | None:
-        """Get the start date and time of the step execution."""
-        return self._start_date_time
-
-    @property
-    def end_date_time(self) -> ht.datetime | None:
-        """Get the end date and time of the step execution."""
-        return self._end_date_time
 
     @property
     def extensions(self) -> MutableMapping[str, str]:
@@ -72,6 +62,8 @@ class Step:
         name: str = "",
         type: str = "",
         notes: str = "",
+        start_date_time: ht.datetime | None = None,
+        end_date_time: ht.datetime | None = None,
         link: str = "",
         extensions: Mapping[str, str] | None = None,
         schema_id: str = "",
@@ -88,6 +80,8 @@ class Step:
             name: Human-readable name of the step.
             type: Type or category of the step.
             notes: Additional notes or comments about the step.
+            start_date_time: The start date and time of the step execution.
+            end_date_time: The end date and time of the step execution.
             link: Optional link to external resources for this step.
             extensions: Additional custom metadata as key-value pairs.
             schema_id: ID of the extension schema for validating extensions.
@@ -103,6 +97,8 @@ class Step:
         self.name = name
         self.type = type
         self.notes = notes
+        self.start_date_time = start_date_time
+        self.end_date_time = end_date_time
         self.link = link
         self._extensions: MutableMapping[str, str] = (
             dict(extensions) if extensions is not None else {}
@@ -110,9 +106,6 @@ class Step:
         self.schema_id = schema_id
         self.error_information = error_information
         self.outcome = outcome
-
-        self._start_date_time: ht.datetime | None = None
-        self._end_date_time: ht.datetime | None = None
 
     @staticmethod
     def from_protobuf(step_proto: StepProto) -> "Step":
@@ -125,23 +118,23 @@ class Step:
             name=step_proto.name,
             type=step_proto.type,
             notes=step_proto.notes,
+            start_date_time=(
+                hightime_datetime_from_protobuf(step_proto.start_date_time)
+                if step_proto.HasField("start_date_time")
+                else None
+            ),
+            end_date_time=(
+                hightime_datetime_from_protobuf(step_proto.end_date_time)
+                if step_proto.HasField("end_date_time")
+                else None
+            ),
             link=step_proto.link,
             schema_id=step_proto.schema_id,
+            error_information=(
+                step_proto.error_information if step_proto.HasField("error_information") else None
+            ),
+            outcome=step_proto.outcome,
         )
-        step._start_date_time = (
-            hightime_datetime_from_protobuf(step_proto.start_date_time)
-            if step_proto.HasField("start_date_time")
-            else None
-        )
-        step._end_date_time = (
-            hightime_datetime_from_protobuf(step_proto.end_date_time)
-            if step_proto.HasField("end_date_time")
-            else None
-        )
-        step.error_information = (
-            step_proto.error_information if step_proto.HasField("error_information") else None
-        )
-        step.outcome = step_proto.outcome
         populate_from_extension_value_message_map(step.extensions, step_proto.extensions)
         return step
 
