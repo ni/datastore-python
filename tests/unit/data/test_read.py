@@ -7,8 +7,8 @@ from unittest.mock import NonCallableMock
 
 import numpy as np
 from google.protobuf.any_pb2 import Any as gpAny
-from ni.datamonikers.v1.data_moniker_pb2 import Moniker, ReadFromMonikerResult
-from ni.datastore.data import DataStoreClient
+from ni.datamonikers.v1.data_moniker_pb2 import ReadFromMonikerResult
+from ni.datastore.data import DataStoreClient, Moniker
 from ni.protobuf.types import array_pb2, attribute_value_pb2, vector_pb2, waveform_pb2, xydata_pb2
 from nitypes.complex import ComplexInt32DType
 from nitypes.vector import Vector
@@ -30,7 +30,8 @@ def test___read_data___calls_moniker_client(
     actual_waveform = data_store_client.read_data(moniker, AnalogWaveform)
 
     args, __ = mocked_moniker_client.read_from_moniker.call_args
-    requested_moniker = cast(Moniker, args[0])
+    from ni.datamonikers.v1.data_moniker_pb2 import Moniker as GrpcMoniker
+    requested_moniker = cast(GrpcMoniker, args[0])
     assert requested_moniker.service_location == moniker.service_location
     assert requested_moniker.data_instance == moniker.data_instance
     assert requested_moniker.data_source == moniker.data_source
@@ -203,8 +204,8 @@ def test___read_xydata___value_correct(
 
 
 def _init_moniker() -> Moniker:
-    moniker = Moniker()
-    moniker.data_instance = 12
-    moniker.data_source = "ABCD123"
-    moniker.service_location = "http://localhost:50051"
-    return moniker
+    return Moniker(
+        data_instance=12,
+        data_source="ABCD123",
+        service_location="http://localhost:50051"
+    )

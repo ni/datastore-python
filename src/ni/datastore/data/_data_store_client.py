@@ -13,7 +13,6 @@ from urllib.parse import urlparse
 import hightime as ht
 from grpc import Channel
 from ni.datamonikers.v1.client import MonikerClient
-from ni.datamonikers.v1.data_moniker_pb2 import Moniker as GrpcMoniker
 from ni.datastore.data._grpc_conversion import (
     get_publish_measurement_timestamp,
     populate_publish_condition_batch_request_values,
@@ -389,19 +388,19 @@ class DataStoreClient:
     @overload
     def read_data(
         self,
-        moniker_source: Moniker | GrpcMoniker | PublishedMeasurement | PublishedCondition,
+        moniker_source: Moniker | PublishedMeasurement | PublishedCondition,
         expected_type: Type[TRead],
     ) -> TRead: ...
 
     @overload
     def read_data(
         self,
-        moniker_source: Moniker | GrpcMoniker | PublishedMeasurement | PublishedCondition,
+        moniker_source: Moniker | PublishedMeasurement | PublishedCondition,
     ) -> object: ...
 
     def read_data(
         self,
-        moniker_source: Moniker | GrpcMoniker | PublishedMeasurement | PublishedCondition,
+        moniker_source: Moniker | PublishedMeasurement | PublishedCondition,
         expected_type: Type[TRead] | None = None,
     ) -> TRead | object:
         """Read data published to the data store.
@@ -409,7 +408,6 @@ class DataStoreClient:
         Args:
             moniker_source: The source from which to read data. Can be:
                 - A Moniker (wrapper type) directly
-                - A GrpcMoniker (protobuf type) directly (for backward compatibility)
                 - A PublishedMeasurement (uses its moniker)
                 - A PublishedCondition (uses its moniker)
 
@@ -430,12 +428,12 @@ class DataStoreClient:
             TypeError: If expected_type is provided and the actual data type
                 doesn't match.
         """
+        from ni.datamonikers.v1.data_moniker_pb2 import Moniker as GrpcMoniker
+
         grpc_moniker: GrpcMoniker
 
         if isinstance(moniker_source, Moniker):
             grpc_moniker = moniker_source.to_protobuf()
-        elif isinstance(moniker_source, GrpcMoniker):
-            grpc_moniker = moniker_source
         elif isinstance(moniker_source, PublishedMeasurement):
             if moniker_source.moniker is None:
                 raise ValueError("PublishedMeasurement must have a Moniker to read data")
