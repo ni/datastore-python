@@ -316,6 +316,7 @@ class DataStoreClient:
         hardware_item_ids: Iterable[str] = tuple(),
         test_adapter_ids: Iterable[str] = tuple(),
         software_item_ids: Iterable[str] = tuple(),
+        notes: str = "",
     ) -> Sequence[PublishedMeasurement]:
         """Publish multiple scalar measurements at once for parametric sweeps.
 
@@ -358,6 +359,8 @@ class DataStoreClient:
                 this measurement. These values are expected to be parsable
                 GUIDs or aliases.
 
+            notes: Any notes to be associated with the published measurements.
+
         Returns:
             Sequence[PublishedMeasurement]: The monikers of the published
                 measurements and their corresponding metadata. NOTE: Using
@@ -374,6 +377,7 @@ class DataStoreClient:
             hardware_item_ids=hardware_item_ids,
             test_adapter_ids=test_adapter_ids,
             software_item_ids=software_item_ids,
+            notes=notes,
         )
         populate_publish_measurement_batch_request_values(publish_request, values)
         publish_response = self._get_data_store_client().publish_measurement_batch(publish_request)
