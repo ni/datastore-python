@@ -9,7 +9,13 @@ import numpy as np
 from google.protobuf.any_pb2 import Any as gpAny
 from ni.datamonikers.v1.data_moniker_pb2 import ReadFromMonikerResult
 from ni.datastore.data import DataStoreClient, Moniker
-from ni.protobuf.types import array_pb2, attribute_value_pb2, vector_pb2, waveform_pb2, xydata_pb2
+from ni.protobuf.types import (
+    array_pb2,
+    attribute_value_pb2,
+    vector_pb2,
+    waveform_pb2,
+    xydata_pb2,
+)
 from nitypes.complex import ComplexInt32DType
 from nitypes.vector import Vector
 from nitypes.waveform import AnalogWaveform, ComplexWaveform, DigitalWaveform, Spectrum
@@ -31,6 +37,7 @@ def test___read_data___calls_moniker_client(
 
     args, __ = mocked_moniker_client.read_from_moniker.call_args
     from ni.datamonikers.v1.data_moniker_pb2 import Moniker as GrpcMoniker
+
     requested_moniker = cast(GrpcMoniker, args[0])
     assert requested_moniker.service_location == moniker.service_location
     assert requested_moniker.data_instance == moniker.data_instance
@@ -205,7 +212,5 @@ def test___read_xydata___value_correct(
 
 def _init_moniker() -> Moniker:
     return Moniker(
-        data_instance=12,
-        data_source="ABCD123",
-        service_location="http://localhost:50051"
+        data_instance=12, data_source="ABCD123", service_location="http://localhost:50051"
     )

@@ -16,11 +16,16 @@ def test___enum_values___match_protobuf_values() -> None:
     assert AliasTargetType.UNSPECIFIED.value == AliasTargetTypeProto.ALIAS_TARGET_TYPE_UNSPECIFIED
     assert AliasTargetType.UUT_INSTANCE.value == AliasTargetTypeProto.ALIAS_TARGET_TYPE_UUT_INSTANCE
     assert AliasTargetType.UUT.value == AliasTargetTypeProto.ALIAS_TARGET_TYPE_UUT
-    assert AliasTargetType.HARDWARE_ITEM.value == AliasTargetTypeProto.ALIAS_TARGET_TYPE_HARDWARE_ITEM
-    assert AliasTargetType.SOFTWARE_ITEM.value == AliasTargetTypeProto.ALIAS_TARGET_TYPE_SOFTWARE_ITEM
+    assert (
+        AliasTargetType.HARDWARE_ITEM.value == AliasTargetTypeProto.ALIAS_TARGET_TYPE_HARDWARE_ITEM
+    )
+    assert (
+        AliasTargetType.SOFTWARE_ITEM.value == AliasTargetTypeProto.ALIAS_TARGET_TYPE_SOFTWARE_ITEM
+    )
     assert AliasTargetType.OPERATOR.value == AliasTargetTypeProto.ALIAS_TARGET_TYPE_OPERATOR
     assert (
-        AliasTargetType.TEST_DESCRIPTION.value == AliasTargetTypeProto.ALIAS_TARGET_TYPE_TEST_DESCRIPTION
+        AliasTargetType.TEST_DESCRIPTION.value
+        == AliasTargetTypeProto.ALIAS_TARGET_TYPE_TEST_DESCRIPTION
     )
     assert AliasTargetType.TEST.value == AliasTargetTypeProto.ALIAS_TARGET_TYPE_TEST
     assert AliasTargetType.TEST_STATION.value == AliasTargetTypeProto.ALIAS_TARGET_TYPE_TEST_STATION
