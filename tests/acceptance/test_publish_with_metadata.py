@@ -18,7 +18,7 @@ from ni.datastore.metadata import (
     Operator,
     SoftwareItem,
     Test,
-    # TestAdapter,
+    TestAdapter,
     TestDescription,
     TestStation,
     Uut,
@@ -118,17 +118,17 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         hardware_item_ids = [hardware_item_id]
 
         # Metadata: TestAdapter
-        # test_adapter=TestAdapter(
-        #     name="Test Adapter Name",
-        #     manufacturer="Test Adapter Manufacturer",
-        #     serial_number="Test Adapter Serial Number",
-        #     part_number="Test Adapter Part Number",
-        #     asset_identifier="Test Adapter Asset Identifier",
-        #     calibration_due_date="Test Adapter Calibration Due Date",
-        #     link="Test Adapter Link",
-        # )
-        # test_adapter_id = metadata_store_client.create_test_adapter(test_adapter)
-        # test_adapter_ids = [test_adapter_id]
+        test_adapter = TestAdapter(
+            name="Test Adapter Name",
+            manufacturer="Test Adapter Manufacturer",
+            serial_number="Test Adapter Serial Number",
+            part_number="Test Adapter Part Number",
+            asset_identifier="Test Adapter Asset Identifier",
+            calibration_due_date="Test Adapter Calibration Due Date",
+            link="Test Adapter Link",
+        )
+        test_adapter_id = metadata_store_client.create_test_adapter(test_adapter)
+        test_adapter_ids = [test_adapter_id]
 
         # Metadata: TestResult
         test_result_name = "sample test result"
@@ -192,7 +192,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
             outcome=Outcome.OUTCOME_PASSED,
             error_information=error_information,
             hardware_item_ids=hardware_item_ids,
-            # test_adapter_ids=test_adapter_ids,
+            test_adapter_ids=test_adapter_ids,
             software_item_ids=software_item_ids,
             notes="Measurement Notes",
         )
@@ -287,9 +287,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         found_test_description = metadata_store_client.get_test_description(
             found_test_result.test_description_id
         )
-        assert (
-            found_test_description.name == test_description.name
-        )
+        assert found_test_description.name == test_description.name
         assert found_test_description.link == test_description.link
         assert found_test_description.extensions == test_description.extensions
 
