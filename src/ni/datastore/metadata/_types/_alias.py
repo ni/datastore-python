@@ -17,7 +17,7 @@ class Alias:
     """
 
     __slots__ = (
-        "alias_name",
+        "name",
         "target_type",
         "target_id",
     )
@@ -25,19 +25,19 @@ class Alias:
     def __init__(
         self,
         *,
-        alias_name: str = "",
+        name: str = "",
         target_type: AliasTargetType.ValueType = AliasTargetType.ALIAS_TARGET_TYPE_UNSPECIFIED,
         target_id: str = "",
     ) -> None:
         """Initialize an Alias instance.
 
         Args:
-            alias_name: The registered alias name for the aliased metadata
+            name: The registered alias name for the aliased metadata
                 instance.
             target_type: The type of the aliased metadata instance.
             target_id: The unique identifier for the aliased metadata instance.
         """
-        self.alias_name = alias_name
+        self.name = name
         self.target_type = target_type
         self.target_id = target_id
 
@@ -45,7 +45,7 @@ class Alias:
     def from_protobuf(alias_proto: AliasProto) -> "Alias":
         """Create an Alias instance from a protobuf Alias message."""
         return Alias(
-            alias_name=alias_proto.name,
+            name=alias_proto.name,
             target_type=alias_proto.target_type,
             target_id=alias_proto.target_id,
         )
@@ -53,7 +53,7 @@ class Alias:
     def to_protobuf(self) -> AliasProto:
         """Convert this Alias to a protobuf Alias message."""
         return AliasProto(
-            name=self.alias_name,
+            name=self.name,
             target_type=self.target_type,
             target_id=self.target_id,
         )
@@ -63,7 +63,7 @@ class Alias:
         if not isinstance(other, Alias):
             return NotImplemented
         return (
-            self.alias_name == other.alias_name
+            self.name == other.name
             and self.target_type == other.target_type
             and self.target_id == other.target_id
         )
