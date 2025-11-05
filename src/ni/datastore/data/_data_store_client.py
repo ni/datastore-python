@@ -373,7 +373,9 @@ class DataStoreClient:
             step_id=step_id,
             timestamps=[hightime_datetime_to_protobuf(ts) for ts in timestamps],
             outcomes=[outcome.to_protobuf() for outcome in outcomes],
-            error_information=[ei.to_protobuf() for ei in error_information],
+            error_information=(
+                [ei.to_protobuf() for ei in (error_information or [])] if error_information else []
+            ),
             hardware_item_ids=hardware_item_ids,
             test_adapter_ids=test_adapter_ids,
             software_item_ids=software_item_ids,
@@ -428,25 +430,25 @@ class DataStoreClient:
             TypeError: If expected_type is provided and the actual data type
                 doesn't match.
         """
-        from ni.datamonikers.v1.data_moniker_pb2 import Moniker as GrpcMoniker
+        from ni.datamonikers.v1.data_moniker_pb2 import Moniker as MonikerProto
 
-        grpc_moniker: GrpcMoniker
+        moniker_proto: MonikerProto
 
         if isinstance(moniker_source, Moniker):
-            grpc_moniker = moniker_source.to_protobuf()
+            moniker_proto = moniker_source.to_protobuf()
         elif isinstance(moniker_source, PublishedMeasurement):
             if moniker_source.moniker is None:
                 raise ValueError("PublishedMeasurement must have a Moniker to read data")
-            grpc_moniker = moniker_source.moniker.to_protobuf()
+            moniker_proto = moniker_source.moniker.to_protobuf()
         elif isinstance(moniker_source, PublishedCondition):
             if moniker_source.moniker is None:
                 raise ValueError("PublishedCondition must have a Moniker to read data")
-            grpc_moniker = moniker_source.moniker.to_protobuf()
+            moniker_proto = moniker_source.moniker.to_protobuf()
         else:
             raise TypeError(f"Unsupported moniker_source type: {type(moniker_source)}")
 
-        moniker_client = self._get_moniker_client(grpc_moniker.service_location)
-        read_result = moniker_client.read_from_moniker(grpc_moniker)
+        moniker_client = self._get_moniker_client(moniker_proto.service_location)
+        read_result = moniker_client.read_from_moniker(moniker_proto)
         converted_data = unpack_and_convert_from_protobuf_any(read_result.value)
         if expected_type is not None and not isinstance(converted_data, expected_type):
             raise TypeError(f"Expected type {expected_type}, got {type(converted_data)}")
