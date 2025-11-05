@@ -5,15 +5,13 @@ from __future__ import annotations
 from typing import Iterable, Mapping, MutableMapping, MutableSequence
 
 import hightime as ht
+from ni.datastore.data._types._error_information import ErrorInformation
+from ni.datastore.data._types._outcome import Outcome
 from ni.datastore.metadata._grpc_conversion import (
     populate_extension_value_message_map,
     populate_from_extension_value_message_map,
 )
-from ni.measurements.data.v1.data_store_pb2 import (
-    ErrorInformation,
-    Outcome,
-    TestResult as TestResultProto,
-)
+from ni.measurements.data.v1.data_store_pb2 import TestResult as TestResultProto
 from ni.protobuf.types.precision_timestamp_conversion import (
     hightime_datetime_from_protobuf,
     hightime_datetime_to_protobuf,
@@ -83,7 +81,7 @@ class TestResult:
         name: str = "",
         start_date_time: ht.datetime | None = None,
         end_date_time: ht.datetime | None = None,
-        outcome: Outcome.ValueType = Outcome.OUTCOME_UNSPECIFIED,
+        outcome: Outcome = Outcome.UNSPECIFIED,
         link: str = "",
         extensions: Mapping[str, str] | None = None,
         schema_id: str = "",
@@ -159,11 +157,11 @@ class TestResult:
                 if test_result_proto.HasField("end_date_time")
                 else None
             ),
-            outcome=test_result_proto.outcome,
+            outcome=Outcome.from_protobuf(test_result_proto.outcome),
             link=test_result_proto.link,
             schema_id=test_result_proto.schema_id,
             error_information=(
-                test_result_proto.error_information
+                ErrorInformation.from_protobuf(test_result_proto.error_information)
                 if test_result_proto.HasField("error_information")
                 else None
             ),
@@ -193,10 +191,12 @@ class TestResult:
             end_date_time=(
                 hightime_datetime_to_protobuf(self.end_date_time) if self.end_date_time else None
             ),
-            outcome=self.outcome,
+            outcome=self.outcome.to_protobuf(),
             link=self.link,
             schema_id=self.schema_id,
-            error_information=self.error_information,
+            error_information=(
+                self.error_information.to_protobuf() if self.error_information is not None else None
+            ),
         )
         populate_extension_value_message_map(test_result_proto.extensions, self.extensions)
         return test_result_proto

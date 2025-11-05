@@ -10,10 +10,10 @@ from unittest.mock import NonCallableMock
 import numpy as np
 import pytest
 from hightime import datetime, timedelta
-from ni.datastore.data import DataStoreClient
+from ni.datastore.data import DataStoreClient, ErrorInformation, Outcome
 from ni.measurements.data.v1.data_store_pb2 import (
-    ErrorInformation,
-    Outcome,
+    ErrorInformation as ErrorInformationProto,
+    Outcome as OutcomeProto,
     PublishedMeasurement,
 )
 from ni.measurements.data.v1.data_store_service_pb2 import (
@@ -52,7 +52,7 @@ def test___publish_boolean_data___calls_data_store_service_client(
         value,
         "step_id",
         timestamp,
-        Outcome.OUTCOME_PASSED,
+        Outcome.PASSED,
         ErrorInformation(),
         [],
         [],
@@ -68,8 +68,8 @@ def test___publish_boolean_data___calls_data_store_service_client(
     assert request.notes == "notes"
     assert request.timestamp == unittest.mock.ANY
     assert request.scalar.bool_value == value
-    assert request.outcome == Outcome.OUTCOME_PASSED
-    assert request.error_information == ErrorInformation()
+    assert request.outcome == OutcomeProto.OUTCOME_PASSED
+    assert request.error_information == ErrorInformationProto()
     assert request.hardware_item_ids == []
     assert request.software_item_ids == []
     assert request.test_adapter_ids == []
@@ -98,7 +98,7 @@ def test___publish_analog_waveform_data___calls_data_store_service_client(
         analog_waveform,
         "step_id",
         timestamp,
-        Outcome.OUTCOME_PASSED,
+        Outcome.PASSED,
         ErrorInformation(),
         [],
         [],
@@ -114,8 +114,8 @@ def test___publish_analog_waveform_data___calls_data_store_service_client(
     assert request.notes == "notes"
     assert request.timestamp == hightime_datetime_to_protobuf(timestamp)
     assert request.double_analog_waveform == expected_protobuf_waveform
-    assert request.outcome == Outcome.OUTCOME_PASSED
-    assert request.error_information == ErrorInformation()
+    assert request.outcome == OutcomeProto.OUTCOME_PASSED
+    assert request.error_information == ErrorInformationProto()
     assert request.hardware_item_ids == []
     assert request.software_item_ids == []
     assert request.test_adapter_ids == []
@@ -280,7 +280,7 @@ def test___vector___publish_measurement_batch___calls_data_store_service_client(
         values=Vector(values=[1.0, 2.0, 3.0], units="BatchUnits"),
         step_id="step_id",
         timestamps=[timestamp],
-        outcomes=[Outcome.OUTCOME_PASSED],
+        outcomes=[Outcome.PASSED],
         error_information=[ErrorInformation()],
         hardware_item_ids=[],
         test_adapter_ids=[],
@@ -295,8 +295,8 @@ def test___vector___publish_measurement_batch___calls_data_store_service_client(
     assert request.timestamps == [hightime_datetime_to_protobuf(timestamp)]
     assert request.scalar_values.double_array.values == [1.0, 2.0, 3.0]
     assert request.scalar_values.attributes["NI_UnitDescription"].string_value == "BatchUnits"
-    assert request.outcomes == [Outcome.OUTCOME_PASSED]
-    assert request.error_information == [ErrorInformation()]
+    assert request.outcomes == [OutcomeProto.OUTCOME_PASSED]
+    assert request.error_information == [ErrorInformationProto()]
     assert request.hardware_item_ids == []
     assert request.software_item_ids == []
     assert request.test_adapter_ids == []
@@ -318,7 +318,7 @@ def test___int_list___publish_measurement_batch___calls_data_store_service_clien
         values=[1, 2, 3],
         step_id="step_id",
         timestamps=[timestamp],
-        outcomes=[Outcome.OUTCOME_PASSED],
+        outcomes=[Outcome.PASSED],
         error_information=[ErrorInformation()],
         hardware_item_ids=[],
         test_adapter_ids=[],
@@ -351,7 +351,7 @@ def test___float_list___publish_measurement_batch___calls_data_store_service_cli
         values=[1.0, 2.0, 3.0],
         step_id="step_id",
         timestamps=[timestamp],
-        outcomes=[Outcome.OUTCOME_PASSED],
+        outcomes=[Outcome.PASSED],
         error_information=[ErrorInformation()],
         hardware_item_ids=[],
         test_adapter_ids=[],
@@ -384,7 +384,7 @@ def test___bool_list___publish_measurement_batch___calls_data_store_service_clie
         values=[True, False, True],
         step_id="step_id",
         timestamps=[timestamp],
-        outcomes=[Outcome.OUTCOME_PASSED],
+        outcomes=[Outcome.PASSED],
         error_information=[ErrorInformation()],
         hardware_item_ids=[],
         test_adapter_ids=[],
@@ -417,7 +417,7 @@ def test___str_list___publish_measurement_batch___calls_data_store_service_clien
         values=["one", "two", "three"],
         step_id="step_id",
         timestamps=[timestamp],
-        outcomes=[Outcome.OUTCOME_PASSED],
+        outcomes=[Outcome.PASSED],
         error_information=[ErrorInformation()],
         hardware_item_ids=[],
         test_adapter_ids=[],

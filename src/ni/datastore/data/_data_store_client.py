@@ -13,7 +13,6 @@ from urllib.parse import urlparse
 import hightime as ht
 from grpc import Channel
 from ni.datamonikers.v1.client import MonikerClient
-from ni.datamonikers.v1.data_moniker_pb2 import Moniker
 from ni.datastore.data._grpc_conversion import (
     get_publish_measurement_timestamp,
     populate_publish_condition_batch_request_values,
@@ -22,16 +21,15 @@ from ni.datastore.data._grpc_conversion import (
     populate_publish_measurement_request_value,
     unpack_and_convert_from_protobuf_any,
 )
+from ni.datastore.data._types._error_information import ErrorInformation
+from ni.datastore.data._types._moniker import Moniker
+from ni.datastore.data._types._outcome import Outcome
 from ni.datastore.data._types._published_condition import PublishedCondition
 from ni.datastore.data._types._published_measurement import PublishedMeasurement
 from ni.datastore.data._types._step import Step
 from ni.datastore.data._types._test_result import TestResult
 from ni.measurementlink.discovery.v1.client import DiscoveryClient
 from ni.measurements.data.v1.client import DataStoreClient as DataStoreServiceClient
-from ni.measurements.data.v1.data_store_pb2 import (
-    ErrorInformation,
-    Outcome,
-)
 from ni.measurements.data.v1.data_store_service_pb2 import (
     CreateStepRequest,
     CreateTestResultRequest,
@@ -227,7 +225,7 @@ class DataStoreClient:
         value: object,  # More strongly typed Union[bool, AnalogWaveform] can be used if needed
         step_id: str,
         timestamp: ht.datetime | None = None,
-        outcome: Outcome.ValueType = Outcome.OUTCOME_UNSPECIFIED,
+        outcome: Outcome = Outcome.UNSPECIFIED,
         error_information: ErrorInformation | None = None,
         hardware_item_ids: Iterable[str] = tuple(),
         test_adapter_ids: Iterable[str] = tuple(),
@@ -291,8 +289,10 @@ class DataStoreClient:
         publish_request = PublishMeasurementRequest(
             measurement_name=measurement_name,
             step_id=step_id,
-            outcome=outcome,
-            error_information=error_information,
+            outcome=outcome.to_protobuf(),
+            error_information=(
+                error_information.to_protobuf() if error_information is not None else None
+            ),
             hardware_item_ids=hardware_item_ids,
             test_adapter_ids=test_adapter_ids,
             software_item_ids=software_item_ids,
@@ -311,7 +311,7 @@ class DataStoreClient:
         values: object,
         step_id: str,
         timestamps: Iterable[ht.datetime] = tuple(),
-        outcomes: Iterable[Outcome.ValueType] = tuple(),
+        outcomes: Iterable[Outcome] = tuple(),
         error_information: Iterable[ErrorInformation] = tuple(),
         hardware_item_ids: Iterable[str] = tuple(),
         test_adapter_ids: Iterable[str] = tuple(),
@@ -372,8 +372,10 @@ class DataStoreClient:
             measurement_name=measurement_name,
             step_id=step_id,
             timestamps=[hightime_datetime_to_protobuf(ts) for ts in timestamps],
-            outcomes=outcomes,
-            error_information=error_information,
+            outcomes=[outcome.to_protobuf() for outcome in outcomes],
+            error_information=(
+                [ei.to_protobuf() for ei in (error_information or [])] if error_information else []
+            ),
             hardware_item_ids=hardware_item_ids,
             test_adapter_ids=test_adapter_ids,
             software_item_ids=software_item_ids,
@@ -407,7 +409,7 @@ class DataStoreClient:
 
         Args:
             moniker_source: The source from which to read data. Can be:
-                - A Moniker directly
+                - A Moniker (wrapper type) directly
                 - A PublishedMeasurement (uses its moniker)
                 - A PublishedCondition (uses its moniker)
 
@@ -428,19 +430,25 @@ class DataStoreClient:
             TypeError: If expected_type is provided and the actual data type
                 doesn't match.
         """
+        from ni.datamonikers.v1.data_moniker_pb2 import Moniker as MonikerProto
+
+        moniker_proto: MonikerProto
+
         if isinstance(moniker_source, Moniker):
-            moniker = moniker_source
+            moniker_proto = moniker_source.to_protobuf()
         elif isinstance(moniker_source, PublishedMeasurement):
             if moniker_source.moniker is None:
                 raise ValueError("PublishedMeasurement must have a Moniker to read data")
-            moniker = moniker_source.moniker
+            moniker_proto = moniker_source.moniker.to_protobuf()
         elif isinstance(moniker_source, PublishedCondition):
             if moniker_source.moniker is None:
                 raise ValueError("PublishedCondition must have a Moniker to read data")
-            moniker = moniker_source.moniker
+            moniker_proto = moniker_source.moniker.to_protobuf()
+        else:
+            raise TypeError(f"Unsupported moniker_source type: {type(moniker_source)}")
 
-        moniker_client = self._get_moniker_client(moniker.service_location)
-        read_result = moniker_client.read_from_moniker(moniker)
+        moniker_client = self._get_moniker_client(moniker_proto.service_location)
+        read_result = moniker_client.read_from_moniker(moniker_proto)
         converted_data = unpack_and_convert_from_protobuf_any(read_result.value)
         if expected_type is not None and not isinstance(converted_data, expected_type):
             raise TypeError(f"Expected type {expected_type}, got {type(converted_data)}")

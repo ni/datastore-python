@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
-from ni.measurements.metadata.v1.metadata_store_pb2 import (
-    Alias as AliasProto,
-    AliasTargetType,
-)
+from ni.measurements.metadata.v1.metadata_store_pb2 import Alias as AliasProto
+
+from ._alias_target_type import AliasTargetType
 
 
 class Alias:
@@ -26,7 +25,7 @@ class Alias:
         self,
         *,
         name: str = "",
-        target_type: AliasTargetType.ValueType = AliasTargetType.ALIAS_TARGET_TYPE_UNSPECIFIED,
+        target_type: AliasTargetType = AliasTargetType.UNSPECIFIED,
         target_id: str = "",
     ) -> None:
         """Initialize an Alias instance.
@@ -46,7 +45,7 @@ class Alias:
         """Create an Alias instance from a protobuf Alias message."""
         return Alias(
             name=alias_proto.name,
-            target_type=alias_proto.target_type,
+            target_type=AliasTargetType.from_protobuf(alias_proto.target_type),
             target_id=alias_proto.target_id,
         )
 
@@ -54,7 +53,7 @@ class Alias:
         """Convert this Alias to a protobuf Alias message."""
         return AliasProto(
             name=self.name,
-            target_type=self.target_type,
+            target_type=self.target_type.to_protobuf(),
             target_id=self.target_id,
         )
 

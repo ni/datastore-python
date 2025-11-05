@@ -5,13 +5,11 @@ from __future__ import annotations
 from typing import Iterable, MutableSequence
 
 import hightime as ht
-from ni.datamonikers.v1.data_moniker_pb2 import Moniker
+from ni.datastore.data._types._error_information import ErrorInformation
+from ni.datastore.data._types._moniker import Moniker
+from ni.datastore.data._types._outcome import Outcome
 from ni.datastore.data._types._published_condition import PublishedCondition
-from ni.measurements.data.v1.data_store_pb2 import (
-    ErrorInformation,
-    Outcome,
-    PublishedMeasurement as PublishedMeasurementProto,
-)
+from ni.measurements.data.v1.data_store_pb2 import PublishedMeasurement as PublishedMeasurementProto
 from ni.protobuf.types.precision_timestamp_conversion import (
     hightime_datetime_from_protobuf,
     hightime_datetime_to_protobuf,
@@ -81,7 +79,7 @@ class PublishedMeasurement:
         notes: str = "",
         start_date_time: ht.datetime | None = None,
         end_date_time: ht.datetime | None = None,
-        outcome: Outcome.ValueType = Outcome.OUTCOME_UNSPECIFIED,
+        outcome: Outcome = Outcome.UNSPECIFIED,
         parametric_index: int = 0,
         error_information: ErrorInformation | None = None,
     ) -> None:
@@ -150,7 +148,7 @@ class PublishedMeasurement:
         """Create a PublishedMeasurement instance from a protobuf PublishedMeasurement message."""
         return PublishedMeasurement(
             moniker=(
-                published_measurement_proto.moniker
+                Moniker.from_protobuf(published_measurement_proto.moniker)
                 if published_measurement_proto.HasField("moniker")
                 else None
             ),
@@ -177,10 +175,10 @@ class PublishedMeasurement:
                 if published_measurement_proto.HasField("end_date_time")
                 else None
             ),
-            outcome=published_measurement_proto.outcome,
+            outcome=Outcome.from_protobuf(published_measurement_proto.outcome),
             parametric_index=published_measurement_proto.parametric_index,
             error_information=(
-                published_measurement_proto.error_information
+                ErrorInformation.from_protobuf(published_measurement_proto.error_information)
                 if published_measurement_proto.HasField("error_information")
                 else None
             ),
@@ -189,7 +187,7 @@ class PublishedMeasurement:
     def to_protobuf(self) -> PublishedMeasurementProto:
         """Convert this PublishedMeasurement instance to a protobuf PublishedMeasurement message."""
         return PublishedMeasurementProto(
-            moniker=self.moniker,
+            moniker=self.moniker.to_protobuf() if self.moniker is not None else None,
             published_conditions=[
                 condition.to_protobuf() for condition in self.published_conditions
             ],
@@ -212,9 +210,11 @@ class PublishedMeasurement:
                 if self.end_date_time is not None
                 else None
             ),
-            outcome=self.outcome,
+            outcome=self.outcome.to_protobuf(),
             parametric_index=self.parametric_index,
-            error_information=self.error_information,
+            error_information=(
+                self.error_information.to_protobuf() if self.error_information is not None else None
+            ),
         )
 
     def __eq__(self, other: object) -> bool:
