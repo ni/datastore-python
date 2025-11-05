@@ -66,6 +66,8 @@ warn_unused_ignores = true
 [[tool.mypy.overrides]]
 module = [
     "nisyscfg",
+    "nisyscfg.component_info",
+    "nisyscfg.hardware_resource",
 ]
 ignore_missing_imports = true  # no library stubs or py.typed marker
 
