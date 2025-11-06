@@ -43,7 +43,7 @@ include = "src"
 
 [tool.poetry.dependencies]
 ni-measurements-metadata-v1-client = { version = ">=0.2.0.dev0", allow-prereleases = true }
-nisyscfg = ">=0.2.1"
+nisyscfg ={ version =  ">=0.2.1", allow-prereleases = true }
 
 [tool.poetry.group.dev.dependencies]
 ni-datastore = {path = "../..", develop = true}
@@ -61,6 +61,13 @@ files = "."
 namespace_packages = true
 strict = true
 explicit_package_bases = true
+warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+module = [
+    "nisyscfg",
+]
+ignore_missing_imports = true  # no library stubs or py.typed marker
 
 [build-system]
 requires = ["poetry-core>=2.1.0,<3.0.0"]
