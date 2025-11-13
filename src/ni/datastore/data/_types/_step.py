@@ -98,9 +98,7 @@ class Step:
         self.start_date_time = start_date_time
         self.end_date_time = end_date_time
         self.link = link
-        self._extension: MutableMapping[str, str] = (
-            dict(extension) if extension is not None else {}
-        )
+        self._extension: MutableMapping[str, str] = dict(extension) if extension is not None else {}
         self.schema_id = schema_id
         self.error_information = error_information
         self.outcome = outcome
