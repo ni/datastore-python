@@ -25,14 +25,14 @@ class Test:
         "name",
         "description",
         "link",
-        "_extensions",
+        "_extension",
         "schema_id",
     )
 
     @property
-    def extensions(self) -> MutableMapping[str, str]:
+    def extension(self) -> MutableMapping[str, str]:
         """The extensions of the test."""
-        return self._extensions
+        return self._extension
 
     @property
     def id(self) -> str:
@@ -66,7 +66,7 @@ class Test:
         self.name = name
         self.description = description
         self.link = link
-        self._extensions: MutableMapping[str, str] = (
+        self._extension: MutableMapping[str, str] = (
             dict(extensions) if extensions is not None else {}
         )
         self.schema_id = schema_id
@@ -80,7 +80,7 @@ class Test:
             link=test_proto.link,
             schema_id=test_proto.schema_id,
         )
-        populate_from_extension_value_message_map(test.extensions, test_proto.extensions)
+        populate_from_extension_value_message_map(test.extension, test_proto.extension)
         test._id = test_proto.id
         return test
 
@@ -93,7 +93,7 @@ class Test:
             link=self.link,
             schema_id=self.schema_id,
         )
-        populate_extension_value_message_map(test_proto.extensions, self.extensions)
+        populate_extension_value_message_map(test_proto.extension, self.extension)
         return test_proto
 
     def __eq__(self, other: object) -> bool:
@@ -105,7 +105,7 @@ class Test:
             and self.name == other.name
             and self.description == other.description
             and self.link == other.link
-            and self.extensions == other.extensions
+            and self.extension == other.extension
             and self.schema_id == other.schema_id
         )
 

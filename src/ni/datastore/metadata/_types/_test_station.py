@@ -28,14 +28,14 @@ class TestStation:
         "name",
         "asset_identifier",
         "link",
-        "_extensions",
+        "_extension",
         "schema_id",
     )
 
     @property
-    def extensions(self) -> MutableMapping[str, str]:
+    def extension(self) -> MutableMapping[str, str]:
         """The extensions of the test station."""
-        return self._extensions
+        return self._extension
 
     @property
     def id(self) -> str:
@@ -69,7 +69,7 @@ class TestStation:
         self.name = name
         self.asset_identifier = asset_identifier
         self.link = link
-        self._extensions: MutableMapping[str, str] = (
+        self._extension: MutableMapping[str, str] = (
             dict(extensions) if extensions is not None else {}
         )
         self.schema_id = schema_id
@@ -84,7 +84,7 @@ class TestStation:
             schema_id=test_station_proto.schema_id,
         )
         populate_from_extension_value_message_map(
-            test_station.extensions, test_station_proto.extensions
+            test_station.extension, test_station_proto.extension
         )
         test_station._id = test_station_proto.id
         return test_station
@@ -98,7 +98,7 @@ class TestStation:
             link=self.link,
             schema_id=self.schema_id,
         )
-        populate_extension_value_message_map(test_station_proto.extensions, self.extensions)
+        populate_extension_value_message_map(test_station_proto.extension, self.extension)
         return test_station_proto
 
     def __eq__(self, other: object) -> bool:
@@ -110,7 +110,7 @@ class TestStation:
             and self.name == other.name
             and self.asset_identifier == other.asset_identifier
             and self.link == other.link
-            and self.extensions == other.extensions
+            and self.extension == other.extension
             and self.schema_id == other.schema_id
         )
 

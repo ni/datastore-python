@@ -142,7 +142,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
             test_adapter_ids=test_adapter_ids,
             name=test_result_name,
             link="Test Result Link",
-            extensions={"tr1": "one", "tr2": "two"},
+            extension={"tr1": "one", "tr2": "two"},
             schema_id=schema_id,
         )
         test_result_id = data_store_client.create_test_result(test_result)
@@ -170,10 +170,10 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
             test_result_id=test_result_id,
             test_id=test_id,
             name="Step Name",
-            type="Step Type",
+            step_type="Step Type",
             notes="Step Notes",
             link="Step Link",
-            extensions={"s1": "one", "s2": "two"},
+            extension={"s1": "one", "s2": "two"},
             schema_id=schema_id,
         )
         step_id = data_store_client.create_step(step)
@@ -226,7 +226,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         assert found_test_result.test_description_id == test_description_id
         assert found_test_result.test_station_id == test_station_id
         assert found_test_result.uut_instance_id == uut_instance_id
-        assert found_test_result.extensions == test_result.extensions
+        assert found_test_result.extension == test_result.extension
 
         # Check Step
         found_step = data_store_client.get_step(found_measurement.step_id)
@@ -234,23 +234,23 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         assert found_step.test_result_id == step.test_result_id
         assert found_step.test_id == step.test_id
         assert found_step.name == step.name
-        assert found_step.type == step.type
+        assert found_step.step_type == step.step_type
         assert found_step.notes == step.notes
         assert found_step.link == step.link
-        assert found_step.extensions == step.extensions
+        assert found_step.extension == step.extension
 
         # Check Test
         found_test = metadata_store_client.get_test(found_step.test_id)
         assert found_test.description == test.description
         assert found_test.name == test.name
         assert found_test.link == test.link
-        assert found_test.extensions == test.extensions
+        assert found_test.extension == test.extension
 
         # Check Operator
         found_operator = metadata_store_client.get_operator(found_test_result.operator_id)
         assert found_operator.name == operator.name
         assert found_operator.role == operator.role
-        assert found_operator.extensions == operator.extensions
+        assert found_operator.extension == operator.extension
 
         # Check UutInstance
         found_uut_instance = metadata_store_client.get_uut_instance(
@@ -261,7 +261,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         assert found_uut_instance.firmware_version == uut_instance.firmware_version
         assert found_uut_instance.manufacture_date == uut_instance.manufacture_date
         assert found_uut_instance.hardware_version == uut_instance.hardware_version
-        assert found_uut_instance.extensions == uut_instance.extensions
+        assert found_uut_instance.extension == uut_instance.extension
 
         # Check Uut
         found_uut = metadata_store_client.get_uut(found_uut_instance.uut_id)
@@ -271,7 +271,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         # assert found_uut.manufacturers == uut.manufacturers
         assert found_uut.part_number == uut.part_number
         assert found_uut.link == uut.link
-        assert found_uut.extensions == uut.extensions
+        assert found_uut.extension == uut.extension
 
         # Check TestStation
         found_test_station = metadata_store_client.get_test_station(
@@ -280,7 +280,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         assert found_test_station.name == test_station.name
         assert found_test_station.asset_identifier == test_station.asset_identifier
         assert found_test_station.link == test_station.link
-        assert found_test_station.extensions == test_station.extensions
+        assert found_test_station.extension == test_station.extension
 
         # Check TestDescription
         found_test_description = metadata_store_client.get_test_description(
@@ -288,7 +288,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         )
         assert found_test_description.name == test_description.name
         assert found_test_description.link == test_description.link
-        assert found_test_description.extensions == test_description.extensions
+        assert found_test_description.extension == test_description.extension
 
         # Check SoftwareItem
         found_sw_item = metadata_store_client.get_software_item(
@@ -297,7 +297,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         assert found_sw_item.product == software_item.product
         assert found_sw_item.version == software_item.version
         assert found_sw_item.link == software_item.link
-        assert found_sw_item.extensions == software_item.extensions
+        assert found_sw_item.extension == software_item.extension
 
         # Check HardwareItem
         found_hw_item = metadata_store_client.get_hardware_item(
@@ -310,7 +310,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         assert found_hw_item.asset_identifier == hardware_item.asset_identifier
         assert found_hw_item.calibration_due_date == hardware_item.calibration_due_date
         assert found_hw_item.link == hardware_item.link
-        assert found_hw_item.extensions == hardware_item.extensions
+        assert found_hw_item.extension == hardware_item.extension
 
         waveform = data_store_client.read_data(found_measurement, expected_type=AnalogWaveform)
         assert waveform == expected_waveform

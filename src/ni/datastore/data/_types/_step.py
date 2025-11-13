@@ -34,21 +34,21 @@ class Step:
         "test_result_id",
         "test_id",
         "name",
-        "type",
+        "step_type",
         "notes",
         "start_date_time",
         "end_date_time",
         "link",
-        "_extensions",
+        "_extension",
         "schema_id",
         "error_information",
         "outcome",
     )
 
     @property
-    def extensions(self) -> MutableMapping[str, str]:
+    def extension(self) -> MutableMapping[str, str]:
         """The extensions of the step."""
-        return self._extensions
+        return self._extension
 
     def __init__(
         self,
@@ -58,12 +58,12 @@ class Step:
         test_result_id: str = "",
         test_id: str = "",
         name: str = "",
-        type: str = "",
+        step_type: str = "",
         notes: str = "",
         start_date_time: ht.datetime | None = None,
         end_date_time: ht.datetime | None = None,
         link: str = "",
-        extensions: Mapping[str, str] | None = None,
+        extension: Mapping[str, str] | None = None,
         schema_id: str = "",
         error_information: ErrorInformation | None = None,
         outcome: Outcome = Outcome.UNSPECIFIED,
@@ -76,12 +76,12 @@ class Step:
             test_result_id: ID of the test result this step belongs to.
             test_id: ID of the test associated with this step.
             name: Human-readable name of the step.
-            type: Type or category of the step.
+            step_type: Type or category of the step.
             notes: Additional notes or comments about the step.
             start_date_time: The start date and time of the step execution.
             end_date_time: The end date and time of the step execution.
             link: Optional link to external resources for this step.
-            extensions: Additional custom metadata as key-value pairs.
+            extension: Additional custom metadata as key-value pairs.
             schema_id: ID of the extension schema for validating extensions.
             error_information: Error or exception information in case of
                 step failure.
@@ -93,13 +93,13 @@ class Step:
         self.test_result_id = test_result_id
         self.test_id = test_id
         self.name = name
-        self.type = type
+        self.step_type = step_type
         self.notes = notes
         self.start_date_time = start_date_time
         self.end_date_time = end_date_time
         self.link = link
-        self._extensions: MutableMapping[str, str] = (
-            dict(extensions) if extensions is not None else {}
+        self._extension: MutableMapping[str, str] = (
+            dict(extension) if extension is not None else {}
         )
         self.schema_id = schema_id
         self.error_information = error_information
@@ -114,7 +114,7 @@ class Step:
             test_result_id=step_proto.test_result_id,
             test_id=step_proto.test_id,
             name=step_proto.name,
-            type=step_proto.type,
+            step_type=step_proto.step_type,
             notes=step_proto.notes,
             start_date_time=(
                 hightime_datetime_from_protobuf(step_proto.start_date_time)
@@ -135,7 +135,7 @@ class Step:
             ),
             outcome=Outcome.from_protobuf(step_proto.outcome),
         )
-        populate_from_extension_value_message_map(step.extensions, step_proto.extensions)
+        populate_from_extension_value_message_map(step.extension, step_proto.extension)
         return step
 
     def to_protobuf(self) -> StepProto:
@@ -146,7 +146,7 @@ class Step:
             test_result_id=self.test_result_id,
             test_id=self.test_id,
             name=self.name,
-            type=self.type,
+            step_type=self.step_type,
             notes=self.notes,
             start_date_time=(
                 hightime_datetime_to_protobuf(self.start_date_time)
@@ -163,7 +163,7 @@ class Step:
             ),
             outcome=self.outcome.to_protobuf(),
         )
-        populate_extension_value_message_map(step_proto.extensions, self.extensions)
+        populate_extension_value_message_map(step_proto.extension, self.extension)
         return step_proto
 
     def __eq__(self, other: object) -> bool:
@@ -176,12 +176,12 @@ class Step:
             and self.test_result_id == other.test_result_id
             and self.test_id == other.test_id
             and self.name == other.name
-            and self.type == other.type
+            and self.step_type == other.step_type
             and self.notes == other.notes
             and self.start_date_time == other.start_date_time
             and self.end_date_time == other.end_date_time
             and self.link == other.link
-            and self.extensions == other.extensions
+            and self.extension == other.extension
             and self.schema_id == other.schema_id
             and self.error_information == other.error_information
             and self.outcome == other.outcome

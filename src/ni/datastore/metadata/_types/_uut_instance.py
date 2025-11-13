@@ -31,14 +31,14 @@ class UutInstance:
         "firmware_version",
         "hardware_version",
         "link",
-        "_extensions",
+        "_extension",
         "schema_id",
     )
 
     @property
-    def extensions(self) -> MutableMapping[str, str]:
+    def extension(self) -> MutableMapping[str, str]:
         """The extensions of the UUT instance."""
-        return self._extensions
+        return self._extension
 
     @property
     def id(self) -> str:
@@ -82,7 +82,7 @@ class UutInstance:
         self.firmware_version = firmware_version
         self.hardware_version = hardware_version
         self.link = link
-        self._extensions: MutableMapping[str, str] = (
+        self._extension: MutableMapping[str, str] = (
             dict(extensions) if extensions is not None else {}
         )
         self.schema_id = schema_id
@@ -100,7 +100,7 @@ class UutInstance:
             schema_id=uut_instance_proto.schema_id,
         )
         populate_from_extension_value_message_map(
-            uut_instance.extensions, uut_instance_proto.extensions
+            uut_instance.extension, uut_instance_proto.extension
         )
         uut_instance._id = uut_instance_proto.id
         return uut_instance
@@ -117,7 +117,7 @@ class UutInstance:
             link=self.link,
             schema_id=self.schema_id,
         )
-        populate_extension_value_message_map(uut_instance_proto.extensions, self.extensions)
+        populate_extension_value_message_map(uut_instance_proto.extension, self.extension)
         return uut_instance_proto
 
     def __eq__(self, other: object) -> bool:
@@ -132,7 +132,7 @@ class UutInstance:
             and self.firmware_version == other.firmware_version
             and self.hardware_version == other.hardware_version
             and self.link == other.link
-            and self.extensions == other.extensions
+            and self.extension == other.extension
             and self.schema_id == other.schema_id
         )
 

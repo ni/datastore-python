@@ -30,7 +30,7 @@ class Uut:
         "_manufacturers",
         "part_number",
         "link",
-        "_extensions",
+        "_extension",
         "schema_id",
     )
 
@@ -40,9 +40,9 @@ class Uut:
         return self._manufacturers
 
     @property
-    def extensions(self) -> MutableMapping[str, str]:
+    def extension(self) -> MutableMapping[str, str]:
         """The extensions of the UUT."""
-        return self._extensions
+        return self._extension
 
     @property
     def id(self) -> str:
@@ -84,7 +84,7 @@ class Uut:
         )
         self.part_number = part_number
         self.link = link
-        self._extensions: MutableMapping[str, str] = (
+        self._extension: MutableMapping[str, str] = (
             dict(extensions) if extensions is not None else {}
         )
         self.schema_id = schema_id
@@ -100,7 +100,7 @@ class Uut:
             link=uut_proto.link,
             schema_id=uut_proto.schema_id,
         )
-        populate_from_extension_value_message_map(uut.extensions, uut_proto.extensions)
+        populate_from_extension_value_message_map(uut.extension, uut_proto.extension)
         uut._id = uut_proto.id
         return uut
 
@@ -115,7 +115,7 @@ class Uut:
             link=self.link,
             schema_id=self.schema_id,
         )
-        populate_extension_value_message_map(uut_proto.extensions, self.extensions)
+        populate_extension_value_message_map(uut_proto.extension, self.extension)
         return uut_proto
 
     def __eq__(self, other: object) -> bool:
@@ -129,7 +129,7 @@ class Uut:
             and self.manufacturers == other.manufacturers
             and self.part_number == other.part_number
             and self.link == other.link
-            and self.extensions == other.extensions
+            and self.extension == other.extension
             and self.schema_id == other.schema_id
         )
 

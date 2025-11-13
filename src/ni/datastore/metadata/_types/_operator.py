@@ -25,14 +25,14 @@ class Operator:
         "name",
         "role",
         "link",
-        "_extensions",
+        "_extension",
         "schema_id",
     )
 
     @property
-    def extensions(self) -> MutableMapping[str, str]:
+    def extension(self) -> MutableMapping[str, str]:
         """The extensions of the operator."""
-        return self._extensions
+        return self._extension
 
     @property
     def id(self) -> str:
@@ -66,7 +66,7 @@ class Operator:
         self.name = name
         self.role = role
         self.link = link
-        self._extensions: MutableMapping[str, str] = (
+        self._extension: MutableMapping[str, str] = (
             dict(extensions) if extensions is not None else {}
         )
         self.schema_id = schema_id
@@ -80,7 +80,7 @@ class Operator:
             link=operator_proto.link,
             schema_id=operator_proto.schema_id,
         )
-        populate_from_extension_value_message_map(operator.extensions, operator_proto.extensions)
+        populate_from_extension_value_message_map(operator.extension, operator_proto.extension)
         operator._id = operator_proto.id
         return operator
 
@@ -93,7 +93,7 @@ class Operator:
             link=self.link,
             schema_id=self.schema_id,
         )
-        populate_extension_value_message_map(operator_proto.extensions, self.extensions)
+        populate_extension_value_message_map(operator_proto.extension, self.extension)
         return operator_proto
 
     def __eq__(self, other: object) -> bool:
@@ -105,7 +105,7 @@ class Operator:
             and self.name == other.name
             and self.role == other.role
             and self.link == other.link
-            and self.extensions == other.extensions
+            and self.extension == other.extension
             and self.schema_id == other.schema_id
         )
 

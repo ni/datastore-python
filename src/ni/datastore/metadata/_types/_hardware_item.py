@@ -30,14 +30,14 @@ class HardwareItem:
         "asset_identifier",
         "calibration_due_date",
         "link",
-        "_extensions",
+        "_extension",
         "schema_id",
     )
 
     @property
-    def extensions(self) -> MutableMapping[str, str]:
+    def extension(self) -> MutableMapping[str, str]:
         """The extensions of the hardware item."""
-        return self._extensions
+        return self._extension
 
     @property
     def id(self) -> str:
@@ -83,7 +83,7 @@ class HardwareItem:
         self.asset_identifier = asset_identifier
         self.calibration_due_date = calibration_due_date
         self.link = link
-        self._extensions: MutableMapping[str, str] = (
+        self._extension: MutableMapping[str, str] = (
             dict(extensions) if extensions is not None else {}
         )
         self.schema_id = schema_id
@@ -102,7 +102,7 @@ class HardwareItem:
             schema_id=hardware_item_proto.schema_id,
         )
         populate_from_extension_value_message_map(
-            hardware_item.extensions, hardware_item_proto.extensions
+            hardware_item.extension, hardware_item_proto.extension
         )
         hardware_item._id = hardware_item_proto.id
         return hardware_item
@@ -120,7 +120,7 @@ class HardwareItem:
             link=self.link,
             schema_id=self.schema_id,
         )
-        populate_extension_value_message_map(hardware_item_proto.extensions, self.extensions)
+        populate_extension_value_message_map(hardware_item_proto.extension, self.extension)
         return hardware_item_proto
 
     def __eq__(self, other: object) -> bool:
@@ -136,7 +136,7 @@ class HardwareItem:
             and self.asset_identifier == other.asset_identifier
             and self.calibration_due_date == other.calibration_due_date
             and self.link == other.link
-            and self.extensions == other.extensions
+            and self.extension == other.extension
             and self.schema_id == other.schema_id
         )
 
