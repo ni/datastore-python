@@ -31,7 +31,7 @@ class Operator:
 
     @property
     def extension(self) -> MutableMapping[str, str]:
-        """The extensions of the operator."""
+        """The extension of the operator."""
         return self._extension
 
     @property
@@ -45,7 +45,7 @@ class Operator:
         name: str = "",
         role: str = "",
         link: str = "",
-        extensions: Mapping[str, str] | None = None,
+        extension: Mapping[str, str] | None = None,
         schema_id: str = "",
     ) -> None:
         """Initialize an Operator instance.
@@ -55,7 +55,7 @@ class Operator:
             role: The role of the operator.
             link: A link to a resource that describes the operator. This value
                 is expected to be a valid URI.
-            extensions: Any extensions to be associated with the operator.
+            extension: Any extensions to be associated with the operator.
             schema_id: The unique identifier of the schema that applies to this
                 instance's extension. If any extension is associated with this
                 instance, a schema_id must be provided, unless the operator is
@@ -66,9 +66,7 @@ class Operator:
         self.name = name
         self.role = role
         self.link = link
-        self._extension: MutableMapping[str, str] = (
-            dict(extensions) if extensions is not None else {}
-        )
+        self._extension: MutableMapping[str, str] = dict(extension) if extension is not None else {}
         self.schema_id = schema_id
 
     @staticmethod

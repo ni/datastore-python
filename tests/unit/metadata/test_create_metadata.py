@@ -50,7 +50,7 @@ def test___create_uut_instance___calls_metadata_store_service_client(
         firmware_version="firmware_version",
         hardware_version="hardware_version",
         link="link",
-        extensions=None,
+        extension=None,
         schema_id="schema_id",
     )
     expected_response = CreateUutInstanceResponse(uut_instance_id="response_id")
@@ -74,7 +74,7 @@ def test___create_uut___calls_metadata_store_service_client(
         manufacturers=None,
         part_number="part_number",
         link="link",
-        extensions=None,
+        extension=None,
         schema_id="schema_id",
     )
     expected_response = CreateUutResponse(uut_id="response_id")
@@ -96,7 +96,7 @@ def test___create_operator___calls_metadata_store_service_client(
         name="operator_name",
         role="role",
         link="link",
-        extensions=None,
+        extension=None,
         schema_id="schema_id",
     )
     expected_response = CreateOperatorResponse(operator_id="response_id")
@@ -118,7 +118,7 @@ def test___create_test_description___calls_metadata_store_service_client(
         uut_id="uut_id",
         name="test_description_name",
         link="link",
-        extensions=None,
+        extension=None,
         schema_id="schema_id",
     )
     expected_response = CreateTestDescriptionResponse(test_description_id="response_id")
@@ -139,7 +139,7 @@ def test___create_test___calls_metadata_store_service_client(
     test = Test(
         name="test_name",
         description="description",
-        extensions=None,
+        extension=None,
         schema_id="schema_id",
     )
     expected_response = CreateTestResponse(test_id="response_id")
@@ -161,7 +161,7 @@ def test___create_test_station___calls_metadata_store_service_client(
         name="test_station_name",
         asset_identifier="asset_identifier",
         link="link",
-        extensions=None,
+        extension=None,
         schema_id="schema_id",
     )
     expected_response = CreateTestStationResponse(test_station_id="response_id")
@@ -187,7 +187,7 @@ def test___create_hardware_item___calls_metadata_store_service_client(
         asset_identifier="asset_identifier",
         calibration_due_date="calibration_due_date",
         link="link",
-        extensions=None,
+        extension=None,
         schema_id="schema_id",
     )
     expected_response = CreateHardwareItemResponse(hardware_item_id="response_id")
@@ -209,7 +209,7 @@ def test___create_software_item___calls_metadata_store_service_client(
         product="product",
         version="version",
         link="link",
-        extensions=None,
+        extension=None,
         schema_id="schema_id",
     )
     expected_response = CreateSoftwareItemResponse(software_item_id="response_id")
@@ -236,7 +236,7 @@ def test___create_test_adapter___calls_metadata_store_service_client(
         asset_identifier="asset_identifier",
         calibration_due_date="calibration_due_date",
         link="link",
-        extensions=None,
+        extension=None,
         schema_id="schema_id",
     )
     expected_response = CreateTestAdapterResponse(test_adapter_id="response_id")

@@ -64,7 +64,7 @@ class TestResult:
 
     @property
     def extension(self) -> MutableMapping[str, str]:
-        """The extensions of the test result."""
+        """The extension of the test result."""
         return self._extension
 
     def __init__(

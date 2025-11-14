@@ -47,7 +47,7 @@ class Step:
 
     @property
     def extension(self) -> MutableMapping[str, str]:
-        """The extensions of the step."""
+        """The extension of the step."""
         return self._extension
 
     def __init__(

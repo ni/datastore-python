@@ -42,7 +42,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
             manufacturers=["Manufacturer A", "Manufacturer B"],
             part_number="Part Number",
             link="Uut Link",
-            extensions={"u1": "one", "u2": "two"},
+            extension={"u1": "one", "u2": "two"},
             schema_id=schema_id,
         )
         uut_id = metadata_store_client.create_uut(uut)
@@ -55,7 +55,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
             firmware_version="Firmware Version",
             hardware_version="Hardware Version",
             link="UutInstance Link",
-            extensions={"ui1": "one", "ui2": "two"},
+            extension={"ui1": "one", "ui2": "two"},
             schema_id=schema_id,
         )
         uut_instance_id = metadata_store_client.create_uut_instance(uut_instance=uut_instance)
@@ -66,7 +66,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         operator = Operator(
             name=operator_name,
             role=operator_role,
-            extensions={"o1": "one", "o2": "two"},
+            extension={"o1": "one", "o2": "two"},
             schema_id=schema_id,
         )
         operator_id = metadata_store_client.create_operator(operator)
@@ -76,7 +76,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
             name="TestStation_12",
             asset_identifier="Test Station Asset Identifier",
             link="Test Station Link",
-            extensions={"ts1": "one", "ts2": "two"},
+            extension={"ts1": "one", "ts2": "two"},
             schema_id=schema_id,
         )
         test_station_id = metadata_store_client.create_test_station(test_station)
@@ -86,7 +86,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
             uut_id=uut_id,
             name="Metadata Acceptance Test",
             link="Test Description Link",
-            extensions={"td1": "one", "td2": "two"},
+            extension={"td1": "one", "td2": "two"},
             schema_id=schema_id,
         )
         test_description_id = metadata_store_client.create_test_description(test_description)
@@ -96,7 +96,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
             product="Windows",
             version="10.0.19044",
             link="Windows Link",
-            extensions={"sw1": "one", "sw2": "two"},
+            extension={"sw1": "one", "sw2": "two"},
             schema_id=schema_id,
         )
         software_item_id = metadata_store_client.create_software_item(software_item)
@@ -111,7 +111,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
             asset_identifier="Test Asset Identifier",
             calibration_due_date="Test Calibration Due Date",
             link="Hardware Item Link",
-            extensions={"hw1": "one", "hw2": "two"},
+            extension={"hw1": "one", "hw2": "two"},
             schema_id=schema_id,
         )
         hardware_item_id = metadata_store_client.create_hardware_item(hardware_item)
@@ -158,7 +158,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
             name="Test Name",
             description="Test Description",
             link="Test Link",
-            extensions={"t1": "one", "t2": "two"},
+            extension={"t1": "one", "t2": "two"},
             schema_id=schema_id,
         )
         test_id = metadata_store_client.create_test(test)

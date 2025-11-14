@@ -36,7 +36,7 @@ class HardwareItem:
 
     @property
     def extension(self) -> MutableMapping[str, str]:
-        """The extensions of the hardware item."""
+        """The extension of the hardware item."""
         return self._extension
 
     @property
@@ -54,7 +54,7 @@ class HardwareItem:
         asset_identifier: str = "",
         calibration_due_date: str = "",
         link: str = "",
-        extensions: Mapping[str, str] | None = None,
+        extension: Mapping[str, str] | None = None,
         schema_id: str = "",
     ) -> None:
         """Initialize a HardwareItem instance.
@@ -68,7 +68,7 @@ class HardwareItem:
             calibration_due_date: The calibration due date of the hardware item.
             link: A link to a resource that describes the hardware item. This
                 value is expected to be a valid URI.
-            extensions: Any extensions to be associated with the hardware item.
+            extension: Any extensions to be associated with the hardware item.
             schema_id: The unique identifier of the schema that applies to this
                 instance's extension. If any extension is associated with this
                 instance, a schema_id must be provided, unless the hardware item
@@ -83,9 +83,7 @@ class HardwareItem:
         self.asset_identifier = asset_identifier
         self.calibration_due_date = calibration_due_date
         self.link = link
-        self._extension: MutableMapping[str, str] = (
-            dict(extensions) if extensions is not None else {}
-        )
+        self._extension: MutableMapping[str, str] = dict(extension) if extension is not None else {}
         self.schema_id = schema_id
 
     @staticmethod

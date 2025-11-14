@@ -31,7 +31,7 @@ class Test:
 
     @property
     def extension(self) -> MutableMapping[str, str]:
-        """The extensions of the test."""
+        """The extension of the test."""
         return self._extension
 
     @property
@@ -45,7 +45,7 @@ class Test:
         name: str = "",
         description: str = "",
         link: str = "",
-        extensions: Mapping[str, str] | None = None,
+        extension: Mapping[str, str] | None = None,
         schema_id: str = "",
     ) -> None:
         """Initialize a Test instance.
@@ -55,7 +55,7 @@ class Test:
             description: A description of what the test does.
             link: A link to a resource that describes the test. This
                 value is expected to be a valid URI.
-            extensions: Any extensions to be associated with the test.
+            extension: Any extensions to be associated with the test.
             schema_id: The unique identifier of the schema that applies to this
                 instance's extension. If any extension is associated with this
                 instance, a schema_id must be provided, unless the test
@@ -66,9 +66,7 @@ class Test:
         self.name = name
         self.description = description
         self.link = link
-        self._extension: MutableMapping[str, str] = (
-            dict(extensions) if extensions is not None else {}
-        )
+        self._extension: MutableMapping[str, str] = dict(extension) if extension is not None else {}
         self.schema_id = schema_id
 
     @staticmethod
