@@ -20,7 +20,7 @@ class PublishedCondition:
         "moniker",
         "id",
         "name",
-        "type",
+        "condition_type",
         "step_id",
         "test_result_id",
     )
@@ -31,7 +31,7 @@ class PublishedCondition:
         moniker: Moniker | None = None,
         id: str = "",
         name: str = "",
-        type: str = "",
+        condition_type: str = "",
         step_id: str = "",
         test_result_id: str = "",
     ) -> None:
@@ -43,7 +43,7 @@ class PublishedCondition:
             id: The unique identifier of the condition. This
                 can be used to reference and find the condition in the data store.
             name: The name of the condition.
-            type: The type of the condition. For example, "Setup" or
+            condition_type: The type of the condition. For example, "Setup" or
                 "Environment".
             step_id: The ID of the step with which this condition is associated.
             test_result_id: The ID of the test result with which this condition
@@ -52,7 +52,7 @@ class PublishedCondition:
         self.moniker = moniker
         self.id = id
         self.name = name
-        self.type = type
+        self.condition_type = condition_type
         self.step_id = step_id
         self.test_result_id = test_result_id
 
@@ -67,7 +67,7 @@ class PublishedCondition:
             ),
             id=published_condition_proto.id,
             name=published_condition_proto.name,
-            type=published_condition_proto.type,
+            condition_type=published_condition_proto.condition_type,
             step_id=published_condition_proto.step_id,
             test_result_id=published_condition_proto.test_result_id,
         )
@@ -78,7 +78,7 @@ class PublishedCondition:
             moniker=self.moniker.to_protobuf() if self.moniker is not None else None,
             id=self.id,
             name=self.name,
-            type=self.type,
+            condition_type=self.condition_type,
             step_id=self.step_id,
             test_result_id=self.test_result_id,
         )
@@ -91,7 +91,7 @@ class PublishedCondition:
             self.moniker == other.moniker
             and self.id == other.id
             and self.name == other.name
-            and self.type == other.type
+            and self.condition_type == other.condition_type
             and self.step_id == other.step_id
             and self.test_result_id == other.test_result_id
         )

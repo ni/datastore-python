@@ -34,7 +34,7 @@ class PublishedMeasurement:
         "_hardware_item_ids",
         "_test_adapter_ids",
         "name",
-        "data_type",
+        "value_type",
         "notes",
         "start_date_time",
         "end_date_time",
@@ -75,7 +75,7 @@ class PublishedMeasurement:
         hardware_item_ids: Iterable[str] | None = None,
         test_adapter_ids: Iterable[str] | None = None,
         name: str = "",
-        data_type: str = "",
+        value_type: str = "",
         notes: str = "",
         start_date_time: ht.datetime | None = None,
         end_date_time: ht.datetime | None = None,
@@ -104,7 +104,7 @@ class PublishedMeasurement:
             test_adapter_ids: The IDs of the test adapters associated with this
                 measurement.
             name: The name of the measurement.
-            data_type: The data type of the measurement value.
+            value_type: The data type of the measurement value.
             notes: Additional notes or comments about the
                 measurement.
             start_date_time: The start timestamp of the measurement.
@@ -133,7 +133,7 @@ class PublishedMeasurement:
             list(test_adapter_ids) if test_adapter_ids is not None else []
         )
         self.name = name
-        self.data_type = data_type
+        self.value_type = value_type
         self.notes = notes
         self.start_date_time = start_date_time
         self.end_date_time = end_date_time
@@ -163,7 +163,7 @@ class PublishedMeasurement:
             hardware_item_ids=published_measurement_proto.hardware_item_ids,
             test_adapter_ids=published_measurement_proto.test_adapter_ids,
             name=published_measurement_proto.name,
-            data_type=published_measurement_proto.data_type,
+            value_type=published_measurement_proto.value_type,
             notes=published_measurement_proto.notes,
             start_date_time=(
                 hightime_datetime_from_protobuf(published_measurement_proto.start_date_time)
@@ -198,7 +198,7 @@ class PublishedMeasurement:
             hardware_item_ids=self.hardware_item_ids,
             test_adapter_ids=self.test_adapter_ids,
             name=self.name,
-            data_type=self.data_type,
+            value_type=self.value_type,
             notes=self.notes,
             start_date_time=(
                 hightime_datetime_to_protobuf(self.start_date_time)
@@ -231,7 +231,7 @@ class PublishedMeasurement:
             and self.hardware_item_ids == other.hardware_item_ids
             and self.test_adapter_ids == other.test_adapter_ids
             and self.name == other.name
-            and self.data_type == other.data_type
+            and self.value_type == other.value_type
             and self.notes == other.notes
             and self.start_date_time == other.start_date_time
             and self.end_date_time == other.end_date_time

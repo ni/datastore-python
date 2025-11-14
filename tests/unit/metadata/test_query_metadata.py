@@ -62,7 +62,7 @@ def test___query_uut_instances___calls_metadata_store_service_client(
         firmware_version="firmware_version",
         hardware_version="hardware_version",
         link="link",
-        extensions=None,
+        extension=None,
         schema_id="schema_id",
     )
     expected_response = QueryUutInstancesResponse(uut_instances=[uut_instance])
@@ -87,7 +87,7 @@ def test___query_uuts___calls_metadata_store_service_client(
         manufacturers=None,
         part_number="part_number",
         link="link",
-        extensions=None,
+        extension=None,
         schema_id="schema_id",
     )
     expected_response = QueryUutsResponse(uuts=[uut])
@@ -110,7 +110,7 @@ def test___query_operators___calls_metadata_store_service_client(
         name="name",
         role="role",
         link="link",
-        extensions=None,
+        extension=None,
         schema_id="schema_id",
     )
     expected_response = QueryOperatorsResponse(operators=[operator])
@@ -133,7 +133,7 @@ def test___query_test_descriptions___calls_metadata_store_service_client(
         uut_id="uut_id",
         name="name",
         link="link",
-        extensions=None,
+        extension=None,
         schema_id="schema_id",
     )
     expected_response = QueryTestDescriptionsResponse(test_descriptions=[test_description])
@@ -155,7 +155,7 @@ def test___query_tests___calls_metadata_store_service_client(
         id="test_id",
         name="name",
         description="description",
-        extensions=None,
+        extension=None,
         schema_id="schema_id",
     )
     expected_response = QueryTestsResponse(tests=[test])
@@ -178,7 +178,7 @@ def test___query_test_stations___calls_metadata_store_service_client(
         name="name",
         asset_identifier="asset_identifier",
         link="link",
-        extensions=None,
+        extension=None,
         schema_id="schema_id",
     )
     expected_response = QueryTestStationsResponse(test_stations=[test_station])
@@ -205,7 +205,7 @@ def test___query_hardware_items___calls_metadata_store_service_client(
         asset_identifier="asset_identifier",
         calibration_due_date="calibration_due_date",
         link="link",
-        extensions=None,
+        extension=None,
         schema_id="schema_id",
     )
     expected_response = QueryHardwareItemsResponse(hardware_items=[hardware_item])
@@ -228,7 +228,7 @@ def test___query_software_items___calls_metadata_store_service_client(
         product="product",
         version="version",
         link="link",
-        extensions=None,
+        extension=None,
         schema_id="schema_id",
     )
     expected_response = QuerySoftwareItemsResponse(software_items=[software_item])
@@ -256,7 +256,7 @@ def test___query_test_adapters___calls_metadata_store_service_client(
         asset_identifier="asset_identifier",
         calibration_due_date="calibration_due_date",
         link="link",
-        extensions=None,
+        extension=None,
         schema_id="schema_id",
     )
     expected_response = QueryTestAdaptersResponse(test_adapters=[test_adapter])

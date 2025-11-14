@@ -62,7 +62,7 @@ def test___get_uut_instance___calls_metadata_store_service_client(
         firmware_version="firmware_version",
         hardware_version="hardware_version",
         link="link",
-        extensions=None,
+        extension=None,
         schema_id="schema_id",
     )
     expected_response = GetUutInstanceResponse(uut_instance=uut_instance)
@@ -87,7 +87,7 @@ def test___get_uut___calls_metadata_store_service_client(
         manufacturers=None,
         part_number="part_number",
         link="link",
-        extensions=None,
+        extension=None,
         schema_id="schema_id",
     )
     expected_response = GetUutResponse(uut=uut)
@@ -110,7 +110,7 @@ def test___get_operator___calls_metadata_store_service_client(
         name="name",
         role="role",
         link="link",
-        extensions=None,
+        extension=None,
         schema_id="schema_id",
     )
     expected_response = GetOperatorResponse(operator=operator)
@@ -133,7 +133,7 @@ def test___get_test_description___calls_metadata_store_service_client(
         uut_id="uut_id",
         name="name",
         link="link",
-        extensions=None,
+        extension=None,
         schema_id="schema_id",
     )
     expected_response = GetTestDescriptionResponse(test_description=test_description)
@@ -155,7 +155,7 @@ def test___get_test___calls_metadata_store_service_client(
         id="test_id",
         name="name",
         description="description",
-        extensions=None,
+        extension=None,
         schema_id="schema_id",
     )
     expected_response = GetTestResponse(test=test)
@@ -178,7 +178,7 @@ def test___get_test_station___calls_metadata_store_service_client(
         name="name",
         asset_identifier="asset_identifier",
         link="link",
-        extensions=None,
+        extension=None,
         schema_id="schema_id",
     )
     expected_response = GetTestStationResponse(test_station=test_station)
@@ -205,7 +205,7 @@ def test___get_hardware_item___calls_metadata_store_service_client(
         asset_identifier="asset_identifier",
         calibration_due_date="calibration_due_date",
         link="link",
-        extensions=None,
+        extension=None,
         schema_id="schema_id",
     )
     expected_response = GetHardwareItemResponse(hardware_item=hardware_item)
@@ -228,7 +228,7 @@ def test___get_software_item___calls_metadata_store_service_client(
         product="product",
         version="version",
         link="link",
-        extensions=None,
+        extension=None,
         schema_id="schema_id",
     )
     expected_response = GetSoftwareItemResponse(software_item=software_item)
@@ -256,7 +256,7 @@ def test___get_test_adapter___calls_metadata_store_service_client(
         asset_identifier="asset_identifier",
         calibration_due_date="calibration_due_date",
         link="link",
-        extensions=None,
+        extension=None,
         schema_id="schema_id",
     )
     expected_response = GetTestAdapterResponse(test_adapter=test_adapter)

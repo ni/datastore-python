@@ -42,7 +42,7 @@ class TestResult:
         "end_date_time",
         "outcome",
         "link",
-        "_extensions",
+        "_extension",
         "schema_id",
         "error_information",
     )
@@ -63,9 +63,9 @@ class TestResult:
         return self._test_adapter_ids
 
     @property
-    def extensions(self) -> MutableMapping[str, str]:
-        """The extensions of the test result."""
-        return self._extensions
+    def extension(self) -> MutableMapping[str, str]:
+        """The extension of the test result."""
+        return self._extension
 
     def __init__(
         self,
@@ -83,7 +83,7 @@ class TestResult:
         end_date_time: ht.datetime | None = None,
         outcome: Outcome = Outcome.UNSPECIFIED,
         link: str = "",
-        extensions: Mapping[str, str] | None = None,
+        extension: Mapping[str, str] | None = None,
         schema_id: str = "",
         error_information: ErrorInformation | None = None,
     ) -> None:
@@ -104,7 +104,7 @@ class TestResult:
             outcome: The outcome of the test execution (PASSED, FAILED,
                 INDETERMINATE, or UNSPECIFIED).
             link: Optional link to external resources for this test result.
-            extensions: Additional custom metadata as key-value pairs.
+            extension: Additional custom metadata as key-value pairs.
             schema_id: ID of the extension schema for validating extensions.
             error_information: Error or exception information in case of
                 test result failure.
@@ -128,9 +128,7 @@ class TestResult:
         self.end_date_time = end_date_time
         self.outcome = outcome
         self.link = link
-        self._extensions: MutableMapping[str, str] = (
-            dict(extensions) if extensions is not None else {}
-        )
+        self._extension: MutableMapping[str, str] = dict(extension) if extension is not None else {}
         self.schema_id = schema_id
         self.error_information = error_information
 
@@ -167,7 +165,7 @@ class TestResult:
             ),
         )
         populate_from_extension_value_message_map(
-            test_result.extensions, test_result_proto.extensions
+            test_result.extension, test_result_proto.extension
         )
         return test_result
 
@@ -198,7 +196,7 @@ class TestResult:
                 self.error_information.to_protobuf() if self.error_information is not None else None
             ),
         )
-        populate_extension_value_message_map(test_result_proto.extensions, self.extensions)
+        populate_extension_value_message_map(test_result_proto.extension, self.extension)
         return test_result_proto
 
     def __eq__(self, other: object) -> bool:
@@ -219,7 +217,7 @@ class TestResult:
             and self.end_date_time == other.end_date_time
             and self.outcome == other.outcome
             and self.link == other.link
-            and self.extensions == other.extensions
+            and self.extension == other.extension
             and self.schema_id == other.schema_id
             and self.error_information == other.error_information
         )

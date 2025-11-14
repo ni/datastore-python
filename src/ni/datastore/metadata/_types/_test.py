@@ -25,14 +25,14 @@ class Test:
         "name",
         "description",
         "link",
-        "_extensions",
+        "_extension",
         "schema_id",
     )
 
     @property
-    def extensions(self) -> MutableMapping[str, str]:
-        """The extensions of the test."""
-        return self._extensions
+    def extension(self) -> MutableMapping[str, str]:
+        """The extension of the test."""
+        return self._extension
 
     @property
     def id(self) -> str:
@@ -45,7 +45,7 @@ class Test:
         name: str = "",
         description: str = "",
         link: str = "",
-        extensions: Mapping[str, str] | None = None,
+        extension: Mapping[str, str] | None = None,
         schema_id: str = "",
     ) -> None:
         """Initialize a Test instance.
@@ -55,7 +55,7 @@ class Test:
             description: A description of what the test does.
             link: A link to a resource that describes the test. This
                 value is expected to be a valid URI.
-            extensions: Any extensions to be associated with the test.
+            extension: Any extensions to be associated with the test.
             schema_id: The unique identifier of the schema that applies to this
                 instance's extension. If any extension is associated with this
                 instance, a schema_id must be provided, unless the test
@@ -66,9 +66,7 @@ class Test:
         self.name = name
         self.description = description
         self.link = link
-        self._extensions: MutableMapping[str, str] = (
-            dict(extensions) if extensions is not None else {}
-        )
+        self._extension: MutableMapping[str, str] = dict(extension) if extension is not None else {}
         self.schema_id = schema_id
 
     @staticmethod
@@ -80,7 +78,7 @@ class Test:
             link=test_proto.link,
             schema_id=test_proto.schema_id,
         )
-        populate_from_extension_value_message_map(test.extensions, test_proto.extensions)
+        populate_from_extension_value_message_map(test.extension, test_proto.extension)
         test._id = test_proto.id
         return test
 
@@ -93,7 +91,7 @@ class Test:
             link=self.link,
             schema_id=self.schema_id,
         )
-        populate_extension_value_message_map(test_proto.extensions, self.extensions)
+        populate_extension_value_message_map(test_proto.extension, self.extension)
         return test_proto
 
     def __eq__(self, other: object) -> bool:
@@ -105,7 +103,7 @@ class Test:
             and self.name == other.name
             and self.description == other.description
             and self.link == other.link
-            and self.extensions == other.extensions
+            and self.extension == other.extension
             and self.schema_id == other.schema_id
         )
 
