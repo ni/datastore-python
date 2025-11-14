@@ -88,7 +88,7 @@ def create_software_item(software_entry: nisyscfg.component_info.ComponentInfo) 
 
 def create_test_station(session: nisyscfg.Session) -> TestStation:
     """Create a new TestStation instance from the specified nisyscfg session."""
-    new_instance = TestStation(test_station_name=session.hostname)
+    new_instance = TestStation(name=session.hostname)
     return new_instance
 
 
@@ -104,7 +104,7 @@ def create_operator(name: str = "") -> Operator:
             raise NotImplementedError(f"{host_os} support not implemented")
         name = os.environ.get(username_variable, "Unknown operator")
 
-    new_instance = Operator(operator_name=name)
+    new_instance = Operator(name=name)
     return new_instance
 
 
@@ -123,6 +123,7 @@ def publish_empty_test_result(system_metadata: SystemMetadata) -> str:
         ]
 
     empty_result = TestResult(
+        name="system metadata result",
         operator_id=operator_id,
         test_station_id=test_station_id,
         software_item_ids=software_item_ids,
