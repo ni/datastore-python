@@ -25,14 +25,14 @@ class SoftwareItem:
         "product",
         "version",
         "link",
-        "_extensions",
+        "_extension",
         "schema_id",
     )
 
     @property
-    def extensions(self) -> MutableMapping[str, str]:
-        """The extensions of the software item."""
-        return self._extensions
+    def extension(self) -> MutableMapping[str, str]:
+        """The extension of the software item."""
+        return self._extension
 
     @property
     def id(self) -> str:
@@ -45,7 +45,7 @@ class SoftwareItem:
         product: str = "",
         version: str = "",
         link: str = "",
-        extensions: Mapping[str, str] | None = None,
+        extension: Mapping[str, str] | None = None,
         schema_id: str = "",
     ) -> None:
         """Initialize a SoftwareItem instance.
@@ -55,7 +55,7 @@ class SoftwareItem:
             version: The version of the software item.
             link: A link to a resource that describes the software item. This
                 value is expected to be a valid URI.
-            extensions: Any extensions to be associated with the software item.
+            extension: Any extensions to be associated with the software item.
             schema_id: The unique identifier of the schema that applies to this
                 instance's extension. If any extension is associated with this
                 instance, a schema_id must be provided, unless the software item
@@ -66,9 +66,7 @@ class SoftwareItem:
         self.product = product
         self.version = version
         self.link = link
-        self._extensions: MutableMapping[str, str] = (
-            dict(extensions) if extensions is not None else {}
-        )
+        self._extension: MutableMapping[str, str] = dict(extension) if extension is not None else {}
         self.schema_id = schema_id
 
     @staticmethod
@@ -81,7 +79,7 @@ class SoftwareItem:
             schema_id=software_item_proto.schema_id,
         )
         populate_from_extension_value_message_map(
-            software_item.extensions, software_item_proto.extensions
+            software_item.extension, software_item_proto.extension
         )
         software_item._id = software_item_proto.id
         return software_item
@@ -95,7 +93,7 @@ class SoftwareItem:
             link=self.link,
             schema_id=self.schema_id,
         )
-        populate_extension_value_message_map(software_item_proto.extensions, self.extensions)
+        populate_extension_value_message_map(software_item_proto.extension, self.extension)
         return software_item_proto
 
     def __eq__(self, other: object) -> bool:
@@ -107,7 +105,7 @@ class SoftwareItem:
             and self.product == other.product
             and self.version == other.version
             and self.link == other.link
-            and self.extensions == other.extensions
+            and self.extension == other.extension
             and self.schema_id == other.schema_id
         )
 

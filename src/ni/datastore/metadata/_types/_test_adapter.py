@@ -32,14 +32,14 @@ class TestAdapter:
         "asset_identifier",
         "calibration_due_date",
         "link",
-        "_extensions",
+        "_extension",
         "schema_id",
     )
 
     @property
-    def extensions(self) -> MutableMapping[str, str]:
-        """The extensions of the test adapter."""
-        return self._extensions
+    def extension(self) -> MutableMapping[str, str]:
+        """The extension of the test adapter."""
+        return self._extension
 
     @property
     def id(self) -> str:
@@ -57,7 +57,7 @@ class TestAdapter:
         asset_identifier: str = "",
         calibration_due_date: str = "",
         link: str = "",
-        extensions: Mapping[str, str] | None = None,
+        extension: Mapping[str, str] | None = None,
         schema_id: str = "",
     ) -> None:
         """Initialize a TestAdapter instance.
@@ -72,7 +72,7 @@ class TestAdapter:
             calibration_due_date: The calibration due date of the test adapter.
             link: A link to a resource that describes the test adapter. This
                 value is expected to be a valid URI.
-            extensions: Any extensions to be associated with the test adapter.
+            extension: Any extensions to be associated with the test adapter.
             schema_id: The unique identifier of the schema that applies to this
                 instance's extension. If any extension is associated with this
                 instance, a schema_id must be provided, unless the test adapter
@@ -88,9 +88,7 @@ class TestAdapter:
         self.asset_identifier = asset_identifier
         self.calibration_due_date = calibration_due_date
         self.link = link
-        self._extensions: MutableMapping[str, str] = (
-            dict(extensions) if extensions is not None else {}
-        )
+        self._extension: MutableMapping[str, str] = dict(extension) if extension is not None else {}
         self.schema_id = schema_id
 
     @staticmethod
@@ -108,7 +106,7 @@ class TestAdapter:
             schema_id=test_adapter_proto.schema_id,
         )
         populate_from_extension_value_message_map(
-            test_adapter.extensions, test_adapter_proto.extensions
+            test_adapter.extension, test_adapter_proto.extension
         )
         test_adapter._id = test_adapter_proto.id
         return test_adapter
@@ -127,7 +125,7 @@ class TestAdapter:
             link=self.link,
             schema_id=self.schema_id,
         )
-        populate_extension_value_message_map(test_adapter_proto.extensions, self.extensions)
+        populate_extension_value_message_map(test_adapter_proto.extension, self.extension)
         return test_adapter_proto
 
     def __eq__(self, other: object) -> bool:
@@ -144,7 +142,7 @@ class TestAdapter:
             and self.asset_identifier == other.asset_identifier
             and self.calibration_due_date == other.calibration_due_date
             and self.link == other.link
-            and self.extensions == other.extensions
+            and self.extension == other.extension
             and self.schema_id == other.schema_id
         )
 

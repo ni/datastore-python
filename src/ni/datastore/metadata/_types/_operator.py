@@ -25,14 +25,14 @@ class Operator:
         "name",
         "role",
         "link",
-        "_extensions",
+        "_extension",
         "schema_id",
     )
 
     @property
-    def extensions(self) -> MutableMapping[str, str]:
-        """The extensions of the operator."""
-        return self._extensions
+    def extension(self) -> MutableMapping[str, str]:
+        """The extension of the operator."""
+        return self._extension
 
     @property
     def id(self) -> str:
@@ -45,7 +45,7 @@ class Operator:
         name: str = "",
         role: str = "",
         link: str = "",
-        extensions: Mapping[str, str] | None = None,
+        extension: Mapping[str, str] | None = None,
         schema_id: str = "",
     ) -> None:
         """Initialize an Operator instance.
@@ -55,7 +55,7 @@ class Operator:
             role: The role of the operator.
             link: A link to a resource that describes the operator. This value
                 is expected to be a valid URI.
-            extensions: Any extensions to be associated with the operator.
+            extension: Any extensions to be associated with the operator.
             schema_id: The unique identifier of the schema that applies to this
                 instance's extension. If any extension is associated with this
                 instance, a schema_id must be provided, unless the operator is
@@ -66,9 +66,7 @@ class Operator:
         self.name = name
         self.role = role
         self.link = link
-        self._extensions: MutableMapping[str, str] = (
-            dict(extensions) if extensions is not None else {}
-        )
+        self._extension: MutableMapping[str, str] = dict(extension) if extension is not None else {}
         self.schema_id = schema_id
 
     @staticmethod
@@ -80,7 +78,7 @@ class Operator:
             link=operator_proto.link,
             schema_id=operator_proto.schema_id,
         )
-        populate_from_extension_value_message_map(operator.extensions, operator_proto.extensions)
+        populate_from_extension_value_message_map(operator.extension, operator_proto.extension)
         operator._id = operator_proto.id
         return operator
 
@@ -93,7 +91,7 @@ class Operator:
             link=self.link,
             schema_id=self.schema_id,
         )
-        populate_extension_value_message_map(operator_proto.extensions, self.extensions)
+        populate_extension_value_message_map(operator_proto.extension, self.extension)
         return operator_proto
 
     def __eq__(self, other: object) -> bool:
@@ -105,7 +103,7 @@ class Operator:
             and self.name == other.name
             and self.role == other.role
             and self.link == other.link
-            and self.extensions == other.extensions
+            and self.extension == other.extension
             and self.schema_id == other.schema_id
         )
 

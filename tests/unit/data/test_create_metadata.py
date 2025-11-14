@@ -28,7 +28,7 @@ def test___create_step___calls_data_store_service_client(
         test_result_id="test_result",
         test_id="test_id",
         name="step_name",
-        type="step_type",
+        step_type="step_type",
         notes="step_notes",
     )
     expected_response = CreateStepResponse(step_id="response_id")

@@ -39,7 +39,7 @@ def test___get_step___calls_data_store_service_client(
         test_result_id="test_result",
         test_id="test_id",
         name="step_name",
-        type="step_type",
+        step_type="step_type",
         notes="step_notes",
         start_date_time=hightime_datetime_to_protobuf(start_time),
         end_date_time=hightime_datetime_to_protobuf(end_time),
