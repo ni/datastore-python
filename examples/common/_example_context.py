@@ -101,9 +101,3 @@ class ExampleContext:
         ]:
             if env_var in os.environ:
                 del os.environ[env_var]
-
-
-
-
-
-
