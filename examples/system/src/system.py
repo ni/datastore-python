@@ -99,7 +99,7 @@ def create_operator(name: str = "") -> Operator:
         if host_os == "Windows":
             username_variable = "USERNAME"
         elif host_os == "Linux":
-            username_variable = "NAME"
+            username_variable = "USER"
         else:
             raise NotImplementedError(f"{host_os} support not implemented")
         name = os.environ.get(username_variable, "Unknown operator")
