@@ -64,7 +64,7 @@ def test___publish_boolean_data___calls_data_store_service_client(
     request = args[0]  # The PublishMeasurementRequest object
     assert result.id == "response_id"
     assert request.step_id == "step_id"
-    assert request.measurement_name == "name"
+    assert request.name == "name"
     assert request.notes == "notes"
     assert request.timestamp == unittest.mock.ANY
     assert request.scalar.bool_value == value
