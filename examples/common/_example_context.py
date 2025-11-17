@@ -82,11 +82,13 @@ class ExampleContext:
         os.environ[DATA_STORE_FAILED_INGEST_DIRECTORY_PATH_ENV_VAR] = str(failed_ingest_dir)
         os.environ[DATA_STORE_TDMS_EXPIRATION_SECONDS_ENV_NAME] = str(0)
 
+
     def _ensure_example_data_directory_exists(self) -> Path:
         examples_directory = Path(__file__).resolve().parents[1]
         example_data_directory = examples_directory / "example_data"
         example_data_directory.mkdir(exist_ok=True)
         return example_data_directory
+
 
     def _reset_environment(self) -> None:
         for env_var in [
