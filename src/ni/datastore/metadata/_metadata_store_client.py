@@ -14,6 +14,7 @@ from grpc import Channel
 from ni.datastore.metadata._types._alias import Alias
 from ni.datastore.metadata._types._extension_schema import ExtensionSchema
 from ni.datastore.metadata._types._hardware_item import HardwareItem
+from ni.datastore.metadata._types._metadata_items import MetadataItems
 from ni.datastore.metadata._types._operator import Operator
 from ni.datastore.metadata._types._software_item import SoftwareItem
 from ni.datastore.metadata._types._test import Test
@@ -28,6 +29,7 @@ from ni.measurements.metadata.v1.client import (
 )
 from ni.measurements.metadata.v1.metadata_store_service_pb2 import (
     CreateAliasRequest,
+    CreateFromJsonDocumentRequest,
     CreateHardwareItemRequest,
     CreateOperatorRequest,
     CreateSoftwareItemRequest,
@@ -84,7 +86,10 @@ class MetadataStoreClient:
         "_metadata_store_client_lock",
     )
 
-    _METADATA_STORE_CLIENT_CLOSED_ERROR = "This MetadataStoreClient has been closed. Create a new MetadataStoreClient for further interaction with the metadata store."
+    _METADATA_STORE_CLIENT_CLOSED_ERROR = (
+        "This MetadataStoreClient has been closed. Create a new MetadataStoreClient for "
+        "further interaction with the metadata store."
+    )
 
     _closed: bool
     _discovery_client: DiscoveryClient | None
@@ -525,6 +530,34 @@ class MetadataStoreClient:
         list_response = self._get_metadata_store_client().list_schemas(list_request)
         return [ExtensionSchema.from_protobuf(schema) for schema in list_response.schemas]
 
+    def get_alias(self, alias_name: str) -> Alias:
+        """Get an alias and its target (the underlying metadata it represents).
+
+        Args:
+            alias_name: The name of the alias to retrieve.
+
+        Returns:
+            Alias: The alias containing the alias name, target type, and
+                target ID of the underlying metadata.
+        """
+        get_request = GetAliasRequest(alias_name=alias_name)
+        get_response = self._get_metadata_store_client().get_alias(get_request)
+        return Alias.from_protobuf(get_response.alias)
+
+    def query_aliases(self, odata_query: str = "") -> Sequence[Alias]:
+        """Perform an OData query on the registered aliases.
+
+        Args:
+            odata_query: An OData query string. Example: "$filter=name eq
+                'Value'". $expand is not supported.
+
+        Returns:
+            Sequence[Alias]: The list of aliases that match the query.
+        """
+        query_request = QueryAliasesRequest(odata_query=odata_query)
+        query_response = self._get_metadata_store_client().query_aliases(query_request)
+        return [Alias.from_protobuf(alias) for alias in query_response.aliases]
+
     def create_alias(
         self,
         alias_name: str,
@@ -580,20 +613,6 @@ class MetadataStoreClient:
         response = self._get_metadata_store_client().create_alias(create_request)
         return Alias.from_protobuf(response.alias)
 
-    def get_alias(self, alias_name: str) -> Alias:
-        """Get an alias and its target (the underlying metadata it represents).
-
-        Args:
-            alias_name: The name of the alias to retrieve.
-
-        Returns:
-            Alias: The alias containing the alias name, target type, and
-                target ID of the underlying metadata.
-        """
-        get_request = GetAliasRequest(alias_name=alias_name)
-        get_response = self._get_metadata_store_client().get_alias(get_request)
-        return Alias.from_protobuf(get_response.alias)
-
     def delete_alias(self, alias_name: str) -> bool:
         """Remove a registered alias.
 
@@ -608,19 +627,41 @@ class MetadataStoreClient:
         delete_response = self._get_metadata_store_client().delete_alias(delete_request)
         return delete_response.unregistered
 
-    def query_aliases(self, odata_query: str = "") -> Sequence[Alias]:
-        """Perform an OData query on the registered aliases.
+    def create_from_json_file(self, metadata_file_path: Path | str) -> MetadataItems:
+        """Create metadata items from a JSON file.
 
         Args:
-            odata_query: An OData query string. Example: "$filter=name eq
-                'Value'". $expand is not supported.
+            metadata_file_path: The path to the JSON file containing metadata definitions.
 
         Returns:
-            Sequence[Alias]: The list of aliases that match the query.
+            MetadataItems: A collection of metadata items created from the JSON document.
+
+        Raises:
+            FileNotFoundError: If the JSON file does not exist.
         """
-        query_request = QueryAliasesRequest(odata_query=odata_query)
-        query_response = self._get_metadata_store_client().query_aliases(query_request)
-        return [Alias.from_protobuf(alias) for alias in query_response.aliases]
+        if isinstance(metadata_file_path, str):
+            metadata_file_path = Path(metadata_file_path)
+
+        if not metadata_file_path.exists():
+            raise FileNotFoundError(f"Metadata file not found: {metadata_file_path}")
+
+        metadata_contents = metadata_file_path.read_text(encoding="utf-8-sig")
+        return self.create_from_json(metadata_contents)
+
+    def create_from_json(self, metadata_file_contents: str) -> MetadataItems:
+        """Create metadata items from a JSON document.
+
+        Args:
+            metadata_file_contents: The JSON document content containing metadata definitions.
+
+        Returns:
+            MetadataItems: A collection of metadata items created from the JSON document.
+        """
+        create_request = CreateFromJsonDocumentRequest(json_document=metadata_file_contents)
+        create_response = self._get_metadata_store_client().create_from_json_document(
+            create_request
+        )
+        return MetadataItems.from_protobuf(create_response)
 
     def _get_metadata_store_client(self) -> MetadataStoreServiceClient:
         if self._closed:
