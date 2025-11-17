@@ -78,7 +78,7 @@ def publish_data() -> str:
         step = Step(name="Initial step", test_result_id=test_result_id)
         step_id = data_store_client.create_step(step)
         published_measurement = data_store_client.publish_measurement(
-            measurement_name=name,
+            name=name,
             value=waveform,
             step_id=step_id,
         )

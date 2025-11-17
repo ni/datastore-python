@@ -19,7 +19,7 @@ def test___publish_float___read_data_returns_vector() -> None:
         step = Step(name="Initial step", test_result_id=test_result_id)
         step_id = data_store_client.create_step(step)
         published_measurements = data_store_client.publish_measurement_batch(
-            measurement_name="python batch publish float",
+            name="python batch publish float",
             values=[1.0, 2.0, 3.0, 4.0],
             step_id=step_id,
         )
@@ -46,7 +46,7 @@ def test___publish_batch_vector___read_data_returns_vector() -> None:
         step = Step(name="Initial step", test_result_id=test_result_id)
         step_id = data_store_client.create_step(step)
         published_measurements = data_store_client.publish_measurement_batch(
-            measurement_name="python publish scalar",
+            name="python publish scalar",
             values=expected_vector,
             step_id=step_id,
         )
