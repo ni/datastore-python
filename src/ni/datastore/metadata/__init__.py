@@ -5,6 +5,7 @@ from ni.datastore.metadata._types._alias import Alias
 from ni.datastore.metadata._types._alias_target_type import AliasTargetType
 from ni.datastore.metadata._types._extension_schema import ExtensionSchema
 from ni.datastore.metadata._types._hardware_item import HardwareItem
+from ni.datastore.metadata._types._metadata_items import MetadataItems
 from ni.datastore.metadata._types._operator import Operator
 from ni.datastore.metadata._types._software_item import SoftwareItem
 from ni.datastore.metadata._types._test import Test
@@ -19,6 +20,7 @@ __all__ = [
     "AliasTargetType",
     "ExtensionSchema",
     "HardwareItem",
+    "MetadataItems",
     "MetadataStoreClient",
     "Operator",
     "SoftwareItem",
@@ -35,6 +37,7 @@ Alias.__module__ = __name__
 AliasTargetType.__module__ = __name__
 ExtensionSchema.__module__ = __name__
 HardwareItem.__module__ = __name__
+MetadataItems.__module__ = __name__
 MetadataStoreClient.__module__ = __name__
 Operator.__module__ = __name__
 SoftwareItem.__module__ = __name__

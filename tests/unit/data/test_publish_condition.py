@@ -26,8 +26,8 @@ def test___publish_condition___calls_data_store_service_client(
     mocked_data_store_service_client.publish_condition.return_value = expected_response
 
     result = data_store_client.publish_condition(
-        condition_name="TestCondition",
-        type="ConditionType",
+        name="TestCondition",
+        condition_type="ConditionType",
         value=123,
         step_id="MyStep",
     )
@@ -36,8 +36,8 @@ def test___publish_condition___calls_data_store_service_client(
     request = cast(PublishConditionRequest, args[0])
     assert result.id == "response_id"
     assert request.step_id == "MyStep"
-    assert request.condition_name == "TestCondition"
-    assert request.type == "ConditionType"
+    assert request.name == "TestCondition"
+    assert request.condition_type == "ConditionType"
     assert request.scalar.sint32_value == 123
 
 
@@ -46,8 +46,8 @@ def test___none___publish_condition___raises_type_error(
 ) -> None:
     with pytest.raises(TypeError) as exc:
         _ = data_store_client.publish_condition(
-            condition_name="TestCondition",
-            type="ConditionType",
+            name="TestCondition",
+            condition_type="ConditionType",
             value=None,
             step_id="MyStep",
         )
@@ -64,8 +64,8 @@ def test___vector___publish_condition_batch___calls_data_store_service_client(
     mocked_data_store_service_client.publish_condition_batch.return_value = expected_response
 
     result = data_store_client.publish_condition_batch(
-        condition_name="TestCondition",
-        type="ConditionType",
+        name="TestCondition",
+        condition_type="ConditionType",
         values=Vector(values=["one", "two", "three"], units="fake_units"),
         step_id="MyStep",
     )
@@ -74,8 +74,8 @@ def test___vector___publish_condition_batch___calls_data_store_service_client(
     request = cast(PublishConditionBatchRequest, args[0])
     assert result.id == "response_id"
     assert request.step_id == "MyStep"
-    assert request.condition_name == "TestCondition"
-    assert request.type == "ConditionType"
+    assert request.name == "TestCondition"
+    assert request.condition_type == "ConditionType"
     assert list(request.scalar_values.string_array.values) == ["one", "two", "three"]
     assert request.scalar_values.attributes["NI_UnitDescription"].string_value == "fake_units"
 
@@ -89,8 +89,8 @@ def test___int_list___publish_condition_batch___calls_data_store_service_client(
     mocked_data_store_service_client.publish_condition_batch.return_value = expected_response
 
     result = data_store_client.publish_condition_batch(
-        condition_name="TestCondition",
-        type="ConditionType",
+        name="TestCondition",
+        condition_type="ConditionType",
         values=[1, 2, 3],
         step_id="MyStep",
     )
@@ -111,8 +111,8 @@ def test___float_list___publish_condition_batch___calls_data_store_service_clien
     mocked_data_store_service_client.publish_condition_batch.return_value = expected_response
 
     result = data_store_client.publish_condition_batch(
-        condition_name="TestCondition",
-        type="ConditionType",
+        name="TestCondition",
+        condition_type="ConditionType",
         values=[1.0, 2.0, 3.0],
         step_id="MyStep",
     )
@@ -133,8 +133,8 @@ def test___bool_list___publish_condition_batch___calls_data_store_service_client
     mocked_data_store_service_client.publish_condition_batch.return_value = expected_response
 
     result = data_store_client.publish_condition_batch(
-        condition_name="TestCondition",
-        type="ConditionType",
+        name="TestCondition",
+        condition_type="ConditionType",
         values=[True, False, True],
         step_id="MyStep",
     )
@@ -155,8 +155,8 @@ def test___string_list___publish_condition_batch___calls_data_store_service_clie
     mocked_data_store_service_client.publish_condition_batch.return_value = expected_response
 
     result = data_store_client.publish_condition_batch(
-        condition_name="TestCondition",
-        type="ConditionType",
+        name="TestCondition",
+        condition_type="ConditionType",
         values=["one", "two", "three"],
         step_id="MyStep",
     )
@@ -173,8 +173,8 @@ def test___unsupported_list___publish_condition_batch___raises_type_error(
 ) -> None:
     with pytest.raises(TypeError) as exc:
         _ = data_store_client.publish_condition_batch(
-            condition_name="TestCondition",
-            type="ConditionType",
+            name="TestCondition",
+            condition_type="ConditionType",
             values=[[1, 2, 3], [4, 5, 6]],  # List of lists will error during vector creation.
             step_id="MyStep",
         )
@@ -187,8 +187,8 @@ def test___empty_list___publish_condition_batch___raises_value_error(
 ) -> None:
     with pytest.raises(ValueError) as exc:
         _ = data_store_client.publish_condition_batch(
-            condition_name="TestCondition",
-            type="ConditionType",
+            name="TestCondition",
+            condition_type="ConditionType",
             values=[],
             step_id="MyStep",
         )
@@ -201,8 +201,8 @@ def test___none___publish_condition_batch___raises_type_error(
 ) -> None:
     with pytest.raises(TypeError) as exc:
         _ = data_store_client.publish_condition_batch(
-            condition_name="TestCondition",
-            type="ConditionType",
+            name="TestCondition",
+            condition_type="ConditionType",
             values=None,
             step_id="MyStep",
         )
