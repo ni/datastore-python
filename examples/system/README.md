@@ -6,7 +6,7 @@ and software resources and publishing their metadata to the
 
 ## Required Software
 
-`sample` requires Python 3.10 or greater and at least one NI driver
+`system` requires Python 3.10 or greater and at least one NI driver
 like NI-DAQmx or NI-SCOPE.
 
 ## Usage
