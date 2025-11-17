@@ -24,7 +24,7 @@ from nitypes.waveform import AnalogWaveform, Timing
 # Include the 'Examples' directory in the path to import example-specific utilities
 examples_dir = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(examples_dir))
-from common import ExampleContext  # noqa: E402,I100,I202
+from common import ExampleContext  # noqa: E402,I100,I202  # type: ignore
 
 
 def main() -> None:
