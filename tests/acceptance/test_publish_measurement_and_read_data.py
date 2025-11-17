@@ -16,7 +16,7 @@ def test___publish_float___read_data_returns_vector() -> None:
     with DataStoreClient() as data_store_client:
         step_id = _create_step(data_store_client, "float")
         published_measurement = data_store_client.publish_measurement(
-            measurement_name="python publish float",
+            name="python publish float",
             value=123.45,
             step_id=step_id,
         )
@@ -32,7 +32,7 @@ def test___publish_scalar___read_data_returns_vector() -> None:
         step_id = _create_step(data_store_client, "scalar")
         expected_scalar = Scalar(value=25, units="Volts")
         published_measurement = data_store_client.publish_measurement(
-            measurement_name="python publish scalar",
+            name="python publish scalar",
             value=expected_scalar,
             step_id=step_id,
         )
@@ -54,7 +54,7 @@ def test___publish_xydata___read_data_returns_xydata() -> None:
             y_units="Seconds",
         )
         published_measurement = data_store_client.publish_measurement(
-            measurement_name="python publish xydata",
+            name="python publish xydata",
             value=expected_xydata,
             step_id=step_id,
         )
@@ -74,7 +74,7 @@ def test___publish_spectrum___read_data_returns_spectrum() -> None:
         )
 
         published_measurement = data_store_client.publish_measurement(
-            measurement_name="python publish spectrum",
+            name="python publish spectrum",
             value=expected_spectrum,
             step_id=step_id,
         )
@@ -92,7 +92,7 @@ def test___publish_analog_waveform___read_data_returns_analog_waveform() -> None
         )
 
         published_measurement = data_store_client.publish_measurement(
-            measurement_name="python publish analog waveform",
+            name="python publish analog waveform",
             value=expected_waveform,
             step_id=step_id,
         )
@@ -106,7 +106,7 @@ def test___publish_digital_waveform___read_data_returns_digital_waveform() -> No
         step_id = _create_step(data_store_client, "digital waveform")
         expected_waveform = DigitalWaveform(10)
         published_measurement = data_store_client.publish_measurement(
-            measurement_name="python publish digital waveform",
+            name="python publish digital waveform",
             value=expected_waveform,
             step_id=step_id,
         )
@@ -120,7 +120,7 @@ def test___publish_complex_waveform___read_data_returns_complex_waveform() -> No
         step_id = _create_step(data_store_client, "complex waveform")
         expected_waveform = ComplexWaveform(10)
         published_measurement = data_store_client.publish_measurement(
-            measurement_name="python publish complex waveform",
+            name="python publish complex waveform",
             value=expected_waveform,
             step_id=step_id,
         )
