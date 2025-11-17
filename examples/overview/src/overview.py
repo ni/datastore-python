@@ -1,6 +1,6 @@
 """Overview example demonstrating data publishing and querying."""
 
-import sys, os
+import sys
 from datetime import timezone
 from pathlib import Path
 
@@ -24,12 +24,13 @@ from nitypes.waveform import AnalogWaveform, Timing
 # Include the 'Examples' directory in the path to import example-specific utilities
 examples_dir = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(examples_dir))
+from common import ExampleContext  # noqa: E402,I100,I202
 
-from common import ExampleContext
 
 def main() -> None:
     """Main function to demonstrate data publishing and querying."""
-    # The ExampleContext sets up and tears down the example environment. It is not used in production code.
+    # The ExampleContext sets up and tears down the example environment.
+    # It is not used in production code.
     with ExampleContext():
         published_measurement_id = publish_data()
         query_data(published_measurement_id)
