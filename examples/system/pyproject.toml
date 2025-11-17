@@ -1,0 +1,75 @@
+[project]
+name = "system_example"
+version = "0.1.0.dev0"
+license = "MIT"
+description = "Example demonstrating how to detect, publish, and query system hardware and software resources"
+authors = [{name = "NI", email = "opensource@ni.com"}]
+maintainers = [
+  {name = "Johann Scholtz", email = "johann.scholtz@emerson.com"},
+  {name = "Joel Dixon", email = "joel.dixon@emerson.com"}
+]
+readme = "README.md"
+keywords = ["system", "example"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Manufacturing",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: POSIX",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Programming Language :: Python :: Implementation :: CPython",
+]
+dynamic = ["dependencies"]
+requires-python = ">=3.10,<4.0"
+
+[project.urls]
+repository = "https://github.com/ni/datastore-python"
+
+[project.scripts]
+system = "src.system:main"
+
+[tool.poetry]
+requires-poetry = ">=2.1,<3.0"
+
+[[tool.poetry.packages]]
+include = "src"
+
+[tool.poetry.dependencies]
+nisyscfg = { version = ">=0.2.1", allow-prereleases = true }
+
+[tool.poetry.group.dev.dependencies]
+ni-datastore = {path = "../..", develop = true}
+
+[tool.poetry.group.lint.dependencies]
+ni-python-styleguide = ">=0.4.1"
+mypy = ">=1.0"
+
+[tool.black]
+line-length = 100
+
+[tool.mypy]
+mypy_path = "src"
+files = "."
+namespace_packages = true
+strict = true
+explicit_package_bases = true
+warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+module = [
+    "nisyscfg",
+    "nisyscfg.component_info",
+    "nisyscfg.hardware_resource",
+]
+ignore_missing_imports = true  # no library stubs or py.typed marker
+
+[build-system]
+requires = ["poetry-core>=2.1.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

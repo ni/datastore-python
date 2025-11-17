@@ -50,7 +50,7 @@ ipykernel = ">=6.0"
 plotly = ">=5.0"
 nbformat = ">=4.2.0"
 ipython = ">=7.0"
-jupyter = ">=1.0" 
+jupyter = ">=1.0"
 
 [tool.poetry.group.lint.dependencies]
 bandit = { version = ">=1.7", extras = ["toml"] }
@@ -92,7 +92,7 @@ skips = [
 extend_exclude = "docs,examples"
 
 [tool.black]
-extend-exclude = 'docs/|_pb2(_grpc)?\.(py|pyi)$'
+extend-exclude = 'docs/|examples/|_pb2(_grpc)?\.(py|pyi)$'
 line-length = 100
 
 [tool.mypy]
@@ -101,7 +101,7 @@ files = "."
 namespace_packages = true
 strict = true
 explicit_package_bases = true
-exclude = ["docs"]
+exclude = ["docs", "examples"]
 
 [tool.pyright]
 include = ["src/", "tests/"]
