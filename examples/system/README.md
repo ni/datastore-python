@@ -6,8 +6,9 @@ and software resources and publishing their metadata to the
 
 ## Required Software
 
-`system` requires Python 3.10 or greater and at least one NI driver
-like NI-DAQmx or NI-SCOPE.
+`system` requires Python 3.10 or greater and the
+[NI System Configuration API](https://www.ni.com/en/support/downloads/drivers/download.system-configuration.html).
+Alternatively, install at least one NI driver like NI-DAQmx or NI-SCOPE.
 
 ## Usage
 
