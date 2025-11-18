@@ -64,7 +64,7 @@ def test___publish_boolean_data___calls_data_store_service_client(
     request = args[0]  # The PublishMeasurementRequest object
     assert result.id == "response_id"
     assert request.step_id == "step_id"
-    assert request.measurement_name == "name"
+    assert request.name == "name"
     assert request.notes == "notes"
     assert request.timestamp == unittest.mock.ANY
     assert request.scalar.bool_value == value
@@ -110,7 +110,7 @@ def test___publish_analog_waveform_data___calls_data_store_service_client(
     request = cast(PublishMeasurementRequest, args[0])  # The PublishMeasurementRequest object
     assert result.id == "response_id"
     assert request.step_id == "step_id"
-    assert request.measurement_name == "name"
+    assert request.name == "name"
     assert request.notes == "notes"
     assert request.timestamp == hightime_datetime_to_protobuf(timestamp)
     assert request.double_analog_waveform == expected_protobuf_waveform
@@ -145,7 +145,7 @@ def test___publish_float64_xydata___calls_data_store_service_client(
     request = cast(PublishMeasurementRequest, args[0])  # The PublishMeasurementRequest object
     assert result.id == "response_id"
     assert request.step_id == "step_id"
-    assert request.measurement_name == "name"
+    assert request.name == "name"
     assert request.x_y_data == expected_protobuf_xydata
 
 
@@ -171,7 +171,7 @@ def test___publish_basic_iterable_data___calls_data_store_service_client(
     request = cast(PublishMeasurementRequest, args[0])  # The PublishMeasurementRequest object
     assert result.id == "response_id"
     assert request.step_id == "step_id"
-    assert request.measurement_name == "name"
+    assert request.name == "name"
     assert request.vector == expected_protobuf_vector
 
 
@@ -180,7 +180,7 @@ def test___unsupported_list___publish_measurement___raises_type_error(
 ) -> None:
     with pytest.raises(TypeError) as exc:
         _ = data_store_client.publish_measurement(
-            measurement_name="name",
+            name="name",
             value=[[1, 2, 3], [4, 5, 6]],  # List of lists will error during vector creation.
             step_id="step_id",
         )
@@ -256,7 +256,7 @@ def test___none___publish_measurement___raises_type_error(
 ) -> None:
     with pytest.raises(TypeError) as exc:
         _ = data_store_client.publish_measurement(
-            measurement_name="name",
+            name="name",
             value=None,
             step_id="step_id",
         )
@@ -276,7 +276,7 @@ def test___vector___publish_measurement_batch___calls_data_store_service_client(
     mocked_data_store_service_client.publish_measurement_batch.return_value = expected_response
 
     response = data_store_client.publish_measurement_batch(
-        measurement_name="name",
+        name="name",
         values=Vector(values=[1.0, 2.0, 3.0], units="BatchUnits"),
         step_id="step_id",
         timestamps=[timestamp],
@@ -291,7 +291,7 @@ def test___vector___publish_measurement_batch___calls_data_store_service_client(
     request = cast(PublishMeasurementBatchRequest, args[0])
     assert next(iter(response)).id == "response_id"
     assert request.step_id == "step_id"
-    assert request.measurement_name == "name"
+    assert request.name == "name"
     assert request.timestamps == [hightime_datetime_to_protobuf(timestamp)]
     assert request.scalar_values.double_array.values == [1.0, 2.0, 3.0]
     assert request.scalar_values.attributes["NI_UnitDescription"].string_value == "BatchUnits"
@@ -314,7 +314,7 @@ def test___int_list___publish_measurement_batch___calls_data_store_service_clien
     mocked_data_store_service_client.publish_measurement_batch.return_value = expected_response
 
     response = data_store_client.publish_measurement_batch(
-        measurement_name="name",
+        name="name",
         values=[1, 2, 3],
         step_id="step_id",
         timestamps=[timestamp],
@@ -329,7 +329,7 @@ def test___int_list___publish_measurement_batch___calls_data_store_service_clien
     request = cast(PublishMeasurementBatchRequest, args[0])
     assert next(iter(response)).id == "response_id"
     assert request.step_id == "step_id"
-    assert request.measurement_name == "name"
+    assert request.name == "name"
     assert request.timestamps == [hightime_datetime_to_protobuf(timestamp)]
     assert request.scalar_values.sint32_array.values == [1, 2, 3]
     assert request.scalar_values.attributes["NI_UnitDescription"].string_value == ""
@@ -347,7 +347,7 @@ def test___float_list___publish_measurement_batch___calls_data_store_service_cli
     mocked_data_store_service_client.publish_measurement_batch.return_value = expected_response
 
     response = data_store_client.publish_measurement_batch(
-        measurement_name="name",
+        name="name",
         values=[1.0, 2.0, 3.0],
         step_id="step_id",
         timestamps=[timestamp],
@@ -362,7 +362,7 @@ def test___float_list___publish_measurement_batch___calls_data_store_service_cli
     request = cast(PublishMeasurementBatchRequest, args[0])
     assert next(iter(response)).id == "response_id"
     assert request.step_id == "step_id"
-    assert request.measurement_name == "name"
+    assert request.name == "name"
     assert request.timestamps == [hightime_datetime_to_protobuf(timestamp)]
     assert request.scalar_values.double_array.values == [1.0, 2.0, 3.0]
     assert request.scalar_values.attributes["NI_UnitDescription"].string_value == ""
@@ -380,7 +380,7 @@ def test___bool_list___publish_measurement_batch___calls_data_store_service_clie
     mocked_data_store_service_client.publish_measurement_batch.return_value = expected_response
 
     response = data_store_client.publish_measurement_batch(
-        measurement_name="name",
+        name="name",
         values=[True, False, True],
         step_id="step_id",
         timestamps=[timestamp],
@@ -395,7 +395,7 @@ def test___bool_list___publish_measurement_batch___calls_data_store_service_clie
     request = cast(PublishMeasurementBatchRequest, args[0])
     assert next(iter(response)).id == "response_id"
     assert request.step_id == "step_id"
-    assert request.measurement_name == "name"
+    assert request.name == "name"
     assert request.timestamps == [hightime_datetime_to_protobuf(timestamp)]
     assert request.scalar_values.bool_array.values == [True, False, True]
     assert request.scalar_values.attributes["NI_UnitDescription"].string_value == ""
@@ -413,7 +413,7 @@ def test___str_list___publish_measurement_batch___calls_data_store_service_clien
     mocked_data_store_service_client.publish_measurement_batch.return_value = expected_response
 
     response = data_store_client.publish_measurement_batch(
-        measurement_name="name",
+        name="name",
         values=["one", "two", "three"],
         step_id="step_id",
         timestamps=[timestamp],
@@ -428,7 +428,7 @@ def test___str_list___publish_measurement_batch___calls_data_store_service_clien
     request = cast(PublishMeasurementBatchRequest, args[0])
     assert next(iter(response)).id == "response_id"
     assert request.step_id == "step_id"
-    assert request.measurement_name == "name"
+    assert request.name == "name"
     assert request.timestamps == [hightime_datetime_to_protobuf(timestamp)]
     assert request.scalar_values.string_array.values == ["one", "two", "three"]
     assert request.scalar_values.attributes["NI_UnitDescription"].string_value == ""
@@ -439,7 +439,7 @@ def test___unsupported_list___publish_measurement_batch___raises_type_error(
 ) -> None:
     with pytest.raises(TypeError) as exc:
         _ = data_store_client.publish_measurement_batch(
-            measurement_name="name",
+            name="name",
             values=[[1, 2, 3], [4, 5, 6]],  # List of lists will error during vector creation.
             step_id="step_id",
         )
@@ -452,7 +452,7 @@ def test___empty_list___publish_measurement_batch___raises_type_error(
 ) -> None:
     with pytest.raises(ValueError) as exc:
         _ = data_store_client.publish_measurement_batch(
-            measurement_name="name",
+            name="name",
             values=[],
             step_id="step_id",
         )
@@ -465,7 +465,7 @@ def test___none___publish_measurement_batch___raises_type_error(
 ) -> None:
     with pytest.raises(TypeError) as exc:
         _ = data_store_client.publish_measurement_batch(
-            measurement_name="name",
+            name="name",
             values=None,
             step_id="step_id",
         )

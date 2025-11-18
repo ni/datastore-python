@@ -144,18 +144,18 @@ class DataStoreClient:
 
     def publish_condition(
         self,
-        condition_name: str,
-        type: str,
+        name: str,
+        condition_type: str,
         value: object,
         step_id: str,
     ) -> PublishedCondition:
         """Publish a condition value to the data store.
 
         Args:
-            condition_name: An identifier describing the condition value.
+            name: An identifier describing the condition value.
                 For example, "Voltage" or "Temperature".
 
-            type: The type of this condition. For example, "Upper Limit",
+            condition_type: The type of this condition. For example, "Upper Limit",
                 "Environment", or "Setup".
 
             value: The single value for this condition to publish on the test
@@ -174,8 +174,8 @@ class DataStoreClient:
                   result ID
         """
         publish_request = PublishConditionRequest(
-            condition_name=condition_name,
-            type=type,
+            name=name,
+            condition_type=condition_type,
             step_id=step_id,
         )
         populate_publish_condition_request_value(publish_request, value)
@@ -183,15 +183,15 @@ class DataStoreClient:
         return PublishedCondition.from_protobuf(publish_response.published_condition)
 
     def publish_condition_batch(
-        self, condition_name: str, type: str, values: object, step_id: str
+        self, name: str, condition_type: str, values: object, step_id: str
     ) -> PublishedCondition:
         """Publish a batch of N values for a condition to the data store.
 
         Args:
-            condition_name: An identifier describing the condition values.
+            name: An identifier describing the condition values.
                 For example, "Voltage" or "Temperature".
 
-            type: The type of this condition. For example, "Upper Limit",
+            condition_type: The type of this condition. For example, "Upper Limit",
                 "Environment", or "Setup".
 
             values: The values for this condition across all publishes on the
@@ -211,8 +211,8 @@ class DataStoreClient:
                   result ID
         """
         publish_request = PublishConditionBatchRequest(
-            condition_name=condition_name,
-            type=type,
+            name=name,
+            condition_type=condition_type,
             step_id=step_id,
         )
         populate_publish_condition_batch_request_values(publish_request, values)
@@ -221,7 +221,7 @@ class DataStoreClient:
 
     def publish_measurement(
         self,
-        measurement_name: str,
+        name: str,
         value: object,  # More strongly typed Union[bool, AnalogWaveform] can be used if needed
         step_id: str,
         timestamp: ht.datetime | None = None,
@@ -235,7 +235,7 @@ class DataStoreClient:
         """Publish a single measurement value associated with a test step.
 
         Args:
-            measurement_name: The name used for associating/grouping
+            name: The name used for associating/grouping
                 conceptually alike measurements across multiple publish
                 iterations. For example, "Temperature" can be used for
                 associating temperature readings across multiple iterations.
@@ -287,7 +287,7 @@ class DataStoreClient:
                 - Associated hardware, software, and test adapter IDs
         """
         publish_request = PublishMeasurementRequest(
-            measurement_name=measurement_name,
+            name=name,
             step_id=step_id,
             outcome=outcome.to_protobuf(),
             error_information=(
@@ -307,7 +307,7 @@ class DataStoreClient:
 
     def publish_measurement_batch(
         self,
-        measurement_name: str,
+        name: str,
         values: object,
         step_id: str,
         timestamps: Iterable[ht.datetime] = tuple(),
@@ -321,7 +321,7 @@ class DataStoreClient:
         """Publish multiple scalar measurements at once for parametric sweeps.
 
         Args:
-            measurement_name: The name used for associating/grouping
+            name: The name used for associating/grouping
                 conceptually alike measurements across multiple publish
                 iterations. For example, "Temperature" can be used for
                 associating temperature readings across multiple iterations.
@@ -369,7 +369,7 @@ class DataStoreClient:
                 returned.
         """
         publish_request = PublishMeasurementBatchRequest(
-            measurement_name=measurement_name,
+            name=name,
             step_id=step_id,
             timestamps=[hightime_datetime_to_protobuf(ts) for ts in timestamps],
             outcomes=[outcome.to_protobuf() for outcome in outcomes],

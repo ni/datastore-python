@@ -15,8 +15,8 @@ def test___publish_batch_float_condition___read_data_returns_vector() -> None:
     with DataStoreContext(), DataStoreClient() as data_store_client:
         step_id = _create_step(data_store_client, "float condition batch")
         published_condition = data_store_client.publish_condition_batch(
-            condition_name="python float condition batch",
-            type="Upper Limits",
+            name="python float condition batch",
+            condition_type="Upper Limits",
             values=expected_value,
             step_id=step_id,
         )
@@ -32,8 +32,8 @@ def test___publish_batch_integer_condition___read_data_returns_vector() -> None:
     with DataStoreContext(), DataStoreClient() as data_store_client:
         step_id = _create_step(data_store_client, "integer condition batch")
         published_condition = data_store_client.publish_condition_batch(
-            condition_name="python integer condition batch",
-            type="Lower Limits",
+            name="python integer condition batch",
+            condition_type="Lower Limits",
             values=expected_value,
             step_id=step_id,
         )
@@ -49,8 +49,8 @@ def test___publish_batch_bool_condition___read_data_returns_vector() -> None:
     with DataStoreContext(), DataStoreClient() as data_store_client:
         step_id = _create_step(data_store_client, "bool condition batch")
         published_condition = data_store_client.publish_condition_batch(
-            condition_name="python bool condition batch",
-            type="Flags",
+            name="python bool condition batch",
+            condition_type="Flags",
             values=expected_value,
             step_id=step_id,
         )
@@ -66,8 +66,8 @@ def test___publish_batch_str_condition___read_data_returns_vector() -> None:
     with DataStoreContext(), DataStoreClient() as data_store_client:
         step_id = _create_step(data_store_client, "str condition batch")
         published_condition = data_store_client.publish_condition_batch(
-            condition_name="python str condition batch",
-            type="Environments",
+            name="python str condition batch",
+            condition_type="Environments",
             values=expected_value,
             step_id=step_id,
         )
@@ -83,8 +83,8 @@ def test___publish_batch_vector_condition___read_data_returns_vector() -> None:
         step_id = _create_step(data_store_client, "scalar condition batch")
         expected_vector = Vector(values=[25, 50, 75], units="Amps")
         published_condition = data_store_client.publish_condition_batch(
-            condition_name="python vector condition batch",
-            type="Upper Limit",
+            name="python vector condition batch",
+            condition_type="Upper Limit",
             values=expected_vector,
             step_id=step_id,
         )

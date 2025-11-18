@@ -15,7 +15,7 @@ def test___query_measurements___filter_by_id___single_measurement_returned() -> 
         # Publish a single measurement.
         measurement_name = "query filter by id measurement"
         published_measurement = data_store_client.publish_measurement(
-            measurement_name=measurement_name,
+            name=measurement_name,
             value=123.45,
             step_id=step_id,
         )
@@ -47,14 +47,14 @@ def test___query_measurements___filter_by_name___correct_measurements_returned()
         for index in range(0, 3):
             measurement_name = f"{measurement_name_base} {index}"
             data_store_client.publish_measurement(
-                measurement_name=measurement_name,
+                name=measurement_name,
                 value=index,
                 step_id=step_id,
             )
 
         # Publish one differently named measurement to adequately test filtering.
         data_store_client.publish_measurement(
-            measurement_name="some other measurement",
+            name="some other measurement",
             value=123,
             step_id=step_id,
         )

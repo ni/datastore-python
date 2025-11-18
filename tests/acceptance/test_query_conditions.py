@@ -15,8 +15,8 @@ def test___query_conditions___filter_by_id___single_condition_returned() -> None
         # Publish a single condition
         condition_name = "query filter by id condition"
         published_condition = data_store_client.publish_condition(
-            condition_name=condition_name,
-            type="Upper Limit",
+            name=condition_name,
+            condition_type="Upper Limit",
             value=123.45,
             step_id=step_id,
         )
@@ -49,16 +49,16 @@ def test___query_conditions___filter_by_name___correct_conditions_returned() -> 
         for index in range(0, 3):
             condition_name = f"{condition_name_base} {index}"
             data_store_client.publish_condition(
-                condition_name=condition_name,
-                type="Condition Type",
+                name=condition_name,
+                condition_type="Condition Type",
                 value=index,
                 step_id=step_id,
             )
 
         # Publish one differently named condition to adequately test filtering.
         data_store_client.publish_condition(
-            condition_name="some other condition",
-            type="Condition Type",
+            name="some other condition",
+            condition_type="Condition Type",
             value=123,
             step_id=step_id,
         )

@@ -187,7 +187,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
 
         # Perform publish operation
         published_measurement = data_store_client.publish_measurement(
-            measurement_name="Measurement Name",
+            name="Measurement Name",
             value=expected_waveform,
             step_id=step_id,
             timestamp=timestamp,
