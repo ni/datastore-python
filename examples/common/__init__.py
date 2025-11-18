@@ -1,7 +1,7 @@
 """Common utilities for examples"""
 
-from ._example_context import ExampleContext
+from ._data_store_context import DataStoreContext
 
 __all__ = [
-    "ExampleContext",
+    "DataStoreContext",
 ]

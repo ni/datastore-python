@@ -1,3 +1,4 @@
+import hashlib
 import os
 import sys
 
@@ -9,12 +10,7 @@ if sys.version_info >= (3, 11):
 else:
     from typing_extensions import Self
 
-from ni.measurementlink.discovery.v1.client import DiscoveryClient
-
-DATA_STORE_SERVICE_INTERFACE = "ni.measurements.data.v1.DataStoreService"
-
 DISCOVERY_SERVICE_CLUSTER_ID_ENV_VAR = "NIDiscovery_ClusterId"
-EXAMPLES_DISCOVERY_SERVICE_CLUSTER_ID = "ac0fe6b9-91a9-4cb2-ba3e-0c88f108524f"
 
 # Environment variables controlling files created or used by the Data Store service
 DATA_STORE_DATABASE_PATH_ENV_VAR = "DataStoreSettings__SqliteDatabasePath"
@@ -23,11 +19,13 @@ DATA_STORE_INGEST_DIRECTORY_PATH_ENV_VAR = "DataStoreSettings__IngestDirectory"
 DATA_STORE_FAILED_INGEST_DIRECTORY_PATH_ENV_VAR = "DataStoreSettings__FailedIngestDirectory"
 DATA_STORE_TDMS_EXPIRATION_SECONDS_ENV_NAME = "DataStoreSettings__TdmsFileCacheExpirationSeconds"
 
-class ExampleContext:
-    __slots__ = ("_discovery_client")
+DEFAULT_FOLDER_NAME = "example_data"
 
-    def __init__(self):
-        self._discovery_client: DiscoveryClient | None = None
+class DataStoreContext:
+    __slots__ = ("_base_directory_path")
+
+    def __init__(self, base_directory_path: Path | None = None) -> None:
+        self._base_directory_path = base_directory_path
 
 
     def __enter__(self) -> Self:
@@ -45,49 +43,57 @@ class ExampleContext:
 
 
     def initialize(self) -> None:
-        if self._discovery_client is None:
-            self._initialize_environment()
-
-            self._discovery_client = DiscoveryClient()
-            # Ensure the Discovery Service is launched by resolving a service
-            self._discovery_client.resolve_service(provided_interface=DATA_STORE_SERVICE_INTERFACE)
+        self._initialize_environment()
 
 
     def close(self) -> None:
-        if self._discovery_client is not None:
-            self._discovery_client.stop_launched_discovery_service()
-            self._discovery_client = None
-
-            self._reset_environment()
+        self._reset_environment()
 
 
     def _initialize_environment(self) -> None:
-        example_data_directory = self._ensure_example_data_directory_exists()
+        self._initialize_cluster_id()
+        self._initialize_data_store_paths()
 
-        metadata_db_path = example_data_directory / "MetadataStore.db"
-        data_files_dir = example_data_directory / "Data Files"
-        ingest_dir = example_data_directory / "Ingest"
-        failed_ingest_dir = example_data_directory / "Failed Ingest"
 
-        data_files_dir.mkdir(exist_ok=True)
-        ingest_dir.mkdir(exist_ok=True)
-        failed_ingest_dir.mkdir(exist_ok=True)
+    def _initialize_cluster_id(self) ->  None:
+        cluster_id = self._get_cluster_id()
+        os.environ[DISCOVERY_SERVICE_CLUSTER_ID_ENV_VAR] = cluster_id
 
-        # Ensure that the Discovery Service that we launch is specific to the execution of these examples
-        os.environ[DISCOVERY_SERVICE_CLUSTER_ID_ENV_VAR] = EXAMPLES_DISCOVERY_SERVICE_CLUSTER_ID
+
+    def _initialize_data_store_paths(self) -> None:
+        base_directory_path = self._get_base_directory_path()
+
+        metadata_db_path = base_directory_path / "MetadataStore.db"
+        data_files_dir = base_directory_path / "DataFiles"
+        ingest_dir = base_directory_path / "Ingest"
+        failed_ingest_dir = base_directory_path / "FailedIngest"
 
         os.environ[DATA_STORE_DATABASE_PATH_ENV_VAR] = str(metadata_db_path)
         os.environ[DATA_STORE_DATA_FILES_DIRECTORY_PATH_ENV_VAR] = str(data_files_dir)
         os.environ[DATA_STORE_INGEST_DIRECTORY_PATH_ENV_VAR] = str(ingest_dir)
         os.environ[DATA_STORE_FAILED_INGEST_DIRECTORY_PATH_ENV_VAR] = str(failed_ingest_dir)
+
         os.environ[DATA_STORE_TDMS_EXPIRATION_SECONDS_ENV_NAME] = str(0)
 
 
-    def _ensure_example_data_directory_exists(self) -> Path:
+    def _get_cluster_id(self) -> str:
+        # Generate a unique cluster ID based on the base directory path
+        return self._get_base_directory_hash()
+
+    
+    def _get_base_directory_hash(self) -> str:
+        base_directory_path = self._get_base_directory_path()
+        base_directory_path_bytes = str(base_directory_path.resolve()).encode("utf-8")
+        hash_object = hashlib.sha256(base_directory_path_bytes)
+        return hash_object.hexdigest()[:32]
+
+    
+    def _get_base_directory_path(self) -> Path:
+        if self._base_directory_path is not None:
+            return self._base_directory_path
+
         examples_directory = Path(__file__).resolve().parents[1]
-        example_data_directory = examples_directory / "example_data"
-        example_data_directory.mkdir(exist_ok=True)
-        return example_data_directory
+        return examples_directory / DEFAULT_FOLDER_NAME
 
 
     def _reset_environment(self) -> None:
