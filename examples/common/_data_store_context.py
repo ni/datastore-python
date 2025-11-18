@@ -22,9 +22,17 @@ DATA_STORE_TDMS_EXPIRATION_SECONDS_ENV_NAME = "DataStoreSettings__TdmsFileCacheE
 DEFAULT_FOLDER_NAME = "example_data"
 
 class DataStoreContext:
+    """A context manager that enables interacting with a data store running in its own isolated context."""
+
     __slots__ = ("_base_directory_path")
 
     def __init__(self, base_directory_path: Path | None = None) -> None:
+        """Initialize the DataStoreContext.
+
+        Args:
+            base_directory_path: An optional base directory path specifying where the data store files will be located.
+                If not provided, a default path within the examples directory will be used.
+        """
         self._base_directory_path = base_directory_path
 
 
@@ -43,10 +51,12 @@ class DataStoreContext:
 
 
     def initialize(self) -> None:
+        """Initializes the data store context by setting up necessary environment variables."""
         self._initialize_environment()
 
 
     def close(self) -> None:
+        """Cleans up the data store context by resetting environment variables."""
         self._reset_environment()
 
 
