@@ -14,7 +14,6 @@ from ni.datastore.data import DataStoreClient, ErrorInformation, Outcome
 from ni.measurements.data.v1.data_store_pb2 import (
     ErrorInformation as ErrorInformationProto,
     Outcome as OutcomeProto,
-    PublishedMeasurement,
 )
 from ni.measurements.data.v1.data_store_service_pb2 import (
     PublishMeasurementBatchRequest,
@@ -215,7 +214,9 @@ def test___publish_analog_waveform_data_without_t0___uses_timestamp_parameter(
     publish_measurement_response = PublishMeasurementResponse(measurement_id="response_id")
     mocked_data_store_service_client.publish_measurement.return_value = publish_measurement_response
 
-    measurement_id = data_store_client.publish_measurement("name", analog_waveform, "step_id", timestamp)
+    measurement_id = data_store_client.publish_measurement(
+        "name", analog_waveform, "step_id", timestamp
+    )
 
     args, __ = mocked_data_store_service_client.publish_measurement.call_args
     request = cast(PublishMeasurementRequest, args[0])  # The PublishMeasurementRequest object

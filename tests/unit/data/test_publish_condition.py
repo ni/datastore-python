@@ -7,7 +7,6 @@ from unittest.mock import NonCallableMock
 
 import pytest
 from ni.datastore.data import DataStoreClient
-from ni.measurements.data.v1.data_store_pb2 import PublishedCondition
 from ni.measurements.data.v1.data_store_service_pb2 import (
     PublishConditionBatchRequest,
     PublishConditionBatchResponse,
