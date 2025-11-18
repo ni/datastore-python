@@ -4,9 +4,11 @@ from ni.datastore.data import DataStoreClient
 
 from tests.acceptance._utils import append_hashed_time, create_test_result
 
+from examples.common import DataStoreContext
+
 
 def test___query_test_results___filter_by_id___single_test_result_returned() -> None:
-    with DataStoreClient() as data_store_client:
+    with DataStoreContext(), DataStoreClient() as data_store_client:
         description = "query test result filter by id"
         test_result_id = create_test_result(data_store_client, description)
 
@@ -23,7 +25,7 @@ def test___query_test_results___filter_by_id___single_test_result_returned() -> 
 
 
 def test___query_steps___filter_by_name___correct_steps_returned() -> None:
-    with DataStoreClient() as data_store_client:
+    with DataStoreContext(), DataStoreClient() as data_store_client:
         description = "query test results filter by name"
 
         # Create multiple similarly named test results.

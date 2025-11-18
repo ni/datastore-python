@@ -4,9 +4,11 @@ from ni.datastore.data import DataStoreClient, Step, TestResult
 
 from tests.acceptance._utils import append_hashed_time, create_test_result_and_step
 
+from examples.common import DataStoreContext
+
 
 def test___query_steps___filter_by_id___single_step_returned() -> None:
-    with DataStoreClient() as data_store_client:
+    with DataStoreContext(), DataStoreClient() as data_store_client:
         step_id = create_test_result_and_step(data_store_client, "query steps filter by id")
 
         # Query steps based on id.
@@ -20,7 +22,7 @@ def test___query_steps___filter_by_id___single_step_returned() -> None:
 
 
 def test___query_steps___filter_by_name___correct_steps_returned() -> None:
-    with DataStoreClient() as data_store_client:
+    with DataStoreContext(), DataStoreClient() as data_store_client:
         description = "query steps filter by name"
         test_result_name = f"{description} test result"
         test_result = TestResult(name=test_result_name)

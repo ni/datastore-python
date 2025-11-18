@@ -7,10 +7,12 @@ from ni.datastore.data import (
 )
 from nitypes.vector import Vector
 
+from examples.common import DataStoreContext
+
 
 def test___publish_batch_float_condition___read_data_returns_vector() -> None:
     expected_value = [1.0, 2.0, 3.0]
-    with DataStoreClient() as data_store_client:
+    with DataStoreContext(), DataStoreClient() as data_store_client:
         step_id = _create_step(data_store_client, "float condition batch")
         published_condition = data_store_client.publish_condition_batch(
             condition_name="python float condition batch",
@@ -27,7 +29,7 @@ def test___publish_batch_float_condition___read_data_returns_vector() -> None:
 
 def test___publish_batch_integer_condition___read_data_returns_vector() -> None:
     expected_value = [5, 6, 7, 8]
-    with DataStoreClient() as data_store_client:
+    with DataStoreContext(), DataStoreClient() as data_store_client:
         step_id = _create_step(data_store_client, "integer condition batch")
         published_condition = data_store_client.publish_condition_batch(
             condition_name="python integer condition batch",
@@ -44,7 +46,7 @@ def test___publish_batch_integer_condition___read_data_returns_vector() -> None:
 
 def test___publish_batch_bool_condition___read_data_returns_vector() -> None:
     expected_value = [True, False, True]
-    with DataStoreClient() as data_store_client:
+    with DataStoreContext(), DataStoreClient() as data_store_client:
         step_id = _create_step(data_store_client, "bool condition batch")
         published_condition = data_store_client.publish_condition_batch(
             condition_name="python bool condition batch",
@@ -61,7 +63,7 @@ def test___publish_batch_bool_condition___read_data_returns_vector() -> None:
 
 def test___publish_batch_str_condition___read_data_returns_vector() -> None:
     expected_value = ["one", "two", "three"]
-    with DataStoreClient() as data_store_client:
+    with DataStoreContext(), DataStoreClient() as data_store_client:
         step_id = _create_step(data_store_client, "str condition batch")
         published_condition = data_store_client.publish_condition_batch(
             condition_name="python str condition batch",
@@ -77,7 +79,7 @@ def test___publish_batch_str_condition___read_data_returns_vector() -> None:
 
 
 def test___publish_batch_vector_condition___read_data_returns_vector() -> None:
-    with DataStoreClient() as data_store_client:
+    with DataStoreContext(), DataStoreClient() as data_store_client:
         step_id = _create_step(data_store_client, "scalar condition batch")
         expected_vector = Vector(values=[25, 50, 75], units="Amps")
         published_condition = data_store_client.publish_condition_batch(

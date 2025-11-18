@@ -11,9 +11,11 @@ from nitypes.vector import Vector
 from nitypes.waveform import AnalogWaveform, ComplexWaveform, DigitalWaveform, Spectrum
 from nitypes.xy_data import XYData
 
+from examples.common import DataStoreContext
+
 
 def test___publish_float___read_data_returns_vector() -> None:
-    with DataStoreClient() as data_store_client:
+    with DataStoreContext(), DataStoreClient() as data_store_client:
         step_id = _create_step(data_store_client, "float")
         published_measurement = data_store_client.publish_measurement(
             measurement_name="python publish float",
@@ -28,7 +30,7 @@ def test___publish_float___read_data_returns_vector() -> None:
 
 
 def test___publish_scalar___read_data_returns_vector() -> None:
-    with DataStoreClient() as data_store_client:
+    with DataStoreContext(), DataStoreClient() as data_store_client:
         step_id = _create_step(data_store_client, "scalar")
         expected_scalar = Scalar(value=25, units="Volts")
         published_measurement = data_store_client.publish_measurement(
@@ -44,7 +46,7 @@ def test___publish_scalar___read_data_returns_vector() -> None:
 
 
 def test___publish_xydata___read_data_returns_xydata() -> None:
-    with DataStoreClient() as data_store_client:
+    with DataStoreContext(), DataStoreClient() as data_store_client:
         step_id = _create_step(data_store_client, "xydata")
         expected_xydata = XYData.from_arrays_1d(
             x_array=[1.0, 2.0],
@@ -64,7 +66,7 @@ def test___publish_xydata___read_data_returns_xydata() -> None:
 
 
 def test___publish_spectrum___read_data_returns_spectrum() -> None:
-    with DataStoreClient() as data_store_client:
+    with DataStoreContext(), DataStoreClient() as data_store_client:
         step_id = _create_step(data_store_client, "spectrum")
         expected_spectrum = Spectrum.from_array_1d(
             array=[1.0, 10.0, 100.0],
@@ -84,7 +86,7 @@ def test___publish_spectrum___read_data_returns_spectrum() -> None:
 
 
 def test___publish_analog_waveform___read_data_returns_analog_waveform() -> None:
-    with DataStoreClient() as data_store_client:
+    with DataStoreContext(), DataStoreClient() as data_store_client:
         step_id = _create_step(data_store_client, "analog waveform")
         expected_waveform = AnalogWaveform(
             sample_count=3,
@@ -102,7 +104,7 @@ def test___publish_analog_waveform___read_data_returns_analog_waveform() -> None
 
 
 def test___publish_digital_waveform___read_data_returns_digital_waveform() -> None:
-    with DataStoreClient() as data_store_client:
+    with DataStoreContext(), DataStoreClient() as data_store_client:
         step_id = _create_step(data_store_client, "digital waveform")
         expected_waveform = DigitalWaveform(10)
         published_measurement = data_store_client.publish_measurement(
@@ -116,7 +118,7 @@ def test___publish_digital_waveform___read_data_returns_digital_waveform() -> No
 
 
 def test___publish_complex_waveform___read_data_returns_complex_waveform() -> None:
-    with DataStoreClient() as data_store_client:
+    with DataStoreContext(), DataStoreClient() as data_store_client:
         step_id = _create_step(data_store_client, "complex waveform")
         expected_waveform = ComplexWaveform(10)
         published_measurement = data_store_client.publish_measurement(
