@@ -2334,30 +2334,30 @@ protobuf = ">=4.21"
 
 [[package]]
 name = "ni-measurements-data-v1-client"
-version = "0.2.0.dev2"
+version = "0.2.0.dev3"
 description = "gRPC Client for NI Data Store Service"
 optional = false
 python-versions = "<4.0,>=3.10"
 groups = ["main"]
 files = [
-    {file = "ni_measurements_data_v1_client-0.2.0.dev2-py3-none-any.whl", hash = "sha256:5502c5dfc7bb5543eda2e640978c24ae8069ce0f0af1ee6b6c7e6de3ff0db32e"},
-    {file = "ni_measurements_data_v1_client-0.2.0.dev2.tar.gz", hash = "sha256:ea5b5c4dce54cb213fb8348c196feab1aaed6d6100f02d8e21cca26acf7d2935"},
+    {file = "ni_measurements_data_v1_client-0.2.0.dev3-py3-none-any.whl", hash = "sha256:35e4875d31856f7fed7996db2f0a7aa993bdd7c127e04de050e2c653d9d0e84a"},
+    {file = "ni_measurements_data_v1_client-0.2.0.dev3.tar.gz", hash = "sha256:952d129db92b8bf71bcdfe9345be29553bd358d334354e28393479559c9699d2"},
 ]
 
 [package.dependencies]
 ni-measurementlink-discovery-v1-client = ">=0.1.0.dev0"
-ni-measurements-data-v1-proto = ">=0.1.0.dev6"
+ni-measurements-data-v1-proto = ">=0.1.0.dev7"
 
 [[package]]
 name = "ni-measurements-data-v1-proto"
-version = "0.1.0.dev6"
+version = "0.1.0.dev7"
 description = "Protobuf data types and service stubs for NI data store gRPC APIs"
 optional = false
 python-versions = "<4.0,>=3.10"
 groups = ["main"]
 files = [
-    {file = "ni_measurements_data_v1_proto-0.1.0.dev6-py3-none-any.whl", hash = "sha256:4ad861df9a621930742ecfa4868d616186650159ea229ef811679392c7d76b35"},
-    {file = "ni_measurements_data_v1_proto-0.1.0.dev6.tar.gz", hash = "sha256:8ebe2e605dd7d1428e6eeeec80b57a62ecaaa8f4d63aa994ffecf80428a0e73b"},
+    {file = "ni_measurements_data_v1_proto-0.1.0.dev7-py3-none-any.whl", hash = "sha256:3342ad080ce97f28a5df6906d6f427826e2079f5281f20bc2a99a58ca471c40c"},
+    {file = "ni_measurements_data_v1_proto-0.1.0.dev7.tar.gz", hash = "sha256:979b897cd92ea832dc3ad2afbeaa42f005c9161fdf2089bd043ededbf38249ca"},
 ]
 
 [package.dependencies]
@@ -4330,4 +4330,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10"
-content-hash = "efe0dea79627daeb1f4197bcaec5a84367665efba45840b3fa61edcc48e692bf"
+content-hash = "b52bbfb1b86c156496eab4294c386aeba82cdde559a065179d03d8be52dfa532"
