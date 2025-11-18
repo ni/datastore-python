@@ -39,7 +39,7 @@ class DataStoreContext:
         exc_val: BaseException | None,
         traceback: TracebackType | None,
     ) -> None:
-       self.close()
+        self.close()
 
 
     def initialize(self) -> None:
