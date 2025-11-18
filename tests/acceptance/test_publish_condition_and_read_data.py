@@ -12,7 +12,7 @@ from nitypes.vector import Vector
 def test___publish_float_condition___read_data_returns_vector() -> None:
     with DataStoreClient() as data_store_client:
         step_id = _create_step(data_store_client, "float condition")
-        published_condition = data_store_client.publish_condition(
+        published_condition_id = data_store_client.publish_condition(
             name="python float condition",
             condition_type="Upper Limit",
             value=123.45,
@@ -20,6 +20,7 @@ def test___publish_float_condition___read_data_returns_vector() -> None:
         )
 
         # A published float will be read back as a Vector.
+        published_condition = data_store_client.get_condition(published_condition_id)
         vector = data_store_client.read_data(published_condition, expected_type=Vector)
         assert len(vector) == 1
         assert vector[0] == 123.45
@@ -29,7 +30,7 @@ def test___publish_float_condition___read_data_returns_vector() -> None:
 def test___publish_integer_condition___read_data_returns_vector() -> None:
     with DataStoreClient() as data_store_client:
         step_id = _create_step(data_store_client, "integer condition")
-        published_condition = data_store_client.publish_condition(
+        published_condition_id = data_store_client.publish_condition(
             name="python integer condition",
             condition_type="Lower Limit",
             value=123,
@@ -37,6 +38,7 @@ def test___publish_integer_condition___read_data_returns_vector() -> None:
         )
 
         # A published integer will be read back as a Vector.
+        published_condition = data_store_client.get_condition(published_condition_id)
         vector = data_store_client.read_data(published_condition, expected_type=Vector)
         assert len(vector) == 1
         assert vector[0] == 123
@@ -46,7 +48,7 @@ def test___publish_integer_condition___read_data_returns_vector() -> None:
 def test___publish_bool_condition___read_data_returns_vector() -> None:
     with DataStoreClient() as data_store_client:
         step_id = _create_step(data_store_client, "bool condition")
-        published_condition = data_store_client.publish_condition(
+        published_condition_id = data_store_client.publish_condition(
             name="python bool condition",
             condition_type="Flag",
             value=True,
@@ -54,6 +56,7 @@ def test___publish_bool_condition___read_data_returns_vector() -> None:
         )
 
         # A published bool will be read back as a Vector.
+        published_condition = data_store_client.get_condition(published_condition_id)
         vector = data_store_client.read_data(published_condition, expected_type=Vector)
         assert len(vector) == 1
         assert vector[0] is True
@@ -63,7 +66,7 @@ def test___publish_bool_condition___read_data_returns_vector() -> None:
 def test___publish_str_condition___read_data_returns_vector() -> None:
     with DataStoreClient() as data_store_client:
         step_id = _create_step(data_store_client, "str condition")
-        published_condition = data_store_client.publish_condition(
+        published_condition_id = data_store_client.publish_condition(
             name="python str condition",
             condition_type="Environment",
             value="condition value",
@@ -71,6 +74,7 @@ def test___publish_str_condition___read_data_returns_vector() -> None:
         )
 
         # A published str will be read back as a Vector.
+        published_condition = data_store_client.get_condition(published_condition_id)
         vector = data_store_client.read_data(published_condition, expected_type=Vector)
         assert len(vector) == 1
         assert vector[0] == "condition value"
@@ -81,7 +85,7 @@ def test___publish_scalar_condition___read_data_returns_vector() -> None:
     with DataStoreClient() as data_store_client:
         step_id = _create_step(data_store_client, "scalar condition")
         expected_scalar = Scalar(value=25, units="Volts")
-        published_condition = data_store_client.publish_condition(
+        published_condition_id = data_store_client.publish_condition(
             name="python scalar condition",
             condition_type="Lower Limit",
             value=expected_scalar,
@@ -89,6 +93,7 @@ def test___publish_scalar_condition___read_data_returns_vector() -> None:
         )
 
         # A published Scalar will be read back as a Vector.
+        published_condition = data_store_client.get_condition(published_condition_id)
         vector = data_store_client.read_data(published_condition, expected_type=Vector)
         assert vector[0] == expected_scalar.value
         assert vector.units == expected_scalar.units

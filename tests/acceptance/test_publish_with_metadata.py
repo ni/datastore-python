@@ -184,7 +184,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         )
 
         # Perform publish operation
-        published_measurement = data_store_client.publish_measurement(
+        published_measurement_id = data_store_client.publish_measurement(
             name="Measurement Name",
             value=expected_waveform,
             step_id=step_id,
@@ -198,7 +198,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         )
 
         published_measurements = data_store_client.query_measurements(
-            odata_query=f"$filter=id eq {published_measurement.id}"
+            odata_query=f"$filter=id eq {published_measurement_id}"
         )
         found_measurement = next(iter(published_measurements), None)
         assert found_measurement is not None

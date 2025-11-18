@@ -12,7 +12,7 @@ def test___query_measurements___filter_by_id___single_measurement_returned() -> 
 
         # Publish a single measurement.
         measurement_name = "query filter by id measurement"
-        published_measurement = data_store_client.publish_measurement(
+        published_measurement_id = data_store_client.publish_measurement(
             name=measurement_name,
             value=123.45,
             step_id=step_id,
@@ -20,7 +20,7 @@ def test___query_measurements___filter_by_id___single_measurement_returned() -> 
 
         # Query measurements based on id.
         queried_measurements = data_store_client.query_measurements(
-            odata_query=f"$filter=id eq {published_measurement.id}"
+            odata_query=f"$filter=id eq {published_measurement_id}"
         )
 
         # We should get one measurement back.
