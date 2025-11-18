@@ -1,4 +1,4 @@
-# Contributing to `datastore-python` 
+# Contributing to `datastore-python`
 
 Contributions to `datastore-python` are welcome from all!
 
@@ -21,33 +21,93 @@ See [GitHub's official documentation](https://help.github.com/articles/using-pul
 
 # Getting Started
 
-- TODO: include build steps here.
+## Prerequisites
+
+- _(Optional)_ Install [Visual Studio Code](https://code.visualstudio.com/download)
+- Install [Git](https://git-scm.com)
+- Install [Python](https://www.python.org/downloads/), any version from the [README](README.md)
+- Install [Poetry](https://python-poetry.org/docs/#installation), version >= 2.1.4
+
+## Install the package and its dependencies
+
+Run `poetry install` ([usage](https://python-poetry.org/docs/cli/#install)). This creates an
+in-project virtual environment (`.venv`) and installs this package's dependencies and dev-dependencies,
+as specified in the `pyproject.toml` and `poetry.lock` files.
+
+```powershell
+# Include dependencies for linting, analyzing, and testing the package
+poetry install
+
+# Include dependencies for building the documentation (requires Python 3.11 or newer)
+poetry install --with docs
+```
+
+## Activate the virtual environment (if needed)
+
+- _(Recommended)_ Activate for each command by prefixing the call with `poetry run {command}`
+- Activate for the lifetime of the shell in the terminal with `poetry shell`
+- Activate in VS Code ([link](https://code.visualstudio.com/docs/python/environments#_select-and-activate-an-environment))
+
+# Simple Development Loop
+
+```powershell
+# Update from main
+git checkout main
+git pull
+
+# Create a new branch
+git switch --create users/{username}/{branch-purpose}
+
+# Install the package dependencies
+poetry install --with docs
+
+# ✍ Make source changes
+
+# Run the analyzers -- see files in .github/workflows for details
+poetry run nps lint
+poetry run mypy
+poetry run pyright
+
+# Apply safe fixes
+poetry run nps fix
+
+# Run the standalone unit tests
+poetry run pytest -v tests\unit
+
+# Run the acceptance tests against an active DataStore service
+poetry run pytest -v tests\acceptance
+
+# Build and inspect the documentation
+poetry run sphinx-build docs docs/_build --builder html --fail-on-warning
+start docs/_build/index.html
+```
 
 # Testing
 
-There are pytests in ni.datastore that you can run with poetry. There are two directories of tests:
+There are pytests in `ni.datastore` that you can run with poetry. There are two directories of tests:
 `acceptance` and `unit`.
 
 ## Unit Tests
+
 The unit tests in the `unit` folder are the first line of defense to catch regressions. These tests
 will run on any PR that is submitted for `ni.datastore`. You can run these tests manually by running:
 `poetry run pytest tests\unit`
 
 ## Acceptance Tests
+
 Acceptance tests are system level tests that are meant to run against an actual DataStore service.
-You can start the datastore service by building the service in the `ASW` repo and running it. You
-can also install the Measurement Data Services installer on a test machine. If the datastore service
+You can start the DataStore service by building the service from its repo and running it. You
+can also install the Measurement Data Services installer on a test machine. If the DataStore service
 is not running, these tests will fail. To run the acceptance tests, run this command:
 `poetry run pytest tests\acceptance`
 
 > Warning! Running the acceptance tests will publish data and metadata to the default global
 > MDS data store location in the Documents folder.
 
-
 # Publishing on PyPI
 
-You can publish the ni.datastore package by creating a GitHub release
-in the datastore-python repo. Here are the steps to follow to publish the package:
+You can publish the `ni.datastore` package by creating a GitHub release
+in the `datastore-python` repo. Here are the steps to follow to publish the package:
 
 1. From the main GitHub repo page, select "Create a new release".
 2. On the "New Release" page, create a new tag using the "Select Tag" drop down. The tag must be the package version, matching the
