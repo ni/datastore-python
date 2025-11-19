@@ -1,0 +1,24 @@
+id = "pmic validation schema v1"
+
+[hardware_item]
+device_type = "*"
+nominal_voltage = "*"
+max_current = "*"
+channels = "*"
+efficiency = "*"
+description = "*"
+
+[operator]
+email = ".+@company.com"
+department = "*"
+employee_id = "*"
+certifications = "*"
+
+[test_adapter]
+board_revision = "*"
+connection_type = "*"
+voltage_rating = "*"
+current_rating = "*"
+calibration_status = "*"
+features = "*"
+compatible_devices = "*"

@@ -1,0 +1,56 @@
+{
+  "$schema": "https://raw.githubusercontent.com/ni/ni-apis/main/ni/measurements/metadata/v1/registration.schema.json",
+  "hardwareItems": [
+    {
+      "alias": "pmic-dut",
+      "manufacturer": "Texas Instruments",
+      "model": "TPS65219",
+      "serialNumber": "PMIC-2024-10451",
+      "partNumber": "TPS65219RSLR",
+      "assetIdentifier": "HW-PMIC-001",
+      "schemaId": "pmic validation schema v1",
+      "extension": {
+        "device_type": "Power Management IC",
+        "nominal_voltage": "1.8V to 5.0V",
+        "max_current": "5.0A",
+        "channels": "3",
+        "efficiency": "95%",
+        "description": "Multi-channel PMIC for test validation"
+      }
+    }
+  ],
+  "operators": [
+    {
+      "name": "Dave Smith",
+      "role": "Test Engineer",
+      "schemaId": "pmic validation schema v1",
+      "extension": {
+        "email": "dave.smith@company.com",
+        "department": "Hardware Validation",
+        "employee_id": "EMP-12345",
+        "certifications": "IPC-A-610 Certified"
+      }
+    }
+  ],
+  "testAdapters": [
+    {
+      "alias": "pmic-test-adapter",
+      "name": "PMIC Validation Adapter Board",
+      "manufacturer": "Contoso Manufacturing",
+      "model": "CVA-PMIC-2024",
+      "serialNumber": "ADAPT-00789",
+      "partNumber": "CVA-PMIC-2024-REV-C",
+      "assetIdentifier": "FIXTURE-PMIC-003",
+      "schemaId": "pmic validation schema v1",
+      "extension": {
+        "board_revision": "Rev C",
+        "connection_type": "ZIF Socket 48-pin",
+        "voltage_rating": "0-12V",
+        "current_rating": "0-10A",
+        "calibration_status": "Verified",
+        "features": "Built-in current shunt, voltage monitoring, thermal sensor",
+        "compatible_devices": "TPS65219, TPS65217, TPS65218"
+      }
+    }
+  ]
+}
