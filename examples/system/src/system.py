@@ -33,6 +33,8 @@ class SystemMetadata:
 
 def main() -> None:
     """Detect, publish, and query hardware and software resources from the local system."""
+    # The DataStoreContext sets up and tears down the example environment.
+    # It is not used in production code.
     with DataStoreContext():
         print("Scanning system for metadata...")
         system_metadata = detect_system_resources()
