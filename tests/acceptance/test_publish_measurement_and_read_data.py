@@ -10,8 +10,7 @@ from nitypes.scalar import Scalar
 from nitypes.vector import Vector
 from nitypes.waveform import AnalogWaveform, ComplexWaveform, DigitalWaveform, Spectrum
 from nitypes.xy_data import XYData
-
-from examples.common import DataStoreContext
+from utilities import DataStoreContext
 
 
 def test___publish_float___read_data_returns_vector() -> None:

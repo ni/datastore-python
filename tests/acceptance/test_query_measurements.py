@@ -2,10 +2,9 @@
 
 from ni.datastore.data import DataStoreClient
 from nitypes.vector import Vector
+from utilities import DataStoreContext
 
 from tests.acceptance._utils import append_hashed_time, create_test_result_and_step
-
-from examples.common import DataStoreContext
 
 
 def test___query_measurements___filter_by_id___single_measurement_returned() -> None:

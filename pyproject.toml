@@ -51,6 +51,7 @@ plotly = ">=5.0"
 nbformat = ">=4.2.0"
 ipython = ">=7.0"
 jupyter = ">=1.0"
+datastore-utilities = { path = "./utilities", develop = true }
 
 [tool.poetry.group.lint.dependencies]
 bandit = { version = ">=1.7", extras = ["toml"] }

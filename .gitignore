@@ -4,8 +4,8 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
 
-# Directory for example data
-examples/example_data/
+# Directory for data generated from running examples and tests
+temp_data/
 
 # Unit tests
 .pytest_cache/

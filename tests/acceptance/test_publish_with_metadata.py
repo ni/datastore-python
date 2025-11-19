@@ -25,8 +25,7 @@ from ni.datastore.metadata import (
     UutInstance,
 )
 from nitypes.waveform import AnalogWaveform
-
-from examples.common import DataStoreContext
+from utilities import DataStoreContext
 
 
 def test___waveform_with_all_metadata___publish___query_read_returns_correct_data() -> None:

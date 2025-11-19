@@ -1,8 +1,6 @@
 """Overview example demonstrating data publishing and querying."""
 
-import sys
 from datetime import timezone
-from pathlib import Path
 
 import hightime as ht
 import numpy as np
@@ -20,11 +18,7 @@ from ni.datastore.metadata import (
     UutInstance,
 )
 from nitypes.waveform import AnalogWaveform, Timing
-
-# Include the 'Examples' directory in the path to import example-specific utilities
-examples_dir = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(examples_dir))
-from common import DataStoreContext  # noqa: E402,I100,I202  # type: ignore
+from utilities import DataStoreContext
 
 
 def main() -> None:

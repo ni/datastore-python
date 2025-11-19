@@ -18,6 +18,7 @@ from ni.datastore.metadata import (
     SoftwareItem,
     TestStation,
 )
+from utilities import DataStoreContext
 
 
 @dataclass(frozen=True)
@@ -32,21 +33,22 @@ class SystemMetadata:
 
 def main() -> None:
     """Detect, publish, and query hardware and software resources from the local system."""
-    print("Scanning system for metadata...")
-    system_metadata = detect_system_resources()
+    with DataStoreContext():
+        print("Scanning system for metadata...")
+        system_metadata = detect_system_resources()
 
-    print("Publishing detected system metadata...")
-    test_result_id = publish_empty_test_result(system_metadata)
+        print("Publishing detected system metadata...")
+        test_result_id = publish_empty_test_result(system_metadata)
 
-    print("Querying system metadata...")
-    test_result = query_test_result(test_result_id)
+        print("Querying system metadata...")
+        test_result = query_test_result(test_result_id)
 
-    print()
-    print(f"TestResult ID: {test_result.id}")
-    print(f"- Operator: {test_result.operator_id}")
-    print(f"- Test Station: {test_result.test_station_id}")
-    print(f"- Installed Software: {len(test_result.software_item_ids)} packages")
-    print(f"- Available Hardware: {len(test_result.hardware_item_ids)} devices")
+        print()
+        print(f"TestResult ID: {test_result.id}")
+        print(f"- Operator: {test_result.operator_id}")
+        print(f"- Test Station: {test_result.test_station_id}")
+        print(f"- Installed Software: {len(test_result.software_item_ids)} packages")
+        print(f"- Available Hardware: {len(test_result.hardware_item_ids)} devices")
 
 
 def detect_system_resources(system_target: str = "localhost") -> SystemMetadata:

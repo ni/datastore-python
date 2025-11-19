@@ -6,8 +6,7 @@ from ni.datastore.data import (
     TestResult,
 )
 from nitypes.vector import Vector
-
-from examples.common import DataStoreContext
+from utilities import DataStoreContext
 
 
 def test___publish_batch_float_condition___read_data_returns_vector() -> None:

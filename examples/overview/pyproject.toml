@@ -54,6 +54,7 @@ grpcio-tools = [
 types-grpcio = ">=1.0"
 types-protobuf = ">=4.21"
 ni-datastore = {path = "../..", develop = true}
+datastore-utilities = { path = "../../utilities", develop = true }
 
 [tool.poetry.group.lint.dependencies]
 ni-python-styleguide = ">=0.4.1"

@@ -1,7 +1,6 @@
 import hashlib
 import os
 import sys
-
 from pathlib import Path
 from types import TracebackType
 
@@ -19,27 +18,28 @@ DATA_STORE_INGEST_DIRECTORY_PATH_ENV_VAR = "DataStoreSettings__IngestDirectory"
 DATA_STORE_FAILED_INGEST_DIRECTORY_PATH_ENV_VAR = "DataStoreSettings__FailedIngestDirectory"
 DATA_STORE_TDMS_EXPIRATION_SECONDS_ENV_NAME = "DataStoreSettings__TdmsFileCacheExpirationSeconds"
 
-DEFAULT_FOLDER_NAME = "example_data"
+DEFAULT_FOLDER_NAME = "temp_data"
+
 
 class DataStoreContext:
-    """A context manager that enables interacting with a data store running in its own isolated context."""
+    """A context manager for running a data store in an isolated environment."""
 
-    __slots__ = ("_base_directory_path")
+    __slots__ = "_base_directory_path"
 
     def __init__(self, base_directory_path: Path | None = None) -> None:
         """Initialize the DataStoreContext.
 
         Args:
-            base_directory_path: An optional base directory path specifying where the data store files will be located.
-                If not provided, a default path within the examples directory will be used.
+            base_directory_path: An optional base directory path specifying where
+            the data store files will be located. If not provided, a default path
+            in the repository directory will be used.
         """
         self._base_directory_path = base_directory_path
 
-
     def __enter__(self) -> Self:
+        """Enter the data store context."""
         self.initialize()
         return self
-
 
     def __exit__(
         self,
@@ -47,28 +47,24 @@ class DataStoreContext:
         exc_val: BaseException | None,
         traceback: TracebackType | None,
     ) -> None:
+        """Exit the data store context."""
         self.close()
-
 
     def initialize(self) -> None:
         """Initializes the data store context by setting up necessary environment variables."""
         self._initialize_environment()
 
-
     def close(self) -> None:
         """Cleans up the data store context by resetting environment variables."""
         self._reset_environment()
-
 
     def _initialize_environment(self) -> None:
         self._initialize_cluster_id()
         self._initialize_data_store_paths()
 
-
-    def _initialize_cluster_id(self) ->  None:
+    def _initialize_cluster_id(self) -> None:
         cluster_id = self._get_cluster_id()
         os.environ[DISCOVERY_SERVICE_CLUSTER_ID_ENV_VAR] = cluster_id
-
 
     def _initialize_data_store_paths(self) -> None:
         base_directory_path = self._get_base_directory_path()
@@ -85,26 +81,22 @@ class DataStoreContext:
 
         os.environ[DATA_STORE_TDMS_EXPIRATION_SECONDS_ENV_NAME] = str(0)
 
-
     def _get_cluster_id(self) -> str:
         # Generate a unique cluster ID based on the base directory path
         return self._get_base_directory_hash()
 
-    
     def _get_base_directory_hash(self) -> str:
         base_directory_path = self._get_base_directory_path()
         base_directory_path_bytes = str(base_directory_path.resolve()).encode("utf-8")
         hash_object = hashlib.sha256(base_directory_path_bytes)
         return hash_object.hexdigest()[:32]
 
-    
     def _get_base_directory_path(self) -> Path:
         if self._base_directory_path is not None:
             return self._base_directory_path
 
-        examples_directory = Path(__file__).resolve().parents[1]
-        return examples_directory / DEFAULT_FOLDER_NAME
-
+        repo_root = Path(__file__).resolve().parents[3]
+        return repo_root / DEFAULT_FOLDER_NAME
 
     def _reset_environment(self) -> None:
         for env_var in [

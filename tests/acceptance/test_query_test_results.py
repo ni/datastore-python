@@ -1,10 +1,9 @@
 """Acceptance tests that exercise DataStoreClient.query_test_results()."""
 
 from ni.datastore.data import DataStoreClient
+from utilities import DataStoreContext
 
 from tests.acceptance._utils import append_hashed_time, create_test_result
-
-from examples.common import DataStoreContext
 
 
 def test___query_test_results___filter_by_id___single_test_result_returned() -> None:
