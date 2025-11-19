@@ -7,8 +7,10 @@ from utilities import DataStoreContext
 from tests.acceptance._utils import append_hashed_time, create_test_result_and_step
 
 
-def test___query_measurements___filter_by_id___single_measurement_returned() -> None:
-    with DataStoreContext(), DataStoreClient() as data_store_client:
+def test___query_measurements___filter_by_id___single_measurement_returned(
+    acceptance_test_context: DataStoreContext,
+) -> None:
+    with DataStoreClient() as data_store_client:
         step_id = create_test_result_and_step(data_store_client, "query measurement filter by id")
 
         # Publish a single measurement.
@@ -36,8 +38,10 @@ def test___query_measurements___filter_by_id___single_measurement_returned() -> 
         assert vector.units == ""
 
 
-def test___query_measurements___filter_by_name___correct_measurements_returned() -> None:
-    with DataStoreContext(), DataStoreClient() as data_store_client:
+def test___query_measurements___filter_by_name___correct_measurements_returned(
+    acceptance_test_context: DataStoreContext,
+) -> None:
+    with DataStoreClient() as data_store_client:
         step_id = create_test_result_and_step(data_store_client, "query measurement filter by name")
 
         # Publish several similarly named measurements. These names should be unique for each

@@ -9,8 +9,10 @@ from nitypes.vector import Vector
 from utilities import DataStoreContext
 
 
-def test___publish_float___read_data_returns_vector() -> None:
-    with DataStoreContext(), DataStoreClient() as data_store_client:
+def test___publish_float___read_data_returns_vector(
+    acceptance_test_context: DataStoreContext,
+) -> None:
+    with DataStoreClient() as data_store_client:
         # Create TestResult metadata
         test_result_name = "python batch publish float acceptance test"
         test_result = TestResult(name=test_result_name)
@@ -36,8 +38,10 @@ def test___publish_float___read_data_returns_vector() -> None:
         assert vector.units == ""
 
 
-def test___publish_batch_vector___read_data_returns_vector() -> None:
-    with DataStoreContext(), DataStoreClient() as data_store_client:
+def test___publish_batch_vector___read_data_returns_vector(
+    acceptance_test_context: DataStoreContext,
+) -> None:
+    with DataStoreClient() as data_store_client:
         # Create TestResult metadata
         test_result_name = "python publish scalar acceptance test"
         test_result = TestResult(name=test_result_name)

@@ -7,8 +7,10 @@ from utilities import DataStoreContext
 from tests.acceptance._utils import append_hashed_time, create_test_result_and_step
 
 
-def test___query_conditions___filter_by_id___single_condition_returned() -> None:
-    with DataStoreContext(), DataStoreClient() as data_store_client:
+def test___query_conditions___filter_by_id___single_condition_returned(
+    acceptance_test_context: DataStoreContext,
+) -> None:
+    with DataStoreClient() as data_store_client:
         step_id = create_test_result_and_step(data_store_client, "query condition filter by id")
 
         # Publish a single condition
@@ -38,8 +40,10 @@ def test___query_conditions___filter_by_id___single_condition_returned() -> None
         assert vector.units == ""
 
 
-def test___query_conditions___filter_by_name___correct_conditions_returned() -> None:
-    with DataStoreContext(), DataStoreClient() as data_store_client:
+def test___query_conditions___filter_by_name___correct_conditions_returned(
+    acceptance_test_context: DataStoreContext,
+) -> None:
+    with DataStoreClient() as data_store_client:
         step_id = create_test_result_and_step(data_store_client, "query condition filter by name")
 
         # Publish several similarly named conditions. These names should be unique for each

@@ -10,8 +10,10 @@ from nitypes.vector import Vector
 from utilities import DataStoreContext
 
 
-def test___publish_float_condition___read_data_returns_vector() -> None:
-    with DataStoreContext(), DataStoreClient() as data_store_client:
+def test___publish_float_condition___read_data_returns_vector(
+    acceptance_test_context: DataStoreContext,
+) -> None:
+    with DataStoreClient() as data_store_client:
         step_id = _create_step(data_store_client, "float condition")
         published_condition_id = data_store_client.publish_condition(
             name="python float condition",
@@ -28,8 +30,10 @@ def test___publish_float_condition___read_data_returns_vector() -> None:
         assert vector.units == ""
 
 
-def test___publish_integer_condition___read_data_returns_vector() -> None:
-    with DataStoreContext(), DataStoreClient() as data_store_client:
+def test___publish_integer_condition___read_data_returns_vector(
+    acceptance_test_context: DataStoreContext,
+) -> None:
+    with DataStoreClient() as data_store_client:
         step_id = _create_step(data_store_client, "integer condition")
         published_condition_id = data_store_client.publish_condition(
             name="python integer condition",
@@ -46,8 +50,10 @@ def test___publish_integer_condition___read_data_returns_vector() -> None:
         assert vector.units == ""
 
 
-def test___publish_bool_condition___read_data_returns_vector() -> None:
-    with DataStoreContext(), DataStoreClient() as data_store_client:
+def test___publish_bool_condition___read_data_returns_vector(
+    acceptance_test_context: DataStoreContext,
+) -> None:
+    with DataStoreClient() as data_store_client:
         step_id = _create_step(data_store_client, "bool condition")
         published_condition_id = data_store_client.publish_condition(
             name="python bool condition",
@@ -64,8 +70,10 @@ def test___publish_bool_condition___read_data_returns_vector() -> None:
         assert vector.units == ""
 
 
-def test___publish_str_condition___read_data_returns_vector() -> None:
-    with DataStoreContext(), DataStoreClient() as data_store_client:
+def test___publish_str_condition___read_data_returns_vector(
+    acceptance_test_context: DataStoreContext,
+) -> None:
+    with DataStoreClient() as data_store_client:
         step_id = _create_step(data_store_client, "str condition")
         published_condition_id = data_store_client.publish_condition(
             name="python str condition",
@@ -82,8 +90,10 @@ def test___publish_str_condition___read_data_returns_vector() -> None:
         assert vector.units == ""
 
 
-def test___publish_scalar_condition___read_data_returns_vector() -> None:
-    with DataStoreContext(), DataStoreClient() as data_store_client:
+def test___publish_scalar_condition___read_data_returns_vector(
+    acceptance_test_context: DataStoreContext,
+) -> None:
+    with DataStoreClient() as data_store_client:
         step_id = _create_step(data_store_client, "scalar condition")
         expected_scalar = Scalar(value=25, units="Volts")
         published_condition_id = data_store_client.publish_condition(

@@ -13,8 +13,10 @@ from nitypes.xy_data import XYData
 from utilities import DataStoreContext
 
 
-def test___publish_float___read_data_returns_vector() -> None:
-    with DataStoreContext(), DataStoreClient() as data_store_client:
+def test___publish_float___read_data_returns_vector(
+    acceptance_test_context: DataStoreContext,
+) -> None:
+    with DataStoreClient() as data_store_client:
         step_id = _create_step(data_store_client, "float")
         published_measurement_id = data_store_client.publish_measurement(
             name="python publish float",
@@ -29,8 +31,10 @@ def test___publish_float___read_data_returns_vector() -> None:
         assert vector.units == ""
 
 
-def test___publish_scalar___read_data_returns_vector() -> None:
-    with DataStoreContext(), DataStoreClient() as data_store_client:
+def test___publish_scalar___read_data_returns_vector(
+    acceptance_test_context: DataStoreContext,
+) -> None:
+    with DataStoreClient() as data_store_client:
         step_id = _create_step(data_store_client, "scalar")
         expected_scalar = Scalar(value=25, units="Volts")
         published_measurement_id = data_store_client.publish_measurement(
@@ -46,8 +50,10 @@ def test___publish_scalar___read_data_returns_vector() -> None:
         assert vector.units == expected_scalar.units
 
 
-def test___publish_xydata___read_data_returns_xydata() -> None:
-    with DataStoreContext(), DataStoreClient() as data_store_client:
+def test___publish_xydata___read_data_returns_xydata(
+    acceptance_test_context: DataStoreContext,
+) -> None:
+    with DataStoreClient() as data_store_client:
         step_id = _create_step(data_store_client, "xydata")
         expected_xydata = XYData.from_arrays_1d(
             x_array=[1.0, 2.0],
@@ -67,8 +73,10 @@ def test___publish_xydata___read_data_returns_xydata() -> None:
         assert xydata == expected_xydata
 
 
-def test___publish_spectrum___read_data_returns_spectrum() -> None:
-    with DataStoreContext(), DataStoreClient() as data_store_client:
+def test___publish_spectrum___read_data_returns_spectrum(
+    acceptance_test_context: DataStoreContext,
+) -> None:
+    with DataStoreClient() as data_store_client:
         step_id = _create_step(data_store_client, "spectrum")
         expected_spectrum = Spectrum.from_array_1d(
             array=[1.0, 10.0, 100.0],
@@ -88,8 +96,10 @@ def test___publish_spectrum___read_data_returns_spectrum() -> None:
         assert spectrum == expected_spectrum
 
 
-def test___publish_analog_waveform___read_data_returns_analog_waveform() -> None:
-    with DataStoreContext(), DataStoreClient() as data_store_client:
+def test___publish_analog_waveform___read_data_returns_analog_waveform(
+    acceptance_test_context: DataStoreContext,
+) -> None:
+    with DataStoreClient() as data_store_client:
         step_id = _create_step(data_store_client, "analog waveform")
         expected_waveform = AnalogWaveform(
             sample_count=3,
@@ -107,8 +117,10 @@ def test___publish_analog_waveform___read_data_returns_analog_waveform() -> None
         assert waveform == expected_waveform
 
 
-def test___publish_digital_waveform___read_data_returns_digital_waveform() -> None:
-    with DataStoreContext(), DataStoreClient() as data_store_client:
+def test___publish_digital_waveform___read_data_returns_digital_waveform(
+    acceptance_test_context: DataStoreContext,
+) -> None:
+    with DataStoreClient() as data_store_client:
         step_id = _create_step(data_store_client, "digital waveform")
         expected_waveform = DigitalWaveform(10)
         published_measurement_id = data_store_client.publish_measurement(
@@ -122,8 +134,10 @@ def test___publish_digital_waveform___read_data_returns_digital_waveform() -> No
         assert waveform == expected_waveform
 
 
-def test___publish_complex_waveform___read_data_returns_complex_waveform() -> None:
-    with DataStoreContext(), DataStoreClient() as data_store_client:
+def test___publish_complex_waveform___read_data_returns_complex_waveform(
+    acceptance_test_context: DataStoreContext,
+) -> None:
+    with DataStoreClient() as data_store_client:
         step_id = _create_step(data_store_client, "complex waveform")
         expected_waveform = ComplexWaveform(10)
         published_measurement_id = data_store_client.publish_measurement(

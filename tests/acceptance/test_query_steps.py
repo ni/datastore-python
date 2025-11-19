@@ -6,8 +6,10 @@ from utilities import DataStoreContext
 from tests.acceptance._utils import append_hashed_time, create_test_result_and_step
 
 
-def test___query_steps___filter_by_id___single_step_returned() -> None:
-    with DataStoreContext(), DataStoreClient() as data_store_client:
+def test___query_steps___filter_by_id___single_step_returned(
+    acceptance_test_context: DataStoreContext,
+) -> None:
+    with DataStoreClient() as data_store_client:
         step_id = create_test_result_and_step(data_store_client, "query steps filter by id")
 
         # Query steps based on id.
@@ -20,8 +22,10 @@ def test___query_steps___filter_by_id___single_step_returned() -> None:
         assert first_step.name == "query steps filter by id step"
 
 
-def test___query_steps___filter_by_name___correct_steps_returned() -> None:
-    with DataStoreContext(), DataStoreClient() as data_store_client:
+def test___query_steps___filter_by_name___correct_steps_returned(
+    acceptance_test_context: DataStoreContext,
+) -> None:
+    with DataStoreClient() as data_store_client:
         description = "query steps filter by name"
         test_result_name = f"{description} test result"
         test_result = TestResult(name=test_result_name)

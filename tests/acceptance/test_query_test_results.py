@@ -6,8 +6,10 @@ from utilities import DataStoreContext
 from tests.acceptance._utils import append_hashed_time, create_test_result
 
 
-def test___query_test_results___filter_by_id___single_test_result_returned() -> None:
-    with DataStoreContext(), DataStoreClient() as data_store_client:
+def test___query_test_results___filter_by_id___single_test_result_returned(
+    acceptance_test_context: DataStoreContext,
+) -> None:
+    with DataStoreClient() as data_store_client:
         description = "query test result filter by id"
         test_result_id = create_test_result(data_store_client, description)
 
@@ -23,8 +25,10 @@ def test___query_test_results___filter_by_id___single_test_result_returned() -> 
         assert first_test_result.name == f"{description} test result"
 
 
-def test___query_steps___filter_by_name___correct_steps_returned() -> None:
-    with DataStoreContext(), DataStoreClient() as data_store_client:
+def test___query_steps___filter_by_name___correct_steps_returned(
+    acceptance_test_context: DataStoreContext,
+) -> None:
+    with DataStoreClient() as data_store_client:
         description = "query test results filter by name"
 
         # Create multiple similarly named test results.
