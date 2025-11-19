@@ -14,7 +14,6 @@ from ni.datastore.data import DataStoreClient, ErrorInformation, Outcome
 from ni.measurements.data.v1.data_store_pb2 import (
     ErrorInformation as ErrorInformationProto,
     Outcome as OutcomeProto,
-    PublishedMeasurement,
 )
 from ni.measurements.data.v1.data_store_service_pb2 import (
     PublishMeasurementBatchRequest,
@@ -43,11 +42,10 @@ def test___publish_boolean_data___calls_data_store_service_client(
     value: bool,
 ) -> None:
     timestamp = datetime.now(tz=std_datetime.timezone.utc)
-    published_measurement = PublishedMeasurement(id="response_id")
-    expected_response = PublishMeasurementResponse(published_measurement=published_measurement)
+    expected_response = PublishMeasurementResponse(measurement_id="response_id")
     mocked_data_store_service_client.publish_measurement.return_value = expected_response
 
-    result = data_store_client.publish_measurement(
+    measurement_id = data_store_client.publish_measurement(
         "name",
         value,
         "step_id",
@@ -62,7 +60,7 @@ def test___publish_boolean_data___calls_data_store_service_client(
 
     args, __ = mocked_data_store_service_client.publish_measurement.call_args
     request = args[0]  # The PublishMeasurementRequest object
-    assert result.id == "response_id"
+    assert measurement_id == "response_id"
     assert request.step_id == "step_id"
     assert request.name == "name"
     assert request.notes == "notes"
@@ -88,12 +86,11 @@ def test___publish_analog_waveform_data___calls_data_store_service_client(
     )
     expected_protobuf_waveform = DoubleAnalogWaveform()
     expected_protobuf_waveform.CopyFrom(float64_analog_waveform_to_protobuf(analog_waveform))
-    published_measurement = PublishedMeasurement(id="response_id")
-    expected_response = PublishMeasurementResponse(published_measurement=published_measurement)
+    expected_response = PublishMeasurementResponse(measurement_id="response_id")
     mocked_data_store_service_client.publish_measurement.return_value = expected_response
 
     # Now, when client.publish_measurement calls foo.MyClass().publish(), it will use the mock
-    result = data_store_client.publish_measurement(
+    measurement_id = data_store_client.publish_measurement(
         "name",
         analog_waveform,
         "step_id",
@@ -108,7 +105,7 @@ def test___publish_analog_waveform_data___calls_data_store_service_client(
 
     args, __ = mocked_data_store_service_client.publish_measurement.call_args
     request = cast(PublishMeasurementRequest, args[0])  # The PublishMeasurementRequest object
-    assert result.id == "response_id"
+    assert measurement_id == "response_id"
     assert request.step_id == "step_id"
     assert request.name == "name"
     assert request.notes == "notes"
@@ -134,16 +131,15 @@ def test___publish_float64_xydata___calls_data_store_service_client(
     )
     expected_protobuf_xydata = DoubleXYData()
     expected_protobuf_xydata.CopyFrom(float64_xydata_to_protobuf(xydata))
-    published_measurement = PublishedMeasurement(id="response_id")
-    expected_response = PublishMeasurementResponse(published_measurement=published_measurement)
+    expected_response = PublishMeasurementResponse(measurement_id="response_id")
     mocked_data_store_service_client.publish_measurement.return_value = expected_response
 
     # Now, when client.publish_measurement calls foo.MyClass().publish(), it will use the mock
-    result = data_store_client.publish_measurement("name", xydata, "step_id")
+    measurement_id = data_store_client.publish_measurement("name", xydata, "step_id")
 
     args, __ = mocked_data_store_service_client.publish_measurement.call_args
     request = cast(PublishMeasurementRequest, args[0])  # The PublishMeasurementRequest object
-    assert result.id == "response_id"
+    assert measurement_id == "response_id"
     assert request.step_id == "step_id"
     assert request.name == "name"
     assert request.x_y_data == expected_protobuf_xydata
@@ -160,16 +156,15 @@ def test___publish_basic_iterable_data___calls_data_store_service_client(
     expected_vector = Vector(value)
     expected_protobuf_vector = VectorProto()
     expected_protobuf_vector.CopyFrom(vector_to_protobuf(expected_vector))
-    published_measurement = PublishedMeasurement(id="response_id")
-    expected_response = PublishMeasurementResponse(published_measurement=published_measurement)
+    expected_response = PublishMeasurementResponse(measurement_id="response_id")
     mocked_data_store_service_client.publish_measurement.return_value = expected_response
 
     # Now, when client.publish_measurement calls foo.MyClass().publish(), it will use the mock
-    result = data_store_client.publish_measurement("name", value, "step_id")
+    measurement_id = data_store_client.publish_measurement("name", value, "step_id")
 
     args, __ = mocked_data_store_service_client.publish_measurement.call_args
     request = cast(PublishMeasurementRequest, args[0])  # The PublishMeasurementRequest object
-    assert result.id == "response_id"
+    assert measurement_id == "response_id"
     assert request.step_id == "step_id"
     assert request.name == "name"
     assert request.vector == expected_protobuf_vector
@@ -199,17 +194,14 @@ def test___publish_analog_waveform_data_without_timestamp_parameter___uses_wavef
         raw_data=np.array(waveform_values, dtype=np.float64),
         timing=Timing.create_with_regular_interval(timedelta(seconds=1), timestamp),
     )
-    published_measurement = PublishedMeasurement(id="response_id")
-    publish_measurement_response = PublishMeasurementResponse(
-        published_measurement=published_measurement
-    )
-    mocked_data_store_service_client.publish_measurement.return_value = publish_measurement_response
+    expected_response = PublishMeasurementResponse(measurement_id="response_id")
+    mocked_data_store_service_client.publish_measurement.return_value = expected_response
 
-    result = data_store_client.publish_measurement("name", analog_waveform, "step_id")
+    measurement_id = data_store_client.publish_measurement("name", analog_waveform, "step_id")
 
     args, __ = mocked_data_store_service_client.publish_measurement.call_args
     request = cast(PublishMeasurementRequest, args[0])  # The PublishMeasurementRequest object
-    assert result.id == "response_id"
+    assert measurement_id == "response_id"
     assert request.timestamp == hightime_datetime_to_protobuf(timestamp)
 
 
@@ -219,17 +211,16 @@ def test___publish_analog_waveform_data_without_t0___uses_timestamp_parameter(
 ) -> None:
     timestamp = datetime.now(tz=std_datetime.timezone.utc)
     analog_waveform = AnalogWaveform.from_array_1d([1.0, 2.0, 3.0], dtype=float)
-    published_measurement = PublishedMeasurement(id="response_id")
-    publish_measurement_response = PublishMeasurementResponse(
-        published_measurement=published_measurement
-    )
+    publish_measurement_response = PublishMeasurementResponse(measurement_id="response_id")
     mocked_data_store_service_client.publish_measurement.return_value = publish_measurement_response
 
-    result = data_store_client.publish_measurement("name", analog_waveform, "step_id", timestamp)
+    measurement_id = data_store_client.publish_measurement(
+        "name", analog_waveform, "step_id", timestamp
+    )
 
     args, __ = mocked_data_store_service_client.publish_measurement.call_args
     request = cast(PublishMeasurementRequest, args[0])  # The PublishMeasurementRequest object
-    assert result.id == "response_id"
+    assert measurement_id == "response_id"
     assert request.timestamp == hightime_datetime_to_protobuf(timestamp)
 
 
@@ -269,13 +260,10 @@ def test___vector___publish_measurement_batch___calls_data_store_service_client(
     mocked_data_store_service_client: NonCallableMock,
 ) -> None:
     timestamp = datetime.now(tz=std_datetime.timezone.utc)
-    published_measurement = PublishedMeasurement(id="response_id")
-    expected_response = PublishMeasurementBatchResponse(
-        published_measurements=[published_measurement]
-    )
+    expected_response = PublishMeasurementBatchResponse(measurement_ids=["response_id"])
     mocked_data_store_service_client.publish_measurement_batch.return_value = expected_response
 
-    response = data_store_client.publish_measurement_batch(
+    measurement_ids = data_store_client.publish_measurement_batch(
         name="name",
         values=Vector(values=[1.0, 2.0, 3.0], units="BatchUnits"),
         step_id="step_id",
@@ -289,7 +277,7 @@ def test___vector___publish_measurement_batch___calls_data_store_service_client(
 
     args, __ = mocked_data_store_service_client.publish_measurement_batch.call_args
     request = cast(PublishMeasurementBatchRequest, args[0])
-    assert next(iter(response)).id == "response_id"
+    assert next(iter(measurement_ids)) == "response_id"
     assert request.step_id == "step_id"
     assert request.name == "name"
     assert request.timestamps == [hightime_datetime_to_protobuf(timestamp)]
@@ -307,13 +295,10 @@ def test___int_list___publish_measurement_batch___calls_data_store_service_clien
     mocked_data_store_service_client: NonCallableMock,
 ) -> None:
     timestamp = datetime.now(tz=std_datetime.timezone.utc)
-    published_measurement = PublishedMeasurement(id="response_id")
-    expected_response = PublishMeasurementBatchResponse(
-        published_measurements=[published_measurement]
-    )
+    expected_response = PublishMeasurementBatchResponse(measurement_ids=["response_id"])
     mocked_data_store_service_client.publish_measurement_batch.return_value = expected_response
 
-    response = data_store_client.publish_measurement_batch(
+    measurement_ids = data_store_client.publish_measurement_batch(
         name="name",
         values=[1, 2, 3],
         step_id="step_id",
@@ -327,7 +312,7 @@ def test___int_list___publish_measurement_batch___calls_data_store_service_clien
 
     args, __ = mocked_data_store_service_client.publish_measurement_batch.call_args
     request = cast(PublishMeasurementBatchRequest, args[0])
-    assert next(iter(response)).id == "response_id"
+    assert next(iter(measurement_ids)) == "response_id"
     assert request.step_id == "step_id"
     assert request.name == "name"
     assert request.timestamps == [hightime_datetime_to_protobuf(timestamp)]
@@ -340,13 +325,10 @@ def test___float_list___publish_measurement_batch___calls_data_store_service_cli
     mocked_data_store_service_client: NonCallableMock,
 ) -> None:
     timestamp = datetime.now(tz=std_datetime.timezone.utc)
-    published_measurement = PublishedMeasurement(id="response_id")
-    expected_response = PublishMeasurementBatchResponse(
-        published_measurements=[published_measurement]
-    )
+    expected_response = PublishMeasurementBatchResponse(measurement_ids=["response_id"])
     mocked_data_store_service_client.publish_measurement_batch.return_value = expected_response
 
-    response = data_store_client.publish_measurement_batch(
+    measurement_ids = data_store_client.publish_measurement_batch(
         name="name",
         values=[1.0, 2.0, 3.0],
         step_id="step_id",
@@ -360,7 +342,7 @@ def test___float_list___publish_measurement_batch___calls_data_store_service_cli
 
     args, __ = mocked_data_store_service_client.publish_measurement_batch.call_args
     request = cast(PublishMeasurementBatchRequest, args[0])
-    assert next(iter(response)).id == "response_id"
+    assert next(iter(measurement_ids)) == "response_id"
     assert request.step_id == "step_id"
     assert request.name == "name"
     assert request.timestamps == [hightime_datetime_to_protobuf(timestamp)]
@@ -373,13 +355,10 @@ def test___bool_list___publish_measurement_batch___calls_data_store_service_clie
     mocked_data_store_service_client: NonCallableMock,
 ) -> None:
     timestamp = datetime.now(tz=std_datetime.timezone.utc)
-    published_measurement = PublishedMeasurement(id="response_id")
-    expected_response = PublishMeasurementBatchResponse(
-        published_measurements=[published_measurement]
-    )
+    expected_response = PublishMeasurementBatchResponse(measurement_ids=["response_id"])
     mocked_data_store_service_client.publish_measurement_batch.return_value = expected_response
 
-    response = data_store_client.publish_measurement_batch(
+    measurement_ids = data_store_client.publish_measurement_batch(
         name="name",
         values=[True, False, True],
         step_id="step_id",
@@ -393,7 +372,7 @@ def test___bool_list___publish_measurement_batch___calls_data_store_service_clie
 
     args, __ = mocked_data_store_service_client.publish_measurement_batch.call_args
     request = cast(PublishMeasurementBatchRequest, args[0])
-    assert next(iter(response)).id == "response_id"
+    assert next(iter(measurement_ids)) == "response_id"
     assert request.step_id == "step_id"
     assert request.name == "name"
     assert request.timestamps == [hightime_datetime_to_protobuf(timestamp)]
@@ -406,13 +385,10 @@ def test___str_list___publish_measurement_batch___calls_data_store_service_clien
     mocked_data_store_service_client: NonCallableMock,
 ) -> None:
     timestamp = datetime.now(tz=std_datetime.timezone.utc)
-    published_measurement = PublishedMeasurement(id="response_id")
-    expected_response = PublishMeasurementBatchResponse(
-        published_measurements=[published_measurement]
-    )
+    expected_response = PublishMeasurementBatchResponse(measurement_ids=["response_id"])
     mocked_data_store_service_client.publish_measurement_batch.return_value = expected_response
 
-    response = data_store_client.publish_measurement_batch(
+    measurement_ids = data_store_client.publish_measurement_batch(
         name="name",
         values=["one", "two", "three"],
         step_id="step_id",
@@ -426,7 +402,7 @@ def test___str_list___publish_measurement_batch___calls_data_store_service_clien
 
     args, __ = mocked_data_store_service_client.publish_measurement_batch.call_args
     request = cast(PublishMeasurementBatchRequest, args[0])
-    assert next(iter(response)).id == "response_id"
+    assert next(iter(measurement_ids)) == "response_id"
     assert request.step_id == "step_id"
     assert request.name == "name"
     assert request.timestamps == [hightime_datetime_to_protobuf(timestamp)]

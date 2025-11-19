@@ -77,16 +77,17 @@ def publish_data() -> str:
         # Publish the test step with the waveform data
         step = Step(name="Initial step", test_result_id=test_result_id)
         step_id = data_store_client.create_step(step)
-        published_measurement = data_store_client.publish_measurement(
+        published_measurement_id = data_store_client.publish_measurement(
             name=name,
             value=waveform,
             step_id=step_id,
         )
+        published_measurement = data_store_client.get_measurement(published_measurement_id)
         print(
             f"Published measurement: '{published_measurement.name}' with id {published_measurement.id}"
         )
 
-    return published_measurement.id
+    return published_measurement_id
 
 
 def query_data(published_measurement_id: str) -> None:
