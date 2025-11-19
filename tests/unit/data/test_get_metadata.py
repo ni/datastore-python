@@ -9,14 +9,22 @@ from unittest.mock import NonCallableMock
 from hightime import datetime
 from ni.datastore.data import (
     DataStoreClient,
+    PublishedCondition,
+    PublishedMeasurement,
     Step,
     TestResult,
 )
 from ni.measurements.data.v1.data_store_pb2 import (
+    PublishedCondition as PublishedConditionProto,
+    PublishedMeasurement as PublishedMeasurementProto,
     Step as StepProto,
     TestResult as TestResultProto,
 )
 from ni.measurements.data.v1.data_store_service_pb2 import (
+    GetConditionRequest,
+    GetConditionResponse,
+    GetMeasurementRequest,
+    GetMeasurementResponse,
     GetStepRequest,
     GetStepResponse,
     GetTestResultRequest,
@@ -82,3 +90,48 @@ def test___get_test_result___calls_data_store_service_client(
     request = cast(GetTestResultRequest, args[0])
     assert request.test_result_id == "request_id"
     assert result == TestResult.from_protobuf(test_result)
+
+
+def test___get_measurement___calls_data_store_service_client(
+    data_store_client: DataStoreClient,
+    mocked_data_store_service_client: NonCallableMock,
+) -> None:
+    start_time = datetime.now(tz=std_datetime.timezone.utc)
+    published_measurement = PublishedMeasurementProto(
+        id="measurement_id",
+        name="measurement_name",
+        step_id="step_id",
+        test_result_id="test_result_id",
+        start_date_time=hightime_datetime_to_protobuf(start_time),
+    )
+    expected_response = GetMeasurementResponse(published_measurement=published_measurement)
+    mocked_data_store_service_client.get_measurement.return_value = expected_response
+
+    result = data_store_client.get_measurement(measurement_id="request_id")
+
+    args, __ = mocked_data_store_service_client.get_measurement.call_args
+    request = cast(GetMeasurementRequest, args[0])
+    assert request.measurement_id == "request_id"
+    assert result == PublishedMeasurement.from_protobuf(published_measurement)
+
+
+def test___get_condition___calls_data_store_service_client(
+    data_store_client: DataStoreClient,
+    mocked_data_store_service_client: NonCallableMock,
+) -> None:
+    published_condition = PublishedConditionProto(
+        id="condition_id",
+        name="condition_name",
+        condition_type="condition_type",
+        step_id="step_id",
+        test_result_id="test_result_id",
+    )
+    expected_response = GetConditionResponse(published_condition=published_condition)
+    mocked_data_store_service_client.get_condition.return_value = expected_response
+
+    result = data_store_client.get_condition(condition_id="request_id")
+
+    args, __ = mocked_data_store_service_client.get_condition.call_args
+    request = cast(GetConditionRequest, args[0])
+    assert request.condition_id == "request_id"
+    assert result == PublishedCondition.from_protobuf(published_condition)

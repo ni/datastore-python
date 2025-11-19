@@ -14,7 +14,7 @@ def test___query_conditions___filter_by_id___single_condition_returned() -> None
 
         # Publish a single condition
         condition_name = "query filter by id condition"
-        published_condition = data_store_client.publish_condition(
+        published_condition_id = data_store_client.publish_condition(
             name=condition_name,
             condition_type="Upper Limit",
             value=123.45,
@@ -23,7 +23,7 @@ def test___query_conditions___filter_by_id___single_condition_returned() -> None
 
         # Query conditions based on id.
         queried_conditions = data_store_client.query_conditions(
-            odata_query=f"$filter=id eq {published_condition.id}"
+            odata_query=f"$filter=id eq {published_condition_id}"
         )
 
         #  We should get one condition back.

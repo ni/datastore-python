@@ -33,6 +33,8 @@ from ni.measurements.data.v1.client import DataStoreClient as DataStoreServiceCl
 from ni.measurements.data.v1.data_store_service_pb2 import (
     CreateStepRequest,
     CreateTestResultRequest,
+    GetConditionRequest,
+    GetMeasurementRequest,
     GetStepRequest,
     GetTestResultRequest,
     PublishConditionBatchRequest,
@@ -74,7 +76,10 @@ class DataStoreClient:
         "_moniker_clients_lock",
     )
 
-    _DATA_STORE_CLIENT_CLOSED_ERROR = "This DataStoreClient has been closed. Create a new DataStoreClient for further interaction with the data store."
+    _DATA_STORE_CLIENT_CLOSED_ERROR = (
+        "This DataStoreClient has been closed. Create a new DataStoreClient for further "
+        "interaction with the data store."
+    )
 
     _closed: bool
     _discovery_client: DiscoveryClient | None
@@ -148,7 +153,7 @@ class DataStoreClient:
         condition_type: str,
         value: object,
         step_id: str,
-    ) -> PublishedCondition:
+    ) -> str:
         """Publish a condition value to the data store.
 
         Args:
@@ -166,12 +171,8 @@ class DataStoreClient:
                 value is expected to be a parsable GUID.
 
         Returns:
-            PublishedCondition: The published condition containing:
-                - A moniker for retrieving the condition data (returns a
-                  Vector)
-                - The unique ID of the condition for referencing in queries
-                - Metadata including condition name, type, step ID and test
-                  result ID
+            str: The condition id - the unique ID of the condition for
+                referencing in queries
         """
         publish_request = PublishConditionRequest(
             name=name,
@@ -180,11 +181,11 @@ class DataStoreClient:
         )
         populate_publish_condition_request_value(publish_request, value)
         publish_response = self._get_data_store_client().publish_condition(publish_request)
-        return PublishedCondition.from_protobuf(publish_response.published_condition)
+        return publish_response.condition_id
 
     def publish_condition_batch(
         self, name: str, condition_type: str, values: object, step_id: str
-    ) -> PublishedCondition:
+    ) -> str:
         """Publish a batch of N values for a condition to the data store.
 
         Args:
@@ -201,14 +202,8 @@ class DataStoreClient:
                 values. This value is expected to be a parsable GUID.
 
         Returns:
-            PublishedCondition: Represents all the values published with
-                this call, containing:
-
-                - A moniker for retrieving the condition data (returns a
-                  Vector)
-                - The unique ID of the condition for referencing in queries
-                - Metadata including condition name, type, step ID and test
-                  result ID
+            str: The condition id - the unique ID of the condition for
+                referencing in queries
         """
         publish_request = PublishConditionBatchRequest(
             name=name,
@@ -217,7 +212,7 @@ class DataStoreClient:
         )
         populate_publish_condition_batch_request_values(publish_request, values)
         publish_response = self._get_data_store_client().publish_condition_batch(publish_request)
-        return PublishedCondition.from_protobuf(publish_response.published_condition)
+        return publish_response.condition_id
 
     def publish_measurement(
         self,
@@ -231,7 +226,7 @@ class DataStoreClient:
         test_adapter_ids: Iterable[str] = tuple(),
         software_item_ids: Iterable[str] = tuple(),
         notes: str = "",
-    ) -> PublishedMeasurement:
+    ) -> str:
         """Publish a single measurement value associated with a test step.
 
         Args:
@@ -279,12 +274,7 @@ class DataStoreClient:
             notes: Any notes to be associated with the captured measurement.
 
         Returns:
-            PublishedMeasurement: The moniker of the published measurement and
-                its metadata, including:
-                - A moniker for retrieving the measurement data
-                - Associated conditions from the test step
-                - Measurement metadata (name, type, timestamps, outcome)
-                - Associated hardware, software, and test adapter IDs
+            str: The published measurement id.
         """
         publish_request = PublishMeasurementRequest(
             name=name,
@@ -303,7 +293,7 @@ class DataStoreClient:
             get_publish_measurement_timestamp(publish_request, timestamp)
         )
         publish_response = self._get_data_store_client().publish_measurement(publish_request)
-        return PublishedMeasurement.from_protobuf(publish_response.published_measurement)
+        return publish_response.measurement_id
 
     def publish_measurement_batch(
         self,
@@ -317,7 +307,7 @@ class DataStoreClient:
         test_adapter_ids: Iterable[str] = tuple(),
         software_item_ids: Iterable[str] = tuple(),
         notes: str = "",
-    ) -> Sequence[PublishedMeasurement]:
+    ) -> Sequence[str]:
         """Publish multiple scalar measurements at once for parametric sweeps.
 
         Args:
@@ -362,10 +352,9 @@ class DataStoreClient:
             notes: Any notes to be associated with the published measurements.
 
         Returns:
-            Sequence[PublishedMeasurement]: The monikers of the published
-                measurements and their corresponding metadata. NOTE: Using
-                a Sequence is for future flexibility. This sequence
-                will currently always have a single PublishedMeasurement
+            Sequence[str]: The ids of the published measurement ids.
+                NOTE: Using a Sequence is for future flexibility.
+                This sequence will currently always have a single measurement id
                 returned.
         """
         publish_request = PublishMeasurementBatchRequest(
@@ -383,9 +372,7 @@ class DataStoreClient:
         )
         populate_publish_measurement_batch_request_values(publish_request, values)
         publish_response = self._get_data_store_client().publish_measurement_batch(publish_request)
-        return [
-            PublishedMeasurement.from_protobuf(pm) for pm in publish_response.published_measurements
-        ]
+        return publish_response.measurement_ids
 
     @overload
     def read_data(
@@ -483,6 +470,32 @@ class DataStoreClient:
         get_request = GetStepRequest(step_id=step_id)
         get_response = self._get_data_store_client().get_step(get_request)
         return Step.from_protobuf(get_response.step)
+
+    def get_measurement(self, measurement_id: str) -> PublishedMeasurement:
+        """Get the measurement associated with the given identifier.
+
+        Args:
+            measurement_id: The identifier of the desired measurement.
+
+        Returns:
+            PublishedMeasurement: The metadata of the requested measurement.
+        """
+        get_request = GetMeasurementRequest(measurement_id=measurement_id)
+        get_response = self._get_data_store_client().get_measurement(get_request)
+        return PublishedMeasurement.from_protobuf(get_response.published_measurement)
+
+    def get_condition(self, condition_id: str) -> PublishedCondition:
+        """Get the condition associated with the given identifier.
+
+        Args:
+            condition_id: The identifier of the desired condition.
+
+        Returns:
+            PublishedCondition: The metadata of the requested condition.
+        """
+        get_request = GetConditionRequest(condition_id=condition_id)
+        get_response = self._get_data_store_client().get_condition(get_request)
+        return PublishedCondition.from_protobuf(get_response.published_condition)
 
     def create_test_result(self, test_result: TestResult) -> str:
         """Create a test result object for publishing measurements.

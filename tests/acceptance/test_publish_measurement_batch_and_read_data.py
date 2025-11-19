@@ -20,13 +20,16 @@ def test___publish_float___read_data_returns_vector() -> None:
         # Publish the waveform data
         step = Step(name="Initial step", test_result_id=test_result_id)
         step_id = data_store_client.create_step(step)
-        published_measurements = data_store_client.publish_measurement_batch(
+        published_measurement_ids = data_store_client.publish_measurement_batch(
             name="python batch publish float",
             values=[1.0, 2.0, 3.0, 4.0],
             step_id=step_id,
         )
-        published_measurement = next(iter(published_measurements), None)
-        assert published_measurement is not None
+        published_measurement_id = next(iter(published_measurement_ids), None)
+        assert published_measurement_id is not None and published_measurement_id != ""
+
+        # Get the published measurement object to read data from it
+        published_measurement = data_store_client.get_measurement(published_measurement_id)
 
         # A published batch floats will be read back as a Vector.
         vector = data_store_client.read_data(published_measurement, expected_type=Vector)
@@ -47,13 +50,16 @@ def test___publish_batch_vector___read_data_returns_vector() -> None:
         # Batch publish the vector
         step = Step(name="Initial step", test_result_id=test_result_id)
         step_id = data_store_client.create_step(step)
-        published_measurements = data_store_client.publish_measurement_batch(
+        published_measurement_ids = data_store_client.publish_measurement_batch(
             name="python publish scalar",
             values=expected_vector,
             step_id=step_id,
         )
-        published_measurement = next(iter(published_measurements), None)
-        assert published_measurement is not None
+        published_measurement_id = next(iter(published_measurement_ids), None)
+        assert published_measurement_id is not None and published_measurement_id != ""
+
+        # Get the published measurement object to read data from it
+        published_measurement = data_store_client.get_measurement(published_measurement_id)
 
         # A batch published Vector will be read back as a Vector.
         vector = data_store_client.read_data(published_measurement, expected_type=Vector)
