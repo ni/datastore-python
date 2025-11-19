@@ -102,7 +102,7 @@ files = "."
 namespace_packages = true
 strict = true
 explicit_package_bases = true
-exclude = ["docs", "examples"]
+exclude = ["docs", "examples", "utilities"]
 
 [tool.pyright]
 include = ["src/", "tests/"]
