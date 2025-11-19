@@ -41,8 +41,6 @@ class DataStoreContext:
         self.initialize()
         return self
 
-
-
     def __exit__(
         self,
         exc_type: type[BaseException] | None,
