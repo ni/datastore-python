@@ -23,7 +23,7 @@ jobs:
     uses: ./.github/workflows/check_docs.yml
   checks_succeeded:
       name: Checks succeeded
-      needs: [check_analyzers, check_examples, check_docs]
+      needs: [check_analyzers, check_examples, check_utilities, check_docs]
       runs-on: ubuntu-latest
       steps:
         - run: exit 0
