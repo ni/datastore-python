@@ -81,7 +81,7 @@ class Step:
             start_date_time: The start date and time of the step execution.
             end_date_time: The end date and time of the step execution.
             link: Optional link to external resources for this step.
-            extension: Additional custom metadata as key-value pairs.
+            extension: Additional extension attributes as key-value pairs.
             schema_id: ID of the extension schema for validating extensions.
             error_information: Error or exception information in case of
                 step failure.
