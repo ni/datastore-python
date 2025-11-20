@@ -90,7 +90,7 @@ skips = [
 ]
 
 [tool.ni-python-styleguide]
-extend_exclude = "docs,examples"
+extend_exclude = "docs,examples,utilities"
 
 [tool.black]
 extend-exclude = 'docs/|examples/|_pb2(_grpc)?\.(py|pyi)$'
