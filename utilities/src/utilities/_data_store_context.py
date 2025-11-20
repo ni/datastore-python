@@ -42,9 +42,13 @@ class DataStoreContext:
         return self
 
     def __exit__(
+            
+
+
         self,
         exc_type: type[BaseException] | None,
         exc_val: BaseException | None,
+
         traceback: TracebackType | None,
     ) -> None:
         """Exit the data store context."""
