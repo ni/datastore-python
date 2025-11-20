@@ -24,7 +24,7 @@ DEFAULT_FOLDER_NAME = "temp_data"
 class DataStoreContext:
     """A context manager for running a data store in an isolated environment."""
 
-    __slots__ = "_base_directory_path"
+    __slots__ = "_base_directory_path", "_original_environment"
 
     def __init__(self, base_directory_path: Path | None = None) -> None:
         """Initialize the DataStoreContext.
@@ -35,6 +35,7 @@ class DataStoreContext:
             in the repository directory will be used.
         """
         self._base_directory_path = base_directory_path
+        self._original_environment = {}
 
     def __enter__(self) -> Self:
         """Enter the data store context."""
@@ -56,11 +57,24 @@ class DataStoreContext:
 
     def close(self) -> None:
         """Cleans up the data store context by resetting environment variables."""
-        self._reset_environment()
+        self._restore_environment()
 
     def _initialize_environment(self) -> None:
+        self._save_original_environment()
         self._initialize_cluster_id()
         self._initialize_data_store_paths()
+
+    def _save_original_environment(self) -> None:
+        # Save the original values (or None if not set)
+        for environment_variable in [
+            DISCOVERY_SERVICE_CLUSTER_ID_ENV_VAR,
+            DATA_STORE_DATABASE_PATH_ENV_VAR,
+            DATA_STORE_DATA_FILES_DIRECTORY_PATH_ENV_VAR,
+            DATA_STORE_INGEST_DIRECTORY_PATH_ENV_VAR,
+            DATA_STORE_FAILED_INGEST_DIRECTORY_PATH_ENV_VAR,
+            DATA_STORE_TDMS_EXPIRATION_SECONDS_ENV_NAME,
+        ]:
+            self._original_environment[environment_variable] = os.environ.get(environment_variable)
 
     def _initialize_cluster_id(self) -> None:
         cluster_id = self._get_cluster_id()
@@ -98,14 +112,12 @@ class DataStoreContext:
         repo_root = Path(__file__).resolve().parents[3]
         return repo_root / DEFAULT_FOLDER_NAME
 
-    def _reset_environment(self) -> None:
-        for env_var in [
-            DISCOVERY_SERVICE_CLUSTER_ID_ENV_VAR,
-            DATA_STORE_DATABASE_PATH_ENV_VAR,
-            DATA_STORE_DATA_FILES_DIRECTORY_PATH_ENV_VAR,
-            DATA_STORE_INGEST_DIRECTORY_PATH_ENV_VAR,
-            DATA_STORE_FAILED_INGEST_DIRECTORY_PATH_ENV_VAR,
-            DATA_STORE_TDMS_EXPIRATION_SECONDS_ENV_NAME,
-        ]:
-            if env_var in os.environ:
-                del os.environ[env_var]
+    def _restore_environment(self) -> None:
+        for environment_variable, original_value in self._original_environment.items():
+            if original_value is None:
+                # The environment variable was not originally set; remove it
+                if environment_variable in os.environ:
+                    del os.environ[environment_variable]
+            else:
+                # Restore the original value
+                os.environ[environment_variable] = original_value
