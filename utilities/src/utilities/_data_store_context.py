@@ -35,7 +35,7 @@ class DataStoreContext:
             in the repository directory will be used.
         """
         self._base_directory_path = base_directory_path
-        self._original_environment = {}
+        self._original_environment: dict[str, str | None] = {}
 
     def __enter__(self) -> Self:
         """Enter the data store context."""
