@@ -714,7 +714,7 @@ toml = ["tomli ; python_full_version <= \"3.11.0a6\""]
 
 [[package]]
 name = "datastore-utilities"
-version = "0.1.0-dev0"
+version = "0.1.0.dev0"
 description = "Development utilities for datastore-python"
 optional = false
 python-versions = "^3.10"

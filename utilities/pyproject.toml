@@ -1,6 +1,6 @@
 [project]
 name = "datastore_utilities"
-version = "0.1.0-dev0"
+version = "0.1.0.dev0"
 license = "MIT"
 description = "Development utilities for datastore-python"
 maintainers = [

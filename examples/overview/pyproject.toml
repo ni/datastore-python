@@ -1,6 +1,6 @@
 [project]
 name = "overview_example"
-version = "0.1.0-dev0"
+version = "0.1.0.dev0"
 license = "MIT"
 description = "Overview of how to use the NI Measurement Data Store APIs for publishing and reading data"
 maintainers = [
