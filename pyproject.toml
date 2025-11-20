@@ -1,6 +1,6 @@
 [project]
 name = "ni.datastore"
-version = "0.1.0.dev6"
+version = "0.1.0.dev7"
 license = "MIT"
 description = "APIs for publishing and retrieving data from NI Measurement Data Services"
 authors = [{name = "NI", email = "opensource@ni.com"}]
