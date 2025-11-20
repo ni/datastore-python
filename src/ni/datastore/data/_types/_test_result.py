@@ -104,7 +104,7 @@ class TestResult:
             outcome: The outcome of the test execution (PASSED, FAILED,
                 INDETERMINATE, or UNSPECIFIED).
             link: Optional link to external resources for this test result.
-            extension: Additional custom metadata as key-value pairs.
+            extension: Additional extension attributes as key-value pairs.
             schema_id: ID of the extension schema for validating extensions.
             error_information: Error or exception information in case of
                 test result failure.

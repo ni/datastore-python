@@ -29,7 +29,7 @@ Additional examples for various use cases:
 
 * `publish_measurement.ipynb <https://github.com/ni/datastore-python/blob/main/examples/notebooks/overview/publish_measurement.ipynb>`_ - Basic measurement publishing
 * `alias.ipynb <https://github.com/ni/datastore-python/blob/main/examples/notebooks/alias/alias.ipynb>`_ - Working with aliases
-* `custom_metadata.ipynb <https://github.com/ni/datastore-python/blob/main/examples/notebooks/custom-metadata/custom_metadata.ipynb>`_ - Custom metadata examples
+* `extension_attributes.ipynb <https://github.com/ni/datastore-python/blob/main/examples/notebooks/extension-attributes/extension_attributes.ipynb>`_ - Extension attributes examples
 * `publish_waveforms.ipynb <https://github.com/ni/datastore-python/blob/main/examples/notebooks/voltage-regulator/publish_waveforms.ipynb>`_ - Publishing waveform data
 
 Getting Started with Notebooks
