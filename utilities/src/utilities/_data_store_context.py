@@ -12,11 +12,11 @@ else:
 DISCOVERY_SERVICE_CLUSTER_ID_ENV_VAR = "NIDiscovery_ClusterId"
 
 # Environment variables controlling files created or used by the Data Store service
-DATA_STORE_DATABASE_PATH_ENV_VAR = "DataStoreSettings__SqliteDatabasePath"
-DATA_STORE_DATA_FILES_DIRECTORY_PATH_ENV_VAR = "DataStoreSettings__DataFilesDirectory"
-DATA_STORE_INGEST_DIRECTORY_PATH_ENV_VAR = "DataStoreSettings__IngestDirectory"
-DATA_STORE_FAILED_INGEST_DIRECTORY_PATH_ENV_VAR = "DataStoreSettings__FailedIngestDirectory"
-DATA_STORE_TDMS_EXPIRATION_SECONDS_ENV_NAME = "DataStoreSettings__TdmsFileCacheExpirationSeconds"
+DATA_STORE_DATABASE_PATH_ENV_VAR = "NIDataStore_DataStoreSettings__SqliteDatabasePath"
+DATA_STORE_DATA_FILES_DIRECTORY_PATH_ENV_VAR = "NIDataStore_DataStoreSettings__DataFilesDirectory"
+DATA_STORE_INGEST_DIRECTORY_PATH_ENV_VAR = "NIDataStore_DataStoreSettings__IngestDirectory"
+DATA_STORE_FAILED_INGEST_DIRECTORY_PATH_ENV_VAR = "NIDataStore_DataStoreSettings__FailedIngestDirectory"
+DATA_STORE_TDMS_EXPIRATION_SECONDS_ENV_NAME = "NIDataStore_DataStoreSettings__TdmsFileCacheExpirationSeconds"
 
 DEFAULT_FOLDER_NAME = "temp_data"
 
