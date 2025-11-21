@@ -2319,14 +2319,14 @@ traceloggingdynamic = {version = ">=1.0", markers = "sys_platform == \"win32\""}
 
 [[package]]
 name = "ni-measurementlink-discovery-v1-client"
-version = "1.0.0"
+version = "1.1.0.dev0"
 description = "gRPC Client for NI Discovery Service"
 optional = false
-python-versions = "<4.0,>=3.9"
+python-versions = "<4.0,>=3.10"
 groups = ["main"]
 files = [
-    {file = "ni_measurementlink_discovery_v1_client-1.0.0-py3-none-any.whl", hash = "sha256:6a4c45d2517a7c6017a3b7dd817a6d7ebc8ebec318243c4f17778115a1a192a6"},
-    {file = "ni_measurementlink_discovery_v1_client-1.0.0.tar.gz", hash = "sha256:2aa2a0c55f6599ffa3ff05e67e6ff89360f22bf0082e512348a41997ddfde3f8"},
+    {file = "ni_measurementlink_discovery_v1_client-1.1.0.dev0-py3-none-any.whl", hash = "sha256:2ed52650223f7cf624559515de84a72ea7679a176702c1811462b5273ab9465a"},
+    {file = "ni_measurementlink_discovery_v1_client-1.1.0.dev0.tar.gz", hash = "sha256:d1063173561e1e014c5429ac47c51342dd1f0e1f0d06e46273a8df16cdc13511"},
 ]
 
 [package.dependencies]
@@ -2352,18 +2352,18 @@ protobuf = ">=4.21"
 
 [[package]]
 name = "ni-measurements-data-v1-client"
-version = "0.2.0.dev4"
+version = "0.2.0.dev5"
 description = "gRPC Client for NI Data Store Service"
 optional = false
 python-versions = "<4.0,>=3.10"
 groups = ["main"]
 files = [
-    {file = "ni_measurements_data_v1_client-0.2.0.dev4-py3-none-any.whl", hash = "sha256:e0c5c8e34a77be7e148bd7ce3a898ca87d98497e72c9483278ee9ade5d4b8b7d"},
-    {file = "ni_measurements_data_v1_client-0.2.0.dev4.tar.gz", hash = "sha256:e31631edd75618f7f64651e02b2883691190ad608cfa14be7d15748f40b0a592"},
+    {file = "ni_measurements_data_v1_client-0.2.0.dev5-py3-none-any.whl", hash = "sha256:7c9b074df2b17e1d760504883ff219525850e146eed226ece6faa2e250102296"},
+    {file = "ni_measurements_data_v1_client-0.2.0.dev5.tar.gz", hash = "sha256:36be19fa49b38f67796e2cebca6ff82ad3ee9960455bc2a57553d811881d8f7e"},
 ]
 
 [package.dependencies]
-ni-measurementlink-discovery-v1-client = ">=0.1.0.dev0"
+ni-measurementlink-discovery-v1-client = ">=1.1.0.dev0"
 ni-measurements-data-v1-proto = ">=0.1.0.dev7"
 
 [[package]]
@@ -2386,18 +2386,18 @@ protobuf = ">=4.21"
 
 [[package]]
 name = "ni-measurements-metadata-v1-client"
-version = "0.2.0.dev2"
+version = "0.2.0.dev3"
 description = "gRPC Client for NI Metadata Store Service"
 optional = false
 python-versions = "<4.0,>=3.10"
 groups = ["main"]
 files = [
-    {file = "ni_measurements_metadata_v1_client-0.2.0.dev2-py3-none-any.whl", hash = "sha256:20e1494e63d9f0f42dfba249e9f242935c75afc8a24721bf8e124d4b06667b51"},
-    {file = "ni_measurements_metadata_v1_client-0.2.0.dev2.tar.gz", hash = "sha256:33f004bef74d10fef0c16382263c1863ee160650f14e146654bccda62313c97e"},
+    {file = "ni_measurements_metadata_v1_client-0.2.0.dev3-py3-none-any.whl", hash = "sha256:df00a33f6da6d2c1c862affe5acaa47a32050c9ffab06a72db4fd86ea89d0671"},
+    {file = "ni_measurements_metadata_v1_client-0.2.0.dev3.tar.gz", hash = "sha256:5865744afa639a0a74fe50493a48493ae4b5a2f79aea60dbde9143cb7f2059fc"},
 ]
 
 [package.dependencies]
-ni-measurementlink-discovery-v1-client = ">=0.1.0.dev0"
+ni-measurementlink-discovery-v1-client = ">=1.1.0.dev0"
 ni-measurements-metadata-v1-proto = ">=0.1.0.dev5"
 
 [[package]]
@@ -4355,4 +4355,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10"
-content-hash = "56a34ca63719ad9f268e2f8c2f72eefdcaa9bcb60eee47ff464519e74147c8d9"
+content-hash = "b38353d58e79281631635dab69294267311b708a8eea134d01c268667ab39286"
