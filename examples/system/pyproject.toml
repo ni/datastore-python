@@ -46,6 +46,7 @@ nisyscfg = { version = ">=0.2.1", allow-prereleases = true }
 
 [tool.poetry.group.dev.dependencies]
 ni-datastore = {path = "../..", develop = true}
+datastore-utilities = { path = "../../utilities", develop = true }
 
 [tool.poetry.group.lint.dependencies]
 ni-python-styleguide = ">=0.4.1"

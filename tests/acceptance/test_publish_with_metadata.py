@@ -25,9 +25,12 @@ from ni.datastore.metadata import (
     UutInstance,
 )
 from nitypes.waveform import AnalogWaveform
+from utilities import DataStoreContext
 
 
-def test___waveform_with_all_metadata___publish___query_read_returns_correct_data() -> None:
+def test___waveform_with_all_metadata___publish___query_read_returns_correct_data(
+    acceptance_test_context: DataStoreContext,
+) -> None:
     with MetadataStoreClient() as metadata_store_client, DataStoreClient() as data_store_client:
         # Load the extensions schema
         current_directory = os.path.dirname(os.path.abspath(__file__))

@@ -81,6 +81,20 @@ files = [
 ]
 
 [[package]]
+name = "datastore-utilities"
+version = "0.1.0-dev0"
+description = "Development utilities for datastore-python"
+optional = false
+python-versions = "^3.10"
+groups = ["dev"]
+files = []
+develop = true
+
+[package.source]
+type = "directory"
+url = "../../utilities"
+
+[[package]]
 name = "flake8"
 version = "5.0.4"
 description = "the modular source code checker: pep8 pyflakes and co"
@@ -1088,4 +1102,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<4.0"
-content-hash = "86fed423a982bff70de2b8cef7f6824f08cc1e31d0b2049d55587623f8e6f33d"
+content-hash = "4de2868f695b4b25eef64b9250425c24082e6ad423e8c566a2bcd7b3cdb931d9"

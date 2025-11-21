@@ -18,12 +18,16 @@ from ni.datastore.metadata import (
     UutInstance,
 )
 from nitypes.waveform import AnalogWaveform, Timing
+from utilities import DataStoreContext
 
 
 def main() -> None:
     """Main function to demonstrate data publishing and querying."""
-    published_measurement_id = publish_data()
-    query_data(published_measurement_id)
+    # The DataStoreContext sets up and tears down the example environment.
+    # It is not used in production code.
+    with DataStoreContext():
+        published_measurement_id = publish_data()
+        query_data(published_measurement_id)
 
 
 def publish_data() -> str:

@@ -4,6 +4,9 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
 
+# Directory for data generated from running examples and tests
+temp_data/
+
 # Unit tests
 .pytest_cache/
 test_results/

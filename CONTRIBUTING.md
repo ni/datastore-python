@@ -111,9 +111,9 @@ in the `datastore-python` repo. Here are the steps to follow to publish the pack
 
 1. From the main GitHub repo page, select "Create a new release".
 2. On the "New Release" page, create a new tag using the "Select Tag" drop down. The tag must be the package version, matching the
-value found in pyproject.toml. Example: `0.1.0-dev0`.
+value found in pyproject.toml. Example: `0.1.0.dev0`.
 3. Enter a title in the "Release title" field. The title should contain the package name and
-version in the format `ni.datastore <package-version>`. For example: `ni.datastore 0.1.0-dev0`.
+version in the format `ni.datastore <package-version>`. For example: `ni.datastore 0.1.0.dev0`.
 4. Click "Generate release notes" and edit the release notes.
   - Delete entries for PRs that do not affect users, such as "chore(deps):" and "fix(deps):" PRs.
   - Consider grouping related entries.
