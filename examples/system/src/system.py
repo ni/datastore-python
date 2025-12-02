@@ -86,7 +86,7 @@ def create_hardware_item(
 
 def create_software_item(software_entry: nisyscfg.component_info.ComponentInfo) -> SoftwareItem:
     """Create a new SoftwareItem instance from the specified nisyscfg entry."""
-    new_instance = SoftwareItem(product=software_entry.id, version=software_entry.version)
+    new_instance = SoftwareItem(product=software_entry.title, version=software_entry.version)
     return new_instance
 
 
