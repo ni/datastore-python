@@ -3,10 +3,10 @@ name = "ni.datastore"
 version = "0.1.0.dev6"
 license = "MIT"
 description = "APIs for publishing and retrieving data from NI Measurement Data Services"
-authors = [{name = "NI", email = "opensource@ni.com"}]
+authors = [{ name = "NI", email = "opensource@ni.com" }]
 maintainers = [
-  {name = "Johann Scholtz", email = "johann.scholtz@emerson.com"},
-  {name = "Joel Dixon", email = "joel.dixon@emerson.com"}
+  { name = "Johann Scholtz", email = "johann.scholtz@emerson.com" },
+  { name = "Joel Dixon", email = "joel.dixon@emerson.com" },
 ]
 readme = "README.md"
 repository = "https://github.com/ni/datastore-python"
@@ -31,12 +31,12 @@ dynamic = ["dependencies"]
 requires-python = '>=3.10,<4.0'
 
 [tool.poetry]
-packages = [{include = "ni", from = "src"}]
+packages = [{ include = "ni", from = "src" }]
 requires-poetry = '>=2.1,<3.0'
 
 [tool.poetry.dependencies]
 python = "^3.10"
-protobuf = {version=">=4.21"}
+protobuf = { version = ">=4.21" }
 ni-datamonikers-v1-client = { version = ">=0.1.0.dev1", allow-prereleases = true }
 ni-measurements-data-v1-client = { version = ">=0.2.0.dev4", allow-prereleases = true }
 ni-measurements-metadata-v1-client = { version = ">=0.2.0.dev2", allow-prereleases = true }
@@ -106,7 +106,13 @@ exclude = ["docs", "examples"]
 
 [tool.pyright]
 include = ["src/", "tests/"]
-exclude = ["**/*_pb2_grpc.py", "**/*_pb2_grpc.pyi", "**/*_pb2.py", "**/*_pb2.pyi", "src/ni/measurements/data/v1/**/__init__.py*"]
+exclude = [
+  "**/*_pb2_grpc.py",
+  "**/*_pb2_grpc.pyi",
+  "**/*_pb2.py",
+  "**/*_pb2.pyi",
+  "src/ni/measurements/data/v1/**/__init__.py*",
+]
 
 [tool.pytest.ini_options]
 addopts = "--doctest-modules --doctest-plus --strict-markers"

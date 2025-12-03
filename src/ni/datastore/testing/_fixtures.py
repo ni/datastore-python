@@ -14,6 +14,7 @@ import grpc
 import pytest
 import pytest_check as check
 
+from ni.datastore._auth import AuthGrpcChannelPool
 from ni.datastore.data import DataStoreClient, Outcome, TestResult
 from ni.datastore.metadata import MetadataStoreClient, Operator, TestStation
 
@@ -460,6 +461,15 @@ def log(request: pytest.FixtureRequest) -> Generator[DigitalThreadPublisher, Non
     Environment Variables:
         NIGEL_SERVICES_HOST: The hostname or IP address of the service
         NIGEL_SERVICES_PORT: The port number of the service
+        NIGEL_SERVICES_AUTH_PORT: Port for the auth daemon (Linux/Mac only)
+        NIGEL_SERVICES_JWT_TOKEN: Optional JWT token override for testing
+
+    Note:
+        On Windows, JWT tokens are automatically obtained from the nigel
+        authentication daemon via the discovery service. On Linux/Mac, the
+        daemon port must be specified via NIGEL_SERVICES_AUTH_PORT.
+        For testing purposes, NIGEL_SERVICES_JWT_TOKEN can be set to bypass
+        the auth daemon and use a specific token.
 
     Example:
         def test_publish_measurement(publisher):
@@ -471,11 +481,14 @@ def log(request: pytest.FixtureRequest) -> Generator[DigitalThreadPublisher, Non
 
     channel = None
 
-    # If both host and port are set, create a single gRPC channel for both clients
+    # If both host and port are set, create a channel pool with auth support
+    # JWT token will be obtained automatically from the auth daemon
     if host and port:
-        channel = grpc.insecure_channel(f"{host}:{port}")
-        data_client = DataStoreClient(grpc_channel=channel)
-        metadata_client = MetadataStoreClient(grpc_channel=channel)
+        pool = AuthGrpcChannelPool()
+        channel = pool.get_channel(f"{host}:{port}")
+
+        data_client = DataStoreClient(grpc_channel=channel, grpc_channel_pool=pool)
+        metadata_client = MetadataStoreClient(grpc_channel=channel, grpc_channel_pool=pool)
     else:
         # No parameters - use default discovery for both clients
         data_client = DataStoreClient()
