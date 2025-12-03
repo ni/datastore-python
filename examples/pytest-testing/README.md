@@ -31,8 +31,8 @@ uv sync --prerelease=allow
 Edit `.env` in this directory to configure the Data Store service connection:
 
 ```bash
-NIGEL_SERVICES_HOST=localhost
-NIGEL_SERVICES_PORT=50051
+DATASTORE_HOST=localhost
+DATASTORE_PORT=50051
 ```
 
 ## Running Tests

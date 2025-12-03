@@ -3,7 +3,6 @@ import collections
 import json
 import logging
 import os
-import platform
 import shutil
 import subprocess
 import time
@@ -11,7 +10,6 @@ from pathlib import Path
 from typing import Optional
 
 import grpc
-
 from ni_grpc_extensions.channelpool import GrpcChannelPool
 
 _logger = logging.getLogger(__name__)
@@ -36,14 +34,16 @@ class _ClientCallDetails(
 
 # Create an interceptor that adds the Authorization header
 class _AuthInterceptor(grpc.UnaryUnaryClientInterceptor):
-    def __init__(self, token):
-        self._token = token
+    def __init__(self, token_provider: "JwtTokenProvider"):
+        self._token_provider = token_provider
 
     def _add_auth_metadata(self, client_call_details):
         metadata = []
         if client_call_details.metadata is not None:
             metadata = list(client_call_details.metadata)
-        metadata.append(("authorization", f"Bearer {self._token}"))
+
+        token = self._token_provider.get_token()
+        metadata.append(("authorization", f"Bearer {token}"))
 
         return _ClientCallDetails(
             client_call_details.method,
@@ -75,9 +75,9 @@ class JwtTokenProvider:
     def get_token(self) -> str:
         """Get a JWT token from the nigel authentication daemon.
 
-        First attempts to use the NIGEL_SERVICES_JWT_TOKEN environment variable.
+        First attempts to use the DATASTORE_JWT_TOKEN environment variable.
         Then tries to get the token via the nigel CLI executable.
-        In the future, will use gRPC to communicate with the auth daemon directly.
+        In the future, we should use gRPC to communicate with the auth daemon directly.
 
         Returns:
             The JWT token string.
@@ -86,16 +86,16 @@ class JwtTokenProvider:
             RuntimeError: If unable to obtain the JWT token.
         """
         # Check for environment variable override first (for testing)
-        env_token = os.environ.get("NIGEL_SERVICES_JWT_TOKEN")
+        env_token = os.environ.get("DATASTORE_JWT_TOKEN")
         if env_token:
-            _logger.debug("Using JWT token from NIGEL_SERVICES_JWT_TOKEN environment variable")
+            _logger.debug("Using JWT token from DATASTORE_JWT_TOKEN environment variable")
             return env_token
 
         # Check if we have a cached token that hasn't expired
         if self._cached_token and not self._is_token_expired(self._cached_token):
             _logger.debug("Using cached JWT token")
             return self._cached_token
-        
+
         if self._cached_token:
             _logger.debug("Cached token expired, fetching new token")
 
@@ -110,42 +110,13 @@ class JwtTokenProvider:
                 _logger.warning(f"Failed to get token from nigel CLI: {e}")
                 # Fall through to try gRPC approach
 
-        # TODO: Replace CLI-based approach with gRPC once proto definitions are available
-        # The gRPC approach is preferred for production use as it's more efficient
-        # and doesn't require spawning a subprocess.
-        #
-        # To implement the gRPC approach:
-        #
-        # 1. Add the nigel auth service proto package as a dependency in pyproject.toml
-        #    Example: ni-testhub-auth-v1-client = "^1.0.0"
-        #
-        # 2. Import and use the auth service stubs:
-        #    from ni.testhub.auth.v1 import auth_service_pb2, auth_service_pb2_grpc
-        #
-        # 3. Create the stub and make the gRPC call:
-        #    auth_daemon_address = self._get_auth_daemon_address()
-        #    channel = self._grpc_channel_pool.get_channel(auth_daemon_address)
-        #    stub = auth_service_pb2_grpc.AuthServiceStub(channel)
-        #    request = auth_service_pb2.GetTokenRequest()
-        #    response = stub.GetToken(request)
-        #    self._cached_token = response.token
-        #    return self._cached_token
-        #
-        # 4. Verify the provided_interface and service_class in _resolve_auth_daemon_via_discovery
-        #    match the actual values used by the nigel auth daemon
-        #
-        # For reference, see the daemon documentation at:
-        # https://github.com/ni/testhub/blob/main/src/cli/docs/daemon.md
-
         raise RuntimeError(
             "Unable to obtain JWT token. Tried:\n"
-            "1. NIGEL_SERVICES_JWT_TOKEN environment variable (not set)\n"
-            f"2. nigel CLI executable ({'found' if nigel_path else 'not found'})\n"
-            "3. gRPC auth daemon (not yet implemented)\n\n"
-            "To resolve:\n"
-            "- Set NIGEL_SERVICES_JWT_TOKEN environment variable with a valid token, or\n"
-            "- Install the nigel CLI and ensure it's in your PATH or set NIGEL_CLI_PATH, or\n"
-            "- Contact the development team to add gRPC proto definitions"
+            "1. DATASTORE_JWT_TOKEN environment variable (not set)\n"
+            f"2. nigel CLI executable (not at '{os.environ.get('NIGEL_CLI_PATH')}' or in the PATH)\n"
+            "To resolve, do one of the following:\n"
+            "- Set DATASTORE_JWT_TOKEN environment variable with a valid tokenr\n"
+            "- Install the nigel CLI and ensure it's in your PATH or set NIGEL_CLI_PATH"
         )
 
     @staticmethod
@@ -155,7 +126,6 @@ class JwtTokenProvider:
         Searches for the nigel executable in the following order:
         1. NIGEL_CLI_PATH environment variable (if set)
         2. System PATH
-        3. Platform-specific default installation paths
 
         Returns:
             The full path to the nigel executable, or None if not found.
@@ -173,37 +143,6 @@ class JwtTokenProvider:
         if nigel_in_path:
             _logger.debug(f"Found nigel in PATH: {nigel_in_path}")
             return nigel_in_path
-
-        # Platform-specific default paths
-        system = platform.system()
-        search_paths = []
-
-        if system == "Windows":
-            localappdata = os.environ.get("LOCALAPPDATA", "")
-            if localappdata:
-                search_paths.append(Path(localappdata) / "nigel" / "nigel.exe")
-        elif system == "Linux":
-            home = Path.home()
-            search_paths.extend(
-                [
-                    home / ".local" / "bin" / "nigel",
-                    home / "bin" / "nigel",
-                    home / "opt" / "nigel" / "bin" / "nigel",
-                ]
-            )
-        elif system == "Darwin":  # macOS
-            search_paths.extend(
-                [
-                    Path("/usr/local/bin/nigel"),
-                    Path.home() / ".local" / "bin" / "nigel",
-                ]
-            )
-
-        # Search in platform-specific paths
-        for path in search_paths:
-            if path.exists() and path.is_file():
-                _logger.debug(f"Found nigel at: {path}")
-                return str(path)
 
         _logger.warning("Could not find nigel executable")
         return None
@@ -285,9 +224,11 @@ class JwtTokenProvider:
             # Compare with current time (with buffer)
             current_time = time.time()
             expires_at = exp - buffer_seconds
-            
+
             if current_time >= expires_at:
-                _logger.debug(f"Token expired or expiring soon (exp: {exp}, current: {current_time})")
+                _logger.debug(
+                    f"Token expired or expiring soon (exp: {exp}, current: {current_time})"
+                )
                 return True
 
             return False
@@ -296,147 +237,85 @@ class JwtTokenProvider:
             _logger.warning(f"Error checking token expiration: {e}")
             return True  # Treat any errors as expired for safety
 
-    def _get_auth_daemon_address(self) -> str:
-        """Get the address of the nigel authentication daemon.
-
-        On Windows, uses the discovery service to resolve the daemon.
-        On other platforms, uses the NIGEL_SERVICES_AUTH_PORT environment variable
-        with localhost.
-
-        Returns:
-            The address of the auth daemon (host:port).
-
-        Raises:
-            RuntimeError: If unable to determine the auth daemon address.
-        """
-        system = platform.system()
-
-        if system == "Windows":
-            return self._resolve_auth_daemon_via_discovery()
-        else:
-            # Linux/Mac: Use environment variable
-            port = os.environ.get("NIGEL_SERVICES_AUTH_PORT")
-            if not port:
-                raise RuntimeError(
-                    "NIGEL_SERVICES_AUTH_PORT environment variable not set. "
-                    "This is required on non-Windows platforms."
-                )
-            return f"localhost:{port}"
-
-    def _resolve_auth_daemon_via_discovery(self) -> str:
-        """Resolve the auth daemon address using the discovery service (Windows only).
-
-        Returns:
-            The address of the auth daemon (host:port).
-
-        Raises:
-            RuntimeError: If unable to resolve the auth daemon.
-        """
-        try:
-            from ni.measurementlink.discovery.v1.client import DiscoveryClient
-
-            discovery_client = DiscoveryClient(grpc_channel_pool=self._grpc_channel_pool)
-
-            # Resolve the auth service using discovery
-            # These values should match the nigel auth daemon's registration
-            service_location = discovery_client.resolve_service(
-                provided_interface="ni.nigel.auth.v1.AuthService",
-                service_class="ni.nigel.auth.daemon.v1",
-            )
-
-            # Prefer insecure port for local communication
-            if service_location.insecure_port:
-                return f"{service_location.location}:{service_location.insecure_port}"
-            elif service_location.ssl_authenticated_port:
-                return f"{service_location.location}:{service_location.ssl_authenticated_port}"
-            else:
-                raise RuntimeError("Auth daemon has no available ports")
-
-        except ImportError as e:
-            _logger.error("ni.measurementlink.discovery.v1.client not available")
-            raise RuntimeError(
-                "Discovery client not available. "
-                "Please install ni-measurementlink-discovery-v1-client."
-            ) from e
-        except Exception as e:
-            _logger.error(f"Failed to resolve auth daemon via discovery: {e}")
-            raise RuntimeError(f"Unable to resolve auth daemon address: {e}") from e
-
 
 class AuthGrpcChannelPool(GrpcChannelPool):
     def __init__(self, jwt_token: Optional[str] = None) -> None:
         """Initialize the authenticated gRPC channel pool.
 
+        By default, secure channels (with SSL/TLS) are used for non-local targets.
+        This can be overridden using the DATASTORE_USE_INSECURE_CHANNEL environment
+        variable for private network deployments where TLS is not required.
+
         Args:
             jwt_token: Optional JWT token. If not provided, will be obtained
                 from the nigel authentication daemon when needed.
+
+        Environment Variables:
+            DATASTORE_USE_INSECURE_CHANNEL: Set to 'true', '1', or 'yes' to force
+                insecure channels for all targets. This is useful when connecting
+                to datastore instances on private networks where TLS is not configured.
+                Default: not set (secure channels used for non-local targets).
+
+            DATASTORE_DISABLE_AUTH: Set to 'true', '1', or 'yes' to disable authentication
+                entirely and use GrpcChannelPool instead of AuthGrpcChannelPool.
+                Default: not set (authentication enabled).
+                Note: Authentication is required for secure channels. Only use this with
+                DATASTORE_USE_INSECURE_CHANNEL=true for local/testing scenarios.
         """
         super().__init__()
         self._jwt_token = jwt_token
         self._token_provider: Optional[JwtTokenProvider] = None
-
-    def _get_jwt_token(self) -> str:
-        """Get the JWT token, obtaining it from the auth daemon if needed.
-
-        Returns:
-            The JWT token string.
-        """
-        if self._jwt_token:
-            return self._jwt_token
-
-        if self._token_provider is None:
-            self._token_provider = JwtTokenProvider(grpc_channel_pool=self)
-
-        return self._token_provider.get_token()
 
     def _create_channel(self, target: str) -> grpc.Channel:
         options = [
             ("grpc.max_receive_message_length", -1),
             ("grpc.max_send_message_length", -1),
         ]
-        if self._is_local(target):
+
+        # Check environment variable first for explicit override
+        use_insecure = os.environ.get("DATASTORE_USE_INSECURE_CHANNEL", "").lower() in (
+            "true",
+            "1",
+            "yes",
+        )
+
+        if use_insecure or self._is_local(target):
+            if use_insecure:
+                _logger.info(
+                    f"Using insecure channel for {target} (DATASTORE_USE_INSECURE_CHANNEL is set)"
+                )
+            else:
+                _logger.debug(f"Using insecure channel for local target: {target}")
+
             options.append(("grpc.enable_http_proxy", 0))
             channel = grpc.insecure_channel(target, options)
         else:
+            _logger.debug(f"Using secure channel with SSL for target: {target}")
+
             credentials = grpc.ssl_channel_credentials()
             channel = grpc.secure_channel(target, credentials, options)
 
         # Get JWT token (from parameter or auth daemon)
         try:
-            token = self._get_jwt_token()
-            if token:
-                return grpc.intercept_channel(channel, _AuthInterceptor(token))
+            # Create token provider if we have a static token
+            if self._jwt_token and self._token_provider is None:
+                # Create a simple provider that returns the static token
+                self._token_provider = JwtTokenProvider(grpc_channel_pool=self)
+                self._token_provider._cached_token = self._jwt_token
+
+            token_provider = self._get_token_provider()
+            return grpc.intercept_channel(channel, _AuthInterceptor(token_provider))
         except Exception as e:
             _logger.warning(f"Failed to obtain JWT token, proceeding without auth: {e}")
 
         return channel
 
+    def _get_token_provider(self) -> JwtTokenProvider:
+        """Get the JWT token provider, creating it if needed.
 
-def get_jwt_token(grpc_channel_pool: Optional[GrpcChannelPool] = None) -> str:
-    """Get a JWT token from the nigel authentication daemon.
-
-    This is a convenience function that creates a JwtTokenProvider and retrieves a token.
-
-    On Windows, uses the discovery service to resolve the daemon address.
-    On Linux/Mac, uses the NIGEL_SERVICES_AUTH_PORT environment variable.
-
-    The NIGEL_SERVICES_JWT_TOKEN environment variable can be set to override
-    token retrieval for testing purposes.
-
-    Args:
-        grpc_channel_pool: Optional gRPC channel pool for making requests.
-            If not provided, a new one will be created.
-
-    Returns:
-        The JWT token string.
-
-    Raises:
-        RuntimeError: If unable to obtain the JWT token.
-
-    Example:
-        >>> from ni.datastore._auth import get_jwt_token
-        >>> token = get_jwt_token()
-        >>> print(f"Token: {token[:20]}...")  # Print first 20 chars
-    """
-    provider = JwtTokenProvider(grpc_channel_pool)
-    return provider.get_token()
+        Returns:
+            The JwtTokenProvider instance.
+        """
+        if self._token_provider is None:
+            self._token_provider = JwtTokenProvider(grpc_channel_pool=self)
+        return self._token_provider

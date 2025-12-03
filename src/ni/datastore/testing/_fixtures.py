@@ -13,8 +13,6 @@ from typing import TYPE_CHECKING
 import grpc
 import pytest
 import pytest_check as check
-
-from ni.datastore._auth import AuthGrpcChannelPool
 from ni.datastore.data import DataStoreClient, Outcome, TestResult
 from ni.datastore.metadata import MetadataStoreClient, Operator, TestStation
 
@@ -288,7 +286,7 @@ class DigitalThreadPublisher:
         """
         # Validate type
         if not isinstance(value, float):
-            raise TypeError(f"assert_gt() only supports float type, " f"got {type(value).__name__}")
+            raise TypeError(f"assert_gt() only supports float type, got {type(value).__name__}")
 
         # If name is provided, use it directly
         if name is not None:
@@ -299,7 +297,9 @@ class DigitalThreadPublisher:
 
         # Perform the assertion and determine outcome
         passed = check.greater(
-            value, expected, msg=f"{variable_name} ({value}) is not greater than {expected}"
+            value,
+            expected,
+            msg=f"{variable_name} ({value}) is not greater than {expected}",
         )
         outcome = Outcome.PASSED if passed else Outcome.FAILED
 
@@ -349,7 +349,7 @@ class DigitalThreadPublisher:
         """
         # Validate type
         if not isinstance(value, float):
-            raise TypeError(f"check_lt() only supports float type, " f"got {type(value).__name__}")
+            raise TypeError(f"check_lt() only supports float type, got {type(value).__name__}")
 
         # If name is provided, use it directly
         if name is not None:
@@ -360,7 +360,9 @@ class DigitalThreadPublisher:
 
         # Perform the check and determine outcome
         passed = check.less(
-            value, expected, msg=f"{variable_name} ({value}) is not less than {expected}"
+            value,
+            expected,
+            msg=f"{variable_name} ({value}) is not less than {expected}",
         )
         outcome = Outcome.PASSED if passed else Outcome.FAILED
 
@@ -414,7 +416,7 @@ class DigitalThreadPublisher:
         """
         # Validate types
         if not isinstance(value, float):
-            raise TypeError(f"check_eq() only supports float type, " f"got {type(value).__name__}")
+            raise TypeError(f"check_eq() only supports float type, got {type(value).__name__}")
         if epsilon < 0:
             raise ValueError(f"epsilon must be non-negative, got {epsilon}")
 
@@ -446,7 +448,9 @@ class DigitalThreadPublisher:
 
 
 @pytest.fixture(scope="module")
-def log(request: pytest.FixtureRequest) -> Generator[DigitalThreadPublisher, None, None]:
+def log(
+    request: pytest.FixtureRequest,
+) -> Generator[DigitalThreadPublisher, None, None]:
     """Pytest fixture that provides a DigitalThreadPublisher for testing.
 
     This fixture automatically sets up the test environment by:
@@ -459,16 +463,19 @@ def log(request: pytest.FixtureRequest) -> Generator[DigitalThreadPublisher, Non
     The publisher is yielded for use in tests and properly cleaned up on teardown.
 
     Environment Variables:
-        NIGEL_SERVICES_HOST: The hostname or IP address of the service
-        NIGEL_SERVICES_PORT: The port number of the service
-        NIGEL_SERVICES_AUTH_PORT: Port for the auth daemon (Linux/Mac only)
-        NIGEL_SERVICES_JWT_TOKEN: Optional JWT token override for testing
+        DATASTORE_HOST: The hostname or IP address of the service
+        DATASTORE_PORT: The port number of the service
+        DATASTORE_JWT_TOKEN: Optional JWT token override for testing
+        DATASTORE_USE_INSECURE_CHANNEL: Set to 'true' to force insecure channels
+            for all targets (useful for private network deployments)
+        DATASTORE_DISABLE_AUTH: Set to 'true' to disable authentication entirely
+            and use basic GrpcChannelPool instead of AuthGrpcChannelPool.
+            Note: Should only be used with DATASTORE_USE_INSECURE_CHANNEL=true
+            for local/testing scenarios (secure channels require authentication)
 
     Note:
-        On Windows, JWT tokens are automatically obtained from the nigel
-        authentication daemon via the discovery service. On Linux/Mac, the
-        daemon port must be specified via NIGEL_SERVICES_AUTH_PORT.
-        For testing purposes, NIGEL_SERVICES_JWT_TOKEN can be set to bypass
+        JWT tokens are automatically obtained from the nigel CLI executable.
+        For testing purposes, DATASTORE_JWT_TOKEN can be set to bypass
         the auth daemon and use a specific token.
 
     Example:
@@ -476,15 +483,32 @@ def log(request: pytest.FixtureRequest) -> Generator[DigitalThreadPublisher, Non
             # Publisher already has test_result_id set
             step_id = publisher.data.create_step(...)
     """
-    host = os.environ.get("NIGEL_SERVICES_HOST")
-    port = os.environ.get("NIGEL_SERVICES_PORT")
+    host = os.environ.get("DATASTORE_HOST")
+    port = os.environ.get("DATASTORE_PORT")
 
     channel = None
 
-    # If both host and port are set, create a channel pool with auth support
-    # JWT token will be obtained automatically from the auth daemon
+    # Check if authentication is disabled
+    disable_auth = os.environ.get("DATASTORE_DISABLE_AUTH", "").lower() in (
+        "true",
+        "1",
+        "yes",
+    )
+
+    # If both host and port are set, create a channel pool with optional auth support
+    # JWT token will be obtained automatically from the auth daemon if auth is enabled
     if host and port:
-        pool = AuthGrpcChannelPool()
+        if disable_auth:
+            # Use basic GrpcChannelPool without authentication
+            from ni_grpc_extensions.channelpool import GrpcChannelPool
+
+            pool = GrpcChannelPool()
+        else:
+            # Use authenticated channel pool
+            from ni.datastore._auth import AuthGrpcChannelPool
+
+            pool = AuthGrpcChannelPool()
+
         channel = pool.get_channel(f"{host}:{port}")
 
         data_client = DataStoreClient(grpc_channel=channel, grpc_channel_pool=pool)
