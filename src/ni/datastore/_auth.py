@@ -110,10 +110,12 @@ class JwtTokenProvider:
                 _logger.warning(f"Failed to get token from nigel CLI: {e}")
                 # Fall through to try gRPC approach
 
+        nigel_cli_path = os.environ.get("NIGEL_CLI_PATH")
+        cli_path_message = f" or at '{nigel_cli_path}'" if nigel_cli_path else ""
         raise RuntimeError(
             "Unable to obtain JWT token. Tried:\n"
             "1. DATASTORE_JWT_TOKEN environment variable (not set)\n"
-            f"2. nigel CLI executable (not at '{os.environ.get('NIGEL_CLI_PATH')}' or in the PATH)\n"
+            f"2. nigel CLI executable (not in PATH{cli_path_message})\n"
             "To resolve, do one of the following:\n"
             "- Set DATASTORE_JWT_TOKEN environment variable with a valid tokenr\n"
             "- Install the nigel CLI and ensure it's in your PATH or set NIGEL_CLI_PATH"
