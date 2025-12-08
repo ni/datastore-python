@@ -212,14 +212,14 @@ dev = ["backports.zoneinfo ; python_version < \"3.9\"", "freezegun (>=1.0,<2.0)"
 
 [[package]]
 name = "bandit"
-version = "1.9.1"
+version = "1.9.2"
 description = "Security oriented static analyser for python code."
 optional = false
 python-versions = ">=3.10"
 groups = ["lint"]
 files = [
-    {file = "bandit-1.9.1-py3-none-any.whl", hash = "sha256:0a1f34c04f067ee28985b7854edaa659c9299bd71e1b7e18236e46cccc79720b"},
-    {file = "bandit-1.9.1.tar.gz", hash = "sha256:6dbafd1a51e276e065404f06980d624bad142344daeac3b085121fcfd117b7cf"},
+    {file = "bandit-1.9.2-py3-none-any.whl", hash = "sha256:bda8d68610fc33a6e10b7a8f1d61d92c8f6c004051d5e946406be1fb1b16a868"},
+    {file = "bandit-1.9.2.tar.gz", hash = "sha256:32410415cd93bf9c8b91972159d5cf1e7f063a9146d70345641cd3877de348ce"},
 ]
 
 [package.dependencies]
@@ -3136,14 +3136,14 @@ testing = ["process-tests", "pytest-xdist", "virtualenv"]
 
 [[package]]
 name = "pytest-doctestplus"
-version = "1.5.0"
+version = "1.6.0"
 description = "Pytest plugin with advanced doctest features."
 optional = false
 python-versions = ">=3.9"
 groups = ["test"]
 files = [
-    {file = "pytest_doctestplus-1.5.0-py3-none-any.whl", hash = "sha256:e13e014bab450285b3735de27a1429d4f95bca2efc7a2becd9a863247e91ae4e"},
-    {file = "pytest_doctestplus-1.5.0.tar.gz", hash = "sha256:1bfb9ecf0a5a61452abd4c2a5218450d0ddd125a2c241da9e4f7f8ccf6b779fe"},
+    {file = "pytest_doctestplus-1.6.0-py3-none-any.whl", hash = "sha256:7ea003abfd62a787fee4cae674b0efc77c2fb73518ae60da662dc3b3ec2a47ed"},
+    {file = "pytest_doctestplus-1.6.0.tar.gz", hash = "sha256:f893d68370d19b418d58da0047d36a4feedac7ed28bc236858f484e994f1ac66"},
 ]
 
 [package.dependencies]
