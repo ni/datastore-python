@@ -501,7 +501,7 @@ files = []
 develop = true
 
 [package.dependencies]
-hightime = ">=0.3.0.dev0"
+hightime = ">=1.0.0"
 ni-datamonikers-v1-client = ">=0.1.0.dev1"
 ni-measurements-data-v1-client = ">=0.2.0.dev5"
 ni-measurements-metadata-v1-client = ">=0.2.0.dev3"
