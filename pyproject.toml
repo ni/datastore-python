@@ -9,7 +9,6 @@ maintainers = [
   {name = "Joel Dixon", email = "joel.dixon@emerson.com"}
 ]
 readme = "README.md"
-repository = "https://github.com/ni/datastore-python"
 keywords = ["datastore"]
 classifiers = [
   "Development Status :: 3 - Alpha",
@@ -29,6 +28,10 @@ classifiers = [
 ]
 dynamic = ["dependencies"]
 requires-python = '>=3.10,<4.0'
+
+[project.urls]
+repository = "https://github.com/ni/datastore-python"
+documentation = "https://datastorepython.readthedocs.io/en/latest/"
 
 [tool.poetry]
 packages = [{include = "ni", from = "src"}]
