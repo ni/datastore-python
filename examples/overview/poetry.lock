@@ -780,7 +780,7 @@ files = []
 develop = true
 
 [package.dependencies]
-hightime = ">=0.3.0.dev0"
+hightime = ">=1.0.0"
 ni-datamonikers-v1-client = ">=0.1.0.dev1"
 ni-measurements-data-v1-client = ">=0.2.0.dev5"
 ni-measurements-metadata-v1-client = ">=0.2.0.dev3"
@@ -1510,4 +1510,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10"
-content-hash = "74ecdc2f8d1bc068300e5fa200d671fc81eeead273b457f5c325a3b499112d83"
+content-hash = "806c4c7a73bb3c4e2bc25b6dbbd6a168cbaadcb081098b9315bdcfd68ef614b0"

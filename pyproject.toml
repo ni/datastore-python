@@ -41,7 +41,7 @@ ni-datamonikers-v1-client = { version = ">=0.1.0.dev1", allow-prereleases = true
 ni-measurements-data-v1-client = { version = ">=0.2.0.dev5", allow-prereleases = true }
 ni-measurements-metadata-v1-client = { version = ">=0.2.0.dev3", allow-prereleases = true }
 ni-protobuf-types = { version = ">=1.0.1.dev0", allow-prereleases = true }
-hightime = { version = ">=0.3.0.dev0", allow-prereleases = true }
+hightime = { version = ">=1.0.0" }
 
 [tool.poetry.group.dev.dependencies]
 types-grpcio = ">=1.0"
