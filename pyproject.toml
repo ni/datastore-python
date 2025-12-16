@@ -30,6 +30,10 @@ classifiers = [
 dynamic = ["dependencies"]
 requires-python = '>=3.10,<4.0'
 
+[project.urls]
+repository = "https://github.com/ni/datastore-python"
+documentation = "https://datastorepython.readthedocs.io/en/latest/"
+
 [tool.poetry]
 packages = [{include = "ni", from = "src"}]
 requires-poetry = '>=2.1,<3.0'
