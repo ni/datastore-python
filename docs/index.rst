@@ -1,6 +1,6 @@
-##########################################
-Protobuf Types for NI Data Store gRPC APIs
-##########################################
+#################################
+Measurement Data Store Python API
+#################################
 
 .. include:: intro.inc
 
