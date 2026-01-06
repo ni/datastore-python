@@ -11,7 +11,7 @@ maintainers = [
 readme = "README.md"
 keywords = ["datastore"]
 classifiers = [
-  "Development Status :: 3 - Alpha",
+  "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Developers",
   "Intended Audience :: Manufacturing",
   "Intended Audience :: Science/Research",
