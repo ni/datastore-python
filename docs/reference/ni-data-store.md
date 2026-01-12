@@ -142,7 +142,7 @@ TestResult (Test session for Serial# ABC123)
 
 This hierarchical structure allows you to:
 - **Organize data logically** - Group related measurements by test step
-- **Drill down progressively** - From test sessions → steps → individual measurements
+- **Drill down progressively** - From test results → steps → individual measurements
 - **Track context** - Associate environmental conditions with specific measurements
 - **Enable powerful queries** - Search and filter data at any level of the hierarchy
 - **Maintain traceability** - Link every measurement back to its test context
