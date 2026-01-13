@@ -1,6 +1,6 @@
 [project]
 name = "system_example"
-version = "0.1.0.dev0"
+version = "1.0.0"
 license = "MIT"
 description = "Example demonstrating how to detect, publish, and query system hardware and software resources"
 authors = [{name = "NI", email = "opensource@ni.com"}]
@@ -11,7 +11,7 @@ maintainers = [
 readme = "README.md"
 keywords = ["system", "example"]
 classifiers = [
-  "Development Status :: 3 - Alpha",
+  "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Developers",
   "Intended Audience :: Manufacturing",
   "Intended Audience :: Science/Research",
@@ -42,10 +42,12 @@ requires-poetry = ">=2.1,<3.0"
 include = "src"
 
 [tool.poetry.dependencies]
-nisyscfg = { version = ">=0.2.1", allow-prereleases = true }
+ni-datastore = { version=">=1.0.0" }
+nisyscfg = { version = ">=0.2.1" }
 
 [tool.poetry.group.dev.dependencies]
-ni-datastore = {path = "../..", develop = true}
+# Uncomment to use local ni-datastore code
+# ni-datastore = {path = "../..", develop = true}
 datastore-utilities = { path = "../../utilities", develop = true }
 
 [tool.poetry.group.lint.dependencies]
