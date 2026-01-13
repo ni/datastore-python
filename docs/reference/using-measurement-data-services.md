@@ -405,7 +405,7 @@ data_store_client.publish_measurement_batch(
 # Publish corresponding load conditions
 data_store_client.publish_condition_batch(
     name="Load Current", 
-    type="Test Parameter",
+    condition_type="Test Parameter",
     values=load_currents,
     step_id=load_step_id
 )
