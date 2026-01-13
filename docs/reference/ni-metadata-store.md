@@ -4,7 +4,9 @@ The NI Metadata Store supports the digital thread weaving together measurement r
 
 **Based on:** [`metadata_store.proto`](https://github.com/ni/ni-apis/blob/main/ni/measurements/metadata/v1/metadata_store.proto)
 
-## **Operator**
+## **Core Entities**
+
+### **Operator**
 An **Operator** represents a person who performs tests or operates test equipment. This captures the human element in your test process.
 
 **Fields:**
@@ -12,7 +14,7 @@ An **Operator** represents a person who performs tests or operates test equipmen
 - `name` (string) - The name of the operator
 - `role` (string) - The role of the operator (e.g., "Test Engineer", "Lab Technician")
 - `link` (string) - URI to resource describing the operator
-- `extensions` (dict) - Custom key-value pairs for additional metadata
+- `extension` (dict) - Custom key-value pairs for additional metadata
 - `schema_id` (string) - ID of the schema for extension validation
 
 **Real-world examples**:
@@ -27,10 +29,10 @@ A **Test Station** represents a physical location or setup where testing is perf
 
 **Fields:**
 - `id` (string) - The id of the test station
-- `test_station_name` (string) - The name of the test station
+- `name` (string) - The name of the test station
 - `asset_identifier` (string) - For tracking and inventory purposes
 - `link` (string) - URI to resource describing the test station
-- `extensions` (dict) - Custom key-value pairs for additional metadata
+- `extension` (dict) - Custom key-value pairs for additional metadata
 - `schema_id` (string) - ID of the schema for extension validation
 
 **Real-world examples**:
@@ -51,7 +53,7 @@ A **UUT** represents a product definition or model being tested. This is the "wh
 - `manufacturers` (list of strings) - List of manufacturers of the UUT
 - `part_number` (string) - The part number of the UUT
 - `link` (string) - URI to resource describing the UUT
-- `extensions` (dict) - Custom key-value pairs for additional metadata
+- `extension` (dict) - Custom key-value pairs for additional metadata
 - `schema_id` (string) - ID of the schema for extension validation
 
 **Real-world examples**:
@@ -73,7 +75,7 @@ A **UUT Instance** represents an individual physical device with a unique serial
 - `firmware_version` (string) - Version of the firmware on the UUT instance
 - `hardware_version` (string) - Hardware version of the UUT instance
 - `link` (string) - URI to resource describing the UUT instance
-- `extensions` (dict) - Custom key-value pairs for additional metadata
+- `extension` (dict) - Custom key-value pairs for additional metadata
 - `schema_id` (string) - ID of the schema for extension validation
 
 **Real-world examples**:
@@ -95,7 +97,7 @@ A **Hardware Item** represents test equipment, instruments, or tools used during
 - `asset_identifier` (string) - For tracking and inventory purposes
 - `calibration_due_date` (string) - When calibration expires
 - `link` (string) - URI to resource describing the hardware item
-- `extensions` (dict) - Custom key-value pairs for additional metadata
+- `extension` (dict) - Custom key-value pairs for additional metadata
 - `schema_id` (string) - ID of the schema for extension validation
 
 **Real-world examples**:
@@ -114,7 +116,7 @@ A **Software Item** represents software tools, environments, or versions used du
 - `product` (string) - The software product name (letters, numbers, spaces, hyphens, underscores, parentheses, periods; must begin and end with letter or number)
 - `version` (string) - The version of the software item
 - `link` (string) - URI to resource describing the software item
-- `extensions` (dict) - Custom key-value pairs for additional metadata
+- `extension` (dict) - Custom key-value pairs for additional metadata
 - `schema_id` (string) - ID of the schema for extension validation
 
 **Real-world examples**:
@@ -132,9 +134,9 @@ A **Test Description** represents a defined test procedure or specification for 
 **Fields:**
 - `id` (string) - The id of the test description
 - `uut_id` (string) - The ID of the UUT this test is designed for
-- `test_description_name` (string) - Name of the test description
+- `name` (string) - Name of the test description
 - `link` (string) - URI to resource describing the test description
-- `extensions` (dict) - Custom key-value pairs for additional metadata
+- `extension` (dict) - Custom key-value pairs for additional metadata
 - `schema_id` (string) - ID of the schema for extension validation
 
 **Real-world examples**:
@@ -148,10 +150,10 @@ A **Test** represents an individual test procedure or method. This is more granu
 
 **Fields:**
 - `id` (string) - The id of the test
-- `test_name` (string) - Name of the test
+- `name` (string) - Name of the test
 - `description` (string) - Explanation of what the test does
 - `link` (string) - URI to resource describing the test
-- `extensions` (dict) - Custom key-value pairs for additional metadata
+- `extension` (dict) - Custom key-value pairs for additional metadata
 - `schema_id` (string) - ID of the schema for extension validation
 
 **Real-world examples**:
@@ -173,7 +175,7 @@ A **Test Adapter** represents a test fixture, mechanical setup, or interface use
 - `asset_identifier` (string) - For tracking and inventory purposes
 - `calibration_due_date` (string) - When calibration expires
 - `link` (string) - URI to resource describing the test adapter
-- `extensions` (dict) - Custom key-value pairs for additional metadata
+- `extension` (dict) - Custom key-value pairs for additional metadata
 - `schema_id` (string) - ID of the schema for extension validation
 
 **Real-world examples**:
@@ -269,7 +271,7 @@ hardware_item = HardwareItem(
     manufacturer="NI",
     model="PXIe-5171", 
     serial_number="SCOPE001",
-    extensions={
+    extension={
         "bandwidth": "1 GHz",
         "manufacture_date": "2024-03-15",
         "calibration_certificate": "CAL-2024-001234",
@@ -349,7 +351,7 @@ hardware_item = HardwareItem(
     model="PXIe-5171",
     serial_number="SCOPE001",
     schema_id=schema_id,  # Links to registered schema
-    extensions={
+    extension={
         "bandwidth": "1 GHz",        # Required by schema
         "manufacture_date": "2024-03-15",  # Required by schema
         "asset_tag": "SCOPE-789"     # Optional field
@@ -390,7 +392,7 @@ hardware_item = HardwareItem(
     manufacturer="NI", 
     model="PXIe-4081",
     # schema_id automatically inherited from test_result
-    extensions={
+    extension={
         # Fields validated against inherited schema
     }
 )
