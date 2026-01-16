@@ -21,7 +21,7 @@ A **TestResult** represents a complete test session or test execution run for a 
 - `end_date_time` (timestamp) - When the test execution finished
 - `outcome` (enum) - Overall test result (PASSED, FAILED, INDETERMINATE, UNSPECIFIED)
 - `link` (string) - Optional link to additional resources
-- `extensions` (dict) - Custom key-value pairs for additional metadata
+- `extension` (dict) - Custom key-value pairs for additional metadata
 - `schema_id` (string) - ID of the schema for extension validation
 - `error_information` (ErrorInformation) - Error details if test result failed
 
@@ -36,13 +36,13 @@ A **Step** represents an individual test procedure or operation within a larger 
 - `test_result_id` (string) - ID of the associated TestResult
 - `test_id` (string) - ID of the test definition/specification
 - `name` (string) - Human-readable name for the step
-- `type` (string) - Type/category of the step
+- `step_type` (string) - Type/category of the step
 - `notes` (string) - Additional notes about the step
 - `start_date_time` (timestamp) - When the step started executing
 - `end_date_time` (timestamp) - When the step finished executing
 - `outcome` (enum) - Result of this step (PASSED, FAILED, INDETERMINATE, UNSPECIFIED)
 - `link` (string) - Optional link to additional resources
-- `extensions` (dict) - Custom key-value pairs for additional metadata
+- `extension` (dict) - Custom key-value pairs for additional metadata
 - `schema_id` (string) - ID of the schema for extension validation
 - `error_information` (ErrorInformation) - Error details if step failed
 
@@ -68,7 +68,7 @@ A **PublishedMeasurement** represents actual measurement data captured during a 
 - `hardware_item_ids` (list of strings) - Hardware used to capture this measurement
 - `test_adapter_ids` (list of strings) - Test adapters used to capture this measurement
 - `name` (string) - Name used to group related measurements
-- `data_type` (string) - Type of data (e.g., "Scalar", "AnalogWaveform", "Spectrum")
+- `value_type` (string) - Type of data (e.g., "Scalar", "AnalogWaveform", "Spectrum")
 - `notes` (string) - Additional notes about the measurement
 - `start_date_time` (timestamp) - When measurement capture started
 - `end_date_time` (timestamp) - When measurement capture finished
@@ -77,13 +77,15 @@ A **PublishedMeasurement** represents actual measurement data captured during a 
 - `error_information` (ErrorInformation) - Error details if measurement failed
 
 **Supported Data Types:**
-- **Scalar** - Single numeric values (voltage, current, frequency, etc.)
-- **Vector** - Arrays of numeric values
-- **AnalogWaveform** - Time-domain waveforms (double or int16)
-- **ComplexWaveform** - Complex-valued waveforms (double or int16) 
-- **DigitalWaveform** - Digital/logic waveforms
-- **Spectrum** - Frequency-domain data
-- **XYData** - X-Y paired data sets
+- **Scalar** - Single float, int, str or boolean values
+- **Vector** - Arrays of float, int, str or boolean values
+- **DoubleAnalogWaveform** - Analog waveform with double precision
+- **DoubleXYData** - XY coordinate data with double precision
+- **I16AnalogWaveform** - Analog waveform with 16-bit integer precision
+- **DoubleComplexWaveform** - Complex waveform with double precision
+- **I16ComplexWaveform** - Complex waveform with 16-bit integer precision
+- **DoubleSpectrum** - Frequency spectrum data with double precision
+- **DigitalWaveform** - Digital waveform data
 
 **Real-world examples**:
 - A voltage reading: `3.297V` from a multimeter
@@ -99,7 +101,7 @@ A **PublishedCondition** represents environmental or contextual information that
 - `moniker` (Moniker) - Data location identifier for retrieving the condition value
 - `id` (string) - Unique identifier for this condition
 - `name` (string) - Name of the condition (e.g., "Temperature", "Supply Voltage")
-- `type` (string) - Type/category of the condition (e.g., "Environment", "Input Parameter")
+- `condition_type` (string) - Type/category of the condition (e.g., "Environment", "Input Parameter")
 - `step_id` (string) - ID of the associated Step
 - `test_result_id` (string) - ID of the associated TestResult
 
@@ -113,10 +115,10 @@ A **PublishedCondition** represents environmental or contextual information that
 
 #### **Outcome Enum**
 Represents the result of a test or measurement:
-- `OUTCOME_UNSPECIFIED` (0) - No outcome specified
-- `OUTCOME_PASSED` (1) - Test/measurement passed
-- `OUTCOME_FAILED` (2) - Test/measurement failed  
-- `OUTCOME_INDETERMINATE` (3) - Result is unclear/indeterminate
+- `UNSPECIFIED` - The outcome is not specified or unknown
+- `PASSED` - The measurement or test passed successfully
+- `FAILED` - The measurement or test failed
+- `INDETERMINATE` - The measurement or test result is indeterminate or inconclusive
 
 #### **ErrorInformation**
 Contains error details when operations fail:
@@ -140,7 +142,7 @@ TestResult (Test session for Serial# ABC123)
 
 This hierarchical structure allows you to:
 - **Organize data logically** - Group related measurements by test step
-- **Drill down progressively** - From test sessions → steps → individual measurements
+- **Drill down progressively** - From test results → steps → individual measurements
 - **Track context** - Associate environmental conditions with specific measurements
 - **Enable powerful queries** - Search and filter data at any level of the hierarchy
 - **Maintain traceability** - Link every measurement back to its test context

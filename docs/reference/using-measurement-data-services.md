@@ -20,14 +20,12 @@ Before using the services, import the necessary classes and types:
 
 ```python
 from datetime import datetime
-from ni.datastore.data import DataStoreClient
+from ni.datastore.data import DataStoreClient, TestResult, Step, Outcome
 from ni.datastore.metadata import MetadataStoreClient
-from ni.datastore.data._types import TestResult, Step
-from ni.datastore.metadata._types import (
+from ni.datastore.metadata import (
     Operator, TestStation, HardwareItem, SoftwareItem, 
     Uut, UutInstance, TestDescription, Test, TestAdapter
 )
-from ni.measurements.data.v1.data_store_pb2 import Outcome
 from nitypes.scalar import Scalar
 from nitypes.vector import Vector
 from nitypes.waveform import AnalogWaveform
@@ -50,7 +48,7 @@ sarah = Operator(
     name="Sarah Johnson",
     role="Test Engineer",
     schema_id=schema_id,
-    extensions={
+    extension={
         "department": "Quality Assurance",
         "certification": "Level 2 Test Technician"
     }
@@ -61,7 +59,7 @@ mike_id = metadata_store_client.create_operator(Operator(
     name="Mike Chen", 
     role="Senior Technician",
     schema_id=schema_id,
-    extensions={
+    extension={
         "department": "Manufacturing",
         "specialization": "RF Testing"
     }
@@ -77,7 +75,7 @@ station_a1_id = metadata_store_client.create_test_station(TestStation(
     name="Station_A1",
     asset_identifier="STA-001",
     schema_id=schema_id,
-    extensions={
+    extension={
         "location": "Building A, Floor 1",
         "station_type": "Production Line"
     }
@@ -87,7 +85,7 @@ rf_lab_id = metadata_store_client.create_test_station(TestStation(
     name="RF_Lab_Bench_1",
     asset_identifier="RFL-001", 
     schema_id=schema_id,
-    extensions={
+    extension={
         "location": "R&D Lab, Building B",
         "station_type": "Development"
     }
@@ -106,7 +104,7 @@ dmm = HardwareItem(
     part_number="781061-01",
     calibration_due_date="2025-06-15",
     schema_id=schema_id,
-    extensions={
+    extension={
         "accuracy": "7.5 digits",
         "asset_tag": "NI-DMM-001"
     }
@@ -120,7 +118,7 @@ scope_id = metadata_store_client.create_hardware_item(HardwareItem(
     part_number="783513-01",
     calibration_due_date="2025-08-20",
     schema_id=schema_id,
-    extensions={
+    extension={
         "bandwidth": "1 GHz", 
         "sample_rate": "1.25 GS/s"
     }
@@ -146,7 +144,7 @@ custom_app_id = metadata_store_client.create_software_item(SoftwareItem(
     product="PowerSupply Test Suite",
     version="v2.1.4",
     schema_id=schema_id,
-    extensions={
+    extension={
         "build_date": "2024-09-15",
         "git_commit": "a1b2c3d4"
     }
@@ -166,7 +164,7 @@ power_supply_uut = Uut(
     manufacturers=["ACME Corp"],
     part_number="PS-v2.1-001",
     schema_id=schema_id,
-    extensions={
+    extension={
         "max_output": "24V, 10A",
         "efficiency": ">90%"
     }
@@ -182,7 +180,7 @@ uut_instance_id = metadata_store_client.create_uut_instance(UutInstance(
     serial_number="PS-2024-001456",
     manufacture_date="2024-10-01",
     schema_id=schema_id,
-    extensions={
+    extension={
         "lot_number": "L2024-Q4-001",
         "assembly_line": "Line 3"
     }
@@ -200,7 +198,7 @@ power_test_desc_id = metadata_store_client.create_test_description(TestDescripti
     uut_id=power_supply_uut_id,
     name="Power Supply Validation Suite",
     schema_id=schema_id,
-    extensions={
+    extension={
         "version": "v2.1",
         "compliance": "IEC 62368-1"
     }
@@ -214,7 +212,7 @@ voltage_test_id = metadata_store_client.create_test(Test(
     name="DC Voltage Accuracy Test",
     description="Measures DC voltage accuracy across 5V, 12V, and 24V outputs",
     schema_id=schema_id,
-    extensions={
+    extension={
         "test_limits": "±0.1% of reading",
         "test_duration": "~5 minutes"
     }
@@ -224,7 +222,7 @@ load_test_id = metadata_store_client.create_test(Test(
     name="Load Regulation Test", 
     description="Tests voltage stability under varying load conditions",
     schema_id=schema_id,
-    extensions={
+    extension={
         "load_range": "0% to 100% rated current",
         "regulation_limit": "±0.5%"
     }
@@ -264,20 +262,9 @@ Set up human-readable names for frequently used entities:
 
 ```python
 # Create aliases for easy reference
-metadata_store_client.create_alias(
-    alias_name="Primary_DMM",
-    alias_target=dmm
-)
-
-metadata_store_client.create_alias(
-    alias_name="Lead_Test_Engineer",
-    alias_target=sarah
-)
-
-metadata_store_client.create_alias(
-    alias_name="Current_PowerSupply_Design",
-    alias_target=power_supply_uut
-)
+metadata_store_client.create_alias("Primary_DMM", dmm)
+metadata_store_client.create_alias("Lead_Test_Engineer", sarah)
+metadata_store_client.create_alias("Current_PowerSupply_Design", power_supply_uut)
 ```
 
 ---
@@ -301,7 +288,7 @@ test_result_id = data_store_client.create_test_result(TestResult(
     hardware_item_ids=[dmm_id, scope_id],  # or use aliases
     name="PowerSupply PS-2024-001456 Validation",
     schema_id=schema_id,
-    extensions={
+    extension={
         "test_operator_notes": "First production unit validation",
         "ambient_temperature": "23°C"
     }
@@ -370,10 +357,10 @@ Capture actual measurement data:
 ```python
 # Publish individual measurements
 published_measurement = data_store_client.publish_measurement(
-    measurement_name="5V Output Voltage",
+    name="5V Output Voltage",
     value=5.023,  # Measured 5.023V
     timestamp=datetime.now(),
-    outcome=Outcome.OUTCOME_PASSED,
+    outcome=Outcome.PASSED,
     step_id=voltage_step_id,
     hardware_item_ids=[dmm_id],
     notes="DMM reading at no load"
@@ -390,10 +377,10 @@ waveform_data = AnalogWaveform(
 )
 
 data_store_client.publish_measurement(
-    measurement_name="Output Ripple Waveform",
+    name="Output Ripple Waveform",
     value=waveform_data,
     timestamp=datetime.now(),
-    outcome=Outcome.OUTCOME_PASSED,
+    outcome=Outcome.PASSED,
     step_id=voltage_step_id, 
     hardware_item_ids=[scope_id],
     notes="Ripple measurement at full load"
@@ -407,18 +394,18 @@ load_currents = [0.0, 2.5, 5.0, 7.5, 10.0]  # Load current sweep
 output_voltages = [5.025, 5.023, 5.021, 5.019, 5.018]  # Corresponding voltages
 
 data_store_client.publish_measurement_batch(
-    measurement_name="Load Regulation Sweep",
+    name="Load Regulation Sweep",
     values=output_voltages,
     timestamps=[datetime.now()] * len(output_voltages),
-    outcomes=[Outcome.OUTCOME_PASSED] * len(output_voltages),
+    outcomes=[Outcome.PASSED] * len(output_voltages),
     step_id=load_step_id,
     hardware_item_ids=[dmm_id]
 )
 
 # Publish corresponding load conditions
 data_store_client.publish_condition_batch(
-    condition_name="Load Current", 
-    type="Test Parameter",
+    name="Load Current", 
+    condition_type="Test Parameter",
     values=load_currents,
     step_id=load_step_id
 )
@@ -436,17 +423,17 @@ Use OData queries to find and filter measurement data:
 ```python
 # Find all measurements from a specific test result
 measurements = data_store_client.query_measurements(
-    f"$filter=TestResultId eq {test_result_id}"
+    odata_query=f"$filter=TestResultId eq {test_result_id}"
 )
 
 # Find failed measurements
 failed_measurements = data_store_client.query_measurements(
-    "$filter=Outcome eq 'Failed'"
+    odata_query="$filter=Outcome eq 'Failed'"
 )
 
 # Find measurements by name
 voltage_measurements = data_store_client.query_measurements(
-    "$filter=contains(name, 'Voltage')"
+    odata_query="$filter=contains(name, 'Voltage')"
 )
 ```
 
@@ -454,17 +441,17 @@ voltage_measurements = data_store_client.query_measurements(
 ```python
 # Find measurements from specific equipment that failed
 equipment_failures = data_store_client.query_measurements(
-    f"$filter=outcome eq 'Failed' and contains(HardwareItemIds, {dmm_id})"
+    odata_query=f"$filter=outcome eq 'Failed' and contains(HardwareItemIds, {dmm_id})"
 )
 
 # Find recent measurements
 recent_measurements = data_store_client.query_measurements(
-    "$filter=StartTime gt 2024-10-01T00:00:00Z&$orderby=StartTime"
+    odata_query="$filter=StartTime gt 2024-10-01T00:00:00Z&$orderby=StartTime"
 )
 
 # Find measurements from specific operator
 operator_measurements = data_store_client.query_measurements(
-    f"$filter=TestResultId eq {test_result_id} and OperatorId eq {sarah_id}"
+    odata_query=f"$filter=TestResultId eq {test_result_id} and OperatorId eq {sarah_id}"
 )
 ```
 
@@ -475,13 +462,13 @@ Analyze test metadata to understand patterns:
 #### **Test Results Analysis**
 ```python
 # Find all steps for a particular test results
-test_results = data_store_client.query_steps(
-    f"$filter=TestResultId eq {test_result_id}"
+test_steps = data_store_client.query_steps(
+    odata_query=f"$filter=TestResultId eq {test_result_id}"
 )
 
 # Find operator named 'Sarah Johnson'
 sarah_tests = metadata_store_client.query_operators(
-    "$filter=Name eq 'Sarah Johnson'"
+    odata_query="$filter=Name eq 'Sarah Johnson'"
 )
 ```
 
@@ -489,7 +476,7 @@ sarah_tests = metadata_store_client.query_operators(
 ```python
 # Find measurements using specific equipment
 equipment_usage = data_store_client.query_measurements(
-    f"$filter=HardwareItems/any(h: h/Id eq {scope_id})"
+    odata_query=f"$filter=HardwareItems/any(h: h/Id eq {scope_id})"
 )
 ```
 
@@ -532,9 +519,9 @@ for measurement in measurements:
         for hw_id in measurement.hardware_item_ids
     ]
     
-    print(f"Measurement: {measurement.measurement_name}")
+    print(f"Measurement: {measurement.name}")
     print(f"  UUT: {uut.model_name} S/N: {uut_instance.serial_number}")
-    print(f"  Operator: {operator.operator_name} ({operator.role})")
+    print(f"  Operator: {operator.name} ({operator.role})")
     print(f"  Equipment: {[hw.model for hw in hardware_items]}")
     print(f"  Outcome: {measurement.outcome}")
 ```
@@ -545,17 +532,17 @@ for measurement in measurements:
 ```python
 # Track performance over time for a UUT model
 uut_instances = metadata_store_client.query_uut_instances(
-    f"$filter=UutId eq '{power_supply_uut_id}'"
+    odata_query=f"$filter=UutId eq '{power_supply_uut_id}'"
 )
 
 for instance in uut_instances:
     # Get test results for this UUT instance
     test_results = data_store_client.query_test_results(
-        f"$filter=UutInstanceId eq '{instance.id}'"
+        odata_query=f"$filter=UutInstanceId eq '{instance.id}'"
     )
     for test_result in test_results:
         measurements = data_store_client.query_measurements(
-            f"$filter=TestResultId eq '{test_result.id}' and Name eq '5V Output Voltage'"
+            odata_query=f"$filter=TestResultId eq '{test_result.id}' and Name eq '5V Output Voltage'"
         )
         # Analyze voltage accuracy trends...
 ```
@@ -564,11 +551,11 @@ for instance in uut_instances:
 ```python
 # Analyze calibration impact on measurements
 pre_cal_measurements = data_store_client.query_measurements(
-    f"$filter=contains(HardwareItemIds, '{dmm_id}') and start_date_time lt '2024-06-15'"
+    odata_query=f"$filter=contains(HardwareItemIds, '{dmm_id}') and start_date_time lt '2024-06-15'"
 )
 
 post_cal_measurements = data_store_client.query_measurements(
-    f"$filter=contains(HardwareItemIds, '{dmm_id}') and start_date_time gt '2024-06-15'"
+    odata_query=f"$filter=contains(HardwareItemIds, '{dmm_id}') and start_date_time gt '2024-06-15'"
 )
 # Compare measurement accuracy before/after calibration...
 ```
@@ -579,10 +566,10 @@ post_cal_measurements = data_store_client.query_measurements(
 for operator_id in [sarah_id, mike_id]:
     operator = metadata_store_client.get_operator(operator_id)
     measurements = data_store_client.query_measurements(
-        f"$filter=OperatorId eq '{operator_id}' and outcome eq 'Failed'"
+        odata_query=f"$filter=OperatorId eq '{operator_id}' and outcome eq 'Failed'"
     )
     failure_rate = len(measurements) / total_measurements_by_operator[operator_id] * 100
-    print(f"{operator.operator_name}: {failure_rate:.1f}% failure rate")
+    print(f"{operator.name}: {failure_rate:.1f}% failure rate")
 ```
 
 ---
@@ -627,7 +614,7 @@ class TestAutomation:
     def run_automated_test(self, uut_serial: str):
         # 1. Look up UUT instance by serial number
         instances = self.metadata_client.query_uut_instances(
-            f"$filter=serial_number eq '{uut_serial}'"
+            odata_query=f"$filter=serial_number eq '{uut_serial}'"
         )
         
         # 2. Create test result
