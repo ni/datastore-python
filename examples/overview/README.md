@@ -1,7 +1,7 @@
 # Overview Example
 
 `overview` contains sample Python code for writing to and reading from
-the [NI Measurement Data Store](https://github.com/ni/datastore-service).
+the NI Measurement Data Store.
 
 ## Required Software
 

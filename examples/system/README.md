@@ -2,7 +2,7 @@
 
 `system` contains sample Python code for detecting system hardware
 and software resources and publishing their metadata to the
-[NI Measurement Data Store](https://github.com/ni/datastore-service).
+NI Measurement Data Store.
 
 ## Required Software
 
