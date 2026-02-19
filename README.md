@@ -10,8 +10,7 @@
 # Measurement Data Services API for Python
 
 `datastore-python` contains Python code for writing to and reading from
-[NI Measurement Data Services](https://github.com/ni/datastore-service).
-It will include examples of how to use the Python API.
+NI Measurement Data Store. It will include examples of how to use the Python API.
 
 # About
 
