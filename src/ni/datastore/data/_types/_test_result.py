@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Iterable, Mapping, MutableMapping, MutableSequence
 
 import hightime as ht
+from ni.datastore.data._grpc_conversion import _ensure_utc
 from ni.datastore.data._types._error_information import ErrorInformation
 from ni.datastore.data._types._outcome import Outcome
 from ni.datastore.metadata._grpc_conversion import (
@@ -182,12 +183,14 @@ class TestResult:
             test_adapter_ids=self.test_adapter_ids,
             name=self.name,
             start_date_time=(
-                hightime_datetime_to_protobuf(self.start_date_time)
+                hightime_datetime_to_protobuf(_ensure_utc(self.start_date_time))
                 if self.start_date_time
                 else None
             ),
             end_date_time=(
-                hightime_datetime_to_protobuf(self.end_date_time) if self.end_date_time else None
+                hightime_datetime_to_protobuf(_ensure_utc(self.end_date_time))
+                if self.end_date_time
+                else None
             ),
             outcome=self.outcome.to_protobuf(),
             link=self.link,

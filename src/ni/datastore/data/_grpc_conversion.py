@@ -58,6 +58,11 @@ from nitypes.xy_data import XYData
 _logger = logging.getLogger(__name__)
 
 
+def _ensure_utc(dt: ht.datetime) -> ht.datetime:
+    """Convert a datetime to UTC, treating naive datetimes as local time."""
+    return dt.astimezone(std_datetime.timezone.utc)
+
+
 def populate_publish_condition_request_value(
     publish_request: PublishConditionRequest, value: object
 ) -> None:
