@@ -29,11 +29,11 @@ class Step:
     """
 
     __slots__ = (
+        "name",
         "id",
         "parent_step_id",
         "test_result_id",
         "test_id",
-        "name",
         "step_type",
         "notes",
         "start_date_time",

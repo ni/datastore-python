@@ -29,6 +29,7 @@ class TestResult:
     """
 
     __slots__ = (
+        "name",
         "id",
         "uut_instance_id",
         "operator_id",
@@ -37,7 +38,6 @@ class TestResult:
         "_software_item_ids",
         "_hardware_item_ids",
         "_test_adapter_ids",
-        "name",
         "start_date_time",
         "end_date_time",
         "outcome",
