@@ -91,22 +91,22 @@ class TestResult:
 
         Args:
             name: Human-readable name for the test result.
-            id: Unique identifier for the test result.
-            uut_instance_id: ID of the UUT instance that was tested.
-            operator_id: ID of the operator who ran the test.
-            test_station_id: ID of the test station used.
-            test_description_id: ID of the test description that was executed.
-            software_item_ids: IDs of software items used in the test.
-            hardware_item_ids: IDs of hardware items used in the test.
-            test_adapter_ids: IDs of test adapters used in the test.
-            start_date_time: The start date and time of the test execution.
-            end_date_time: The end date and time of the test execution.
-            outcome: The outcome of the test execution (PASSED, FAILED,
+            id (optional): Unique identifier for the test result.
+            uut_instance_id (optional): ID of the UUT instance that was tested.
+            operator_id (optional): ID of the operator who ran the test.
+            test_station_id (optional): ID of the test station used.
+            test_description_id (optional): ID of the test description that was executed.
+            software_item_ids (optional): IDs of software items used in the test.
+            hardware_item_ids (optional): IDs of hardware items used in the test.
+            test_adapter_ids (optional): IDs of test adapters used in the test.
+            start_date_time (optional): The start date and time of the test execution.
+            end_date_time (optional): The end date and time of the test execution.
+            outcome (optional): The outcome of the test execution (PASSED, FAILED,
                 INDETERMINATE, or UNSPECIFIED).
-            link: Optional link to external resources for this test result.
-            extension: Additional extension attributes as key-value pairs.
-            schema_id: ID of the extension schema for validating extensions.
-            error_information: Error or exception information in case of
+            link (optional): Optional link to external resources for this test result.
+            extension (optional): Additional extension attributes as key-value pairs.
+            schema_id (optional): ID of the extension schema for validating extensions.
+            error_information (optional): Error or exception information in case of
                 test result failure.
         """
         self.name = name
