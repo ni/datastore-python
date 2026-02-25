@@ -29,6 +29,7 @@ class TestResult:
     """
 
     __slots__ = (
+        "name",
         "id",
         "uut_instance_id",
         "operator_id",
@@ -37,7 +38,6 @@ class TestResult:
         "_software_item_ids",
         "_hardware_item_ids",
         "_test_adapter_ids",
-        "name",
         "start_date_time",
         "end_date_time",
         "outcome",
@@ -69,6 +69,7 @@ class TestResult:
 
     def __init__(
         self,
+        name: str,
         *,
         id: str = "",
         uut_instance_id: str = "",
@@ -78,7 +79,6 @@ class TestResult:
         software_item_ids: Iterable[str] | None = None,
         hardware_item_ids: Iterable[str] | None = None,
         test_adapter_ids: Iterable[str] | None = None,
-        name: str = "",
         start_date_time: ht.datetime | None = None,
         end_date_time: ht.datetime | None = None,
         outcome: Outcome = Outcome.UNSPECIFIED,
@@ -90,25 +90,26 @@ class TestResult:
         """Initialize a TestResult instance.
 
         Args:
-            id: Unique identifier for the test result.
-            uut_instance_id: ID of the UUT instance that was tested.
-            operator_id: ID of the operator who ran the test.
-            test_station_id: ID of the test station used.
-            test_description_id: ID of the test description that was executed.
-            software_item_ids: IDs of software items used in the test.
-            hardware_item_ids: IDs of hardware items used in the test.
-            test_adapter_ids: IDs of test adapters used in the test.
             name: Human-readable name for the test result.
-            start_date_time: The start date and time of the test execution.
-            end_date_time: The end date and time of the test execution.
-            outcome: The outcome of the test execution (PASSED, FAILED,
+            id (optional): Unique identifier for the test result.
+            uut_instance_id (optional): ID of the UUT instance that was tested.
+            operator_id (optional): ID of the operator who ran the test.
+            test_station_id (optional): ID of the test station used.
+            test_description_id (optional): ID of the test description that was executed.
+            software_item_ids (optional): IDs of software items used in the test.
+            hardware_item_ids (optional): IDs of hardware items used in the test.
+            test_adapter_ids (optional): IDs of test adapters used in the test.
+            start_date_time (optional): The start date and time of the test execution.
+            end_date_time (optional): The end date and time of the test execution.
+            outcome (optional): The outcome of the test execution (PASSED, FAILED,
                 INDETERMINATE, or UNSPECIFIED).
-            link: Optional link to external resources for this test result.
-            extension: Additional extension attributes as key-value pairs.
-            schema_id: ID of the extension schema for validating extensions.
-            error_information: Error or exception information in case of
+            link (optional): Optional link to external resources for this test result.
+            extension (optional): Additional extension attributes as key-value pairs.
+            schema_id (optional): ID of the extension schema for validating extensions.
+            error_information (optional): Error or exception information in case of
                 test result failure.
         """
+        self.name = name
         self.id = id
         self.uut_instance_id = uut_instance_id
         self.operator_id = operator_id
@@ -123,7 +124,6 @@ class TestResult:
         self._test_adapter_ids: MutableSequence[str] = (
             list(test_adapter_ids) if test_adapter_ids is not None else []
         )
-        self.name = name
         self.start_date_time = start_date_time
         self.end_date_time = end_date_time
         self.outcome = outcome
@@ -136,6 +136,7 @@ class TestResult:
     def from_protobuf(test_result_proto: TestResultProto) -> "TestResult":
         """Create a TestResult instance from a protobuf TestResult message."""
         test_result = TestResult(
+            name=test_result_proto.name,
             id=test_result_proto.id,
             uut_instance_id=test_result_proto.uut_instance_id,
             operator_id=test_result_proto.operator_id,
@@ -144,7 +145,6 @@ class TestResult:
             software_item_ids=test_result_proto.software_item_ids,
             hardware_item_ids=test_result_proto.hardware_item_ids,
             test_adapter_ids=test_result_proto.test_adapter_ids,
-            name=test_result_proto.name,
             start_date_time=(
                 hightime_datetime_from_protobuf(test_result_proto.start_date_time)
                 if test_result_proto.HasField("start_date_time")

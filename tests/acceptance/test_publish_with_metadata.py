@@ -136,6 +136,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         # Metadata: TestResult
         test_result_name = "sample test result"
         test_result = TestResult(
+            name=test_result_name,
             uut_instance_id=uut_instance_id,
             operator_id=operator_id,
             test_station_id=test_station_id,
@@ -143,7 +144,6 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
             software_item_ids=software_item_ids,
             hardware_item_ids=hardware_item_ids,
             test_adapter_ids=test_adapter_ids,
-            name=test_result_name,
             link="Test Result Link",
             extension={"tr1": "one", "tr2": "two"},
             schema_id=schema_id,
@@ -169,10 +169,10 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         # Data: Step
         parent_step = Step(name="Parent Step")
         step = Step(
+            name="Step Name",
             parent_step_id=parent_step.id,
             test_result_id=test_result_id,
             test_id=test_id,
-            name="Step Name",
             step_type="Step Type",
             notes="Step Notes",
             link="Step Link",

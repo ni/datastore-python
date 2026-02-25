@@ -280,13 +280,13 @@ Start each test session by creating a **TestResult**:
 ```python
 # Create a test result for this test session
 test_result_id = data_store_client.create_test_result(TestResult(
+    name="PowerSupply PS-2024-001456 Validation",
     uut_instance_id=uut_instance_id,
     operator_id=sarah_id,  # or use alias: "Lead_Test_Engineer"
     test_station_id=station_a1_id,
     test_description_id=power_test_desc_id,
     software_item_ids=[python_id, nidaqmx_id, custom_app_id],
     hardware_item_ids=[dmm_id, scope_id],  # or use aliases
-    name="PowerSupply PS-2024-001456 Validation",
     schema_id=schema_id,
     extension={
         "test_operator_notes": "First production unit validation",
@@ -302,17 +302,17 @@ Organize measurements into logical **Steps**:
 ```python
 # Create test steps within the test result
 voltage_step_id = data_store_client.create_step(Step(
+    name="DC Voltage Accuracy Check",
     test_result_id=test_result_id,
     test_id=voltage_test_id,
-    name="DC Voltage Accuracy Check",
     type="Measurement",
     notes="Testing 5V, 12V, and 24V outputs under no load"
 ))
 
 load_step_id = data_store_client.create_step(Step(
+    name="Load Regulation Test",
     test_result_id=test_result_id, 
     test_id=load_test_id,
-    name="Load Regulation Test",
     type="Measurement", 
     notes="Variable load from 0% to 100% rated current"
 ))

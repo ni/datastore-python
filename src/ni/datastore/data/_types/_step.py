@@ -29,11 +29,11 @@ class Step:
     """
 
     __slots__ = (
+        "name",
         "id",
         "parent_step_id",
         "test_result_id",
         "test_id",
-        "name",
         "step_type",
         "notes",
         "start_date_time",
@@ -52,12 +52,12 @@ class Step:
 
     def __init__(
         self,
+        name: str,
         *,
         id: str = "",
         parent_step_id: str = "",
         test_result_id: str = "",
         test_id: str = "",
-        name: str = "",
         step_type: str = "",
         notes: str = "",
         start_date_time: ht.datetime | None = None,
@@ -71,28 +71,28 @@ class Step:
         """Initialize a Step instance.
 
         Args:
-            id: Unique identifier for the step.
-            parent_step_id: ID of the parent step if this is a nested step.
-            test_result_id: ID of the test result this step belongs to.
-            test_id: ID of the test associated with this step.
             name: Human-readable name of the step.
-            step_type: Type or category of the step.
-            notes: Additional notes or comments about the step.
-            start_date_time: The start date and time of the step execution.
-            end_date_time: The end date and time of the step execution.
-            link: Optional link to external resources for this step.
-            extension: Additional extension attributes as key-value pairs.
-            schema_id: ID of the extension schema for validating extensions.
-            error_information: Error or exception information in case of
+            id (optional): Unique identifier for the step.
+            parent_step_id (optional): ID of the parent step if this is a nested step.
+            test_result_id (optional): ID of the test result this step belongs to.
+            test_id (optional): ID of the test associated with this step.
+            step_type (optional): Type or category of the step.
+            notes (optional): Additional notes or comments about the step.
+            start_date_time (optional): The start date and time of the step execution.
+            end_date_time (optional): The end date and time of the step execution.
+            link (optional): Optional link to external resources for this step.
+            extension (optional): Additional extension attributes as key-value pairs.
+            schema_id (optional): ID of the extension schema for validating extensions.
+            error_information (optional): Error or exception information in case of
                 step failure.
-            outcome: The outcome of the step (PASSED, FAILED,
+            outcome (optional): The outcome of the step (PASSED, FAILED,
                 INDETERMINATE, or UNSPECIFIED).
         """
+        self.name = name
         self.id = id
         self.parent_step_id = parent_step_id
         self.test_result_id = test_result_id
         self.test_id = test_id
-        self.name = name
         self.step_type = step_type
         self.notes = notes
         self.start_date_time = start_date_time
@@ -107,11 +107,11 @@ class Step:
     def from_protobuf(step_proto: StepProto) -> "Step":
         """Create a Step instance from a protobuf Step message."""
         step = Step(
+            name=step_proto.name,
             id=step_proto.id,
             parent_step_id=step_proto.parent_step_id,
             test_result_id=step_proto.test_result_id,
             test_id=step_proto.test_id,
-            name=step_proto.name,
             step_type=step_proto.step_type,
             notes=step_proto.notes,
             start_date_time=(
