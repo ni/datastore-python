@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Mapping, MutableMapping
 
 import hightime as ht
+from ni.datastore.data._grpc_conversion import _ensure_utc
 from ni.datastore.data._types._error_information import ErrorInformation
 from ni.datastore.data._types._outcome import Outcome
 from ni.datastore.metadata._grpc_conversion import (
@@ -147,12 +148,14 @@ class Step:
             step_type=self.step_type,
             notes=self.notes,
             start_date_time=(
-                hightime_datetime_to_protobuf(self.start_date_time)
+                hightime_datetime_to_protobuf(_ensure_utc(self.start_date_time))
                 if self.start_date_time
                 else None
             ),
             end_date_time=(
-                hightime_datetime_to_protobuf(self.end_date_time) if self.end_date_time else None
+                hightime_datetime_to_protobuf(_ensure_utc(self.end_date_time))
+                if self.end_date_time
+                else None
             ),
             link=self.link,
             schema_id=self.schema_id,
