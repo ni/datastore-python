@@ -8,22 +8,20 @@ from collections.abc import Iterable, Sequence
 from threading import Lock
 from types import TracebackType
 from typing import TYPE_CHECKING, Type, TypeVar, overload
-from urllib.parse import urlparse
 
 import hightime as ht
 from grpc import Channel
 from ni.datamonikers.v1.client import MonikerClient
 from ni.datastore.data._grpc_conversion import (
+    convert_read_condition_response_from_protobuf,
+    convert_read_measurement_response_from_protobuf,
     get_publish_measurement_timestamp,
     populate_publish_condition_batch_request_values,
     populate_publish_condition_request_value,
     populate_publish_measurement_batch_request_values,
     populate_publish_measurement_request_value,
-    unpack_and_convert_from_protobuf_any,
-    
 )
 from ni.datastore.data._types._error_information import ErrorInformation
-from ni.datastore.data._types._moniker import Moniker
 from ni.datastore.data._types._outcome import Outcome
 from ni.datastore.data._types._published_condition import PublishedCondition
 from ni.datastore.data._types._published_measurement import PublishedMeasurement
@@ -53,16 +51,6 @@ from ni.protobuf.types.precision_timestamp_conversion import (
     hightime_datetime_to_protobuf,
 )
 from ni_grpc_extensions.channelpool import GrpcChannelPool
-from ni.datastore.data._grpc_conversion import (
-            digital_waveform_from_protobuf,
-            float64_analog_waveform_from_protobuf,
-            float64_complex_waveform_from_protobuf,
-            float64_spectrum_from_protobuf,
-            float64_xydata_from_protobuf,
-            int16_analog_waveform_from_protobuf,
-            int16_complex_waveform_from_protobuf,
-            vector_from_protobuf,
-        )
 
 if TYPE_CHECKING:
     if sys.version_info >= (3, 11):
@@ -628,55 +616,12 @@ class DataStoreClient:
             grpc_channel_pool=self._grpc_channel_pool,
         )
 
-    def _get_moniker_client(self, service_location: str) -> MonikerClient:
-        if self._closed:
-            raise RuntimeError(self._DATA_STORE_CLIENT_CLOSED_ERROR)
-
-        parsed_service_location = urlparse(service_location).netloc
-        if parsed_service_location not in self._moniker_clients_by_service_location:
-            with self._moniker_clients_lock:
-                if parsed_service_location not in self._moniker_clients_by_service_location:
-                    self._moniker_clients_by_service_location[parsed_service_location] = (
-                        self._instantiate_moniker_client(parsed_service_location)
-                    )
-        return self._moniker_clients_by_service_location[parsed_service_location]
-
-    def _instantiate_moniker_client(self, parsed_service_location: str) -> MonikerClient:
-        return MonikerClient(
-            service_location=parsed_service_location,
-            grpc_channel_pool=self._grpc_channel_pool,
-        )
-    
     def _read_measurement(self, published_measurement: PublishedMeasurement) -> object:
         request = ReadMeasurementValueRequest(measurement_id=published_measurement.id)
         response = self._get_data_store_client().read_measurement_value(request)
-        read_data_type = response.WhichOneof("value")
-        if read_data_type == "vector":
-            return vector_from_protobuf(response.vector)
-        elif read_data_type == "digital_waveform":
-            return digital_waveform_from_protobuf(response.digital_waveform)
-        elif read_data_type == "double_analog_waveform":
-            return float64_analog_waveform_from_protobuf(response.double_analog_waveform)
-        elif read_data_type == "double_complex_waveform":
-            return float64_complex_waveform_from_protobuf(response.double_complex_waveform)
-        elif read_data_type == "double_spectrum":
-            return float64_spectrum_from_protobuf(response.double_spectrum)
-        elif read_data_type == "i16_analog_waveform":
-            return int16_analog_waveform_from_protobuf(response.i16_analog_waveform)
-        elif read_data_type == "i16_complex_waveform":
-            return int16_complex_waveform_from_protobuf(response.i16_complex_waveform)
-        elif read_data_type == "x_y_data":
-            return float64_xydata_from_protobuf(response.x_y_data)
-        else:
-            raise TypeError(f"Invalid read type: {read_data_type}")
+        return convert_read_measurement_response_from_protobuf(response)
 
     def _read_condition(self, published_condition: PublishedCondition) -> object:
-        from ni.datastore.data._grpc_conversion import vector_from_protobuf
-        
         request = ReadConditionValueRequest(condition_id=published_condition.id)
         response = self._get_data_store_client().read_condition_value(request)
-        read_data_type = response.WhichOneof("value")
-        if read_data_type == "vector":
-            return vector_from_protobuf(response.vector)
-        else:
-            raise TypeError(f"Invalid read type: {read_data_type}")
+        return convert_read_condition_response_from_protobuf(response)

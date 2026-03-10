@@ -14,6 +14,8 @@ from ni.measurements.data.v1.data_store_service_pb2 import (
     PublishConditionRequest,
     PublishMeasurementBatchRequest,
     PublishMeasurementRequest,
+    ReadConditionValueResponse,
+    ReadMeasurementValueResponse,
 )
 from ni.protobuf.types.precision_timestamp_conversion import (
     hightime_datetime_to_protobuf,
@@ -224,6 +226,40 @@ def unpack_and_convert_from_protobuf_any(read_value: Any) -> object:
         return vector_from_protobuf(vector)
     else:
         raise TypeError(f"Unsupported data type Name: {value_type}")
+
+
+def convert_read_measurement_response_from_protobuf(
+    response: ReadMeasurementValueResponse,
+) -> object:
+    """Convert the value in the ReadMeasurementValueResponse from protobuf and return it."""
+    read_data_type = response.WhichOneof("value")
+    if read_data_type == "vector":
+        return vector_from_protobuf(response.vector)
+    elif read_data_type == "digital_waveform":
+        return digital_waveform_from_protobuf(response.digital_waveform)
+    elif read_data_type == "double_analog_waveform":
+        return float64_analog_waveform_from_protobuf(response.double_analog_waveform)
+    elif read_data_type == "double_complex_waveform":
+        return float64_complex_waveform_from_protobuf(response.double_complex_waveform)
+    elif read_data_type == "double_spectrum":
+        return float64_spectrum_from_protobuf(response.double_spectrum)
+    elif read_data_type == "i16_analog_waveform":
+        return int16_analog_waveform_from_protobuf(response.i16_analog_waveform)
+    elif read_data_type == "i16_complex_waveform":
+        return int16_complex_waveform_from_protobuf(response.i16_complex_waveform)
+    elif read_data_type == "x_y_data":
+        return float64_xydata_from_protobuf(response.x_y_data)
+    else:
+        raise TypeError(f"Invalid read type: {read_data_type}")
+
+
+def convert_read_condition_response_from_protobuf(response: ReadConditionValueResponse) -> object:
+    """Convert the value in the ReadConditionValueResponse from protobuf and return it."""
+    read_data_type = response.WhichOneof("value")
+    if read_data_type == "vector":
+        return vector_from_protobuf(response.vector)
+    else:
+        raise TypeError(f"Invalid read type: {read_data_type}")
 
 
 def get_publish_measurement_timestamp(
