@@ -2452,30 +2452,30 @@ protobuf = ">=4.21"
 
 [[package]]
 name = "ni-measurements-data-v1-client"
-version = "1.0.0"
+version = "1.1.0.dev0"
 description = "gRPC Client for NI Data Store Service"
 optional = false
 python-versions = "<4.0,>=3.10"
 groups = ["main"]
 files = [
-    {file = "ni_measurements_data_v1_client-1.0.0-py3-none-any.whl", hash = "sha256:33832370474dc0d6481f1d90623db898f4e051695ae65b66adb14ca8b37d2686"},
-    {file = "ni_measurements_data_v1_client-1.0.0.tar.gz", hash = "sha256:095dc4ece2df8015486ed2bdbbf2dde3dfab02695d5b67eb94c0f0314e5cdb30"},
+    {file = "ni_measurements_data_v1_client-1.1.0.dev0-py3-none-any.whl", hash = "sha256:d41f93ff1584461ef45dd4ea25c3ceaf763da53c0a2cc5e48c64f675e4ba3c00"},
+    {file = "ni_measurements_data_v1_client-1.1.0.dev0.tar.gz", hash = "sha256:3043ef784d6dec4f476f3065e781ce8a1f2db38900c3a0ef5d90d6c08a9fa466"},
 ]
 
 [package.dependencies]
 ni-measurementlink-discovery-v1-client = ">=1.1.0"
-ni-measurements-data-v1-proto = ">=1.0.0"
+ni-measurements-data-v1-proto = ">=1.1.0.dev0"
 
 [[package]]
 name = "ni-measurements-data-v1-proto"
-version = "1.0.0"
+version = "1.1.0.dev0"
 description = "Protobuf data types and service stubs for NI data store gRPC APIs"
 optional = false
 python-versions = "<4.0,>=3.10"
 groups = ["main"]
 files = [
-    {file = "ni_measurements_data_v1_proto-1.0.0-py3-none-any.whl", hash = "sha256:34f2c05b7fd86e3842554a4a31944e381927371a0ff12cf2c5512e37c3eb5dcb"},
-    {file = "ni_measurements_data_v1_proto-1.0.0.tar.gz", hash = "sha256:7c9f58054b5156f65e4ae7bbc0615f58dfcd023a1dabeddbd6a9583bb6fc5df9"},
+    {file = "ni_measurements_data_v1_proto-1.1.0.dev0-py3-none-any.whl", hash = "sha256:c1e5ad669ab978c7202f58fac7eda2e19be2a6fcc4b07bc13f1904a5aad43809"},
+    {file = "ni_measurements_data_v1_proto-1.1.0.dev0.tar.gz", hash = "sha256:99102d9e785031ce0797efa435fce975e9a0de8547b76079aaa7e35c871e7da4"},
 ]
 
 [package.dependencies]
@@ -4478,4 +4478,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10"
-content-hash = "4d8bbb151fc7827e0cad5e9d3f0eb297ea2004a363fb06c25678d85d6cf76066"
+content-hash = "aff734fa7a61cf6b12cbee709677f693fac3caabe623493ade6f1daea18735c5"

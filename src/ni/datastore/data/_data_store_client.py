@@ -20,6 +20,7 @@ from ni.datastore.data._grpc_conversion import (
     populate_publish_measurement_batch_request_values,
     populate_publish_measurement_request_value,
     unpack_and_convert_from_protobuf_any,
+    
 )
 from ni.datastore.data._types._error_information import ErrorInformation
 from ni.datastore.data._types._moniker import Moniker
@@ -45,11 +46,23 @@ from ni.measurements.data.v1.data_store_service_pb2 import (
     QueryMeasurementsRequest,
     QueryStepsRequest,
     QueryTestResultsRequest,
+    ReadConditionValueRequest,
+    ReadMeasurementValueRequest,
 )
 from ni.protobuf.types.precision_timestamp_conversion import (
     hightime_datetime_to_protobuf,
 )
 from ni_grpc_extensions.channelpool import GrpcChannelPool
+from ni.datastore.data._grpc_conversion import (
+            digital_waveform_from_protobuf,
+            float64_analog_waveform_from_protobuf,
+            float64_complex_waveform_from_protobuf,
+            float64_spectrum_from_protobuf,
+            float64_xydata_from_protobuf,
+            int16_analog_waveform_from_protobuf,
+            int16_complex_waveform_from_protobuf,
+            vector_from_protobuf,
+        )
 
 if TYPE_CHECKING:
     if sys.version_info >= (3, 11):
@@ -377,28 +390,27 @@ class DataStoreClient:
     @overload
     def read_data(
         self,
-        moniker_source: Moniker | PublishedMeasurement | PublishedCondition,
+        read_source: PublishedMeasurement | PublishedCondition,
         expected_type: Type[TRead],
     ) -> TRead: ...
 
     @overload
     def read_data(
         self,
-        moniker_source: Moniker | PublishedMeasurement | PublishedCondition,
+        read_source: PublishedMeasurement | PublishedCondition,
     ) -> object: ...
 
     def read_data(
         self,
-        moniker_source: Moniker | PublishedMeasurement | PublishedCondition,
+        read_source: PublishedMeasurement | PublishedCondition,
         expected_type: Type[TRead] | None = None,
     ) -> TRead | object:
         """Read data published to the data store.
 
         Args:
-            moniker_source: The source from which to read data. Can be:
-                - A Moniker (wrapper type) directly
-                - A PublishedMeasurement (uses its moniker)
-                - A PublishedCondition (uses its moniker)
+            read_source: The source from which to read data. Can be:
+                - A PublishedMeasurement
+                - A PublishedCondition
 
             expected_type: Optional type to validate the returned data against.
                 If provided, a TypeError will be raised if the actual data type
@@ -413,33 +425,20 @@ class DataStoreClient:
             of that type.
 
         Raises:
-            ValueError: If the moniker_source doesn't have a valid moniker.
             TypeError: If expected_type is provided and the actual data type
                 doesn't match.
         """
-        from ni.datamonikers.v1.data_moniker_pb2 import Moniker as MonikerProto
-
-        moniker_proto: MonikerProto
-
-        if isinstance(moniker_source, Moniker):
-            moniker_proto = moniker_source.to_protobuf()
-        elif isinstance(moniker_source, PublishedMeasurement):
-            if moniker_source.moniker is None:
-                raise ValueError("PublishedMeasurement must have a Moniker to read data")
-            moniker_proto = moniker_source.moniker.to_protobuf()
-        elif isinstance(moniker_source, PublishedCondition):
-            if moniker_source.moniker is None:
-                raise ValueError("PublishedCondition must have a Moniker to read data")
-            moniker_proto = moniker_source.moniker.to_protobuf()
+        if isinstance(read_source, PublishedMeasurement):
+            read_value = self._read_measurement(read_source)
+        elif isinstance(read_source, PublishedCondition):
+            read_value = self._read_condition(read_source)
         else:
-            raise TypeError(f"Unsupported moniker_source type: {type(moniker_source)}")
+            raise TypeError(f"Unsupported read_source type: {type(read_source)}")
 
-        moniker_client = self._get_moniker_client(moniker_proto.service_location)
-        read_result = moniker_client.read_from_moniker(moniker_proto)
-        converted_data = unpack_and_convert_from_protobuf_any(read_result.value)
-        if expected_type is not None and not isinstance(converted_data, expected_type):
-            raise TypeError(f"Expected type {expected_type}, got {type(converted_data)}")
-        return converted_data
+        if expected_type is not None and not isinstance(read_value, expected_type):
+            raise TypeError(f"Expected type {expected_type}, got {type(read_value)}")
+
+        return read_value
 
     def create_step(self, step: Step) -> str:
         """Create a new step in the data store.
@@ -647,3 +646,37 @@ class DataStoreClient:
             service_location=parsed_service_location,
             grpc_channel_pool=self._grpc_channel_pool,
         )
+    
+    def _read_measurement(self, published_measurement: PublishedMeasurement) -> object:
+        request = ReadMeasurementValueRequest(measurement_id=published_measurement.id)
+        response = self._get_data_store_client().read_measurement_value(request)
+        read_data_type = response.WhichOneof("value")
+        if read_data_type == "vector":
+            return vector_from_protobuf(response.vector)
+        elif read_data_type == "digital_waveform":
+            return digital_waveform_from_protobuf(response.digital_waveform)
+        elif read_data_type == "double_analog_waveform":
+            return float64_analog_waveform_from_protobuf(response.double_analog_waveform)
+        elif read_data_type == "double_complex_waveform":
+            return float64_complex_waveform_from_protobuf(response.double_complex_waveform)
+        elif read_data_type == "double_spectrum":
+            return float64_spectrum_from_protobuf(response.double_spectrum)
+        elif read_data_type == "i16_analog_waveform":
+            return int16_analog_waveform_from_protobuf(response.i16_analog_waveform)
+        elif read_data_type == "i16_complex_waveform":
+            return int16_complex_waveform_from_protobuf(response.i16_complex_waveform)
+        elif read_data_type == "x_y_data":
+            return float64_xydata_from_protobuf(response.x_y_data)
+        else:
+            raise TypeError(f"Invalid read type: {read_data_type}")
+
+    def _read_condition(self, published_condition: PublishedCondition) -> object:
+        from ni.datastore.data._grpc_conversion import vector_from_protobuf
+        
+        request = ReadConditionValueRequest(condition_id=published_condition.id)
+        response = self._get_data_store_client().read_condition_value(request)
+        read_data_type = response.WhichOneof("value")
+        if read_data_type == "vector":
+            return vector_from_protobuf(response.vector)
+        else:
+            raise TypeError(f"Invalid read type: {read_data_type}")

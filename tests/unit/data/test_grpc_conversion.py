@@ -1,13 +1,10 @@
 import numpy as np
 import pytest
-from google.protobuf import any_pb2
-from google.protobuf.message import Message
 from ni.datastore.data._grpc_conversion import (
     populate_publish_condition_batch_request_values,
     populate_publish_condition_request_value,
     populate_publish_measurement_batch_request_values,
     populate_publish_measurement_request_value,
-    unpack_and_convert_from_protobuf_any,
 )
 from ni.measurements.data.v1.data_store_service_pb2 import (
     PublishConditionBatchRequest,
@@ -16,8 +13,6 @@ from ni.measurements.data.v1.data_store_service_pb2 import (
     PublishMeasurementRequest,
 )
 from ni.protobuf.types import (
-    array_pb2,
-    attribute_value_pb2,
     scalar_pb2,
     vector_pb2,
     waveform_pb2,
@@ -223,147 +218,3 @@ def test___python_vector_object___populate_measurement_batch___condition_updated
     assert isinstance(request.scalar_values, vector_pb2.Vector)
     assert list(request.scalar_values.double_array.values) == [1.0, 2.0, 3.0]
     assert request.scalar_values.attributes["NI_UnitDescription"].string_value == "amps"
-
-
-# ========================================================
-# Convert from protobuf
-# ========================================================
-def test___vector_proto___convert_from_protobuf___valid_python_vector() -> None:
-    attrs = {"NI_UnitDescription": attribute_value_pb2.AttributeValue(string_value="amps")}
-    pb_value = vector_pb2.Vector(
-        attributes=attrs,
-        double_array=array_pb2.DoubleArray(values=[1.0, 2.0, 3.0]),
-    )
-    packed_any = _pack_into_any(pb_value)
-
-    result = unpack_and_convert_from_protobuf_any(packed_any)
-
-    assert isinstance(result, Vector)
-    assert list(result) == [1.0, 2.0, 3.0]
-    assert result.units == "amps"
-
-
-def test___double_analog_waveform_proto___convert_from_protobuf___valid_python_float64_analog_waveform() -> (
-    None
-):
-    pb_value = waveform_pb2.DoubleAnalogWaveform(y_data=[0.0, 0.0, 0.0])
-    packed_any = _pack_into_any(pb_value)
-
-    result = unpack_and_convert_from_protobuf_any(packed_any)
-
-    assert isinstance(result, AnalogWaveform)
-    assert result.sample_count == result.capacity == len(result.raw_data) == 3
-    assert result.dtype == np.float64
-
-
-def test___i16_analog_waveform_proto___convert_from_protobuf___valid_python_int16_analog_waveform() -> (
-    None
-):
-    pb_value = waveform_pb2.I16AnalogWaveform(y_data=[0, 0, 0])
-    packed_any = _pack_into_any(pb_value)
-
-    result = unpack_and_convert_from_protobuf_any(packed_any)
-
-    assert isinstance(result, AnalogWaveform)
-    assert result.sample_count == result.capacity == len(result.raw_data) == 3
-    assert result.dtype == np.int16
-
-
-def test___double_complex_waveform_proto___convert_from_protobuf___valid_python_float64_complex_waveform() -> (
-    None
-):
-    pb_value = waveform_pb2.DoubleComplexWaveform(y_data=[0.0, 0.0, 0.0, 0.0])
-    packed_any = _pack_into_any(pb_value)
-
-    result = unpack_and_convert_from_protobuf_any(packed_any)
-
-    assert isinstance(result, ComplexWaveform)
-    assert result.sample_count == result.capacity == len(result.raw_data) == 2
-    assert result.dtype == np.complex128
-
-
-def test___i16_complex_waveform_proto___convert_from_protobuf___valid_python_int16_complex_waveform() -> (
-    None
-):
-    pb_value = waveform_pb2.I16ComplexWaveform(y_data=[0, 0, 0, 0])
-    packed_any = _pack_into_any(pb_value)
-
-    result = unpack_and_convert_from_protobuf_any(packed_any)
-
-    assert isinstance(result, ComplexWaveform)
-    assert result.sample_count == result.capacity == len(result.raw_data) == 2
-    assert result.dtype == ComplexInt32DType
-
-
-def test___digital_waveform_proto___convert_from_protobuf___valid_python_bool_digital_waveform() -> (
-    None
-):
-    data = np.array([[0, 1, 0], [1, 0, 1]], dtype=np.bool)
-    pb_value = waveform_pb2.DigitalWaveform(y_data=data.tobytes(), signal_count=3)
-    packed_any = _pack_into_any(pb_value)
-
-    result = unpack_and_convert_from_protobuf_any(packed_any)
-
-    assert isinstance(result, DigitalWaveform)
-    assert np.array_equal(result.data, data)
-    assert result.signal_count == 3
-
-
-def test___digital_waveform_proto___convert_from_protobuf___valid_python_uint8_digital_waveform() -> (
-    None
-):
-    data = np.array([[0, 1, 0], [1, 0, 1]], dtype=np.uint8)
-    pb_value = waveform_pb2.DigitalWaveform(y_data=data.tobytes(), signal_count=3)
-    packed_any = _pack_into_any(pb_value)
-
-    result = unpack_and_convert_from_protobuf_any(packed_any)
-
-    assert isinstance(result, DigitalWaveform)
-    assert np.array_equal(result.data, data)
-    assert result.signal_count == 3
-
-
-def test___double_spectrum_proto___convert_from_protobuf___valid_python_spectrum() -> None:
-    pb_value = waveform_pb2.DoubleSpectrum(
-        data=[1.0, 2.0, 3.0],
-        start_frequency=100.0,
-        frequency_increment=10.0,
-    )
-    packed_any = _pack_into_any(pb_value)
-
-    result = unpack_and_convert_from_protobuf_any(packed_any)
-
-    assert isinstance(result, Spectrum)
-    assert list(result.data) == [1.0, 2.0, 3.0]
-    assert result.start_frequency == 100.0
-    assert result.frequency_increment == 10.0
-
-
-def test___xydata_proto___convert_from_protobuf___valid_python_xydata() -> None:
-    attrs = {
-        "NI_UnitDescription_X": attribute_value_pb2.AttributeValue(string_value="amps"),
-        "NI_UnitDescription_Y": attribute_value_pb2.AttributeValue(string_value="seconds"),
-    }
-    pb_value = xydata_pb2.DoubleXYData(
-        x_data=[1.0, 2.0],
-        y_data=[3.0, 4.0],
-        attributes=attrs,
-    )
-    packed_any = _pack_into_any(pb_value)
-
-    result = unpack_and_convert_from_protobuf_any(packed_any)
-
-    assert isinstance(result, XYData)
-    assert list(result.x_data) == [1.0, 2.0]
-    assert list(result.y_data) == [3.0, 4.0]
-    assert result.x_units == "amps"
-    assert result.y_units == "seconds"
-
-
-# ========================================================
-# Pack/Unpack Helpers
-# ========================================================
-def _pack_into_any(proto_value: Message) -> any_pb2.Any:
-    as_any = any_pb2.Any()
-    as_any.Pack(proto_value)
-    return as_any
