@@ -2371,22 +2371,6 @@ files = [
 ]
 
 [[package]]
-name = "ni-datamonikers-v1-client"
-version = "1.0.0"
-description = "gRPC Client for NI Data Moniker Service"
-optional = false
-python-versions = "<4.0,>=3.10"
-groups = ["main"]
-files = [
-    {file = "ni_datamonikers_v1_client-1.0.0-py3-none-any.whl", hash = "sha256:e7ce750986c55f415d02ad5690afff0621db86f2e27bdec6b97a59ee18f98c2a"},
-    {file = "ni_datamonikers_v1_client-1.0.0.tar.gz", hash = "sha256:b16eb188b9ac6f3c1693f89191612961484917e2390b0dca07511c6434a25334"},
-]
-
-[package.dependencies]
-ni-datamonikers-v1-proto = ">=1.0.0"
-ni-grpc-extensions = ">=1.1.0"
-
-[[package]]
 name = "ni-datamonikers-v1-proto"
 version = "1.0.0"
 description = "Protobuf data types and service stub for NI data moniker gRPC APIs"
@@ -4478,4 +4462,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10"
-content-hash = "aff734fa7a61cf6b12cbee709677f693fac3caabe623493ade6f1daea18735c5"
+content-hash = "7b3289fda614c93cbdfd701d40173d131938304eb1870c23d40bb934fdb723b1"

@@ -59,7 +59,6 @@ Each step belongs to a TestResult and can contain multiple measurements and cond
 A **PublishedMeasurement** represents actual measurement data captured during a test step. This is the core data entity that stores the measured values, whether they are simple scalars, complex waveforms, or other data types.
 
 **Fields:**
-- `moniker` (Moniker) - Data location identifier for retrieving the actual measurement values
 - `published_conditions` (list) - Environmental conditions present during measurement
 - `id` (string) - Unique identifier for this measurement
 - `test_result_id` (string) - ID of the associated TestResult
@@ -98,7 +97,6 @@ A **PublishedMeasurement** represents actual measurement data captured during a 
 A **PublishedCondition** represents environmental or contextual information that was present during test execution. Conditions capture the state of the test environment, input parameters, or other contextual data that might affect measurement results.
 
 **Fields:**
-- `moniker` (Moniker) - Data location identifier for retrieving the condition value
 - `id` (string) - Unique identifier for this condition
 - `name` (string) - Name of the condition (e.g., "Temperature", "Supply Voltage")
 - `condition_type` (string) - Type/category of the condition (e.g., "Environment", "Input Parameter")

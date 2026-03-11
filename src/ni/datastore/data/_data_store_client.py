@@ -11,7 +11,6 @@ from typing import TYPE_CHECKING, Type, TypeVar, overload
 
 import hightime as ht
 from grpc import Channel
-from ni.datamonikers.v1.client import MonikerClient
 from ni.datastore.data._grpc_conversion import (
     convert_read_condition_response_from_protobuf,
     convert_read_measurement_response_from_protobuf,
@@ -73,8 +72,6 @@ class DataStoreClient:
         "_grpc_channel_pool",
         "_data_store_client",
         "_data_store_client_lock",
-        "_moniker_clients_by_service_location",
-        "_moniker_clients_lock",
     )
 
     _DATA_STORE_CLIENT_CLOSED_ERROR = (
@@ -87,9 +84,7 @@ class DataStoreClient:
     _grpc_channel: Channel | None
     _grpc_channel_pool: GrpcChannelPool | None
     _data_store_client: DataStoreServiceClient | None
-    _moniker_clients_by_service_location: dict[str, MonikerClient]
     _data_store_client_lock: Lock
-    _moniker_clients_lock: Lock
 
     def __init__(
         self,
@@ -103,9 +98,7 @@ class DataStoreClient:
             discovery_client: An optional discovery client (recommended).
 
             grpc_channel: An optional data store gRPC channel. Providing this channel will bypass
-                discovery service resolution of the data store. (Note: Reading data from a moniker
-                will still always use a channel corresponding to the service location specified by
-                that moniker.)
+                discovery service resolution of the data store.
 
             grpc_channel_pool: An optional gRPC channel pool (recommended).
         """
@@ -114,10 +107,8 @@ class DataStoreClient:
         self._grpc_channel_pool = grpc_channel_pool
 
         self._data_store_client = None
-        self._moniker_clients_by_service_location = {}
 
         self._data_store_client_lock = Lock()
-        self._moniker_clients_lock = Lock()
 
         self._closed = False
 
@@ -142,11 +133,6 @@ class DataStoreClient:
             if self._data_store_client is not None:
                 self._data_store_client.close()
                 self._data_store_client = None
-
-        with self._moniker_clients_lock:
-            for _, moniker_client in self._moniker_clients_by_service_location.items():
-                moniker_client.close()
-            self._moniker_clients_by_service_location.clear()
 
     def publish_condition(
         self,
@@ -527,7 +513,7 @@ class DataStoreClient:
 
         Returns:
             Sequence[PublishedCondition]: The list of matching conditions. Each
-                item contains a moniker for retrieving the condition
+                item contains an id for retrieving the condition
                 measurements, as well as the metadata associated with the
                 condition.
         """
@@ -550,7 +536,7 @@ class DataStoreClient:
 
         Returns:
             Sequence[PublishedMeasurement]: The list of matching measurements.
-                Each item contains a moniker for retrieving the measurement, as
+                Each item contains an id for retrieving the measurement, as
                 well as the metadata associated with the measurement.
         """
         query_request = QueryMeasurementsRequest(odata_query=odata_query)
