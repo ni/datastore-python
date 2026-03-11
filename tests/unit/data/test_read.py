@@ -25,7 +25,6 @@ def test___read_data_measurement___calls_data_store_client(
 ) -> None:
     published_measurement = PublishedMeasurement(id="measurement-123")
     expected_waveform = waveform_pb2.DoubleAnalogWaveform(y_data=[1.0, 2.0, 3.0])
-
     response = Mock()
     response.WhichOneof.return_value = "double_analog_waveform"
     response.double_analog_waveform = expected_waveform
@@ -46,7 +45,6 @@ def test___read_double_analog_waveform___value_correct(
 ) -> None:
     published_measurement = PublishedMeasurement(id="measurement-123")
     expected_waveform = waveform_pb2.DoubleAnalogWaveform(y_data=[1.0, 2.0, 3.0])
-
     response = Mock()
     response.WhichOneof.return_value = "double_analog_waveform"
     response.double_analog_waveform = expected_waveform
@@ -63,7 +61,6 @@ def test___read_i16_analog_waveform___value_correct(
 ) -> None:
     published_measurement = PublishedMeasurement(id="measurement-456")
     expected_waveform = waveform_pb2.I16AnalogWaveform(y_data=[1, 2, 3])
-
     response = Mock()
     response.WhichOneof.return_value = "i16_analog_waveform"
     response.i16_analog_waveform = expected_waveform
@@ -80,7 +77,6 @@ def test___read_double_complex_waveform___value_correct(
 ) -> None:
     published_measurement = PublishedMeasurement(id="measurement-789")
     expected_waveform = waveform_pb2.DoubleComplexWaveform(y_data=[1.0, 2.0, 3.0, 4.0])
-
     response = Mock()
     response.WhichOneof.return_value = "double_complex_waveform"
     response.double_complex_waveform = expected_waveform
@@ -99,7 +95,6 @@ def test___read_i16_complex_waveform___value_correct(
 ) -> None:
     published_measurement = PublishedMeasurement(id="measurement-101")
     expected_waveform = waveform_pb2.I16ComplexWaveform(y_data=[1, 2, 3, 4])
-
     response = Mock()
     response.WhichOneof.return_value = "i16_complex_waveform"
     response.i16_complex_waveform = expected_waveform
@@ -119,7 +114,6 @@ def test___read_digital_waveform___value_correct(
     published_measurement = PublishedMeasurement(id="measurement-202")
     data = np.array([[0, 1, 0], [1, 0, 1]], dtype=np.bool)
     expected_waveform = waveform_pb2.DigitalWaveform(y_data=data.tobytes(), signal_count=3)
-
     response = Mock()
     response.WhichOneof.return_value = "digital_waveform"
     response.digital_waveform = expected_waveform
@@ -141,7 +135,6 @@ def test___read_double_spectrum___value_correct(
         start_frequency=100.0,
         frequency_increment=10.0,
     )
-
     response = Mock()
     response.WhichOneof.return_value = "double_spectrum"
     response.double_spectrum = expected_waveform
@@ -164,7 +157,6 @@ def test___read_vector___value_correct(
         attributes=attrs,
         double_array=array_pb2.DoubleArray(values=[1.0, 2.0, 3.0]),
     )
-
     response = Mock()
     response.WhichOneof.return_value = "vector"
     response.vector = expected_vector
@@ -190,7 +182,6 @@ def test___read_xydata___value_correct(
         y_data=[3.0, 4.0],
         attributes=attrs,
     )
-
     response = Mock()
     response.WhichOneof.return_value = "x_y_data"
     response.x_y_data = expected_xydata
@@ -214,7 +205,6 @@ def test___read_condition___value_correct(
         attributes=attrs,
         double_array=array_pb2.DoubleArray(values=[5.0, 6.0, 7.0]),
     )
-
     response = Mock()
     response.WhichOneof.return_value = "vector"
     response.vector = expected_vector
@@ -238,7 +228,6 @@ def test___read_data___without_expected_type___returns_object(
     expected_vector = vector_pb2.Vector(
         double_array=array_pb2.DoubleArray(values=[1.0, 2.0, 3.0]),
     )
-
     response = Mock()
     response.WhichOneof.return_value = "vector"
     response.vector = expected_vector
@@ -258,7 +247,6 @@ def test___read_data___with_matching_expected_type___returns_typed_value(
     expected_vector = vector_pb2.Vector(
         double_array=array_pb2.DoubleArray(values=[1.0, 2.0, 3.0]),
     )
-
     response = Mock()
     response.WhichOneof.return_value = "vector"
     response.vector = expected_vector
@@ -277,7 +265,6 @@ def test___read_data___with_mismatched_expected_type___raises_type_error(
     expected_vector = vector_pb2.Vector(
         double_array=array_pb2.DoubleArray(values=[1.0, 2.0, 3.0]),
     )
-
     response = Mock()
     response.WhichOneof.return_value = "vector"
     response.vector = expected_vector
@@ -291,7 +278,6 @@ def test___read_measurement___unsupported_type___raises_type_error(
     data_store_client: DataStoreClient, mocked_data_store_service_client: NonCallableMock
 ) -> None:
     published_measurement = PublishedMeasurement(id="measurement-666")
-
     response = Mock()
     response.WhichOneof.return_value = "unknown_type"
     mocked_data_store_service_client.read_measurement_value.return_value = response
@@ -304,7 +290,6 @@ def test___read_condition___unsupported_type___raises_type_error(
     data_store_client: DataStoreClient, mocked_data_store_service_client: NonCallableMock
 ) -> None:
     published_condition = PublishedCondition(id="condition-555")
-
     response = Mock()
     response.WhichOneof.return_value = "unknown_type"
     mocked_data_store_service_client.read_condition_value.return_value = response

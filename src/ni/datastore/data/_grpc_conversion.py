@@ -183,9 +183,7 @@ def convert_read_measurement_response_from_protobuf(
 ) -> object:
     """Convert the value in the ReadMeasurementValueResponse from protobuf and return it."""
     read_data_type = response.WhichOneof("value")
-    if read_data_type == "vector":
-        return vector_from_protobuf(response.vector)
-    elif read_data_type == "digital_waveform":
+    if read_data_type == "digital_waveform":
         return digital_waveform_from_protobuf(response.digital_waveform)
     elif read_data_type == "double_analog_waveform":
         return float64_analog_waveform_from_protobuf(response.double_analog_waveform)
@@ -197,6 +195,8 @@ def convert_read_measurement_response_from_protobuf(
         return int16_analog_waveform_from_protobuf(response.i16_analog_waveform)
     elif read_data_type == "i16_complex_waveform":
         return int16_complex_waveform_from_protobuf(response.i16_complex_waveform)
+    elif read_data_type == "vector":
+        return vector_from_protobuf(response.vector)
     elif read_data_type == "x_y_data":
         return float64_xydata_from_protobuf(response.x_y_data)
     else:
