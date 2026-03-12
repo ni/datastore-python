@@ -111,7 +111,7 @@ def query_data(published_measurement_id: str) -> None:
             operator = metadata_store_client.get_operator(test_result.operator_id)
             print(f"operator: {operator}")
 
-            waveform = data_store_client.read_data(found_measurement, expected_type=AnalogWaveform)
+            waveform = data_store_client.read_measurement_value(found_measurement, expected_type=AnalogWaveform)
             print(f"published data is: {waveform.raw_data}")
 
 
