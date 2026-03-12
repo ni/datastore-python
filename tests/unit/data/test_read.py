@@ -20,7 +20,7 @@ from nitypes.waveform import AnalogWaveform, ComplexWaveform, DigitalWaveform, S
 from nitypes.xy_data import XYData
 
 
-def test___read_data_measurement___calls_data_store_client(
+def test___read_measurement_value___calls_data_store_client(
     data_store_client: DataStoreClient, mocked_data_store_service_client: NonCallableMock
 ) -> None:
     published_measurement = PublishedMeasurement(id="measurement-123")
@@ -30,7 +30,9 @@ def test___read_data_measurement___calls_data_store_client(
     response.double_analog_waveform = expected_waveform
     mocked_data_store_service_client.read_measurement_value.return_value = response
 
-    actual_waveform = data_store_client.read_data(published_measurement, AnalogWaveform)
+    actual_waveform = data_store_client.read_measurement_value(
+        published_measurement, AnalogWaveform
+    )
 
     mocked_data_store_service_client.read_measurement_value.assert_called_once()
     args, __ = mocked_data_store_service_client.read_measurement_value.call_args
@@ -50,7 +52,9 @@ def test___read_double_analog_waveform___value_correct(
     response.double_analog_waveform = expected_waveform
     mocked_data_store_service_client.read_measurement_value.return_value = response
 
-    actual_waveform = data_store_client.read_data(published_measurement, AnalogWaveform)
+    actual_waveform = data_store_client.read_measurement_value(
+        published_measurement, AnalogWaveform
+    )
 
     assert isinstance(actual_waveform, AnalogWaveform)
     assert list(actual_waveform.scaled_data) == list(expected_waveform.y_data)
@@ -66,7 +70,9 @@ def test___read_i16_analog_waveform___value_correct(
     response.i16_analog_waveform = expected_waveform
     mocked_data_store_service_client.read_measurement_value.return_value = response
 
-    actual_waveform = data_store_client.read_data(published_measurement, AnalogWaveform)
+    actual_waveform = data_store_client.read_measurement_value(
+        published_measurement, AnalogWaveform
+    )
 
     assert isinstance(actual_waveform, AnalogWaveform)
     assert list(actual_waveform.raw_data) == list(expected_waveform.y_data)
@@ -82,7 +88,9 @@ def test___read_double_complex_waveform___value_correct(
     response.double_complex_waveform = expected_waveform
     mocked_data_store_service_client.read_measurement_value.return_value = response
 
-    actual_waveform = data_store_client.read_data(published_measurement, ComplexWaveform)
+    actual_waveform = data_store_client.read_measurement_value(
+        published_measurement, ComplexWaveform
+    )
 
     assert isinstance(actual_waveform, ComplexWaveform)
     assert actual_waveform.sample_count == actual_waveform.capacity == 2
@@ -100,7 +108,9 @@ def test___read_i16_complex_waveform___value_correct(
     response.i16_complex_waveform = expected_waveform
     mocked_data_store_service_client.read_measurement_value.return_value = response
 
-    actual_waveform = data_store_client.read_data(published_measurement, ComplexWaveform)
+    actual_waveform = data_store_client.read_measurement_value(
+        published_measurement, ComplexWaveform
+    )
 
     assert isinstance(actual_waveform, ComplexWaveform)
     assert actual_waveform.sample_count == actual_waveform.capacity == 2
@@ -119,7 +129,9 @@ def test___read_digital_waveform___value_correct(
     response.digital_waveform = expected_waveform
     mocked_data_store_service_client.read_measurement_value.return_value = response
 
-    actual_waveform = data_store_client.read_data(published_measurement, DigitalWaveform)
+    actual_waveform = data_store_client.read_measurement_value(
+        published_measurement, DigitalWaveform
+    )
 
     assert isinstance(actual_waveform, DigitalWaveform)
     assert np.array_equal(actual_waveform.data, data)
@@ -140,7 +152,7 @@ def test___read_double_spectrum___value_correct(
     response.double_spectrum = expected_waveform
     mocked_data_store_service_client.read_measurement_value.return_value = response
 
-    actual_waveform = data_store_client.read_data(published_measurement, Spectrum)
+    actual_waveform = data_store_client.read_measurement_value(published_measurement, Spectrum)
 
     assert isinstance(actual_waveform, Spectrum)
     assert list(actual_waveform.data) == [1.0, 2.0, 3.0]
@@ -162,7 +174,7 @@ def test___read_vector___value_correct(
     response.vector = expected_vector
     mocked_data_store_service_client.read_measurement_value.return_value = response
 
-    actual_vector = data_store_client.read_data(published_measurement, Vector)
+    actual_vector = data_store_client.read_measurement_value(published_measurement, Vector)
 
     assert isinstance(actual_vector, Vector)
     assert list(actual_vector) == [1.0, 2.0, 3.0]
@@ -187,7 +199,7 @@ def test___read_xydata___value_correct(
     response.x_y_data = expected_xydata
     mocked_data_store_service_client.read_measurement_value.return_value = response
 
-    actual_xydata = data_store_client.read_data(published_measurement, XYData)
+    actual_xydata = data_store_client.read_measurement_value(published_measurement, XYData)
 
     assert isinstance(actual_xydata, XYData)
     assert list(actual_xydata.x_data) == [1.0, 2.0]
@@ -196,7 +208,7 @@ def test___read_xydata___value_correct(
     assert actual_xydata.y_units == "seconds"
 
 
-def test___read_condition___value_correct(
+def test___read_condition_value___value_correct(
     data_store_client: DataStoreClient, mocked_data_store_service_client: NonCallableMock
 ) -> None:
     published_condition = PublishedCondition(id="condition-789")
@@ -210,7 +222,7 @@ def test___read_condition___value_correct(
     response.vector = expected_vector
     mocked_data_store_service_client.read_condition_value.return_value = response
 
-    actual_vector = data_store_client.read_data(published_condition, Vector)
+    actual_vector = data_store_client.read_condition_value(published_condition, Vector)
 
     mocked_data_store_service_client.read_condition_value.assert_called_once()
     args, __ = mocked_data_store_service_client.read_condition_value.call_args
@@ -221,7 +233,7 @@ def test___read_condition___value_correct(
     assert actual_vector.units == "volts"
 
 
-def test___read_data___without_expected_type___returns_object(
+def test___read_measurement_value___without_expected_type___returns_object(
     data_store_client: DataStoreClient, mocked_data_store_service_client: NonCallableMock
 ) -> None:
     published_measurement = PublishedMeasurement(id="measurement-999")
@@ -233,14 +245,14 @@ def test___read_data___without_expected_type___returns_object(
     response.vector = expected_vector
     mocked_data_store_service_client.read_measurement_value.return_value = response
 
-    actual_value = data_store_client.read_data(published_measurement)
+    actual_value = data_store_client.read_measurement_value(published_measurement)
 
     # Without expected_type, it returns the converted Python object
     assert isinstance(actual_value, Vector)
     assert list(actual_value) == [1.0, 2.0, 3.0]
 
 
-def test___read_data___with_matching_expected_type___returns_typed_value(
+def test___read_measurement_value___with_matching_expected_type___returns_typed_value(
     data_store_client: DataStoreClient, mocked_data_store_service_client: NonCallableMock
 ) -> None:
     published_measurement = PublishedMeasurement(id="measurement-888")
@@ -252,13 +264,13 @@ def test___read_data___with_matching_expected_type___returns_typed_value(
     response.vector = expected_vector
     mocked_data_store_service_client.read_measurement_value.return_value = response
 
-    actual_value = data_store_client.read_data(published_measurement, Vector)
+    actual_value = data_store_client.read_measurement_value(published_measurement, Vector)
 
     assert isinstance(actual_value, Vector)
     assert list(actual_value) == [1.0, 2.0, 3.0]
 
 
-def test___read_data___with_mismatched_expected_type___raises_type_error(
+def test___read_measurement_value___with_mismatched_expected_type___raises_type_error(
     data_store_client: DataStoreClient, mocked_data_store_service_client: NonCallableMock
 ) -> None:
     published_measurement = PublishedMeasurement(id="measurement-777")
@@ -271,10 +283,10 @@ def test___read_data___with_mismatched_expected_type___raises_type_error(
     mocked_data_store_service_client.read_measurement_value.return_value = response
 
     with pytest.raises(TypeError, match="Expected type.*AnalogWaveform.*got"):
-        data_store_client.read_data(published_measurement, AnalogWaveform)
+        data_store_client.read_measurement_value(published_measurement, AnalogWaveform)
 
 
-def test___read_measurement___unsupported_type___raises_type_error(
+def test___read_measurement_value___unsupported_type___raises_type_error(
     data_store_client: DataStoreClient, mocked_data_store_service_client: NonCallableMock
 ) -> None:
     published_measurement = PublishedMeasurement(id="measurement-666")
@@ -283,10 +295,10 @@ def test___read_measurement___unsupported_type___raises_type_error(
     mocked_data_store_service_client.read_measurement_value.return_value = response
 
     with pytest.raises(TypeError, match="Invalid read type: unknown_type"):
-        data_store_client.read_data(published_measurement)
+        data_store_client.read_measurement_value(published_measurement)
 
 
-def test___read_condition___unsupported_type___raises_type_error(
+def test___read_condition_value___unsupported_type___raises_type_error(
     data_store_client: DataStoreClient, mocked_data_store_service_client: NonCallableMock
 ) -> None:
     published_condition = PublishedCondition(id="condition-555")
@@ -295,4 +307,4 @@ def test___read_condition___unsupported_type___raises_type_error(
     mocked_data_store_service_client.read_condition_value.return_value = response
 
     with pytest.raises(TypeError, match="Invalid read type: unknown_type"):
-        data_store_client.read_data(published_condition)
+        data_store_client.read_condition_value(published_condition)

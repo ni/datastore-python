@@ -9,7 +9,7 @@ from nitypes.vector import Vector
 from utilities import DataStoreContext
 
 
-def test___publish_float___read_data_returns_vector(
+def test___publish_float___read_measurement_value_returns_vector(
     acceptance_test_context: DataStoreContext,
 ) -> None:
     with DataStoreClient() as data_store_client:
@@ -33,12 +33,14 @@ def test___publish_float___read_data_returns_vector(
         published_measurement = data_store_client.get_measurement(published_measurement_id)
 
         # A published batch floats will be read back as a Vector.
-        vector = data_store_client.read_data(published_measurement, expected_type=Vector)
+        vector = data_store_client.read_measurement_value(
+            published_measurement, expected_type=Vector
+        )
         assert vector._values == [1.0, 2.0, 3.0, 4.0]
         assert vector.units == ""
 
 
-def test___publish_batch_vector___read_data_returns_vector(
+def test___publish_batch_vector___read_measurement_value_returns_vector(
     acceptance_test_context: DataStoreContext,
 ) -> None:
     with DataStoreClient() as data_store_client:
@@ -65,5 +67,7 @@ def test___publish_batch_vector___read_data_returns_vector(
         published_measurement = data_store_client.get_measurement(published_measurement_id)
 
         # A batch published Vector will be read back as a Vector.
-        vector = data_store_client.read_data(published_measurement, expected_type=Vector)
+        vector = data_store_client.read_measurement_value(
+            published_measurement, expected_type=Vector
+        )
         assert vector == expected_vector

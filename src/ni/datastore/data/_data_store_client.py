@@ -362,21 +362,21 @@ class DataStoreClient:
         return publish_response.measurement_ids
 
     @overload
-    def read_data(
+    def read_condition_value(
         self,
-        read_source: PublishedMeasurement | PublishedCondition,
+        read_source: PublishedCondition,
         expected_type: Type[TRead],
     ) -> TRead: ...
 
     @overload
-    def read_data(
+    def read_condition_value(
         self,
-        read_source: PublishedMeasurement | PublishedCondition,
+        read_source: PublishedCondition,
     ) -> object: ...
 
-    def read_data(
+    def read_condition_value(
         self,
-        read_source: PublishedMeasurement | PublishedCondition,
+        read_source: PublishedCondition,
         expected_type: Type[TRead] | None = None,
     ) -> TRead | object:
         """Read data published to the data store.
@@ -409,6 +409,53 @@ class DataStoreClient:
         else:
             raise TypeError(f"Unsupported read_source type: {type(read_source)}")
 
+        if expected_type is not None and not isinstance(read_value, expected_type):
+            raise TypeError(f"Expected type {expected_type}, got {type(read_value)}")
+
+        return read_value
+
+    @overload
+    def read_measurement_value(
+        self,
+        read_source: PublishedMeasurement,
+        expected_type: Type[TRead],
+    ) -> TRead: ...
+
+    @overload
+    def read_measurement_value(
+        self,
+        read_source: PublishedMeasurement,
+    ) -> object: ...
+
+    def read_measurement_value(
+        self,
+        read_source: PublishedMeasurement,
+        expected_type: Type[TRead] | None = None,
+    ) -> TRead | object:
+        """Read data published to the data store.
+
+        Args:
+            read_source: The source from which to read data. Can be:
+                - A PublishedMeasurement
+                - A PublishedCondition
+
+            expected_type: Optional type to validate the returned data against.
+                If provided, a TypeError will be raised if the actual data type
+                doesn't match.
+
+        Returns:
+            The data retrieved from the data store. The return type depends on
+            what was originally published:
+            - Scalar measurements return as Vectors
+            - Other types are returned as originally published
+            If expected_type is specified, the return value is guaranteed to be
+            of that type.
+
+        Raises:
+            TypeError: If expected_type is provided and the actual data type
+                doesn't match.
+        """
+        read_value = self._read_measurement(read_source)
         if expected_type is not None and not isinstance(read_value, expected_type):
             raise TypeError(f"Expected type {expected_type}, got {type(read_value)}")
 

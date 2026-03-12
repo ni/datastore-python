@@ -315,5 +315,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         assert found_hw_item.link == hardware_item.link
         assert found_hw_item.extension == hardware_item.extension
 
-        waveform = data_store_client.read_data(found_measurement, expected_type=AnalogWaveform)
+        waveform = data_store_client.read_measurement_value(
+            found_measurement, expected_type=AnalogWaveform
+        )
         assert waveform == expected_waveform

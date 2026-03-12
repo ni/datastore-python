@@ -13,7 +13,7 @@ from nitypes.xy_data import XYData
 from utilities import DataStoreContext
 
 
-def test___publish_float___read_data_returns_vector(
+def test___publish_float___read_measurement_value_returns_vector(
     acceptance_test_context: DataStoreContext,
 ) -> None:
     with DataStoreClient() as data_store_client:
@@ -26,12 +26,14 @@ def test___publish_float___read_data_returns_vector(
 
         # A published integer will be read back as a Vector.
         published_measurement = data_store_client.get_measurement(published_measurement_id)
-        vector = data_store_client.read_data(published_measurement, expected_type=Vector)
+        vector = data_store_client.read_measurement_value(
+            published_measurement, expected_type=Vector
+        )
         assert vector[0] == 123.45
         assert vector.units == ""
 
 
-def test___publish_scalar___read_data_returns_vector(
+def test___publish_scalar___read_measurement_value_returns_vector(
     acceptance_test_context: DataStoreContext,
 ) -> None:
     with DataStoreClient() as data_store_client:
@@ -45,12 +47,14 @@ def test___publish_scalar___read_data_returns_vector(
 
         # A published Scalar will be read back as a Vector.
         published_measurement = data_store_client.get_measurement(published_measurement_id)
-        vector = data_store_client.read_data(published_measurement, expected_type=Vector)
+        vector = data_store_client.read_measurement_value(
+            published_measurement, expected_type=Vector
+        )
         assert vector[0] == expected_scalar.value
         assert vector.units == expected_scalar.units
 
 
-def test___publish_xydata___read_data_returns_xydata(
+def test___publish_xydata___read_measurement_value_returns_xydata(
     acceptance_test_context: DataStoreContext,
 ) -> None:
     with DataStoreClient() as data_store_client:
@@ -69,11 +73,13 @@ def test___publish_xydata___read_data_returns_xydata(
         )
 
         published_measurement = data_store_client.get_measurement(published_measurement_id)
-        xydata = data_store_client.read_data(published_measurement, expected_type=XYData)
+        xydata = data_store_client.read_measurement_value(
+            published_measurement, expected_type=XYData
+        )
         assert xydata == expected_xydata
 
 
-def test___publish_spectrum___read_data_returns_spectrum(
+def test___publish_spectrum___read_measurement_value_returns_spectrum(
     acceptance_test_context: DataStoreContext,
 ) -> None:
     with DataStoreClient() as data_store_client:
@@ -92,11 +98,13 @@ def test___publish_spectrum___read_data_returns_spectrum(
         )
 
         published_measurement = data_store_client.get_measurement(published_measurement_id)
-        spectrum = data_store_client.read_data(published_measurement, expected_type=Spectrum)
+        spectrum = data_store_client.read_measurement_value(
+            published_measurement, expected_type=Spectrum
+        )
         assert spectrum == expected_spectrum
 
 
-def test___publish_analog_waveform___read_data_returns_analog_waveform(
+def test___publish_analog_waveform___read_measurement_value_returns_analog_waveform(
     acceptance_test_context: DataStoreContext,
 ) -> None:
     with DataStoreClient() as data_store_client:
@@ -113,11 +121,13 @@ def test___publish_analog_waveform___read_data_returns_analog_waveform(
         )
 
         published_measurement = data_store_client.get_measurement(published_measurement_id)
-        waveform = data_store_client.read_data(published_measurement, expected_type=AnalogWaveform)
+        waveform = data_store_client.read_measurement_value(
+            published_measurement, expected_type=AnalogWaveform
+        )
         assert waveform == expected_waveform
 
 
-def test___publish_digital_waveform___read_data_returns_digital_waveform(
+def test___publish_digital_waveform___read_measurement_value_returns_digital_waveform(
     acceptance_test_context: DataStoreContext,
 ) -> None:
     with DataStoreClient() as data_store_client:
@@ -130,11 +140,13 @@ def test___publish_digital_waveform___read_data_returns_digital_waveform(
         )
 
         published_measurement = data_store_client.get_measurement(published_measurement_id)
-        waveform = data_store_client.read_data(published_measurement, expected_type=DigitalWaveform)
+        waveform = data_store_client.read_measurement_value(
+            published_measurement, expected_type=DigitalWaveform
+        )
         assert waveform == expected_waveform
 
 
-def test___publish_complex_waveform___read_data_returns_complex_waveform(
+def test___publish_complex_waveform___read_measurement_value_returns_complex_waveform(
     acceptance_test_context: DataStoreContext,
 ) -> None:
     with DataStoreClient() as data_store_client:
@@ -147,7 +159,9 @@ def test___publish_complex_waveform___read_data_returns_complex_waveform(
         )
 
         published_measurement = data_store_client.get_measurement(published_measurement_id)
-        waveform = data_store_client.read_data(published_measurement, expected_type=ComplexWaveform)
+        waveform = data_store_client.read_measurement_value(
+            published_measurement, expected_type=ComplexWaveform
+        )
         assert waveform == expected_waveform
 
 
