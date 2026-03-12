@@ -382,9 +382,7 @@ class DataStoreClient:
         """Read data published to the data store.
 
         Args:
-            read_source: The source from which to read data. Can be:
-                - A PublishedMeasurement
-                - A PublishedCondition
+            read_source: The source from which to read data (PublishedCondition).
 
             expected_type: Optional type to validate the returned data against.
                 If provided, a TypeError will be raised if the actual data type
@@ -402,13 +400,7 @@ class DataStoreClient:
             TypeError: If expected_type is provided and the actual data type
                 doesn't match.
         """
-        if isinstance(read_source, PublishedMeasurement):
-            read_value = self._read_measurement(read_source)
-        elif isinstance(read_source, PublishedCondition):
-            read_value = self._read_condition(read_source)
-        else:
-            raise TypeError(f"Unsupported read_source type: {type(read_source)}")
-
+        read_value = self._read_condition(read_source)
         if expected_type is not None and not isinstance(read_value, expected_type):
             raise TypeError(f"Expected type {expected_type}, got {type(read_value)}")
 
@@ -435,9 +427,7 @@ class DataStoreClient:
         """Read data published to the data store.
 
         Args:
-            read_source: The source from which to read data. Can be:
-                - A PublishedMeasurement
-                - A PublishedCondition
+            read_source: The source from which to read data (PublishedMeasurement).
 
             expected_type: Optional type to validate the returned data against.
                 If provided, a TypeError will be raised if the actual data type
