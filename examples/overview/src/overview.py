@@ -112,7 +112,7 @@ def query_data(published_measurement_id: str) -> None:
             print(f"operator: {operator}")
 
             waveform = data_store_client.read_measurement_value(
-                found_measurement, expected_type=AnalogWaveform,
+                found_measurement, expected_type=AnalogWaveform
             )
             print(f"published data is: {waveform.raw_data}")
 
