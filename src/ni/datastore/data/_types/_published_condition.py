@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from ni.datastore.data._types._moniker import Moniker
 from ni.measurements.data.v1.data_store_pb2 import (
     PublishedCondition as PublishedConditionProto,
 )
@@ -12,12 +11,11 @@ class PublishedCondition:
     """Represents a condition that has been published to the data store.
 
     A published condition contains metadata about a condition value that was
-    published, including a moniker for data retrieval and associated metadata
+    published, including an id for data retrieval and associated metadata
     like condition name, type, and associated step/test result IDs.
     """
 
     __slots__ = (
-        "moniker",
         "id",
         "name",
         "condition_type",
@@ -28,7 +26,6 @@ class PublishedCondition:
     def __init__(
         self,
         *,
-        moniker: Moniker | None = None,
         id: str = "",
         name: str = "",
         condition_type: str = "",
@@ -38,8 +35,6 @@ class PublishedCondition:
         """Initialize a PublishedCondition instance.
 
         Args:
-            moniker: The moniker of the condition that this value is associated
-                with. This moniker returns a Vector when read.
             id: The unique identifier of the condition. This
                 can be used to reference and find the condition in the data store.
             name: The name of the condition.
@@ -49,7 +44,6 @@ class PublishedCondition:
             test_result_id: The ID of the test result with which this condition
                 is associated.
         """
-        self.moniker = moniker
         self.id = id
         self.name = name
         self.condition_type = condition_type
@@ -60,11 +54,6 @@ class PublishedCondition:
     def from_protobuf(published_condition_proto: PublishedConditionProto) -> "PublishedCondition":
         """Create a PublishedCondition instance from a protobuf PublishedCondition message."""
         return PublishedCondition(
-            moniker=(
-                Moniker.from_protobuf(published_condition_proto.moniker)
-                if published_condition_proto.HasField("moniker")
-                else None
-            ),
             id=published_condition_proto.id,
             name=published_condition_proto.name,
             condition_type=published_condition_proto.condition_type,
@@ -75,7 +64,6 @@ class PublishedCondition:
     def to_protobuf(self) -> PublishedConditionProto:
         """Convert this PublishedCondition instance to a protobuf PublishedCondition message."""
         return PublishedConditionProto(
-            moniker=self.moniker.to_protobuf() if self.moniker is not None else None,
             id=self.id,
             name=self.name,
             condition_type=self.condition_type,
@@ -88,8 +76,7 @@ class PublishedCondition:
         if not isinstance(other, PublishedCondition):
             return NotImplemented
         return (
-            self.moniker == other.moniker
-            and self.id == other.id
+            self.id == other.id
             and self.name == other.name
             and self.condition_type == other.condition_type
             and self.step_id == other.step_id

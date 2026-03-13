@@ -8,21 +8,19 @@ from collections.abc import Iterable, Sequence
 from threading import Lock
 from types import TracebackType
 from typing import TYPE_CHECKING, Type, TypeVar, overload
-from urllib.parse import urlparse
 
 import hightime as ht
 from grpc import Channel
-from ni.datamonikers.v1.client import MonikerClient
 from ni.datastore.data._grpc_conversion import (
+    convert_read_condition_response_from_protobuf,
+    convert_read_measurement_response_from_protobuf,
     get_publish_measurement_timestamp,
     populate_publish_condition_batch_request_values,
     populate_publish_condition_request_value,
     populate_publish_measurement_batch_request_values,
     populate_publish_measurement_request_value,
-    unpack_and_convert_from_protobuf_any,
 )
 from ni.datastore.data._types._error_information import ErrorInformation
-from ni.datastore.data._types._moniker import Moniker
 from ni.datastore.data._types._outcome import Outcome
 from ni.datastore.data._types._published_condition import PublishedCondition
 from ni.datastore.data._types._published_measurement import PublishedMeasurement
@@ -45,6 +43,8 @@ from ni.measurements.data.v1.data_store_service_pb2 import (
     QueryMeasurementsRequest,
     QueryStepsRequest,
     QueryTestResultsRequest,
+    ReadConditionValueRequest,
+    ReadMeasurementValueRequest,
 )
 from ni.protobuf.types.precision_timestamp_conversion import (
     hightime_datetime_to_protobuf,
@@ -72,8 +72,6 @@ class DataStoreClient:
         "_grpc_channel_pool",
         "_data_store_client",
         "_data_store_client_lock",
-        "_moniker_clients_by_service_location",
-        "_moniker_clients_lock",
     )
 
     _DATA_STORE_CLIENT_CLOSED_ERROR = (
@@ -86,9 +84,7 @@ class DataStoreClient:
     _grpc_channel: Channel | None
     _grpc_channel_pool: GrpcChannelPool | None
     _data_store_client: DataStoreServiceClient | None
-    _moniker_clients_by_service_location: dict[str, MonikerClient]
     _data_store_client_lock: Lock
-    _moniker_clients_lock: Lock
 
     def __init__(
         self,
@@ -102,9 +98,7 @@ class DataStoreClient:
             discovery_client: An optional discovery client (recommended).
 
             grpc_channel: An optional data store gRPC channel. Providing this channel will bypass
-                discovery service resolution of the data store. (Note: Reading data from a moniker
-                will still always use a channel corresponding to the service location specified by
-                that moniker.)
+                discovery service resolution of the data store.
 
             grpc_channel_pool: An optional gRPC channel pool (recommended).
         """
@@ -113,10 +107,8 @@ class DataStoreClient:
         self._grpc_channel_pool = grpc_channel_pool
 
         self._data_store_client = None
-        self._moniker_clients_by_service_location = {}
 
         self._data_store_client_lock = Lock()
-        self._moniker_clients_lock = Lock()
 
         self._closed = False
 
@@ -141,11 +133,6 @@ class DataStoreClient:
             if self._data_store_client is not None:
                 self._data_store_client.close()
                 self._data_store_client = None
-
-        with self._moniker_clients_lock:
-            for _, moniker_client in self._moniker_clients_by_service_location.items():
-                moniker_client.close()
-            self._moniker_clients_by_service_location.clear()
 
     def publish_condition(
         self,
@@ -375,30 +362,72 @@ class DataStoreClient:
         return publish_response.measurement_ids
 
     @overload
-    def read_data(
+    def read_condition_value(
         self,
-        moniker_source: Moniker | PublishedMeasurement | PublishedCondition,
+        read_source: PublishedCondition,
         expected_type: Type[TRead],
     ) -> TRead: ...
 
     @overload
-    def read_data(
+    def read_condition_value(
         self,
-        moniker_source: Moniker | PublishedMeasurement | PublishedCondition,
+        read_source: PublishedCondition,
     ) -> object: ...
 
-    def read_data(
+    def read_condition_value(
         self,
-        moniker_source: Moniker | PublishedMeasurement | PublishedCondition,
+        read_source: PublishedCondition,
         expected_type: Type[TRead] | None = None,
     ) -> TRead | object:
         """Read data published to the data store.
 
         Args:
-            moniker_source: The source from which to read data. Can be:
-                - A Moniker (wrapper type) directly
-                - A PublishedMeasurement (uses its moniker)
-                - A PublishedCondition (uses its moniker)
+            read_source: The source from which to read data (PublishedCondition).
+
+            expected_type: Optional type to validate the returned data against.
+                If provided, a TypeError will be raised if the actual data type
+                doesn't match.
+
+        Returns:
+            The data retrieved from the data store. The return type depends on
+            what was originally published:
+            - Scalar conditions return as Vectors
+            - Other types are returned as originally published
+            If expected_type is specified, the return value is guaranteed to be
+            of that type.
+
+        Raises:
+            TypeError: If expected_type is provided and the actual data type
+                doesn't match.
+        """
+        read_value = self._read_condition(read_source)
+        if expected_type is not None and not isinstance(read_value, expected_type):
+            raise TypeError(f"Expected type {expected_type}, got {type(read_value)}")
+
+        return read_value
+
+    @overload
+    def read_measurement_value(
+        self,
+        read_source: PublishedMeasurement,
+        expected_type: Type[TRead],
+    ) -> TRead: ...
+
+    @overload
+    def read_measurement_value(
+        self,
+        read_source: PublishedMeasurement,
+    ) -> object: ...
+
+    def read_measurement_value(
+        self,
+        read_source: PublishedMeasurement,
+        expected_type: Type[TRead] | None = None,
+    ) -> TRead | object:
+        """Read data published to the data store.
+
+        Args:
+            read_source: The source from which to read data (PublishedMeasurement).
 
             expected_type: Optional type to validate the returned data against.
                 If provided, a TypeError will be raised if the actual data type
@@ -413,33 +442,14 @@ class DataStoreClient:
             of that type.
 
         Raises:
-            ValueError: If the moniker_source doesn't have a valid moniker.
             TypeError: If expected_type is provided and the actual data type
                 doesn't match.
         """
-        from ni.datamonikers.v1.data_moniker_pb2 import Moniker as MonikerProto
+        read_value = self._read_measurement(read_source)
+        if expected_type is not None and not isinstance(read_value, expected_type):
+            raise TypeError(f"Expected type {expected_type}, got {type(read_value)}")
 
-        moniker_proto: MonikerProto
-
-        if isinstance(moniker_source, Moniker):
-            moniker_proto = moniker_source.to_protobuf()
-        elif isinstance(moniker_source, PublishedMeasurement):
-            if moniker_source.moniker is None:
-                raise ValueError("PublishedMeasurement must have a Moniker to read data")
-            moniker_proto = moniker_source.moniker.to_protobuf()
-        elif isinstance(moniker_source, PublishedCondition):
-            if moniker_source.moniker is None:
-                raise ValueError("PublishedCondition must have a Moniker to read data")
-            moniker_proto = moniker_source.moniker.to_protobuf()
-        else:
-            raise TypeError(f"Unsupported moniker_source type: {type(moniker_source)}")
-
-        moniker_client = self._get_moniker_client(moniker_proto.service_location)
-        read_result = moniker_client.read_from_moniker(moniker_proto)
-        converted_data = unpack_and_convert_from_protobuf_any(read_result.value)
-        if expected_type is not None and not isinstance(converted_data, expected_type):
-            raise TypeError(f"Expected type {expected_type}, got {type(converted_data)}")
-        return converted_data
+        return read_value
 
     def create_step(self, step: Step) -> str:
         """Create a new step in the data store.
@@ -540,7 +550,7 @@ class DataStoreClient:
 
         Returns:
             Sequence[PublishedCondition]: The list of matching conditions. Each
-                item contains a moniker for retrieving the condition
+                item contains an id for retrieving the condition
                 measurements, as well as the metadata associated with the
                 condition.
         """
@@ -563,7 +573,7 @@ class DataStoreClient:
 
         Returns:
             Sequence[PublishedMeasurement]: The list of matching measurements.
-                Each item contains a moniker for retrieving the measurement, as
+                Each item contains an id for retrieving the measurement, as
                 well as the metadata associated with the measurement.
         """
         query_request = QueryMeasurementsRequest(odata_query=odata_query)
@@ -629,21 +639,12 @@ class DataStoreClient:
             grpc_channel_pool=self._grpc_channel_pool,
         )
 
-    def _get_moniker_client(self, service_location: str) -> MonikerClient:
-        if self._closed:
-            raise RuntimeError(self._DATA_STORE_CLIENT_CLOSED_ERROR)
+    def _read_measurement(self, published_measurement: PublishedMeasurement) -> object:
+        request = ReadMeasurementValueRequest(measurement_id=published_measurement.id)
+        response = self._get_data_store_client().read_measurement_value(request)
+        return convert_read_measurement_response_from_protobuf(response)
 
-        parsed_service_location = urlparse(service_location).netloc
-        if parsed_service_location not in self._moniker_clients_by_service_location:
-            with self._moniker_clients_lock:
-                if parsed_service_location not in self._moniker_clients_by_service_location:
-                    self._moniker_clients_by_service_location[parsed_service_location] = (
-                        self._instantiate_moniker_client(parsed_service_location)
-                    )
-        return self._moniker_clients_by_service_location[parsed_service_location]
-
-    def _instantiate_moniker_client(self, parsed_service_location: str) -> MonikerClient:
-        return MonikerClient(
-            service_location=parsed_service_location,
-            grpc_channel_pool=self._grpc_channel_pool,
-        )
+    def _read_condition(self, published_condition: PublishedCondition) -> object:
+        request = ReadConditionValueRequest(condition_id=published_condition.id)
+        response = self._get_data_store_client().read_condition_value(request)
+        return convert_read_condition_response_from_protobuf(response)

@@ -10,7 +10,7 @@ from nitypes.vector import Vector
 from utilities import DataStoreContext
 
 
-def test___publish_float_condition___read_data_returns_vector(
+def test___publish_float_condition___read_condition_value_returns_vector(
     acceptance_test_context: DataStoreContext,
 ) -> None:
     with DataStoreClient() as data_store_client:
@@ -24,13 +24,13 @@ def test___publish_float_condition___read_data_returns_vector(
 
         # A published float will be read back as a Vector.
         published_condition = data_store_client.get_condition(published_condition_id)
-        vector = data_store_client.read_data(published_condition, expected_type=Vector)
+        vector = data_store_client.read_condition_value(published_condition, expected_type=Vector)
         assert len(vector) == 1
         assert vector[0] == 123.45
         assert vector.units == ""
 
 
-def test___publish_integer_condition___read_data_returns_vector(
+def test___publish_integer_condition___read_condition_value_returns_vector(
     acceptance_test_context: DataStoreContext,
 ) -> None:
     with DataStoreClient() as data_store_client:
@@ -44,13 +44,13 @@ def test___publish_integer_condition___read_data_returns_vector(
 
         # A published integer will be read back as a Vector.
         published_condition = data_store_client.get_condition(published_condition_id)
-        vector = data_store_client.read_data(published_condition, expected_type=Vector)
+        vector = data_store_client.read_condition_value(published_condition, expected_type=Vector)
         assert len(vector) == 1
         assert vector[0] == 123
         assert vector.units == ""
 
 
-def test___publish_bool_condition___read_data_returns_vector(
+def test___publish_bool_condition___read_condition_value_returns_vector(
     acceptance_test_context: DataStoreContext,
 ) -> None:
     with DataStoreClient() as data_store_client:
@@ -64,13 +64,13 @@ def test___publish_bool_condition___read_data_returns_vector(
 
         # A published bool will be read back as a Vector.
         published_condition = data_store_client.get_condition(published_condition_id)
-        vector = data_store_client.read_data(published_condition, expected_type=Vector)
+        vector = data_store_client.read_condition_value(published_condition, expected_type=Vector)
         assert len(vector) == 1
         assert vector[0] is True
         assert vector.units == ""
 
 
-def test___publish_str_condition___read_data_returns_vector(
+def test___publish_str_condition___read_condition_value_returns_vector(
     acceptance_test_context: DataStoreContext,
 ) -> None:
     with DataStoreClient() as data_store_client:
@@ -84,13 +84,13 @@ def test___publish_str_condition___read_data_returns_vector(
 
         # A published str will be read back as a Vector.
         published_condition = data_store_client.get_condition(published_condition_id)
-        vector = data_store_client.read_data(published_condition, expected_type=Vector)
+        vector = data_store_client.read_condition_value(published_condition, expected_type=Vector)
         assert len(vector) == 1
         assert vector[0] == "condition value"
         assert vector.units == ""
 
 
-def test___publish_scalar_condition___read_data_returns_vector(
+def test___publish_scalar_condition___read_condition_value_returns_vector(
     acceptance_test_context: DataStoreContext,
 ) -> None:
     with DataStoreClient() as data_store_client:
@@ -105,7 +105,7 @@ def test___publish_scalar_condition___read_data_returns_vector(
 
         # A published Scalar will be read back as a Vector.
         published_condition = data_store_client.get_condition(published_condition_id)
-        vector = data_store_client.read_data(published_condition, expected_type=Vector)
+        vector = data_store_client.read_condition_value(published_condition, expected_type=Vector)
         assert vector[0] == expected_scalar.value
         assert vector.units == expected_scalar.units
 

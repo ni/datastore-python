@@ -6,7 +6,6 @@ from typing import Iterable, MutableSequence
 
 import hightime as ht
 from ni.datastore.data._types._error_information import ErrorInformation
-from ni.datastore.data._types._moniker import Moniker
 from ni.datastore.data._types._outcome import Outcome
 from ni.datastore.data._types._published_condition import PublishedCondition
 from ni.measurements.data.v1.data_store_pb2 import PublishedMeasurement as PublishedMeasurementProto
@@ -25,7 +24,6 @@ class PublishedMeasurement:
     """
 
     __slots__ = (
-        "moniker",
         "_published_conditions",
         "id",
         "test_result_id",
@@ -66,7 +64,6 @@ class PublishedMeasurement:
     def __init__(
         self,
         *,
-        moniker: Moniker | None = None,
         published_conditions: Iterable[PublishedCondition] | None = None,
         id: str = "",
         test_result_id: str = "",
@@ -86,8 +83,6 @@ class PublishedMeasurement:
         """Initialize a PublishedMeasurement instance.
 
         Args:
-            moniker: The moniker of the measurement that this value is
-                associated with.
             published_conditions: The published conditions associated with this
                 measurement from the test step.
             id: The unique identifier of the measurement.
@@ -116,7 +111,6 @@ class PublishedMeasurement:
             error_information: Error or exception information in case of
                 measurement failure.
         """
-        self.moniker = moniker
         self._published_conditions: MutableSequence[PublishedCondition] = (
             list(published_conditions) if published_conditions is not None else []
         )
@@ -147,11 +141,6 @@ class PublishedMeasurement:
     ) -> "PublishedMeasurement":
         """Create a PublishedMeasurement instance from a protobuf PublishedMeasurement message."""
         return PublishedMeasurement(
-            moniker=(
-                Moniker.from_protobuf(published_measurement_proto.moniker)
-                if published_measurement_proto.HasField("moniker")
-                else None
-            ),
             published_conditions=[
                 PublishedCondition.from_protobuf(cond)
                 for cond in published_measurement_proto.published_conditions
@@ -187,7 +176,6 @@ class PublishedMeasurement:
     def to_protobuf(self) -> PublishedMeasurementProto:
         """Convert this PublishedMeasurement instance to a protobuf PublishedMeasurement message."""
         return PublishedMeasurementProto(
-            moniker=self.moniker.to_protobuf() if self.moniker is not None else None,
             published_conditions=[
                 condition.to_protobuf() for condition in self.published_conditions
             ],
@@ -222,8 +210,7 @@ class PublishedMeasurement:
         if not isinstance(other, PublishedMeasurement):
             return NotImplemented
         return (
-            self.moniker == other.moniker
-            and self.published_conditions == other.published_conditions
+            self.published_conditions == other.published_conditions
             and self.id == other.id
             and self.test_result_id == other.test_result_id
             and self.step_id == other.step_id

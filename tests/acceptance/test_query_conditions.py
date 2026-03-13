@@ -34,7 +34,7 @@ def test___query_conditions___filter_by_id___single_condition_returned(
         assert first_condition.name == condition_name
 
         # Check the value of the queried condition.
-        vector = data_store_client.read_data(first_condition, expected_type=Vector)
+        vector = data_store_client.read_condition_value(first_condition, expected_type=Vector)
         assert len(vector) == 1
         assert vector[0] == 123.45
         assert vector.units == ""
@@ -77,6 +77,6 @@ def test___query_conditions___filter_by_name___correct_conditions_returned(
         # Check the value of each queried condition.
         for condition in queried_conditions:
             assert condition is not None
-            vector = data_store_client.read_data(condition, expected_type=Vector)
+            vector = data_store_client.read_condition_value(condition, expected_type=Vector)
             assert condition.name == f"{condition_name_base} {vector[0]}"
             assert vector.units == ""

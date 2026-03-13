@@ -2,13 +2,11 @@
 
 from __future__ import annotations
 
-from typing import cast
-from unittest.mock import NonCallableMock
+from unittest.mock import Mock, NonCallableMock
 
 import numpy as np
-from google.protobuf.any_pb2 import Any as gpAny
-from ni.datamonikers.v1.data_moniker_pb2 import ReadFromMonikerResult
-from ni.datastore.data import DataStoreClient, Moniker
+import pytest
+from ni.datastore.data import DataStoreClient, PublishedCondition, PublishedMeasurement
 from ni.protobuf.types import (
     array_pb2,
     attribute_value_pb2,
@@ -22,76 +20,77 @@ from nitypes.waveform import AnalogWaveform, ComplexWaveform, DigitalWaveform, S
 from nitypes.xy_data import XYData
 
 
-def test___read_data___calls_moniker_client(
-    data_store_client: DataStoreClient, mocked_moniker_client: NonCallableMock
+def test___read_measurement_value___calls_data_store_client(
+    data_store_client: DataStoreClient, mocked_data_store_service_client: NonCallableMock
 ) -> None:
-    moniker = _init_moniker()
-    result = ReadFromMonikerResult()
-    value_to_read = gpAny()
+    published_measurement = PublishedMeasurement(id="measurement-123")
     expected_waveform = waveform_pb2.DoubleAnalogWaveform(y_data=[1.0, 2.0, 3.0])
-    value_to_read.Pack(expected_waveform)
-    result.value.CopyFrom(value_to_read)
-    mocked_moniker_client.read_from_moniker.return_value = result
+    response = Mock()
+    response.WhichOneof.return_value = "double_analog_waveform"
+    response.double_analog_waveform = expected_waveform
+    mocked_data_store_service_client.read_measurement_value.return_value = response
 
-    actual_waveform = data_store_client.read_data(moniker, AnalogWaveform)
+    actual_waveform = data_store_client.read_measurement_value(
+        published_measurement, AnalogWaveform
+    )
 
-    args, __ = mocked_moniker_client.read_from_moniker.call_args
-    from ni.datamonikers.v1.data_moniker_pb2 import Moniker as GrpcMoniker
-
-    requested_moniker = cast(GrpcMoniker, args[0])
-    assert requested_moniker.service_location == moniker.service_location
-    assert requested_moniker.data_instance == moniker.data_instance
-    assert requested_moniker.data_source == moniker.data_source
+    mocked_data_store_service_client.read_measurement_value.assert_called_once()
+    args, __ = mocked_data_store_service_client.read_measurement_value.call_args
+    request = args[0]
+    assert request.measurement_id == "measurement-123"
     assert isinstance(actual_waveform, AnalogWaveform)
     assert list(actual_waveform.scaled_data) == list(expected_waveform.y_data)
 
 
 def test___read_double_analog_waveform___value_correct(
-    data_store_client: DataStoreClient, mocked_moniker_client: NonCallableMock
+    data_store_client: DataStoreClient, mocked_data_store_service_client: NonCallableMock
 ) -> None:
-    moniker = _init_moniker()
-    result = ReadFromMonikerResult()
-    value_to_read = gpAny()
+    published_measurement = PublishedMeasurement(id="measurement-123")
     expected_waveform = waveform_pb2.DoubleAnalogWaveform(y_data=[1.0, 2.0, 3.0])
-    value_to_read.Pack(expected_waveform)
-    result.value.CopyFrom(value_to_read)
-    mocked_moniker_client.read_from_moniker.return_value = result
+    response = Mock()
+    response.WhichOneof.return_value = "double_analog_waveform"
+    response.double_analog_waveform = expected_waveform
+    mocked_data_store_service_client.read_measurement_value.return_value = response
 
-    actual_waveform = data_store_client.read_data(moniker, AnalogWaveform)
+    actual_waveform = data_store_client.read_measurement_value(
+        published_measurement, AnalogWaveform
+    )
 
     assert isinstance(actual_waveform, AnalogWaveform)
     assert list(actual_waveform.scaled_data) == list(expected_waveform.y_data)
 
 
 def test___read_i16_analog_waveform___value_correct(
-    data_store_client: DataStoreClient, mocked_moniker_client: NonCallableMock
+    data_store_client: DataStoreClient, mocked_data_store_service_client: NonCallableMock
 ) -> None:
-    moniker = _init_moniker()
-    result = ReadFromMonikerResult()
-    value_to_read = gpAny()
+    published_measurement = PublishedMeasurement(id="measurement-456")
     expected_waveform = waveform_pb2.I16AnalogWaveform(y_data=[1, 2, 3])
-    value_to_read.Pack(expected_waveform)
-    result.value.CopyFrom(value_to_read)
-    mocked_moniker_client.read_from_moniker.return_value = result
+    response = Mock()
+    response.WhichOneof.return_value = "i16_analog_waveform"
+    response.i16_analog_waveform = expected_waveform
+    mocked_data_store_service_client.read_measurement_value.return_value = response
 
-    actual_waveform = data_store_client.read_data(moniker, AnalogWaveform)
+    actual_waveform = data_store_client.read_measurement_value(
+        published_measurement, AnalogWaveform
+    )
 
     assert isinstance(actual_waveform, AnalogWaveform)
     assert list(actual_waveform.raw_data) == list(expected_waveform.y_data)
 
 
 def test___read_double_complex_waveform___value_correct(
-    data_store_client: DataStoreClient, mocked_moniker_client: NonCallableMock
+    data_store_client: DataStoreClient, mocked_data_store_service_client: NonCallableMock
 ) -> None:
-    moniker = _init_moniker()
-    result = ReadFromMonikerResult()
-    value_to_read = gpAny()
+    published_measurement = PublishedMeasurement(id="measurement-789")
     expected_waveform = waveform_pb2.DoubleComplexWaveform(y_data=[1.0, 2.0, 3.0, 4.0])
-    value_to_read.Pack(expected_waveform)
-    result.value.CopyFrom(value_to_read)
-    mocked_moniker_client.read_from_moniker.return_value = result
+    response = Mock()
+    response.WhichOneof.return_value = "double_complex_waveform"
+    response.double_complex_waveform = expected_waveform
+    mocked_data_store_service_client.read_measurement_value.return_value = response
 
-    actual_waveform = data_store_client.read_data(moniker, ComplexWaveform)
+    actual_waveform = data_store_client.read_measurement_value(
+        published_measurement, ComplexWaveform
+    )
 
     assert isinstance(actual_waveform, ComplexWaveform)
     assert actual_waveform.sample_count == actual_waveform.capacity == 2
@@ -100,17 +99,18 @@ def test___read_double_complex_waveform___value_correct(
 
 
 def test___read_i16_complex_waveform___value_correct(
-    data_store_client: DataStoreClient, mocked_moniker_client: NonCallableMock
+    data_store_client: DataStoreClient, mocked_data_store_service_client: NonCallableMock
 ) -> None:
-    moniker = _init_moniker()
-    result = ReadFromMonikerResult()
-    value_to_read = gpAny()
+    published_measurement = PublishedMeasurement(id="measurement-101")
     expected_waveform = waveform_pb2.I16ComplexWaveform(y_data=[1, 2, 3, 4])
-    value_to_read.Pack(expected_waveform)
-    result.value.CopyFrom(value_to_read)
-    mocked_moniker_client.read_from_moniker.return_value = result
+    response = Mock()
+    response.WhichOneof.return_value = "i16_complex_waveform"
+    response.i16_complex_waveform = expected_waveform
+    mocked_data_store_service_client.read_measurement_value.return_value = response
 
-    actual_waveform = data_store_client.read_data(moniker, ComplexWaveform)
+    actual_waveform = data_store_client.read_measurement_value(
+        published_measurement, ComplexWaveform
+    )
 
     assert isinstance(actual_waveform, ComplexWaveform)
     assert actual_waveform.sample_count == actual_waveform.capacity == 2
@@ -119,18 +119,19 @@ def test___read_i16_complex_waveform___value_correct(
 
 
 def test___read_digital_waveform___value_correct(
-    data_store_client: DataStoreClient, mocked_moniker_client: NonCallableMock
+    data_store_client: DataStoreClient, mocked_data_store_service_client: NonCallableMock
 ) -> None:
-    moniker = _init_moniker()
-    result = ReadFromMonikerResult()
-    value_to_read = gpAny()
+    published_measurement = PublishedMeasurement(id="measurement-202")
     data = np.array([[0, 1, 0], [1, 0, 1]], dtype=np.bool)
     expected_waveform = waveform_pb2.DigitalWaveform(y_data=data.tobytes(), signal_count=3)
-    value_to_read.Pack(expected_waveform)
-    result.value.CopyFrom(value_to_read)
-    mocked_moniker_client.read_from_moniker.return_value = result
+    response = Mock()
+    response.WhichOneof.return_value = "digital_waveform"
+    response.digital_waveform = expected_waveform
+    mocked_data_store_service_client.read_measurement_value.return_value = response
 
-    actual_waveform = data_store_client.read_data(moniker, DigitalWaveform)
+    actual_waveform = data_store_client.read_measurement_value(
+        published_measurement, DigitalWaveform
+    )
 
     assert isinstance(actual_waveform, DigitalWaveform)
     assert np.array_equal(actual_waveform.data, data)
@@ -138,21 +139,20 @@ def test___read_digital_waveform___value_correct(
 
 
 def test___read_double_spectrum___value_correct(
-    data_store_client: DataStoreClient, mocked_moniker_client: NonCallableMock
+    data_store_client: DataStoreClient, mocked_data_store_service_client: NonCallableMock
 ) -> None:
-    moniker = _init_moniker()
-    result = ReadFromMonikerResult()
-    value_to_read = gpAny()
+    published_measurement = PublishedMeasurement(id="measurement-303")
     expected_waveform = waveform_pb2.DoubleSpectrum(
         data=[1.0, 2.0, 3.0],
         start_frequency=100.0,
         frequency_increment=10.0,
     )
-    value_to_read.Pack(expected_waveform)
-    result.value.CopyFrom(value_to_read)
-    mocked_moniker_client.read_from_moniker.return_value = result
+    response = Mock()
+    response.WhichOneof.return_value = "double_spectrum"
+    response.double_spectrum = expected_waveform
+    mocked_data_store_service_client.read_measurement_value.return_value = response
 
-    actual_waveform = data_store_client.read_data(moniker, Spectrum)
+    actual_waveform = data_store_client.read_measurement_value(published_measurement, Spectrum)
 
     assert isinstance(actual_waveform, Spectrum)
     assert list(actual_waveform.data) == [1.0, 2.0, 3.0]
@@ -161,21 +161,20 @@ def test___read_double_spectrum___value_correct(
 
 
 def test___read_vector___value_correct(
-    data_store_client: DataStoreClient, mocked_moniker_client: NonCallableMock
+    data_store_client: DataStoreClient, mocked_data_store_service_client: NonCallableMock
 ) -> None:
-    moniker = _init_moniker()
-    result = ReadFromMonikerResult()
-    value_to_read = gpAny()
+    published_measurement = PublishedMeasurement(id="measurement-404")
     attrs = {"NI_UnitDescription": attribute_value_pb2.AttributeValue(string_value="amps")}
     expected_vector = vector_pb2.Vector(
         attributes=attrs,
         double_array=array_pb2.DoubleArray(values=[1.0, 2.0, 3.0]),
     )
-    value_to_read.Pack(expected_vector)
-    result.value.CopyFrom(value_to_read)
-    mocked_moniker_client.read_from_moniker.return_value = result
+    response = Mock()
+    response.WhichOneof.return_value = "vector"
+    response.vector = expected_vector
+    mocked_data_store_service_client.read_measurement_value.return_value = response
 
-    actual_vector = data_store_client.read_data(moniker, Vector)
+    actual_vector = data_store_client.read_measurement_value(published_measurement, Vector)
 
     assert isinstance(actual_vector, Vector)
     assert list(actual_vector) == [1.0, 2.0, 3.0]
@@ -183,11 +182,9 @@ def test___read_vector___value_correct(
 
 
 def test___read_xydata___value_correct(
-    data_store_client: DataStoreClient, mocked_moniker_client: NonCallableMock
+    data_store_client: DataStoreClient, mocked_data_store_service_client: NonCallableMock
 ) -> None:
-    moniker = _init_moniker()
-    result = ReadFromMonikerResult()
-    value_to_read = gpAny()
+    published_measurement = PublishedMeasurement(id="measurement-505")
     attrs = {
         "NI_UnitDescription_X": attribute_value_pb2.AttributeValue(string_value="amps"),
         "NI_UnitDescription_Y": attribute_value_pb2.AttributeValue(string_value="seconds"),
@@ -197,11 +194,12 @@ def test___read_xydata___value_correct(
         y_data=[3.0, 4.0],
         attributes=attrs,
     )
-    value_to_read.Pack(expected_xydata)
-    result.value.CopyFrom(value_to_read)
-    mocked_moniker_client.read_from_moniker.return_value = result
+    response = Mock()
+    response.WhichOneof.return_value = "x_y_data"
+    response.x_y_data = expected_xydata
+    mocked_data_store_service_client.read_measurement_value.return_value = response
 
-    actual_xydata = data_store_client.read_data(moniker, XYData)
+    actual_xydata = data_store_client.read_measurement_value(published_measurement, XYData)
 
     assert isinstance(actual_xydata, XYData)
     assert list(actual_xydata.x_data) == [1.0, 2.0]
@@ -210,7 +208,103 @@ def test___read_xydata___value_correct(
     assert actual_xydata.y_units == "seconds"
 
 
-def _init_moniker() -> Moniker:
-    return Moniker(
-        data_instance=12, data_source="ABCD123", service_location="http://localhost:50051"
+def test___read_condition_value___value_correct(
+    data_store_client: DataStoreClient, mocked_data_store_service_client: NonCallableMock
+) -> None:
+    published_condition = PublishedCondition(id="condition-789")
+    attrs = {"NI_UnitDescription": attribute_value_pb2.AttributeValue(string_value="volts")}
+    expected_vector = vector_pb2.Vector(
+        attributes=attrs,
+        double_array=array_pb2.DoubleArray(values=[5.0, 6.0, 7.0]),
     )
+    response = Mock()
+    response.WhichOneof.return_value = "vector"
+    response.vector = expected_vector
+    mocked_data_store_service_client.read_condition_value.return_value = response
+
+    actual_vector = data_store_client.read_condition_value(published_condition, Vector)
+
+    mocked_data_store_service_client.read_condition_value.assert_called_once()
+    args, __ = mocked_data_store_service_client.read_condition_value.call_args
+    request = args[0]
+    assert request.condition_id == "condition-789"
+    assert isinstance(actual_vector, Vector)
+    assert list(actual_vector) == [5.0, 6.0, 7.0]
+    assert actual_vector.units == "volts"
+
+
+def test___read_measurement_value___without_expected_type___returns_object(
+    data_store_client: DataStoreClient, mocked_data_store_service_client: NonCallableMock
+) -> None:
+    published_measurement = PublishedMeasurement(id="measurement-999")
+    expected_vector = vector_pb2.Vector(
+        double_array=array_pb2.DoubleArray(values=[1.0, 2.0, 3.0]),
+    )
+    response = Mock()
+    response.WhichOneof.return_value = "vector"
+    response.vector = expected_vector
+    mocked_data_store_service_client.read_measurement_value.return_value = response
+
+    actual_value = data_store_client.read_measurement_value(published_measurement)
+
+    # Without expected_type, it returns the converted Python object
+    assert isinstance(actual_value, Vector)
+    assert list(actual_value) == [1.0, 2.0, 3.0]
+
+
+def test___read_measurement_value___with_matching_expected_type___returns_typed_value(
+    data_store_client: DataStoreClient, mocked_data_store_service_client: NonCallableMock
+) -> None:
+    published_measurement = PublishedMeasurement(id="measurement-888")
+    expected_vector = vector_pb2.Vector(
+        double_array=array_pb2.DoubleArray(values=[1.0, 2.0, 3.0]),
+    )
+    response = Mock()
+    response.WhichOneof.return_value = "vector"
+    response.vector = expected_vector
+    mocked_data_store_service_client.read_measurement_value.return_value = response
+
+    actual_value = data_store_client.read_measurement_value(published_measurement, Vector)
+
+    assert isinstance(actual_value, Vector)
+    assert list(actual_value) == [1.0, 2.0, 3.0]
+
+
+def test___read_measurement_value___with_mismatched_expected_type___raises_type_error(
+    data_store_client: DataStoreClient, mocked_data_store_service_client: NonCallableMock
+) -> None:
+    published_measurement = PublishedMeasurement(id="measurement-777")
+    expected_vector = vector_pb2.Vector(
+        double_array=array_pb2.DoubleArray(values=[1.0, 2.0, 3.0]),
+    )
+    response = Mock()
+    response.WhichOneof.return_value = "vector"
+    response.vector = expected_vector
+    mocked_data_store_service_client.read_measurement_value.return_value = response
+
+    with pytest.raises(TypeError, match="Expected type.*AnalogWaveform.*got"):
+        data_store_client.read_measurement_value(published_measurement, AnalogWaveform)
+
+
+def test___read_measurement_value___unsupported_type___raises_type_error(
+    data_store_client: DataStoreClient, mocked_data_store_service_client: NonCallableMock
+) -> None:
+    published_measurement = PublishedMeasurement(id="measurement-666")
+    response = Mock()
+    response.WhichOneof.return_value = "unknown_type"
+    mocked_data_store_service_client.read_measurement_value.return_value = response
+
+    with pytest.raises(TypeError, match="Invalid read type: unknown_type"):
+        data_store_client.read_measurement_value(published_measurement)
+
+
+def test___read_condition_value___unsupported_type___raises_type_error(
+    data_store_client: DataStoreClient, mocked_data_store_service_client: NonCallableMock
+) -> None:
+    published_condition = PublishedCondition(id="condition-555")
+    response = Mock()
+    response.WhichOneof.return_value = "unknown_type"
+    mocked_data_store_service_client.read_condition_value.return_value = response
+
+    with pytest.raises(TypeError, match="Invalid read type: unknown_type"):
+        data_store_client.read_condition_value(published_condition)

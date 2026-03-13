@@ -47,7 +47,7 @@ nisyscfg = { version = ">=0.2.1" }
 
 [tool.poetry.group.dev.dependencies]
 # Uncomment to use local ni-datastore code
-# ni-datastore = {path = "../..", develop = true}
+ni-datastore = {path = "../..", develop = true}
 datastore-utilities = { path = "../../utilities", develop = true }
 
 [tool.poetry.group.lint.dependencies]

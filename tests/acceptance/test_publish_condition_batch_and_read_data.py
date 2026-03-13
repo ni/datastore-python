@@ -9,7 +9,7 @@ from nitypes.vector import Vector
 from utilities import DataStoreContext
 
 
-def test___publish_batch_float_condition___read_data_returns_vector(
+def test___publish_batch_float_condition___read_condition_value_returns_vector(
     acceptance_test_context: DataStoreContext,
 ) -> None:
     expected_value = [1.0, 2.0, 3.0]
@@ -24,12 +24,12 @@ def test___publish_batch_float_condition___read_data_returns_vector(
 
         # A batch published float will be read back as a Vector.
         published_condition = data_store_client.get_condition(published_condition_id)
-        vector = data_store_client.read_data(published_condition, expected_type=Vector)
+        vector = data_store_client.read_condition_value(published_condition, expected_type=Vector)
         assert vector._values == expected_value
         assert vector.units == ""
 
 
-def test___publish_batch_integer_condition___read_data_returns_vector(
+def test___publish_batch_integer_condition___read_condition_value_returns_vector(
     acceptance_test_context: DataStoreContext,
 ) -> None:
     expected_value = [5, 6, 7, 8]
@@ -44,12 +44,12 @@ def test___publish_batch_integer_condition___read_data_returns_vector(
 
         # A batch published integer will be read back as a Vector.
         published_condition = data_store_client.get_condition(published_condition_id)
-        vector = data_store_client.read_data(published_condition, expected_type=Vector)
+        vector = data_store_client.read_condition_value(published_condition, expected_type=Vector)
         assert vector._values == expected_value
         assert vector.units == ""
 
 
-def test___publish_batch_bool_condition___read_data_returns_vector(
+def test___publish_batch_bool_condition___read_condition_value_returns_vector(
     acceptance_test_context: DataStoreContext,
 ) -> None:
     expected_value = [True, False, True]
@@ -64,12 +64,12 @@ def test___publish_batch_bool_condition___read_data_returns_vector(
 
         # A batch published bool will be read back as a Vector.
         published_condition = data_store_client.get_condition(published_condition_id)
-        vector = data_store_client.read_data(published_condition, expected_type=Vector)
+        vector = data_store_client.read_condition_value(published_condition, expected_type=Vector)
         assert vector._values == expected_value
         assert vector.units == ""
 
 
-def test___publish_batch_str_condition___read_data_returns_vector(
+def test___publish_batch_str_condition___read_condition_value_returns_vector(
     acceptance_test_context: DataStoreContext,
 ) -> None:
     expected_value = ["one", "two", "three"]
@@ -84,12 +84,12 @@ def test___publish_batch_str_condition___read_data_returns_vector(
 
         # A published str will be read back as a Vector.
         published_condition = data_store_client.get_condition(published_condition_id)
-        vector = data_store_client.read_data(published_condition, expected_type=Vector)
+        vector = data_store_client.read_condition_value(published_condition, expected_type=Vector)
         assert vector._values == expected_value
         assert vector.units == ""
 
 
-def test___publish_batch_vector_condition___read_data_returns_vector(
+def test___publish_batch_vector_condition___read_condition_value_returns_vector(
     acceptance_test_context: DataStoreContext,
 ) -> None:
     with DataStoreClient() as data_store_client:
@@ -104,7 +104,7 @@ def test___publish_batch_vector_condition___read_data_returns_vector(
 
         # A batch published Vector will be read back as a Vector.
         published_condition = data_store_client.get_condition(published_condition_id)
-        vector = data_store_client.read_data(published_condition, expected_type=Vector)
+        vector = data_store_client.read_condition_value(published_condition, expected_type=Vector)
         assert vector == expected_vector
 
 

@@ -15,7 +15,6 @@ from pytest_mock import MockerFixture
 @pytest.fixture
 def data_store_client(
     mocked_data_store_service_client: NonCallableMock,
-    mocked_moniker_client: NonCallableMock,
     mocker: MockerFixture,
 ) -> DataStoreClient:
     """Returns the pytest fixture for the data store client."""
@@ -23,9 +22,6 @@ def data_store_client(
         DataStoreClient,
         "_instantiate_data_store_client",
         return_value=mocked_data_store_service_client,
-    )
-    mocker.patch.object(
-        DataStoreClient, "_instantiate_moniker_client", return_value=mocked_moniker_client
     )
     return DataStoreClient()
 
@@ -62,14 +58,6 @@ def mocked_metadata_store_service_client(mocker: MockerFixture) -> Any:
     )
     mock_metadatastore_instance = mock_metadatastore_client.return_value
     return mock_metadatastore_instance
-
-
-@pytest.fixture
-def mocked_moniker_client(mocker: MockerFixture) -> Any:
-    """Returns the pytest fixture for a mocked moniker client."""
-    mock_moniker_client = mocker.patch("ni.datamonikers.v1.client.MonikerClient", autospec=True)
-    mock_moniker_instance = mock_moniker_client.return_value
-    return mock_moniker_instance
 
 
 @pytest.fixture(scope="module")

@@ -8,12 +8,13 @@ from typing import Iterable, cast
 
 import hightime as ht
 import numpy as np
-from google.protobuf.any_pb2 import Any
 from ni.measurements.data.v1.data_store_service_pb2 import (
     PublishConditionBatchRequest,
     PublishConditionRequest,
     PublishMeasurementBatchRequest,
     PublishMeasurementRequest,
+    ReadConditionValueResponse,
+    ReadMeasurementValueResponse,
 )
 from ni.protobuf.types.precision_timestamp_conversion import (
     hightime_datetime_to_protobuf,
@@ -21,7 +22,6 @@ from ni.protobuf.types.precision_timestamp_conversion import (
 from ni.protobuf.types.precision_timestamp_pb2 import PrecisionTimestamp
 from ni.protobuf.types.scalar_conversion import scalar_to_protobuf
 from ni.protobuf.types.vector_conversion import vector_from_protobuf, vector_to_protobuf
-from ni.protobuf.types.vector_pb2 import Vector as VectorProto
 from ni.protobuf.types.waveform_conversion import (
     digital_waveform_from_protobuf,
     digital_waveform_to_protobuf,
@@ -36,19 +36,10 @@ from ni.protobuf.types.waveform_conversion import (
     int16_complex_waveform_from_protobuf,
     int16_complex_waveform_to_protobuf,
 )
-from ni.protobuf.types.waveform_pb2 import (
-    DigitalWaveform as DigitalWaveformProto,
-    DoubleAnalogWaveform,
-    DoubleComplexWaveform,
-    DoubleSpectrum,
-    I16AnalogWaveform,
-    I16ComplexWaveform,
-)
 from ni.protobuf.types.xydata_conversion import (
     float64_xydata_from_protobuf,
     float64_xydata_to_protobuf,
 )
-from ni.protobuf.types.xydata_pb2 import DoubleXYData
 from nitypes.complex import ComplexInt32DType
 from nitypes.scalar import Scalar
 from nitypes.vector import Vector
@@ -187,43 +178,38 @@ def populate_publish_measurement_batch_request_values(
         )
 
 
-def unpack_and_convert_from_protobuf_any(read_value: Any) -> object:
-    """Convert from a packed pb.Any to the appropriate python object."""
-    value_type = read_value.TypeName()
-    if value_type == DoubleAnalogWaveform.DESCRIPTOR.full_name:
-        double_analog_waveform = DoubleAnalogWaveform()
-        read_value.Unpack(double_analog_waveform)
-        return float64_analog_waveform_from_protobuf(double_analog_waveform)
-    elif value_type == I16AnalogWaveform.DESCRIPTOR.full_name:
-        i16_analog_waveform = I16AnalogWaveform()
-        read_value.Unpack(i16_analog_waveform)
-        return int16_analog_waveform_from_protobuf(i16_analog_waveform)
-    elif value_type == DoubleComplexWaveform.DESCRIPTOR.full_name:
-        double_complex_waveform = DoubleComplexWaveform()
-        read_value.Unpack(double_complex_waveform)
-        return float64_complex_waveform_from_protobuf(double_complex_waveform)
-    elif value_type == I16ComplexWaveform.DESCRIPTOR.full_name:
-        i16_complex_waveform = I16ComplexWaveform()
-        read_value.Unpack(i16_complex_waveform)
-        return int16_complex_waveform_from_protobuf(i16_complex_waveform)
-    elif value_type == DoubleSpectrum.DESCRIPTOR.full_name:
-        spectrum = DoubleSpectrum()
-        read_value.Unpack(spectrum)
-        return float64_spectrum_from_protobuf(spectrum)
-    elif value_type == DigitalWaveformProto.DESCRIPTOR.full_name:
-        digital_waveform = DigitalWaveformProto()
-        read_value.Unpack(digital_waveform)
-        return digital_waveform_from_protobuf(digital_waveform)
-    elif value_type == DoubleXYData.DESCRIPTOR.full_name:
-        xydata = DoubleXYData()
-        read_value.Unpack(xydata)
-        return float64_xydata_from_protobuf(xydata)
-    elif value_type == VectorProto.DESCRIPTOR.full_name:
-        vector = VectorProto()
-        read_value.Unpack(vector)
-        return vector_from_protobuf(vector)
+def convert_read_measurement_response_from_protobuf(
+    response: ReadMeasurementValueResponse,
+) -> object:
+    """Convert the value in the ReadMeasurementValueResponse from protobuf and return it."""
+    read_data_type = response.WhichOneof("value")
+    if read_data_type == "digital_waveform":
+        return digital_waveform_from_protobuf(response.digital_waveform)
+    elif read_data_type == "double_analog_waveform":
+        return float64_analog_waveform_from_protobuf(response.double_analog_waveform)
+    elif read_data_type == "double_complex_waveform":
+        return float64_complex_waveform_from_protobuf(response.double_complex_waveform)
+    elif read_data_type == "double_spectrum":
+        return float64_spectrum_from_protobuf(response.double_spectrum)
+    elif read_data_type == "i16_analog_waveform":
+        return int16_analog_waveform_from_protobuf(response.i16_analog_waveform)
+    elif read_data_type == "i16_complex_waveform":
+        return int16_complex_waveform_from_protobuf(response.i16_complex_waveform)
+    elif read_data_type == "vector":
+        return vector_from_protobuf(response.vector)
+    elif read_data_type == "x_y_data":
+        return float64_xydata_from_protobuf(response.x_y_data)
     else:
-        raise TypeError(f"Unsupported data type Name: {value_type}")
+        raise TypeError(f"Invalid read type: {read_data_type}")
+
+
+def convert_read_condition_response_from_protobuf(response: ReadConditionValueResponse) -> object:
+    """Convert the value in the ReadConditionValueResponse from protobuf and return it."""
+    read_data_type = response.WhichOneof("value")
+    if read_data_type == "vector":
+        return vector_from_protobuf(response.vector)
+    else:
+        raise TypeError(f"Invalid read type: {read_data_type}")
 
 
 def get_publish_measurement_timestamp(
