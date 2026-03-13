@@ -176,7 +176,6 @@ class PublishedMeasurement:
     def to_protobuf(self) -> PublishedMeasurementProto:
         """Convert this PublishedMeasurement instance to a protobuf PublishedMeasurement message."""
         return PublishedMeasurementProto(
-            moniker=None,  # Should we remove moniker from the protobuf type?
             published_conditions=[
                 condition.to_protobuf() for condition in self.published_conditions
             ],

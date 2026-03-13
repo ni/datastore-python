@@ -64,7 +64,6 @@ class PublishedCondition:
     def to_protobuf(self) -> PublishedConditionProto:
         """Convert this PublishedCondition instance to a protobuf PublishedCondition message."""
         return PublishedConditionProto(
-            moniker=None,  # Should we remove the moniker from the protobuf type, too?
             id=self.id,
             name=self.name,
             condition_type=self.condition_type,

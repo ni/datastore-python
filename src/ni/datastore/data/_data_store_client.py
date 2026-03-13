@@ -391,7 +391,7 @@ class DataStoreClient:
         Returns:
             The data retrieved from the data store. The return type depends on
             what was originally published:
-            - Scalar measurements return as Vectors
+            - Scalar conditions return as Vectors
             - Other types are returned as originally published
             If expected_type is specified, the return value is guaranteed to be
             of that type.
