@@ -235,14 +235,9 @@ def get_publish_measurement_timestamp(
     elif value_case == "digital_waveform":
         waveform_t0 = publish_request.digital_waveform.t0
 
-    # If an initialized waveform t0 value is present
+    # If an initialized waveform t0 value is present and no client timestamp was provided,
+    # use the waveform t0 as the measurement start time.
     if waveform_t0 is not None and waveform_t0 != PrecisionTimestamp():
         if no_client_timestamp_provided:
-            # If the client did not provide a timestamp, use the waveform t0 value
             publish_time = waveform_t0
-        elif publish_time != waveform_t0:
-            raise ValueError(
-                "The provided timestamp does not match the waveform t0. Please provide a matching timestamp or "
-                "omit the timestamp to use the waveform t0."
-            )
     return publish_time
