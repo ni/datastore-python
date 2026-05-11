@@ -236,8 +236,8 @@ def test___publish_analog_waveform_data_with_mismatched_timestamp_parameter___us
         timing=Timing.create_with_regular_interval(timedelta(seconds=1), timestamp),
     )
     mismatched_timestamp = timestamp + timedelta(seconds=1)
-    mocked_data_store_service_client.publish_measurement.return_value = (
-        PublishMeasurementResponse(measurement_id="response_id")
+    mocked_data_store_service_client.publish_measurement.return_value = PublishMeasurementResponse(
+        measurement_id="response_id"
     )
 
     measurement_id = data_store_client.publish_measurement(
@@ -256,13 +256,11 @@ def test___publish_analog_waveform_data_without_t0_or_timestamp___uses_now(
 ) -> None:
     now = datetime.now(tz=std_datetime.timezone.utc)
     analog_waveform = AnalogWaveform.from_array_1d([1.0, 2.0, 3.0], dtype=float)
-    mocked_data_store_service_client.publish_measurement.return_value = (
-        PublishMeasurementResponse(measurement_id="response_id")
+    mocked_data_store_service_client.publish_measurement.return_value = PublishMeasurementResponse(
+        measurement_id="response_id"
     )
 
-    with unittest.mock.patch(
-        "ni.datastore.data._grpc_conversion.ht.datetime"
-    ) as mock_ht_datetime:
+    with unittest.mock.patch("ni.datastore.data._grpc_conversion.ht.datetime") as mock_ht_datetime:
         mock_ht_datetime.now.return_value = now
         data_store_client.publish_measurement("name", analog_waveform, "step_id")
 
