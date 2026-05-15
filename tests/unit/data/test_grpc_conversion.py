@@ -301,7 +301,7 @@ def test___python_vector_iterable_with_mismatched_second_element___populate_meas
     values = [Vector([1.0, 2.0]), AnalogWaveform(sample_count=2, raw_data=np.array([1.0, 2.0]))]
     request = PublishMeasurementBatchRequest()
 
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError, match="Unsupported iterable"):
         populate_publish_measurement_batch_request_values(request, values)
 
 
@@ -326,7 +326,7 @@ def test___python_float64_analog_waveform_iterable_with_mismatched_second_elemen
     ]
     request = PublishMeasurementBatchRequest()
 
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError, match="Unsupported iterable"):
         populate_publish_measurement_batch_request_values(request, values)
 
 
@@ -337,7 +337,7 @@ def test___python_float64_analog_waveform_iterable_with_mismatched_second_dtype_
     ]
     request = PublishMeasurementBatchRequest()
 
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError, match="Unsupported iterable"):
         populate_publish_measurement_batch_request_values(request, values)
 
 
@@ -362,7 +362,7 @@ def test___python_int16_analog_waveform_iterable_with_mismatched_second_element_
     ]
     request = PublishMeasurementBatchRequest()
 
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError, match="Unsupported iterable"):
         populate_publish_measurement_batch_request_values(request, values)
 
 
@@ -373,7 +373,7 @@ def test___python_int16_analog_waveform_iterable_with_mismatched_second_dtype___
     ]
     request = PublishMeasurementBatchRequest()
 
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError, match="Unsupported iterable"):
         populate_publish_measurement_batch_request_values(request, values)
 
 
@@ -412,7 +412,7 @@ def test___python_float64_complex_waveform_iterable_with_mismatched_second_eleme
     ]
     request = PublishMeasurementBatchRequest()
 
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError, match="Unsupported iterable"):
         populate_publish_measurement_batch_request_values(request, values)
 
 
@@ -426,7 +426,7 @@ def test___python_float64_complex_waveform_iterable_with_mismatched_second_dtype
     ]
     request = PublishMeasurementBatchRequest()
 
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError, match="Unsupported iterable"):
         populate_publish_measurement_batch_request_values(request, values)
 
 
@@ -460,7 +460,7 @@ def test___python_int16_complex_waveform_iterable_with_mismatched_second_element
     ]
     request = PublishMeasurementBatchRequest()
 
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError, match="Unsupported iterable"):
         populate_publish_measurement_batch_request_values(request, values)
 
 
@@ -477,7 +477,7 @@ def test___python_int16_complex_waveform_iterable_with_mismatched_second_dtype__
     ]
     request = PublishMeasurementBatchRequest()
 
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError, match="Unsupported iterable"):
         populate_publish_measurement_batch_request_values(request, values)
 
 
@@ -516,7 +516,7 @@ def test___python_float64_spectrum_iterable_with_mismatched_second_element___pop
     ]
     request = PublishMeasurementBatchRequest()
 
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError, match="Unsupported iterable"):
         populate_publish_measurement_batch_request_values(request, values)
 
 
@@ -527,7 +527,7 @@ def test___python_float64_spectrum_iterable_with_mismatched_second_dtype___popul
     ]
     request = PublishMeasurementBatchRequest()
 
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError, match="Unsupported iterable"):
         populate_publish_measurement_batch_request_values(request, values)
 
 
@@ -563,7 +563,7 @@ def test___python_uint8_digital_waveform_iterable_with_mismatched_second_element
     ]
     request = PublishMeasurementBatchRequest()
 
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError, match="Unsupported iterable"):
         populate_publish_measurement_batch_request_values(request, values)
 
 
@@ -590,7 +590,7 @@ def test___python_float64_xydata_iterable_with_mismatched_second_element___popul
     ]
     request = PublishMeasurementBatchRequest()
 
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError, match="Unsupported iterable"):
         populate_publish_measurement_batch_request_values(request, values)
 
 
@@ -601,7 +601,7 @@ def test___python_float64_xydata_iterable_with_mismatched_second_dtype___populat
     ]
     request = PublishMeasurementBatchRequest()
 
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError, match="Unsupported iterable"):
         populate_publish_measurement_batch_request_values(request, values)
 
 
