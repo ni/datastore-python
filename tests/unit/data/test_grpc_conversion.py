@@ -275,6 +275,17 @@ def test___python_float64_analog_waveform_iterable_with_mismatched_second_dtype_
         populate_publish_measurement_batch_request_values(request, values)
 
 
+def test___python_unsupported_dtype_analog_waveform_iterable___populate_measurement_batch___raises_error() -> None:
+    values = [
+        AnalogWaveform(sample_count=2, raw_data=np.array([1.25, -2.5], dtype=np.float32)),
+        AnalogWaveform(sample_count=3, raw_data=np.array([3.5, 4.75, -6.0], dtype=np.float32)),
+    ]
+    request = PublishMeasurementBatchRequest()
+
+    with pytest.raises(TypeError, match="Unsupported AnalogWaveform dtype"):
+        populate_publish_measurement_batch_request_values(request, values)
+
+
 def test___python_int16_analog_waveform_iterable___populate_measurement_batch___measurement_updated_correctly() -> None:
     values = [
         AnalogWaveform(sample_count=2, raw_data=np.array([12, -3], dtype=np.int16)),
@@ -350,6 +361,20 @@ def test___python_float64_complex_waveform_iterable_with_mismatched_second_dtype
     request = PublishMeasurementBatchRequest()
 
     with pytest.raises(TypeError):
+        populate_publish_measurement_batch_request_values(request, values)
+
+
+def test___python_unsupported_dtype_complex_waveform_iterable___populate_measurement_batch___raises_error() -> None:
+    values = [
+        ComplexWaveform(sample_count=2, raw_data=np.array([1.0 + 2.0j, -3.0 + 4.5j], dtype=np.complex64)),
+        ComplexWaveform(
+            sample_count=3,
+            raw_data=np.array([0.5 - 1.5j, 2.25 + 0.75j, -4.0 - 2.0j], dtype=np.complex64),
+        ),
+    ]
+    request = PublishMeasurementBatchRequest()
+
+    with pytest.raises(TypeError, match="Unsupported ComplexWaveform dtype"):
         populate_publish_measurement_batch_request_values(request, values)
 
 
@@ -429,6 +454,17 @@ def test___python_float64_spectrum_iterable_with_mismatched_second_element___pop
         populate_publish_measurement_batch_request_values(request, values)
 
 
+def test___python_unsupported_dtype_spectrum_iterable___populate_measurement_batch___raises_error() -> None:
+    values = [
+        Spectrum.from_array_1d(np.array([1.0, 2.0], dtype=np.float32)),
+        Spectrum.from_array_1d(np.array([3.0, 4.0], dtype=np.float32)),
+    ]
+    request = PublishMeasurementBatchRequest()
+
+    with pytest.raises(TypeError, match="Unsupported Spectrum dtype"):
+        populate_publish_measurement_batch_request_values(request, values)
+
+
 def test___python_uint8_digital_waveform_iterable___populate_measurement_batch___measurement_updated_correctly() -> None:
     values = [
         DigitalWaveform.from_lines([1], np.uint8),
@@ -478,4 +514,15 @@ def test___python_float64_xydata_iterable_with_mismatched_second_element___popul
     request = PublishMeasurementBatchRequest()
 
     with pytest.raises(TypeError):
+        populate_publish_measurement_batch_request_values(request, values)
+
+
+def test___python_unsupported_dtype_xydata_iterable___populate_measurement_batch___raises_error() -> None:
+    values = [
+        XYData.from_arrays_1d([1.0], [2.0], np.float32),
+        XYData.from_arrays_1d([3.0], [4.0], np.float32),
+    ]
+    request = PublishMeasurementBatchRequest()
+
+    with pytest.raises(TypeError, match="Unsupported XYData dtype"):
         populate_publish_measurement_batch_request_values(request, values)
