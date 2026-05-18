@@ -614,3 +614,21 @@ def test___python_unsupported_dtype_xydata_iterable___populate_measurement_batch
 
     with pytest.raises(TypeError, match="Unsupported XYData dtype"):
         populate_publish_measurement_batch_request_values(request, values)
+
+
+def test___empty_iterable___populate_measurement_batch___raises_error() -> None:
+    request = PublishMeasurementBatchRequest()
+
+    with pytest.raises(ValueError, match="Cannot publish an empty Iterable\."):
+        populate_publish_measurement_batch_request_values(request, [])
+
+
+def test___python_unsupported_iterable___populate_measurement_batch___raises_error() -> None:
+    values = [object(), object()]
+    request = PublishMeasurementBatchRequest()
+
+    with pytest.raises(
+        TypeError,
+        match="Unsupported iterable\. Subtype must be",
+    ):
+        populate_publish_measurement_batch_request_values(request, values)
