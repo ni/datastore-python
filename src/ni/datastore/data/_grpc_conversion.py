@@ -204,7 +204,7 @@ def populate_publish_measurement_batch_request_values(
                     "Unsupported iterable: all values must be float64 AnalogWaveform.",
                 )
                 return
-            if first_value.dtype == np.int16:
+            elif first_value.dtype == np.int16:
                 copy_batch_values(
                     publish_request.i16_analog_waveform_values.waveforms,
                     all_values,
@@ -225,7 +225,7 @@ def populate_publish_measurement_batch_request_values(
                     "Unsupported iterable: all values must be complex128 ComplexWaveform.",
                 )
                 return
-            if first_value.dtype == ComplexInt32DType:
+            elif first_value.dtype == ComplexInt32DType:
                 copy_batch_values(
                     publish_request.i16_complex_waveform_values.waveforms,
                     all_values,
