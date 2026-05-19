@@ -61,7 +61,7 @@ def test___python_scalar_object___populate_condition___condition_updated_correct
 # ========================================================
 # Populate Condition Batch
 # ========================================================
-def test___python_vector_object___populate_batch_condition___condition_updated_correctly() -> None:
+def test___python_vector_object___populate_condition_batch___condition_updated_correctly() -> None:
     vector_obj = Vector([1.0, 2.0, 3.0], "amps")
     request = PublishConditionBatchRequest()
     populate_publish_condition_batch_request_values(request, vector_obj)
