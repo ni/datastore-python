@@ -98,12 +98,8 @@ def test___publish_batch_double_analog_waveforms___read_measurement_value_return
         )
 
         assert len(published_measurement_ids) == 2
-        published_measurement_one = data_store_client.get_measurement(
-            published_measurement_ids[0]
-        )
-        published_measurement_two = data_store_client.get_measurement(
-            published_measurement_ids[1]
-        )
+        published_measurement_one = data_store_client.get_measurement(published_measurement_ids[0])
+        published_measurement_two = data_store_client.get_measurement(published_measurement_ids[1])
         published_waveform_one = data_store_client.read_measurement_value(
             published_measurement_one, expected_type=AnalogWaveform
         )
@@ -137,12 +133,8 @@ def test___publish_batch_vectors___read_measurement_value_returns_vector(
         )
 
         assert len(published_measurement_ids) == 2
-        published_measurement_one = data_store_client.get_measurement(
-            published_measurement_ids[0]
-        )
-        published_measurement_two = data_store_client.get_measurement(
-            published_measurement_ids[1]
-        )
+        published_measurement_one = data_store_client.get_measurement(published_measurement_ids[0])
+        published_measurement_two = data_store_client.get_measurement(published_measurement_ids[1])
         published_vector_one = data_store_client.read_measurement_value(
             published_measurement_one, expected_type=Vector
         )

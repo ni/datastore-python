@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import datetime as std_datetime
-from itertools import chain
 import logging
+from itertools import chain
 from typing import Any, Callable, Iterable, cast
 
 import hightime as ht
@@ -220,7 +220,8 @@ def populate_publish_measurement_batch_request_values(
                 copy_batch_values(
                     publish_request.double_complex_waveform_values.waveforms,
                     all_values,
-                    lambda value: isinstance(value, ComplexWaveform) and value.dtype == np.complex128,
+                    lambda value: isinstance(value, ComplexWaveform)
+                    and value.dtype == np.complex128,
                     float64_complex_waveform_to_protobuf,
                     "Unsupported iterable: all values must be complex128 ComplexWaveform.",
                 )
@@ -229,7 +230,8 @@ def populate_publish_measurement_batch_request_values(
                 copy_batch_values(
                     publish_request.i16_complex_waveform_values.waveforms,
                     all_values,
-                    lambda value: isinstance(value, ComplexWaveform) and value.dtype == ComplexInt32DType,
+                    lambda value: isinstance(value, ComplexWaveform)
+                    and value.dtype == ComplexInt32DType,
                     int16_complex_waveform_to_protobuf,
                     "Unsupported iterable: all values must be ComplexWaveform with ComplexInt32DType.",
                 )

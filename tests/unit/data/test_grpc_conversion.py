@@ -220,7 +220,9 @@ def test___python_double_vector_object___populate_measurement_batch___measuremen
     assert request.scalar_values.attributes["NI_UnitDescription"].string_value == "amps"
 
 
-def test___python_int_vector_object___populate_measurement_batch___measurement_updated_correctly() -> None:
+def test___python_int_vector_object___populate_measurement_batch___measurement_updated_correctly() -> (
+    None
+):
     vector_obj = Vector([1, 2, 3], "amps")
     request = PublishMeasurementBatchRequest()
     populate_publish_measurement_batch_request_values(request, vector_obj)
@@ -230,7 +232,9 @@ def test___python_int_vector_object___populate_measurement_batch___measurement_u
     assert request.scalar_values.attributes["NI_UnitDescription"].string_value == "amps"
 
 
-def test___python_bool_vector_object___populate_measurement_batch___measurement_updated_correctly() -> None:
+def test___python_bool_vector_object___populate_measurement_batch___measurement_updated_correctly() -> (
+    None
+):
     vector_obj = Vector([True, False, True], "amps")
     request = PublishMeasurementBatchRequest()
     populate_publish_measurement_batch_request_values(request, vector_obj)
@@ -240,7 +244,9 @@ def test___python_bool_vector_object___populate_measurement_batch___measurement_
     assert request.scalar_values.attributes["NI_UnitDescription"].string_value == "amps"
 
 
-def test___python_string_vector_object___populate_measurement_batch___measurement_updated_correctly() -> None:
+def test___python_string_vector_object___populate_measurement_batch___measurement_updated_correctly() -> (
+    None
+):
     vector_obj = Vector(["one", "two", "three"], "amps")
     request = PublishMeasurementBatchRequest()
     populate_publish_measurement_batch_request_values(request, vector_obj)
@@ -250,7 +256,9 @@ def test___python_string_vector_object___populate_measurement_batch___measuremen
     assert request.scalar_values.attributes["NI_UnitDescription"].string_value == "amps"
 
 
-def test___python_double_iterable___populate_measurement_batch___measurement_updated_correctly() -> None:
+def test___python_double_iterable___populate_measurement_batch___measurement_updated_correctly() -> (
+    None
+):
     values = [1.5, 2.5, 3.5]
     request = PublishMeasurementBatchRequest()
     populate_publish_measurement_batch_request_values(request, values)
@@ -259,7 +267,9 @@ def test___python_double_iterable___populate_measurement_batch___measurement_upd
     assert list(request.scalar_values.double_array.values) == [1.5, 2.5, 3.5]
 
 
-def test___python_int_iterable___populate_measurement_batch___measurement_updated_correctly() -> None:
+def test___python_int_iterable___populate_measurement_batch___measurement_updated_correctly() -> (
+    None
+):
     values = [1, 2, 3]
     request = PublishMeasurementBatchRequest()
     populate_publish_measurement_batch_request_values(request, values)
@@ -268,7 +278,9 @@ def test___python_int_iterable___populate_measurement_batch___measurement_update
     assert list(request.scalar_values.sint32_array.values) == [1, 2, 3]
 
 
-def test___python_bool_iterable___populate_measurement_batch___measurement_updated_correctly() -> None:
+def test___python_bool_iterable___populate_measurement_batch___measurement_updated_correctly() -> (
+    None
+):
     values = [True, False, True]
     request = PublishMeasurementBatchRequest()
     populate_publish_measurement_batch_request_values(request, values)
@@ -277,7 +289,9 @@ def test___python_bool_iterable___populate_measurement_batch___measurement_updat
     assert list(request.scalar_values.bool_array.values) == [True, False, True]
 
 
-def test___python_string_iterable___populate_measurement_batch___measurement_updated_correctly() -> None:
+def test___python_string_iterable___populate_measurement_batch___measurement_updated_correctly() -> (
+    None
+):
     values = ["one", "two", "three"]
     request = PublishMeasurementBatchRequest()
     populate_publish_measurement_batch_request_values(request, values)
@@ -286,7 +300,9 @@ def test___python_string_iterable___populate_measurement_batch___measurement_upd
     assert list(request.scalar_values.string_array.values) == ["one", "two", "three"]
 
 
-def test___python_vector_iterable___populate_measurement_batch___measurement_updated_correctly() -> None:
+def test___python_vector_iterable___populate_measurement_batch___measurement_updated_correctly() -> (
+    None
+):
     values = [Vector([1.0, 2.0]), Vector([3.0, 4.0])]
     request = PublishMeasurementBatchRequest()
 
@@ -297,7 +313,9 @@ def test___python_vector_iterable___populate_measurement_batch___measurement_upd
     assert list(request.vector_values.vectors[1].double_array.values) == [3.0, 4.0]
 
 
-def test___python_vector_iterable_with_mismatched_second_element___populate_measurement_batch___raises_error() -> None:
+def test___python_vector_iterable_with_mismatched_second_element___populate_measurement_batch___raises_error() -> (
+    None
+):
     values = [Vector([1.0, 2.0]), AnalogWaveform(sample_count=2, raw_data=np.array([1.0, 2.0]))]
     request = PublishMeasurementBatchRequest()
 
@@ -305,7 +323,9 @@ def test___python_vector_iterable_with_mismatched_second_element___populate_meas
         populate_publish_measurement_batch_request_values(request, values)
 
 
-def test___python_float64_analog_waveform_iterable___populate_measurement_batch___measurement_updated_correctly() -> None:
+def test___python_float64_analog_waveform_iterable___populate_measurement_batch___measurement_updated_correctly() -> (
+    None
+):
     values = [
         AnalogWaveform(sample_count=2, raw_data=np.array([1.25, -2.5], dtype=np.float64)),
         AnalogWaveform(sample_count=3, raw_data=np.array([3.5, 4.75, -6.0], dtype=np.float64)),
@@ -319,7 +339,9 @@ def test___python_float64_analog_waveform_iterable___populate_measurement_batch_
     assert list(request.double_analog_waveform_values.waveforms[1].y_data) == [3.5, 4.75, -6.0]
 
 
-def test___python_float64_analog_waveform_iterable_with_mismatched_second_element___populate_measurement_batch___raises_error() -> None:
+def test___python_float64_analog_waveform_iterable_with_mismatched_second_element___populate_measurement_batch___raises_error() -> (
+    None
+):
     values = [
         AnalogWaveform(sample_count=2, raw_data=np.array([1.25, -2.5], dtype=np.float64)),
         Vector([3.5, 4.75, -6.0]),
@@ -330,7 +352,9 @@ def test___python_float64_analog_waveform_iterable_with_mismatched_second_elemen
         populate_publish_measurement_batch_request_values(request, values)
 
 
-def test___python_float64_analog_waveform_iterable_with_mismatched_second_dtype___populate_measurement_batch___raises_error() -> None:
+def test___python_float64_analog_waveform_iterable_with_mismatched_second_dtype___populate_measurement_batch___raises_error() -> (
+    None
+):
     values = [
         AnalogWaveform(sample_count=2, raw_data=np.array([1.25, -2.5], dtype=np.float64)),
         AnalogWaveform(sample_count=3, raw_data=np.array([7, 0, -8], dtype=np.int16)),
@@ -341,7 +365,9 @@ def test___python_float64_analog_waveform_iterable_with_mismatched_second_dtype_
         populate_publish_measurement_batch_request_values(request, values)
 
 
-def test___python_int16_analog_waveform_iterable___populate_measurement_batch___measurement_updated_correctly() -> None:
+def test___python_int16_analog_waveform_iterable___populate_measurement_batch___measurement_updated_correctly() -> (
+    None
+):
     values = [
         AnalogWaveform(sample_count=2, raw_data=np.array([12, -3], dtype=np.int16)),
         AnalogWaveform(sample_count=3, raw_data=np.array([7, 0, -8], dtype=np.int16)),
@@ -355,7 +381,9 @@ def test___python_int16_analog_waveform_iterable___populate_measurement_batch___
     assert list(request.i16_analog_waveform_values.waveforms[1].y_data) == [7, 0, -8]
 
 
-def test___python_int16_analog_waveform_iterable_with_mismatched_second_element___populate_measurement_batch___raises_error() -> None:
+def test___python_int16_analog_waveform_iterable_with_mismatched_second_element___populate_measurement_batch___raises_error() -> (
+    None
+):
     values = [
         AnalogWaveform(sample_count=2, raw_data=np.array([12, -3], dtype=np.int16)),
         Vector([7.0, 0.0, -8.0]),
@@ -366,7 +394,9 @@ def test___python_int16_analog_waveform_iterable_with_mismatched_second_element_
         populate_publish_measurement_batch_request_values(request, values)
 
 
-def test___python_int16_analog_waveform_iterable_with_mismatched_second_dtype___populate_measurement_batch___raises_error() -> None:
+def test___python_int16_analog_waveform_iterable_with_mismatched_second_dtype___populate_measurement_batch___raises_error() -> (
+    None
+):
     values = [
         AnalogWaveform(sample_count=2, raw_data=np.array([12, -3], dtype=np.int16)),
         AnalogWaveform(sample_count=3, raw_data=np.array([3.5, 4.75, -6.0], dtype=np.float64)),
@@ -377,7 +407,9 @@ def test___python_int16_analog_waveform_iterable_with_mismatched_second_dtype___
         populate_publish_measurement_batch_request_values(request, values)
 
 
-def test___python_unsupported_dtype_analog_waveform_iterable___populate_measurement_batch___raises_error() -> None:
+def test___python_unsupported_dtype_analog_waveform_iterable___populate_measurement_batch___raises_error() -> (
+    None
+):
     values = [
         AnalogWaveform(sample_count=2, raw_data=np.array([1.25, -2.5], dtype=np.float32)),
         AnalogWaveform(sample_count=3, raw_data=np.array([3.5, 4.75, -6.0], dtype=np.float32)),
@@ -388,9 +420,13 @@ def test___python_unsupported_dtype_analog_waveform_iterable___populate_measurem
         populate_publish_measurement_batch_request_values(request, values)
 
 
-def test___python_float64_complex_waveform_iterable___populate_measurement_batch___measurement_updated_correctly() -> None:
+def test___python_float64_complex_waveform_iterable___populate_measurement_batch___measurement_updated_correctly() -> (
+    None
+):
     values = [
-        ComplexWaveform(sample_count=2, raw_data=np.array([1.0 + 2.0j, -3.0 + 4.5j], dtype=np.complex128)),
+        ComplexWaveform(
+            sample_count=2, raw_data=np.array([1.0 + 2.0j, -3.0 + 4.5j], dtype=np.complex128)
+        ),
         ComplexWaveform(
             sample_count=3,
             raw_data=np.array([0.5 - 1.5j, 2.25 + 0.75j, -4.0 - 2.0j], dtype=np.complex128),
@@ -402,12 +438,23 @@ def test___python_float64_complex_waveform_iterable___populate_measurement_batch
 
     assert len(request.double_complex_waveform_values.waveforms) == 2
     assert list(request.double_complex_waveform_values.waveforms[0].y_data) == [1.0, 2.0, -3.0, 4.5]
-    assert list(request.double_complex_waveform_values.waveforms[1].y_data) == [0.5, -1.5, 2.25, 0.75, -4.0, -2.0]
+    assert list(request.double_complex_waveform_values.waveforms[1].y_data) == [
+        0.5,
+        -1.5,
+        2.25,
+        0.75,
+        -4.0,
+        -2.0,
+    ]
 
 
-def test___python_float64_complex_waveform_iterable_with_mismatched_second_element___populate_measurement_batch___raises_error() -> None:
+def test___python_float64_complex_waveform_iterable_with_mismatched_second_element___populate_measurement_batch___raises_error() -> (
+    None
+):
     values = [
-        ComplexWaveform(sample_count=2, raw_data=np.array([1.0 + 2.0j, -3.0 + 4.5j], dtype=np.complex128)),
+        ComplexWaveform(
+            sample_count=2, raw_data=np.array([1.0 + 2.0j, -3.0 + 4.5j], dtype=np.complex128)
+        ),
         Vector([0.5, -1.5, 2.25, 0.75]),
     ]
     request = PublishMeasurementBatchRequest()
@@ -416,9 +463,13 @@ def test___python_float64_complex_waveform_iterable_with_mismatched_second_eleme
         populate_publish_measurement_batch_request_values(request, values)
 
 
-def test___python_float64_complex_waveform_iterable_with_mismatched_second_dtype___populate_measurement_batch___raises_error() -> None:
+def test___python_float64_complex_waveform_iterable_with_mismatched_second_dtype___populate_measurement_batch___raises_error() -> (
+    None
+):
     values = [
-        ComplexWaveform(sample_count=2, raw_data=np.array([1.0 + 2.0j, -3.0 + 4.5j], dtype=np.complex128)),
+        ComplexWaveform(
+            sample_count=2, raw_data=np.array([1.0 + 2.0j, -3.0 + 4.5j], dtype=np.complex128)
+        ),
         ComplexWaveform(
             sample_count=3,
             raw_data=np.array([(-7, 4), (0, -6), (8, 3)], dtype=ComplexInt32DType),
@@ -430,7 +481,9 @@ def test___python_float64_complex_waveform_iterable_with_mismatched_second_dtype
         populate_publish_measurement_batch_request_values(request, values)
 
 
-def test___python_int16_complex_waveform_iterable___populate_measurement_batch___measurement_updated_correctly() -> None:
+def test___python_int16_complex_waveform_iterable___populate_measurement_batch___measurement_updated_correctly() -> (
+    None
+):
     values = [
         ComplexWaveform(
             sample_count=2,
@@ -450,7 +503,9 @@ def test___python_int16_complex_waveform_iterable___populate_measurement_batch__
     assert list(request.i16_complex_waveform_values.waveforms[1].y_data) == [-7, 4, 0, -6, 8, 3]
 
 
-def test___python_int16_complex_waveform_iterable_with_mismatched_second_element___populate_measurement_batch___raises_error() -> None:
+def test___python_int16_complex_waveform_iterable_with_mismatched_second_element___populate_measurement_batch___raises_error() -> (
+    None
+):
     values = [
         ComplexWaveform(
             sample_count=2,
@@ -464,7 +519,9 @@ def test___python_int16_complex_waveform_iterable_with_mismatched_second_element
         populate_publish_measurement_batch_request_values(request, values)
 
 
-def test___python_int16_complex_waveform_iterable_with_mismatched_second_dtype___populate_measurement_batch___raises_error() -> None:
+def test___python_int16_complex_waveform_iterable_with_mismatched_second_dtype___populate_measurement_batch___raises_error() -> (
+    None
+):
     values = [
         ComplexWaveform(
             sample_count=2,
@@ -481,9 +538,13 @@ def test___python_int16_complex_waveform_iterable_with_mismatched_second_dtype__
         populate_publish_measurement_batch_request_values(request, values)
 
 
-def test___python_unsupported_dtype_complex_waveform_iterable___populate_measurement_batch___raises_error() -> None:
+def test___python_unsupported_dtype_complex_waveform_iterable___populate_measurement_batch___raises_error() -> (
+    None
+):
     values = [
-        ComplexWaveform(sample_count=2, raw_data=np.array([1.0 + 2.0j, -3.0 + 4.5j], dtype=np.complex64)),
+        ComplexWaveform(
+            sample_count=2, raw_data=np.array([1.0 + 2.0j, -3.0 + 4.5j], dtype=np.complex64)
+        ),
         ComplexWaveform(
             sample_count=3,
             raw_data=np.array([0.5 - 1.5j, 2.25 + 0.75j, -4.0 - 2.0j], dtype=np.complex64),
@@ -495,7 +556,9 @@ def test___python_unsupported_dtype_complex_waveform_iterable___populate_measure
         populate_publish_measurement_batch_request_values(request, values)
 
 
-def test___python_float64_spectrum_iterable___populate_measurement_batch___measurement_updated_correctly() -> None:
+def test___python_float64_spectrum_iterable___populate_measurement_batch___measurement_updated_correctly() -> (
+    None
+):
     values = [
         Spectrum.from_array_1d(np.array([1.0, 2.0])),
         Spectrum.from_array_1d(np.array([3.0, 4.0])),
@@ -509,7 +572,9 @@ def test___python_float64_spectrum_iterable___populate_measurement_batch___measu
     assert list(request.double_spectrum_values.waveforms[1].data) == [3.0, 4.0]
 
 
-def test___python_float64_spectrum_iterable_with_mismatched_second_element___populate_measurement_batch___raises_error() -> None:
+def test___python_float64_spectrum_iterable_with_mismatched_second_element___populate_measurement_batch___raises_error() -> (
+    None
+):
     values = [
         Spectrum.from_array_1d(np.array([1.0, 2.0])),
         Vector([3.0, 4.0]),
@@ -520,7 +585,9 @@ def test___python_float64_spectrum_iterable_with_mismatched_second_element___pop
         populate_publish_measurement_batch_request_values(request, values)
 
 
-def test___python_float64_spectrum_iterable_with_mismatched_second_dtype___populate_measurement_batch___raises_error() -> None:
+def test___python_float64_spectrum_iterable_with_mismatched_second_dtype___populate_measurement_batch___raises_error() -> (
+    None
+):
     values = [
         Spectrum.from_array_1d(np.array([1.0, 2.0])),
         Spectrum.from_array_1d(np.array([3.0, 4.0], dtype=np.float32)),
@@ -531,7 +598,9 @@ def test___python_float64_spectrum_iterable_with_mismatched_second_dtype___popul
         populate_publish_measurement_batch_request_values(request, values)
 
 
-def test___python_unsupported_dtype_spectrum_iterable___populate_measurement_batch___raises_error() -> None:
+def test___python_unsupported_dtype_spectrum_iterable___populate_measurement_batch___raises_error() -> (
+    None
+):
     values = [
         Spectrum.from_array_1d(np.array([1.0, 2.0], dtype=np.float32)),
         Spectrum.from_array_1d(np.array([3.0, 4.0], dtype=np.float32)),
@@ -542,7 +611,9 @@ def test___python_unsupported_dtype_spectrum_iterable___populate_measurement_bat
         populate_publish_measurement_batch_request_values(request, values)
 
 
-def test___python_uint8_digital_waveform_iterable___populate_measurement_batch___measurement_updated_correctly() -> None:
+def test___python_uint8_digital_waveform_iterable___populate_measurement_batch___measurement_updated_correctly() -> (
+    None
+):
     values = [
         DigitalWaveform.from_lines([1], np.uint8),
         DigitalWaveform.from_lines([0], np.uint8),
@@ -556,7 +627,9 @@ def test___python_uint8_digital_waveform_iterable___populate_measurement_batch__
     assert request.digital_waveform_values.waveforms[1].y_data == b"\x00"
 
 
-def test___python_uint8_digital_waveform_iterable_with_mismatched_second_element___populate_measurement_batch___raises_error() -> None:
+def test___python_uint8_digital_waveform_iterable_with_mismatched_second_element___populate_measurement_batch___raises_error() -> (
+    None
+):
     values = [
         DigitalWaveform.from_lines([1], np.uint8),
         Vector([0.0]),
@@ -567,7 +640,9 @@ def test___python_uint8_digital_waveform_iterable_with_mismatched_second_element
         populate_publish_measurement_batch_request_values(request, values)
 
 
-def test___python_float64_xydata_iterable___populate_measurement_batch___measurement_updated_correctly() -> None:
+def test___python_float64_xydata_iterable___populate_measurement_batch___measurement_updated_correctly() -> (
+    None
+):
     values = [
         XYData.from_arrays_1d([1.0], [2.0], np.float64),
         XYData.from_arrays_1d([3.0], [4.0], np.float64),
@@ -583,7 +658,9 @@ def test___python_float64_xydata_iterable___populate_measurement_batch___measure
     assert list(request.x_y_data_values.x_y_data[1].y_data) == [4.0]
 
 
-def test___python_float64_xydata_iterable_with_mismatched_second_element___populate_measurement_batch___raises_error() -> None:
+def test___python_float64_xydata_iterable_with_mismatched_second_element___populate_measurement_batch___raises_error() -> (
+    None
+):
     values = [
         XYData.from_arrays_1d([1.0], [2.0], np.float64),
         Vector([3.0, 4.0]),
@@ -594,7 +671,9 @@ def test___python_float64_xydata_iterable_with_mismatched_second_element___popul
         populate_publish_measurement_batch_request_values(request, values)
 
 
-def test___python_float64_xydata_iterable_with_mismatched_second_dtype___populate_measurement_batch___raises_error() -> None:
+def test___python_float64_xydata_iterable_with_mismatched_second_dtype___populate_measurement_batch___raises_error() -> (
+    None
+):
     values = [
         XYData.from_arrays_1d([1.0], [2.0], np.float64),
         XYData.from_arrays_1d([3.0], [4.0], np.float32),
@@ -605,7 +684,9 @@ def test___python_float64_xydata_iterable_with_mismatched_second_dtype___populat
         populate_publish_measurement_batch_request_values(request, values)
 
 
-def test___python_unsupported_dtype_xydata_iterable___populate_measurement_batch___raises_error() -> None:
+def test___python_unsupported_dtype_xydata_iterable___populate_measurement_batch___raises_error() -> (
+    None
+):
     values = [
         XYData.from_arrays_1d([1.0], [2.0], np.float32),
         XYData.from_arrays_1d([3.0], [4.0], np.float32),
