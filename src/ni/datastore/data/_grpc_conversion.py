@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import datetime as std_datetime
 import logging
-from itertools import chain
 from typing import Any, Callable, Iterable, cast
 
 import hightime as ht
@@ -292,23 +291,21 @@ def populate_publish_measurement_batch_request_values(
         except StopIteration as exc:
             raise ValueError("Cannot publish an empty Iterable.") from exc
 
-        all_values = chain([first_value], values_iterator)
-
         if isinstance(first_value, Vector):
-            _populate_vector_batch_values(publish_request, all_values)
+            _populate_vector_batch_values(publish_request, values)
         elif isinstance(first_value, AnalogWaveform):
-            _populate_analog_waveform_batch_values(publish_request, first_value, all_values)
+            _populate_analog_waveform_batch_values(publish_request, first_value, values)
         elif isinstance(first_value, ComplexWaveform):
-            _populate_complex_waveform_batch_values(publish_request, first_value, all_values)
+            _populate_complex_waveform_batch_values(publish_request, first_value, values)
         elif isinstance(first_value, Spectrum):
-            _populate_spectrum_batch_values(publish_request, first_value, all_values)
+            _populate_spectrum_batch_values(publish_request, first_value, values)
         elif isinstance(first_value, DigitalWaveform):
-            _populate_digital_waveform_batch_values(publish_request, all_values)
+            _populate_digital_waveform_batch_values(publish_request, values)
         elif isinstance(first_value, XYData):
-            _populate_xydata_batch_values(publish_request, first_value, all_values)
+            _populate_xydata_batch_values(publish_request, first_value, values)
         else:
             try:
-                vector = Vector(cast(Iterable[bool | int | float | str], values))
+                vector = Vector(values)
             except (TypeError, ValueError):
                 raise TypeError(
                     f"Unsupported iterable. Subtype must be bool, float, int, string, Vector, "
