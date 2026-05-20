@@ -89,12 +89,10 @@ def test___publish_batch_double_analog_waveforms___read_measurement_value_return
         step = Step(name="Initial step", test_result_id=test_result_id)
         step_id = data_store_client.create_step(step)
 
-        published_measurement_ids = list(
-            data_store_client.publish_measurement_batch(
-                name="Test measurement",
-                values=expected_waveforms,
-                step_id=step_id,
-            )
+        published_measurement_ids = data_store_client.publish_measurement_batch(
+            name="Test measurement",
+            values=expected_waveforms,
+            step_id=step_id,
         )
 
         assert len(published_measurement_ids) == 2
@@ -124,12 +122,10 @@ def test___publish_batch_vectors___read_measurement_value_returns_vector(
         step = Step(name="Initial step", test_result_id=test_result_id)
         step_id = data_store_client.create_step(step)
 
-        published_measurement_ids = list(
-            data_store_client.publish_measurement_batch(
-                name="Test measurement",
-                values=expected_vectors,
-                step_id=step_id,
-            )
+        published_measurement_ids = data_store_client.publish_measurement_batch(
+            name="Test measurement",
+            values=expected_vectors,
+            step_id=step_id,
         )
 
         assert len(published_measurement_ids) == 2
