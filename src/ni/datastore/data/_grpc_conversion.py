@@ -307,9 +307,8 @@ def populate_publish_measurement_batch_request_values(
         elif isinstance(first_value, XYData):
             _populate_xydata_batch_values(publish_request, first_value, all_values)
         else:
-            scalar_values = list(all_values)
             try:
-                vector = Vector(cast(Iterable[bool | int | float | str], scalar_values))
+                vector = Vector(cast(Iterable[bool | int | float | str], values))
             except (TypeError, ValueError):
                 raise TypeError(
                     f"Unsupported iterable. Subtype must be bool, float, int, string, Vector, "
