@@ -1,3 +1,5 @@
+from typing import Any
+
 import numpy as np
 import pytest
 from ni.datastore.data._grpc_conversion import (
@@ -228,7 +230,7 @@ def _assert_scalar_values(
     ],
 )
 def test___python_vector_object___populate_measurement_batch___measurement_updated_correctly(
-    values: Vector, attribute_name: str, expected_unit: str
+    values: Vector[Any], attribute_name: str, expected_unit: str
 ) -> None:
     request = PublishMeasurementBatchRequest()
     populate_publish_measurement_batch_request_values(request, values)
