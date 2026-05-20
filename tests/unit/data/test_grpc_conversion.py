@@ -15,8 +15,11 @@ from ni.measurements.data.v1.data_store_service_pb2 import (
 from ni.protobuf.types import (
     scalar_pb2,
     vector_pb2,
+    vector_wrappers_pb2,
     waveform_pb2,
+    waveform_wrappers_pb2,
     xydata_pb2,
+    xydata_wrappers_pb2,
 )
 from nitypes.complex import ComplexInt32DType
 from nitypes.scalar import Scalar
@@ -308,6 +311,7 @@ def test___python_vector_iterable___populate_measurement_batch___measurement_upd
 
     populate_publish_measurement_batch_request_values(request, values)
 
+    assert isinstance(request.vector_values, vector_wrappers_pb2.VectorArrayValue)
     assert len(request.vector_values.vectors) == 2
     assert list(request.vector_values.vectors[0].double_array.values) == [1.0, 2.0]
     assert list(request.vector_values.vectors[1].double_array.values) == [3.0, 4.0]
@@ -334,6 +338,9 @@ def test___python_float64_analog_waveform_iterable___populate_measurement_batch_
 
     populate_publish_measurement_batch_request_values(request, values)
 
+    assert isinstance(
+        request.double_analog_waveform_values, waveform_wrappers_pb2.DoubleAnalogWaveformArrayValue
+    )
     assert len(request.double_analog_waveform_values.waveforms) == 2
     assert list(request.double_analog_waveform_values.waveforms[0].y_data) == [1.25, -2.5]
     assert list(request.double_analog_waveform_values.waveforms[1].y_data) == [3.5, 4.75, -6.0]
@@ -376,6 +383,9 @@ def test___python_int16_analog_waveform_iterable___populate_measurement_batch___
 
     populate_publish_measurement_batch_request_values(request, values)
 
+    assert isinstance(
+        request.i16_analog_waveform_values, waveform_wrappers_pb2.I16AnalogWaveformArrayValue
+    )
     assert len(request.i16_analog_waveform_values.waveforms) == 2
     assert list(request.i16_analog_waveform_values.waveforms[0].y_data) == [12, -3]
     assert list(request.i16_analog_waveform_values.waveforms[1].y_data) == [7, 0, -8]
@@ -436,6 +446,10 @@ def test___python_float64_complex_waveform_iterable___populate_measurement_batch
 
     populate_publish_measurement_batch_request_values(request, values)
 
+    assert isinstance(
+        request.double_complex_waveform_values,
+        waveform_wrappers_pb2.DoubleComplexWaveformArrayValue,
+    )
     assert len(request.double_complex_waveform_values.waveforms) == 2
     assert list(request.double_complex_waveform_values.waveforms[0].y_data) == [1.0, 2.0, -3.0, 4.5]
     assert list(request.double_complex_waveform_values.waveforms[1].y_data) == [
@@ -498,6 +512,9 @@ def test___python_int16_complex_waveform_iterable___populate_measurement_batch__
 
     populate_publish_measurement_batch_request_values(request, values)
 
+    assert isinstance(
+        request.i16_complex_waveform_values, waveform_wrappers_pb2.I16ComplexWaveformArrayValue
+    )
     assert len(request.i16_complex_waveform_values.waveforms) == 2
     assert list(request.i16_complex_waveform_values.waveforms[0].y_data) == [11, -2, 5, 9]
     assert list(request.i16_complex_waveform_values.waveforms[1].y_data) == [-7, 4, 0, -6, 8, 3]
@@ -567,6 +584,9 @@ def test___python_float64_spectrum_iterable___populate_measurement_batch___measu
 
     populate_publish_measurement_batch_request_values(request, values)
 
+    assert isinstance(
+        request.double_spectrum_values, waveform_wrappers_pb2.DoubleSpectrumArrayValue
+    )
     assert len(request.double_spectrum_values.waveforms) == 2
     assert list(request.double_spectrum_values.waveforms[0].data) == [1.0, 2.0]
     assert list(request.double_spectrum_values.waveforms[1].data) == [3.0, 4.0]
@@ -622,6 +642,9 @@ def test___python_uint8_digital_waveform_iterable___populate_measurement_batch__
 
     populate_publish_measurement_batch_request_values(request, values)
 
+    assert isinstance(
+        request.digital_waveform_values, waveform_wrappers_pb2.DigitalWaveformArrayValue
+    )
     assert len(request.digital_waveform_values.waveforms) == 2
     assert request.digital_waveform_values.waveforms[0].y_data == b"\x01"
     assert request.digital_waveform_values.waveforms[1].y_data == b"\x00"
@@ -651,6 +674,7 @@ def test___python_float64_xydata_iterable___populate_measurement_batch___measure
 
     populate_publish_measurement_batch_request_values(request, values)
 
+    assert isinstance(request.x_y_data_values, xydata_wrappers_pb2.DoubleXYDataArrayValue)
     assert len(request.x_y_data_values.x_y_data) == 2
     assert list(request.x_y_data_values.x_y_data[0].x_data) == [1.0]
     assert list(request.x_y_data_values.x_y_data[0].y_data) == [2.0]
