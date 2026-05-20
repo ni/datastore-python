@@ -267,7 +267,7 @@ def populate_publish_measurement_batch_request_values(
                 return
             raise TypeError(f"Unsupported XYData dtype: {first_value.dtype}")
 
-        scalar_values = [first_value, *values_iterator]
+        scalar_values = list(all_values)
         try:
             vector = Vector(cast(Iterable[bool | int | float | str], scalar_values))
         except (TypeError, ValueError):
