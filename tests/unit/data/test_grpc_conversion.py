@@ -211,96 +211,48 @@ def test___python_float64_xydata___populate_measurement___measurement_updated_co
 # ========================================================
 # Populate Measurement Batch
 # ========================================================
-def test___python_double_vector_object___populate_measurement_batch___measurement_updated_correctly() -> (
-    None
-):
-    vector_obj = Vector([1.5, 2.5, 3.5], "amps")
-    request = PublishMeasurementBatchRequest()
-    populate_publish_measurement_batch_request_values(request, vector_obj)
-
+def _assert_scalar_values(
+    request: PublishMeasurementBatchRequest, attribute_name: str, expected_values: list[object]
+) -> None:
     assert isinstance(request.scalar_values, vector_pb2.Vector)
-    assert list(request.scalar_values.double_array.values) == [1.5, 2.5, 3.5]
-    assert request.scalar_values.attributes["NI_UnitDescription"].string_value == "amps"
+    assert list(getattr(request.scalar_values, attribute_name).values) == expected_values
 
 
-def test___python_int_vector_object___populate_measurement_batch___measurement_updated_correctly() -> (
-    None
-):
-    vector_obj = Vector([1, 2, 3], "amps")
-    request = PublishMeasurementBatchRequest()
-    populate_publish_measurement_batch_request_values(request, vector_obj)
-
-    assert isinstance(request.scalar_values, vector_pb2.Vector)
-    assert list(request.scalar_values.sint32_array.values) == [1, 2, 3]
-    assert request.scalar_values.attributes["NI_UnitDescription"].string_value == "amps"
-
-
-def test___python_bool_vector_object___populate_measurement_batch___measurement_updated_correctly() -> (
-    None
-):
-    vector_obj = Vector([True, False, True], "amps")
-    request = PublishMeasurementBatchRequest()
-    populate_publish_measurement_batch_request_values(request, vector_obj)
-
-    assert isinstance(request.scalar_values, vector_pb2.Vector)
-    assert list(request.scalar_values.bool_array.values) == [True, False, True]
-    assert request.scalar_values.attributes["NI_UnitDescription"].string_value == "amps"
-
-
-def test___python_string_vector_object___populate_measurement_batch___measurement_updated_correctly() -> (
-    None
-):
-    vector_obj = Vector(["one", "two", "three"], "amps")
-    request = PublishMeasurementBatchRequest()
-    populate_publish_measurement_batch_request_values(request, vector_obj)
-
-    assert isinstance(request.scalar_values, vector_pb2.Vector)
-    assert list(request.scalar_values.string_array.values) == ["one", "two", "three"]
-    assert request.scalar_values.attributes["NI_UnitDescription"].string_value == "amps"
-
-
-def test___python_double_iterable___populate_measurement_batch___measurement_updated_correctly() -> (
-    None
-):
-    values = [1.5, 2.5, 3.5]
+@pytest.mark.parametrize(
+    "values, attribute_name, expected_unit",
+    [
+        (Vector([1.5, 2.5, 3.5], "amps"), "double_array", "amps"),
+        (Vector([1, 2, 3], "volts"), "sint32_array", "volts"),
+        (Vector([True, False, True], "state"), "bool_array", "state"),
+        (Vector(["one", "two", "three"], "labels"), "string_array", "labels"),
+    ],
+)
+def test___python_vector_object___populate_measurement_batch___measurement_updated_correctly(
+    values: Vector, attribute_name: str, expected_unit: str
+) -> None:
     request = PublishMeasurementBatchRequest()
     populate_publish_measurement_batch_request_values(request, values)
 
-    assert isinstance(request.scalar_values, vector_pb2.Vector)
-    assert list(request.scalar_values.double_array.values) == [1.5, 2.5, 3.5]
+    _assert_scalar_values(request, attribute_name, list(values))
+    assert request.scalar_values.attributes["NI_UnitDescription"].string_value == expected_unit
 
 
-def test___python_int_iterable___populate_measurement_batch___measurement_updated_correctly() -> (
-    None
-):
-    values = [1, 2, 3]
+@pytest.mark.parametrize(
+    "values, attribute_name",
+    [
+        ([1.5, 2.5, 3.5], "double_array"),
+        ([1, 2, 3], "sint32_array"),
+        ([True, False, True], "bool_array"),
+        (["one", "two", "three"], "string_array"),
+    ],
+)
+def test___python_scalar_iterable___populate_measurement_batch___measurement_updated_correctly(
+    values: list[object], attribute_name: str
+) -> None:
     request = PublishMeasurementBatchRequest()
     populate_publish_measurement_batch_request_values(request, values)
 
-    assert isinstance(request.scalar_values, vector_pb2.Vector)
-    assert list(request.scalar_values.sint32_array.values) == [1, 2, 3]
-
-
-def test___python_bool_iterable___populate_measurement_batch___measurement_updated_correctly() -> (
-    None
-):
-    values = [True, False, True]
-    request = PublishMeasurementBatchRequest()
-    populate_publish_measurement_batch_request_values(request, values)
-
-    assert isinstance(request.scalar_values, vector_pb2.Vector)
-    assert list(request.scalar_values.bool_array.values) == [True, False, True]
-
-
-def test___python_string_iterable___populate_measurement_batch___measurement_updated_correctly() -> (
-    None
-):
-    values = ["one", "two", "three"]
-    request = PublishMeasurementBatchRequest()
-    populate_publish_measurement_batch_request_values(request, values)
-
-    assert isinstance(request.scalar_values, vector_pb2.Vector)
-    assert list(request.scalar_values.string_array.values) == ["one", "two", "three"]
+    _assert_scalar_values(request, attribute_name, values)
 
 
 def test___python_vector_iterable___populate_measurement_batch___measurement_updated_correctly() -> (
