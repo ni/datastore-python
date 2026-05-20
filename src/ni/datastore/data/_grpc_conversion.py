@@ -193,8 +193,7 @@ def populate_publish_measurement_batch_request_values(
                 "Unsupported iterable: all values must be Vector.",
             )
             return
-
-        if isinstance(first_value, AnalogWaveform):
+        elif isinstance(first_value, AnalogWaveform):
             if first_value.dtype == np.float64:
                 copy_batch_values(
                     publish_request.double_analog_waveform_values.waveforms,
@@ -214,8 +213,7 @@ def populate_publish_measurement_batch_request_values(
                 )
                 return
             raise TypeError(f"Unsupported AnalogWaveform dtype: {first_value.dtype}")
-
-        if isinstance(first_value, ComplexWaveform):
+        elif isinstance(first_value, ComplexWaveform):
             if first_value.dtype == np.complex128:
                 copy_batch_values(
                     publish_request.double_complex_waveform_values.waveforms,
@@ -237,8 +235,7 @@ def populate_publish_measurement_batch_request_values(
                 )
                 return
             raise TypeError(f"Unsupported ComplexWaveform dtype: {first_value.dtype}")
-
-        if isinstance(first_value, Spectrum):
+        elif isinstance(first_value, Spectrum):
             if first_value.dtype == np.float64:
                 copy_batch_values(
                     publish_request.double_spectrum_values.waveforms,
@@ -249,8 +246,7 @@ def populate_publish_measurement_batch_request_values(
                 )
                 return
             raise TypeError(f"Unsupported Spectrum dtype: {first_value.dtype}")
-
-        if isinstance(first_value, DigitalWaveform):
+        elif isinstance(first_value, DigitalWaveform):
             copy_batch_values(
                 publish_request.digital_waveform_values.waveforms,
                 all_values,
@@ -259,8 +255,7 @@ def populate_publish_measurement_batch_request_values(
                 "Unsupported iterable: all values must be DigitalWaveform.",
             )
             return
-
-        if isinstance(first_value, XYData):
+        elif isinstance(first_value, XYData):
             if first_value.dtype == np.float64:
                 copy_batch_values(
                     publish_request.x_y_data_values.x_y_data,
