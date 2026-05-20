@@ -75,7 +75,7 @@ def test___publish_batch_vector___read_measurement_value_returns_vector(
         assert vector == expected_vector
 
 
-def test___publish_batch_double_analog_waveforms___read_measurement_value_returns_analog_waveform(
+def test___publish_batch_double_analog_waveforms___read_measurement_value_returns_each_analog_waveform(
     acceptance_test_context: DataStoreContext,
 ) -> None:
     with DataStoreClient() as data_store_client:
@@ -108,7 +108,7 @@ def test___publish_batch_double_analog_waveforms___read_measurement_value_return
         assert published_waveform_two == expected_waveforms[1]
 
 
-def test___publish_batch_vectors___read_measurement_value_returns_vector(
+def test___publish_batch_vectors___read_measurement_value_returns_each_vector(
     acceptance_test_context: DataStoreContext,
 ) -> None:
     with DataStoreClient() as data_store_client:
