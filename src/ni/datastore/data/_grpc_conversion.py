@@ -77,7 +77,7 @@ def _populate_vector_batch_values(
 
 def _populate_analog_waveform_batch_values(
     publish_request: PublishMeasurementBatchRequest,
-    first_value: AnalogWaveform,
+    first_value: AnalogWaveform[Any],
     values: Iterable[object],
 ) -> None:
     if first_value.dtype == np.float64:
@@ -103,7 +103,7 @@ def _populate_analog_waveform_batch_values(
 
 def _populate_complex_waveform_batch_values(
     publish_request: PublishMeasurementBatchRequest,
-    first_value: ComplexWaveform,
+    first_value: ComplexWaveform[Any],
     values: Iterable[object],
 ) -> None:
     if first_value.dtype == np.complex128:
@@ -129,7 +129,7 @@ def _populate_complex_waveform_batch_values(
 
 def _populate_spectrum_batch_values(
     publish_request: PublishMeasurementBatchRequest,
-    first_value: Spectrum,
+    first_value: Spectrum[Any],
     values: Iterable[object],
 ) -> None:
     if first_value.dtype != np.float64:
@@ -158,7 +158,7 @@ def _populate_digital_waveform_batch_values(
 
 def _populate_xydata_batch_values(
     publish_request: PublishMeasurementBatchRequest,
-    first_value: XYData,
+    first_value: XYData[Any],
     values: Iterable[object],
 ) -> None:
     if first_value.dtype != np.float64:
