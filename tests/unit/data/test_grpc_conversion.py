@@ -271,16 +271,6 @@ def test___python_vector_iterable___populate_measurement_batch___measurement_upd
     assert list(request.vector_values.vectors[1].double_array.values) == [3.0, 4.0]
 
 
-def test___python_vector_iterable_with_mismatched_second_element___populate_measurement_batch___raises_error() -> (
-    None
-):
-    values = [Vector([1.0, 2.0]), AnalogWaveform(sample_count=2, raw_data=np.array([1.0, 2.0]))]
-    request = PublishMeasurementBatchRequest()
-
-    with pytest.raises(TypeError, match="Unsupported iterable"):
-        populate_publish_measurement_batch_request_values(request, values)
-
-
 def test___python_float64_analog_waveform_iterable___populate_measurement_batch___measurement_updated_correctly() -> (
     None
 ):
@@ -300,32 +290,6 @@ def test___python_float64_analog_waveform_iterable___populate_measurement_batch_
     assert list(request.double_analog_waveform_values.waveforms[1].y_data) == [3.5, 4.75, -6.0]
 
 
-def test___python_float64_analog_waveform_iterable_with_mismatched_second_element___populate_measurement_batch___raises_error() -> (
-    None
-):
-    values = [
-        AnalogWaveform(sample_count=2, raw_data=np.array([1.25, -2.5], dtype=np.float64)),
-        Vector([3.5, 4.75, -6.0]),
-    ]
-    request = PublishMeasurementBatchRequest()
-
-    with pytest.raises(TypeError, match="Unsupported iterable"):
-        populate_publish_measurement_batch_request_values(request, values)
-
-
-def test___python_float64_analog_waveform_iterable_with_mismatched_second_dtype___populate_measurement_batch___raises_error() -> (
-    None
-):
-    values = [
-        AnalogWaveform(sample_count=2, raw_data=np.array([1.25, -2.5], dtype=np.float64)),
-        AnalogWaveform(sample_count=3, raw_data=np.array([7, 0, -8], dtype=np.int16)),
-    ]
-    request = PublishMeasurementBatchRequest()
-
-    with pytest.raises(TypeError, match="Unsupported iterable"):
-        populate_publish_measurement_batch_request_values(request, values)
-
-
 def test___python_int16_analog_waveform_iterable___populate_measurement_batch___measurement_updated_correctly() -> (
     None
 ):
@@ -343,45 +307,6 @@ def test___python_int16_analog_waveform_iterable___populate_measurement_batch___
     assert len(request.i16_analog_waveform_values.waveforms) == 2
     assert list(request.i16_analog_waveform_values.waveforms[0].y_data) == [12, -3]
     assert list(request.i16_analog_waveform_values.waveforms[1].y_data) == [7, 0, -8]
-
-
-def test___python_int16_analog_waveform_iterable_with_mismatched_second_element___populate_measurement_batch___raises_error() -> (
-    None
-):
-    values = [
-        AnalogWaveform(sample_count=2, raw_data=np.array([12, -3], dtype=np.int16)),
-        Vector([7.0, 0.0, -8.0]),
-    ]
-    request = PublishMeasurementBatchRequest()
-
-    with pytest.raises(TypeError, match="Unsupported iterable"):
-        populate_publish_measurement_batch_request_values(request, values)
-
-
-def test___python_int16_analog_waveform_iterable_with_mismatched_second_dtype___populate_measurement_batch___raises_error() -> (
-    None
-):
-    values = [
-        AnalogWaveform(sample_count=2, raw_data=np.array([12, -3], dtype=np.int16)),
-        AnalogWaveform(sample_count=3, raw_data=np.array([3.5, 4.75, -6.0], dtype=np.float64)),
-    ]
-    request = PublishMeasurementBatchRequest()
-
-    with pytest.raises(TypeError, match="Unsupported iterable"):
-        populate_publish_measurement_batch_request_values(request, values)
-
-
-def test___python_unsupported_dtype_analog_waveform_iterable___populate_measurement_batch___raises_error() -> (
-    None
-):
-    values = [
-        AnalogWaveform(sample_count=2, raw_data=np.array([1.25, -2.5], dtype=np.float32)),
-        AnalogWaveform(sample_count=3, raw_data=np.array([3.5, 4.75, -6.0], dtype=np.float32)),
-    ]
-    request = PublishMeasurementBatchRequest()
-
-    with pytest.raises(TypeError, match="Unsupported AnalogWaveform dtype"):
-        populate_publish_measurement_batch_request_values(request, values)
 
 
 def test___python_float64_complex_waveform_iterable___populate_measurement_batch___measurement_updated_correctly() -> (
@@ -416,39 +341,6 @@ def test___python_float64_complex_waveform_iterable___populate_measurement_batch
     ]
 
 
-def test___python_float64_complex_waveform_iterable_with_mismatched_second_element___populate_measurement_batch___raises_error() -> (
-    None
-):
-    values = [
-        ComplexWaveform(
-            sample_count=2, raw_data=np.array([1.0 + 2.0j, -3.0 + 4.5j], dtype=np.complex128)
-        ),
-        Vector([0.5, -1.5, 2.25, 0.75]),
-    ]
-    request = PublishMeasurementBatchRequest()
-
-    with pytest.raises(TypeError, match="Unsupported iterable"):
-        populate_publish_measurement_batch_request_values(request, values)
-
-
-def test___python_float64_complex_waveform_iterable_with_mismatched_second_dtype___populate_measurement_batch___raises_error() -> (
-    None
-):
-    values = [
-        ComplexWaveform(
-            sample_count=2, raw_data=np.array([1.0 + 2.0j, -3.0 + 4.5j], dtype=np.complex128)
-        ),
-        ComplexWaveform(
-            sample_count=3,
-            raw_data=np.array([(-7, 4), (0, -6), (8, 3)], dtype=ComplexInt32DType),
-        ),
-    ]
-    request = PublishMeasurementBatchRequest()
-
-    with pytest.raises(TypeError, match="Unsupported iterable"):
-        populate_publish_measurement_batch_request_values(request, values)
-
-
 def test___python_int16_complex_waveform_iterable___populate_measurement_batch___measurement_updated_correctly() -> (
     None
 ):
@@ -474,59 +366,6 @@ def test___python_int16_complex_waveform_iterable___populate_measurement_batch__
     assert list(request.i16_complex_waveform_values.waveforms[1].y_data) == [-7, 4, 0, -6, 8, 3]
 
 
-def test___python_int16_complex_waveform_iterable_with_mismatched_second_element___populate_measurement_batch___raises_error() -> (
-    None
-):
-    values = [
-        ComplexWaveform(
-            sample_count=2,
-            raw_data=np.array([(11, -2), (5, 9)], dtype=ComplexInt32DType),
-        ),
-        Vector([-7.0, 4.0, 0.0, -6.0]),
-    ]
-    request = PublishMeasurementBatchRequest()
-
-    with pytest.raises(TypeError, match="Unsupported iterable"):
-        populate_publish_measurement_batch_request_values(request, values)
-
-
-def test___python_int16_complex_waveform_iterable_with_mismatched_second_dtype___populate_measurement_batch___raises_error() -> (
-    None
-):
-    values = [
-        ComplexWaveform(
-            sample_count=2,
-            raw_data=np.array([(11, -2), (5, 9)], dtype=ComplexInt32DType),
-        ),
-        ComplexWaveform(
-            sample_count=3,
-            raw_data=np.array([0.5 - 1.5j, 2.25 + 0.75j, -4.0 - 2.0j], dtype=np.complex128),
-        ),
-    ]
-    request = PublishMeasurementBatchRequest()
-
-    with pytest.raises(TypeError, match="Unsupported iterable"):
-        populate_publish_measurement_batch_request_values(request, values)
-
-
-def test___python_unsupported_dtype_complex_waveform_iterable___populate_measurement_batch___raises_error() -> (
-    None
-):
-    values = [
-        ComplexWaveform(
-            sample_count=2, raw_data=np.array([1.0 + 2.0j, -3.0 + 4.5j], dtype=np.complex64)
-        ),
-        ComplexWaveform(
-            sample_count=3,
-            raw_data=np.array([0.5 - 1.5j, 2.25 + 0.75j, -4.0 - 2.0j], dtype=np.complex64),
-        ),
-    ]
-    request = PublishMeasurementBatchRequest()
-
-    with pytest.raises(TypeError, match="Unsupported ComplexWaveform dtype"):
-        populate_publish_measurement_batch_request_values(request, values)
-
-
 def test___python_float64_spectrum_iterable___populate_measurement_batch___measurement_updated_correctly() -> (
     None
 ):
@@ -544,45 +383,6 @@ def test___python_float64_spectrum_iterable___populate_measurement_batch___measu
     assert len(request.double_spectrum_values.waveforms) == 2
     assert list(request.double_spectrum_values.waveforms[0].data) == [1.0, 2.0]
     assert list(request.double_spectrum_values.waveforms[1].data) == [3.0, 4.0]
-
-
-def test___python_float64_spectrum_iterable_with_mismatched_second_element___populate_measurement_batch___raises_error() -> (
-    None
-):
-    values = [
-        Spectrum.from_array_1d(np.array([1.0, 2.0])),
-        Vector([3.0, 4.0]),
-    ]
-    request = PublishMeasurementBatchRequest()
-
-    with pytest.raises(TypeError, match="Unsupported iterable"):
-        populate_publish_measurement_batch_request_values(request, values)
-
-
-def test___python_float64_spectrum_iterable_with_mismatched_second_dtype___populate_measurement_batch___raises_error() -> (
-    None
-):
-    values = [
-        Spectrum.from_array_1d(np.array([1.0, 2.0])),
-        Spectrum.from_array_1d(np.array([3.0, 4.0], dtype=np.float32)),
-    ]
-    request = PublishMeasurementBatchRequest()
-
-    with pytest.raises(TypeError, match="Unsupported iterable"):
-        populate_publish_measurement_batch_request_values(request, values)
-
-
-def test___python_unsupported_dtype_spectrum_iterable___populate_measurement_batch___raises_error() -> (
-    None
-):
-    values = [
-        Spectrum.from_array_1d(np.array([1.0, 2.0], dtype=np.float32)),
-        Spectrum.from_array_1d(np.array([3.0, 4.0], dtype=np.float32)),
-    ]
-    request = PublishMeasurementBatchRequest()
-
-    with pytest.raises(TypeError, match="Unsupported Spectrum dtype"):
-        populate_publish_measurement_batch_request_values(request, values)
 
 
 def test___python_uint8_digital_waveform_iterable___populate_measurement_batch___measurement_updated_correctly() -> (
@@ -604,19 +404,6 @@ def test___python_uint8_digital_waveform_iterable___populate_measurement_batch__
     assert request.digital_waveform_values.waveforms[1].y_data == b"\x00"
 
 
-def test___python_uint8_digital_waveform_iterable_with_mismatched_second_element___populate_measurement_batch___raises_error() -> (
-    None
-):
-    values = [
-        DigitalWaveform.from_lines([1], np.uint8),
-        Vector([0.0]),
-    ]
-    request = PublishMeasurementBatchRequest()
-
-    with pytest.raises(TypeError, match="Unsupported iterable"):
-        populate_publish_measurement_batch_request_values(request, values)
-
-
 def test___python_float64_xydata_iterable___populate_measurement_batch___measurement_updated_correctly() -> (
     None
 ):
@@ -636,42 +423,217 @@ def test___python_float64_xydata_iterable___populate_measurement_batch___measure
     assert list(request.x_y_data_values.x_y_data[1].y_data) == [4.0]
 
 
-def test___python_float64_xydata_iterable_with_mismatched_second_element___populate_measurement_batch___raises_error() -> (
-    None
-):
-    values = [
-        XYData.from_arrays_1d([1.0], [2.0], np.float64),
-        Vector([3.0, 4.0]),
-    ]
+@pytest.mark.parametrize(
+    "values, error_message",
+    [
+        pytest.param(
+            [
+                Vector([1.0, 2.0]),
+                AnalogWaveform(sample_count=2, raw_data=np.array([1.0, 2.0])),
+            ],
+            "Unsupported iterable: all values must be Vector.",
+            id="vector",
+        ),
+        pytest.param(
+            [
+                AnalogWaveform(sample_count=2, raw_data=np.array([1.25, -2.5], dtype=np.float64)),
+                Vector([1.0, 2.0]),
+            ],
+            "Unsupported iterable: all values must be float64 AnalogWaveform.",
+            id="float64_analog_waveform",
+        ),
+        pytest.param(
+            [
+                AnalogWaveform(sample_count=2, raw_data=np.array([12, -3], dtype=np.int16)),
+                Vector([1.0, 2.0]),
+            ],
+            "Unsupported iterable: all values must be int16 AnalogWaveform.",
+            id="int16_analog_waveform",
+        ),
+        pytest.param(
+            [
+                ComplexWaveform(
+                    sample_count=2,
+                    raw_data=np.array([1.0 + 2.0j, -3.0 + 4.5j], dtype=np.complex128),
+                ),
+                Vector([1.0, 2.0]),
+            ],
+            "Unsupported iterable: all values must be complex128 ComplexWaveform.",
+            id="float64_complex_waveform",
+        ),
+        pytest.param(
+            [
+                ComplexWaveform(
+                    sample_count=2,
+                    raw_data=np.array([(11, -2), (5, 9)], dtype=ComplexInt32DType),
+                ),
+                Vector([1.0, 2.0]),
+            ],
+            "Unsupported iterable: all values must be ComplexWaveform with ComplexInt32DType.",
+            id="int16_complex_waveform",
+        ),
+        pytest.param(
+            [
+                Spectrum.from_array_1d(np.array([1.0, 2.0])),
+                Vector([1.0, 2.0]),
+            ],
+            "Unsupported iterable: all values must be float64 Spectrum.",
+            id="spectrum",
+        ),
+        pytest.param(
+            [
+                DigitalWaveform.from_lines([1], np.uint8),
+                Vector([1.0, 2.0]),
+            ],
+            "Unsupported iterable: all values must be DigitalWaveform.",
+            id="digital_waveform",
+        ),
+        pytest.param(
+            [
+                XYData.from_arrays_1d([1.0], [2.0], np.float64),
+                Vector([1.0, 2.0]),
+            ],
+            "Unsupported iterable: all values must be float64 XYData.",
+            id="xydata",
+        ),
+    ],
+)
+def test___python_iterable_with_mismatched_second_element___populate_measurement_batch___raises_error(
+    values: list[object], error_message: str
+) -> None:
     request = PublishMeasurementBatchRequest()
 
-    with pytest.raises(TypeError, match="Unsupported iterable"):
+    with pytest.raises(TypeError, match=error_message):
         populate_publish_measurement_batch_request_values(request, values)
 
 
-def test___python_float64_xydata_iterable_with_mismatched_second_dtype___populate_measurement_batch___raises_error() -> (
-    None
-):
-    values = [
-        XYData.from_arrays_1d([1.0], [2.0], np.float64),
-        XYData.from_arrays_1d([3.0], [4.0], np.float32),
-    ]
+@pytest.mark.parametrize(
+    "values, error_message",
+    [
+        pytest.param(
+            [
+                AnalogWaveform(sample_count=2, raw_data=np.array([1.25, -2.5], dtype=np.float64)),
+                AnalogWaveform(sample_count=3, raw_data=np.array([7, 0, -8], dtype=np.int16)),
+            ],
+            "Unsupported iterable: all values must be float64 AnalogWaveform.",
+            id="float64_analog_waveform",
+        ),
+        pytest.param(
+            [
+                AnalogWaveform(sample_count=2, raw_data=np.array([12, -3], dtype=np.int16)),
+                AnalogWaveform(
+                    sample_count=3, raw_data=np.array([3.5, 4.75, -6.0], dtype=np.float64)
+                ),
+            ],
+            "Unsupported iterable: all values must be int16 AnalogWaveform.",
+            id="int16_analog_waveform",
+        ),
+        pytest.param(
+            [
+                ComplexWaveform(
+                    sample_count=2,
+                    raw_data=np.array([1.0 + 2.0j, -3.0 + 4.5j], dtype=np.complex128),
+                ),
+                ComplexWaveform(
+                    sample_count=3,
+                    raw_data=np.array([(-7, 4), (0, -6), (8, 3)], dtype=ComplexInt32DType),
+                ),
+            ],
+            "Unsupported iterable: all values must be complex128 ComplexWaveform.",
+            id="float64_complex_waveform",
+        ),
+        pytest.param(
+            [
+                ComplexWaveform(
+                    sample_count=2,
+                    raw_data=np.array([(11, -2), (5, 9)], dtype=ComplexInt32DType),
+                ),
+                ComplexWaveform(
+                    sample_count=3,
+                    raw_data=np.array([0.5 - 1.5j, 2.25 + 0.75j, -4.0 - 2.0j], dtype=np.complex128),
+                ),
+            ],
+            "Unsupported iterable: all values must be ComplexWaveform with ComplexInt32DType.",
+            id="int16_complex_waveform",
+        ),
+        pytest.param(
+            [
+                Spectrum.from_array_1d(np.array([1.0, 2.0])),
+                Spectrum.from_array_1d(np.array([3.0, 4.0], dtype=np.float32)),
+            ],
+            "Unsupported iterable: all values must be float64 Spectrum.",
+            id="spectrum",
+        ),
+        pytest.param(
+            [
+                XYData.from_arrays_1d([1.0], [2.0], np.float64),
+                XYData.from_arrays_1d([3.0], [4.0], np.float32),
+            ],
+            "Unsupported iterable: all values must be float64 XYData.",
+            id="xydata",
+        ),
+    ],
+)
+def test___python_iterable_with_mismatched_second_dtype___populate_measurement_batch___raises_error(
+    values: list[object], error_message: str
+) -> None:
     request = PublishMeasurementBatchRequest()
 
-    with pytest.raises(TypeError, match="Unsupported iterable"):
+    with pytest.raises(TypeError, match=error_message):
         populate_publish_measurement_batch_request_values(request, values)
 
 
-def test___python_unsupported_dtype_xydata_iterable___populate_measurement_batch___raises_error() -> (
-    None
-):
-    values = [
-        XYData.from_arrays_1d([1.0], [2.0], np.float32),
-        XYData.from_arrays_1d([3.0], [4.0], np.float32),
-    ]
+@pytest.mark.parametrize(
+    "values, error_message",
+    [
+        pytest.param(
+            [
+                AnalogWaveform(sample_count=2, raw_data=np.array([1.25, -2.5], dtype=np.float32)),
+                AnalogWaveform(
+                    sample_count=3, raw_data=np.array([3.5, 4.75, -6.0], dtype=np.float32)
+                ),
+            ],
+            "Unsupported AnalogWaveform dtype",
+            id="analog_waveform",
+        ),
+        pytest.param(
+            [
+                ComplexWaveform(
+                    sample_count=2,
+                    raw_data=np.array([1.0 + 2.0j, -3.0 + 4.5j], dtype=np.complex64),
+                ),
+                ComplexWaveform(
+                    sample_count=3,
+                    raw_data=np.array([0.5 - 1.5j, 2.25 + 0.75j, -4.0 - 2.0j], dtype=np.complex64),
+                ),
+            ],
+            "Unsupported ComplexWaveform dtype",
+            id="complex_waveform",
+        ),
+        pytest.param(
+            [
+                Spectrum.from_array_1d(np.array([1.0, 2.0], dtype=np.float32)),
+                Spectrum.from_array_1d(np.array([3.0, 4.0], dtype=np.float32)),
+            ],
+            "Unsupported Spectrum dtype",
+            id="spectrum",
+        ),
+        pytest.param(
+            [
+                XYData.from_arrays_1d([1.0], [2.0], np.float32),
+                XYData.from_arrays_1d([3.0], [4.0], np.float32),
+            ],
+            "Unsupported XYData dtype",
+            id="xydata",
+        ),
+    ],
+)
+def test___python_unsupported_dtype_iterable___populate_measurement_batch___raises_error(
+    values: list[object], error_message: str
+) -> None:
     request = PublishMeasurementBatchRequest()
 
-    with pytest.raises(TypeError, match="Unsupported XYData dtype"):
+    with pytest.raises(TypeError, match=error_message):
         populate_publish_measurement_batch_request_values(request, values)
 
 
