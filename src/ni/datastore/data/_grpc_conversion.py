@@ -5,7 +5,7 @@ from __future__ import annotations
 import datetime as std_datetime
 import logging
 from itertools import chain
-from typing import Any, Callable, Iterable, cast
+from typing import Any, Callable, Iterable, Sequence, cast
 
 import hightime as ht
 import numpy as np
@@ -202,11 +202,16 @@ def populate_publish_condition_batch_request_values(
     elif isinstance(values, Iterable):
         if not values:
             raise ValueError("Cannot publish an empty Iterable.")
+
+        # Vector initialization requires the Iterable to be iterated over multiple times.
+        # We convert the Iterable to a list if we don't know that the Iterable type
+        # supports multiple iterations.
+        condition_values = values if isinstance(values, Sequence) else list(values)
         try:
-            vector = Vector(values)
+            vector = Vector(condition_values)
         except (TypeError, ValueError):
             raise TypeError(
-                f"Unsupported iterable: {values}. Subtype must be bool, float, int, or string."
+                f"Unsupported iterable: {condition_values}. Subtype must be bool, float, int, or string."
             )
 
         publish_request.scalar_values.CopyFrom(vector_to_protobuf(vector))

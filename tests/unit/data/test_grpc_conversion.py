@@ -76,6 +76,21 @@ def test___python_vector_object___populate_condition_batch___condition_updated_c
     assert request.scalar_values.attributes["NI_UnitDescription"].string_value == "amps"
 
 
+def test___python_scalar_generator_iterable___populate_condition_batch___condition_updated_correctly() -> (
+    None
+):
+    def _values() -> Iterable[float]:
+        yield 1.5
+        yield 2.5
+        yield 3.5
+
+    request = PublishConditionBatchRequest()
+    populate_publish_condition_batch_request_values(request, _values())
+
+    assert isinstance(request.scalar_values, vector_pb2.Vector)
+    assert list(request.scalar_values.double_array.values) == [1.5, 2.5, 3.5]
+
+
 # ========================================================
 # Populate Measurement
 # ========================================================
