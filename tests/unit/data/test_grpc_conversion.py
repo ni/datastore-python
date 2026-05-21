@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Iterable
 
 import numpy as np
 import pytest
@@ -421,6 +421,39 @@ def test___python_float64_xydata_iterable___populate_measurement_batch___measure
     assert list(request.x_y_data_values.x_y_data[0].y_data) == [2.0]
     assert list(request.x_y_data_values.x_y_data[1].x_data) == [3.0]
     assert list(request.x_y_data_values.x_y_data[1].y_data) == [4.0]
+
+
+def test___python_scalar_generator_iterable___populate_measurement_batch___measurement_updated_correctly() -> (
+    None
+):
+    def _values() -> Iterable[float]:
+        yield 1.5
+        yield 2.5
+        yield 3.5
+
+    request = PublishMeasurementBatchRequest()
+    populate_publish_measurement_batch_request_values(request, _values())
+
+    _assert_scalar_values(request, "double_array", [1.5, 2.5, 3.5])
+
+
+def test___python_non_scalar_generator_iterable___populate_measurement_batch___measurement_updated_correctly() -> (
+    None
+):
+    def _values() -> Iterable[AnalogWaveform[np.float64]]:
+        yield AnalogWaveform(sample_count=2, raw_data=np.array([1.25, -2.5], dtype=np.float64))
+        yield AnalogWaveform(sample_count=3, raw_data=np.array([3.5, 4.75, -6.0], dtype=np.float64))
+
+    request = PublishMeasurementBatchRequest()
+
+    populate_publish_measurement_batch_request_values(request, _values())
+
+    assert isinstance(
+        request.double_analog_waveform_values, waveform_wrappers_pb2.DoubleAnalogWaveformArrayValue
+    )
+    assert len(request.double_analog_waveform_values.waveforms) == 2
+    assert list(request.double_analog_waveform_values.waveforms[0].y_data) == [1.25, -2.5]
+    assert list(request.double_analog_waveform_values.waveforms[1].y_data) == [3.5, 4.75, -6.0]
 
 
 @pytest.mark.parametrize(
