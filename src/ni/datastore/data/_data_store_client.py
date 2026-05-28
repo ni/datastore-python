@@ -295,7 +295,7 @@ class DataStoreClient:
         software_item_ids: Iterable[str] = tuple(),
         notes: str = "",
     ) -> Sequence[str]:
-        """Publish multiple scalar measurements at once for parametric sweeps.
+        """Publish multiple measurements at once for parametric sweeps.
 
         Args:
             name: The name used for associating/grouping
@@ -303,7 +303,7 @@ class DataStoreClient:
                 iterations. For example, "Temperature" can be used for
                 associating temperature readings across multiple iterations.
 
-            values: The values of the (scalar) measurement being published
+            values: The values of the measurement being published
                 across N iterations.
 
             step_id: The ID of the step associated with this measurement. This
@@ -339,10 +339,9 @@ class DataStoreClient:
             notes: Any notes to be associated with the published measurements.
 
         Returns:
-            Sequence[str]: The ids of the published measurement ids.
-                NOTE: Using a Sequence is for future flexibility.
-                This sequence will currently always have a single measurement id
-                returned.
+            Sequence[str]: The IDs of the corresponding PublishedMeasurements. A single
+            ID will be returned when publishing scalar measurement values.
+            N IDs will be returned when publishing (N) non-scalar measurement values.
         """
         publish_request = PublishMeasurementBatchRequest(
             name=name,

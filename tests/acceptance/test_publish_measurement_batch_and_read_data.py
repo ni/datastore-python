@@ -1,20 +1,22 @@
 """Acceptance tests that publish various batch measurement values then reads the data back."""
 
+import numpy as np
 from ni.datastore.data import (
     DataStoreClient,
     Step,
     TestResult,
 )
 from nitypes.vector import Vector
+from nitypes.waveform import AnalogWaveform
 from utilities import DataStoreContext
 
 
-def test___publish_float___read_measurement_value_returns_vector(
+def test___publish_batch_floats___read_measurement_value_returns_vector(
     acceptance_test_context: DataStoreContext,
 ) -> None:
     with DataStoreClient() as data_store_client:
         # Create TestResult metadata
-        test_result_name = "python batch publish float acceptance test"
+        test_result_name = "python publish batch floats acceptance test"
         test_result = TestResult(name=test_result_name)
         test_result_id = data_store_client.create_test_result(test_result)
 
@@ -22,7 +24,7 @@ def test___publish_float___read_measurement_value_returns_vector(
         step = Step(name="Initial step", test_result_id=test_result_id)
         step_id = data_store_client.create_step(step)
         published_measurement_ids = data_store_client.publish_measurement_batch(
-            name="python batch publish float",
+            name="Test measurement",
             values=[1.0, 2.0, 3.0, 4.0],
             step_id=step_id,
         )
@@ -45,7 +47,7 @@ def test___publish_batch_vector___read_measurement_value_returns_vector(
 ) -> None:
     with DataStoreClient() as data_store_client:
         # Create TestResult metadata
-        test_result_name = "python publish scalar acceptance test"
+        test_result_name = "python publish batch Vector acceptance test"
         test_result = TestResult(name=test_result_name)
         test_result_id = data_store_client.create_test_result(test_result)
 
@@ -56,7 +58,7 @@ def test___publish_batch_vector___read_measurement_value_returns_vector(
         step = Step(name="Initial step", test_result_id=test_result_id)
         step_id = data_store_client.create_step(step)
         published_measurement_ids = data_store_client.publish_measurement_batch(
-            name="python publish scalar",
+            name="Test measurement",
             values=expected_vector,
             step_id=step_id,
         )
@@ -71,3 +73,69 @@ def test___publish_batch_vector___read_measurement_value_returns_vector(
             published_measurement, expected_type=Vector
         )
         assert vector == expected_vector
+
+
+def test___publish_batch_double_analog_waveforms___read_measurement_value_returns_each_analog_waveform(
+    acceptance_test_context: DataStoreContext,
+) -> None:
+    with DataStoreClient() as data_store_client:
+        test_result_name = "python publish batch AnalogWaveforms acceptance test"
+        test_result = TestResult(name=test_result_name)
+        test_result_id = data_store_client.create_test_result(test_result)
+        expected_waveforms = [
+            AnalogWaveform(sample_count=3, raw_data=np.array([1.0, 2.0, 3.0], dtype=np.float64)),
+            AnalogWaveform(sample_count=3, raw_data=np.array([4.0, 5.0, 6.0], dtype=np.float64)),
+        ]
+        step = Step(name="Initial step", test_result_id=test_result_id)
+        step_id = data_store_client.create_step(step)
+
+        published_measurement_ids = data_store_client.publish_measurement_batch(
+            name="Test measurement",
+            values=expected_waveforms,
+            step_id=step_id,
+        )
+
+        assert len(published_measurement_ids) == 2
+        published_measurement_one = data_store_client.get_measurement(published_measurement_ids[0])
+        published_measurement_two = data_store_client.get_measurement(published_measurement_ids[1])
+        published_waveform_one = data_store_client.read_measurement_value(
+            published_measurement_one, expected_type=AnalogWaveform
+        )
+        published_waveform_two = data_store_client.read_measurement_value(
+            published_measurement_two, expected_type=AnalogWaveform
+        )
+        assert published_waveform_one == expected_waveforms[0]
+        assert published_waveform_two == expected_waveforms[1]
+
+
+def test___publish_batch_vectors___read_measurement_value_returns_each_vector(
+    acceptance_test_context: DataStoreContext,
+) -> None:
+    with DataStoreClient() as data_store_client:
+        test_result_name = "python publish batch Vectors acceptance test"
+        test_result = TestResult(name=test_result_name)
+        test_result_id = data_store_client.create_test_result(test_result)
+        expected_vectors = [
+            Vector(values=[1, 2, 3], units="Volts"),
+            Vector(values=[4, 5, 6], units="Volts"),
+        ]
+        step = Step(name="Initial step", test_result_id=test_result_id)
+        step_id = data_store_client.create_step(step)
+
+        published_measurement_ids = data_store_client.publish_measurement_batch(
+            name="Test measurement",
+            values=expected_vectors,
+            step_id=step_id,
+        )
+
+        assert len(published_measurement_ids) == 2
+        published_measurement_one = data_store_client.get_measurement(published_measurement_ids[0])
+        published_measurement_two = data_store_client.get_measurement(published_measurement_ids[1])
+        published_vector_one = data_store_client.read_measurement_value(
+            published_measurement_one, expected_type=Vector
+        )
+        published_vector_two = data_store_client.read_measurement_value(
+            published_measurement_two, expected_type=Vector
+        )
+        assert published_vector_one == expected_vectors[0]
+        assert published_vector_two == expected_vectors[1]

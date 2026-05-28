@@ -420,7 +420,7 @@ def test___unsupported_list___publish_measurement_batch___raises_type_error(
             step_id="step_id",
         )
 
-    assert exc.value.args[0].startswith("Unsupported iterable:")
+    assert exc.value.args[0].startswith("Unsupported iterable.")
 
 
 def test___empty_list___publish_measurement_batch___raises_type_error(
