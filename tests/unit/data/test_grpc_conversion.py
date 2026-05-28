@@ -76,6 +76,16 @@ def test___python_vector_object___populate_condition_batch___condition_updated_c
     assert request.scalar_values.attributes["NI_UnitDescription"].string_value == "amps"
 
 
+def test___python_scalar_iterable___populate_condition_batch___condition_updated_correctly() -> (
+    None
+):
+    request = PublishConditionBatchRequest()
+    populate_publish_condition_batch_request_values(request, [1.5, 2.5, 3.5])
+
+    assert isinstance(request.scalar_values, vector_pb2.Vector)
+    assert list(request.scalar_values.double_array.values) == [1.5, 2.5, 3.5]
+
+
 def test___python_scalar_generator_iterable___populate_condition_batch___condition_updated_correctly() -> (
     None
 ):
@@ -89,6 +99,35 @@ def test___python_scalar_generator_iterable___populate_condition_batch___conditi
 
     assert isinstance(request.scalar_values, vector_pb2.Vector)
     assert list(request.scalar_values.double_array.values) == [1.5, 2.5, 3.5]
+
+
+def test___empty_iterable___populate_condition_batch___raises_error() -> None:
+    request = PublishConditionBatchRequest()
+
+    with pytest.raises(ValueError, match="Cannot publish an empty Iterable."):
+        populate_publish_condition_batch_request_values(request, [])
+
+
+def test___python_unsupported_iterable___populate_condition_batch___raises_error() -> None:
+    values = [object(), object()]
+    request = PublishConditionBatchRequest()
+
+    with pytest.raises(
+        TypeError,
+        match="Unsupported iterable.",
+    ):
+        populate_publish_condition_batch_request_values(request, values)
+
+
+def test___python_non_iterable___populate_condition_batch___raises_error() -> None:
+    values = 42
+    request = PublishConditionBatchRequest()
+
+    with pytest.raises(
+        TypeError,
+        match="Unsupported condition values type",
+    ):
+        populate_publish_condition_batch_request_values(request, values)
 
 
 # ========================================================
