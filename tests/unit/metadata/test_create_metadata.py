@@ -5,18 +5,6 @@ from __future__ import annotations
 from typing import cast
 from unittest.mock import NonCallableMock
 
-from ni.datastore.metadata import (
-    MetadataStoreClient,
-    HardwareItem,
-    Operator,
-    SoftwareItem,
-    Test,
-    TestAdapter,
-    TestDescription,
-    TestStation,
-    Uut,
-    UutInstance,
-)
 from ni.measurements.metadata.v1.metadata_store_service_pb2 import (
     CreateHardwareItemRequest,
     CreateHardwareItemResponse,
@@ -36,6 +24,19 @@ from ni.measurements.metadata.v1.metadata_store_service_pb2 import (
     CreateUutInstanceResponse,
     CreateUutRequest,
     CreateUutResponse,
+)
+
+from ni.datastore.metadata import (
+    HardwareItem,
+    MetadataStoreClient,
+    Operator,
+    SoftwareItem,
+    Test,
+    TestAdapter,
+    TestDescription,
+    TestStation,
+    Uut,
+    UutInstance,
 )
 
 

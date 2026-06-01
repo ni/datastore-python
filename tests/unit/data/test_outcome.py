@@ -5,8 +5,9 @@ from __future__ import annotations
 from typing import cast
 
 import pytest
-from ni.datastore.data import Outcome
 from ni.measurements.data.v1.data_store_pb2 import Outcome as OutcomeProto
+
+from ni.datastore.data import Outcome
 
 
 def test___enum_values___match_protobuf_values() -> None:

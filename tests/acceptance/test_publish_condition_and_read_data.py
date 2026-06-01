@@ -1,13 +1,14 @@
 """Acceptance tests that publish various condition values then read the data back."""
 
+from nitypes.scalar import Scalar
+from nitypes.vector import Vector
+from utilities import DataStoreContext
+
 from ni.datastore.data import (
     DataStoreClient,
     Step,
     TestResult,
 )
-from nitypes.scalar import Scalar
-from nitypes.vector import Vector
-from utilities import DataStoreContext
 
 
 def test___publish_float_condition___read_condition_value_returns_vector(
