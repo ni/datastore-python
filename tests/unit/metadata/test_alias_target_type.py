@@ -5,10 +5,11 @@ from __future__ import annotations
 from typing import cast
 
 import pytest
-from ni.datastore.metadata import AliasTargetType
 from ni.measurements.metadata.v1.metadata_store_pb2 import (
     AliasTargetType as AliasTargetTypeProto,
 )
+
+from ni.datastore.metadata import AliasTargetType
 
 
 def test___enum_values___match_protobuf_values() -> None:

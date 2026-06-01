@@ -1,14 +1,15 @@
 """Acceptance tests that publish various batch measurement values then reads the data back."""
 
 import numpy as np
+from nitypes.vector import Vector
+from nitypes.waveform import AnalogWaveform
+from utilities import DataStoreContext
+
 from ni.datastore.data import (
     DataStoreClient,
     Step,
     TestResult,
 )
-from nitypes.vector import Vector
-from nitypes.waveform import AnalogWaveform
-from utilities import DataStoreContext
 
 
 def test___publish_batch_floats___read_measurement_value_returns_vector(

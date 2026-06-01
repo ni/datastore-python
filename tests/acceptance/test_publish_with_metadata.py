@@ -5,6 +5,9 @@ import os
 
 import hightime as ht
 import numpy as np
+from nitypes.waveform import AnalogWaveform
+from utilities import DataStoreContext
+
 from ni.datastore.data import (
     DataStoreClient,
     ErrorInformation,
@@ -24,8 +27,6 @@ from ni.datastore.metadata import (
     Uut,
     UutInstance,
 )
-from nitypes.waveform import AnalogWaveform
-from utilities import DataStoreContext
 
 
 def test___waveform_with_all_metadata___publish___query_read_returns_correct_data(

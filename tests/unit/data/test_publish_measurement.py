@@ -4,13 +4,12 @@ from __future__ import annotations
 
 import datetime as std_datetime
 import unittest.mock
-from typing import Any, Iterable, cast
+from typing import Any, cast, Iterable
 from unittest.mock import NonCallableMock
 
 import numpy as np
 import pytest
 from hightime import datetime, timedelta
-from ni.datastore.data import DataStoreClient, ErrorInformation, Outcome
 from ni.measurements.data.v1.data_store_pb2 import (
     ErrorInformation as ErrorInformationProto,
     Outcome as OutcomeProto,
@@ -33,6 +32,8 @@ from ni.protobuf.types.xydata_pb2 import DoubleXYData
 from nitypes.vector import Vector
 from nitypes.waveform import AnalogWaveform, Timing
 from nitypes.xy_data import XYData
+
+from ni.datastore.data import DataStoreClient, ErrorInformation, Outcome
 
 
 @pytest.mark.parametrize("value", [True, False])

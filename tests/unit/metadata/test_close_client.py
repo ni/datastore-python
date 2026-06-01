@@ -5,6 +5,7 @@ from __future__ import annotations
 from unittest.mock import NonCallableMock
 
 import pytest
+
 from ni.datastore.metadata import MetadataStoreClient
 
 

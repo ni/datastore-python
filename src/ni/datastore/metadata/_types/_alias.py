@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from ni.measurements.metadata.v1.metadata_store_pb2 import Alias as AliasProto
 
-from ._alias_target_type import AliasTargetType
+from ni.datastore.metadata._types._alias_target_type import AliasTargetType
 
 
 class Alias:

@@ -2,12 +2,6 @@ from typing import Any, Iterable
 
 import numpy as np
 import pytest
-from ni.datastore.data._grpc_conversion import (
-    populate_publish_condition_batch_request_values,
-    populate_publish_condition_request_value,
-    populate_publish_measurement_batch_request_values,
-    populate_publish_measurement_request_value,
-)
 from ni.measurements.data.v1.data_store_service_pb2 import (
     PublishConditionBatchRequest,
     PublishConditionRequest,
@@ -28,6 +22,13 @@ from nitypes.scalar import Scalar
 from nitypes.vector import Vector
 from nitypes.waveform import AnalogWaveform, ComplexWaveform, DigitalWaveform, Spectrum
 from nitypes.xy_data import XYData
+
+from ni.datastore.data._grpc_conversion import (
+    populate_publish_condition_batch_request_values,
+    populate_publish_condition_request_value,
+    populate_publish_measurement_batch_request_values,
+    populate_publish_measurement_request_value,
+)
 
 
 # ========================================================

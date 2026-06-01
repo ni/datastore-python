@@ -1,8 +1,8 @@
 """Acceptance tests that exercise DataStoreClient.query_test_results()."""
 
-from ni.datastore.data import DataStoreClient
 from utilities import DataStoreContext
 
+from ni.datastore.data import DataStoreClient
 from tests.acceptance._utils import append_hashed_time, create_test_result
 
 

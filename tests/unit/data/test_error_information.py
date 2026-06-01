@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import pytest
-from ni.datastore.data import ErrorInformation
 from ni.measurements.data.v1.data_store_pb2 import (
     ErrorInformation as ErrorInformationProto,
 )
+
+from ni.datastore.data import ErrorInformation
 
 
 def test___init___with_defaults() -> None:

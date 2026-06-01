@@ -4,6 +4,10 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
+from ni.measurements.metadata.v1.metadata_store_service_pb2 import (
+    CreateFromJsonDocumentResponse,
+)
+
 from ni.datastore.metadata._types._hardware_item import HardwareItem
 from ni.datastore.metadata._types._operator import Operator
 from ni.datastore.metadata._types._software_item import SoftwareItem
@@ -13,9 +17,6 @@ from ni.datastore.metadata._types._test_description import TestDescription
 from ni.datastore.metadata._types._test_station import TestStation
 from ni.datastore.metadata._types._uut import Uut
 from ni.datastore.metadata._types._uut_instance import UutInstance
-from ni.measurements.metadata.v1.metadata_store_service_pb2 import (
-    CreateFromJsonDocumentResponse,
-)
 
 
 class MetadataItems:

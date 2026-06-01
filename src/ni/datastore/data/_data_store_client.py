@@ -7,25 +7,10 @@ import sys
 from collections.abc import Iterable, Sequence
 from threading import Lock
 from types import TracebackType
-from typing import TYPE_CHECKING, Type, TypeVar, overload
+from typing import overload, Type, TYPE_CHECKING, TypeVar
 
 import hightime as ht
 from grpc import Channel
-from ni.datastore.data._grpc_conversion import (
-    convert_read_condition_response_from_protobuf,
-    convert_read_measurement_response_from_protobuf,
-    get_publish_measurement_timestamp,
-    populate_publish_condition_batch_request_values,
-    populate_publish_condition_request_value,
-    populate_publish_measurement_batch_request_values,
-    populate_publish_measurement_request_value,
-)
-from ni.datastore.data._types._error_information import ErrorInformation
-from ni.datastore.data._types._outcome import Outcome
-from ni.datastore.data._types._published_condition import PublishedCondition
-from ni.datastore.data._types._published_measurement import PublishedMeasurement
-from ni.datastore.data._types._step import Step
-from ni.datastore.data._types._test_result import TestResult
 from ni.measurementlink.discovery.v1.client import DiscoveryClient
 from ni.measurements.data.v1.client import DataStoreClient as DataStoreServiceClient
 from ni.measurements.data.v1.data_store_service_pb2 import (
@@ -50,6 +35,22 @@ from ni.protobuf.types.precision_timestamp_conversion import (
     hightime_datetime_to_protobuf,
 )
 from ni_grpc_extensions.channelpool import GrpcChannelPool
+
+from ni.datastore.data._grpc_conversion import (
+    convert_read_condition_response_from_protobuf,
+    convert_read_measurement_response_from_protobuf,
+    get_publish_measurement_timestamp,
+    populate_publish_condition_batch_request_values,
+    populate_publish_condition_request_value,
+    populate_publish_measurement_batch_request_values,
+    populate_publish_measurement_request_value,
+)
+from ni.datastore.data._types._error_information import ErrorInformation
+from ni.datastore.data._types._outcome import Outcome
+from ni.datastore.data._types._published_condition import PublishedCondition
+from ni.datastore.data._types._published_measurement import PublishedMeasurement
+from ni.datastore.data._types._step import Step
+from ni.datastore.data._types._test_result import TestResult
 
 if TYPE_CHECKING:
     if sys.version_info >= (3, 11):
