@@ -225,8 +225,9 @@ def test___publish_analog_waveform_data_without_t0___uses_timestamp_parameter(
     assert request.timestamp == hightime_datetime_to_protobuf(timestamp)
 
 
-def test___publish_analog_waveform_data_with_mismatched_timestamp_parameter___raises_error(
+def test___publish_analog_waveform_data_with_mismatched_timestamp_parameter___uses_provided_timestamp(
     data_store_client: DataStoreClient,
+    mocked_data_store_service_client: NonCallableMock,
 ) -> None:
     timestamp = datetime.now(tz=std_datetime.timezone.utc)
     waveform_values = [1.0, 2.0, 3.0]
@@ -236,11 +237,37 @@ def test___publish_analog_waveform_data_with_mismatched_timestamp_parameter___ra
         timing=Timing.create_with_regular_interval(timedelta(seconds=1), timestamp),
     )
     mismatched_timestamp = timestamp + timedelta(seconds=1)
+    mocked_data_store_service_client.publish_measurement.return_value = PublishMeasurementResponse(
+        measurement_id="response_id"
+    )
 
-    with pytest.raises(ValueError):
-        data_store_client.publish_measurement(
-            "name", analog_waveform, "step_id", mismatched_timestamp
-        )
+    measurement_id = data_store_client.publish_measurement(
+        "name", analog_waveform, "step_id", mismatched_timestamp
+    )
+
+    args, __ = mocked_data_store_service_client.publish_measurement.call_args
+    request = cast(PublishMeasurementRequest, args[0])
+    assert measurement_id == "response_id"
+    assert request.timestamp == hightime_datetime_to_protobuf(mismatched_timestamp)
+
+
+def test___publish_analog_waveform_data_without_t0_or_timestamp___uses_now(
+    data_store_client: DataStoreClient,
+    mocked_data_store_service_client: NonCallableMock,
+) -> None:
+    now = datetime.now(tz=std_datetime.timezone.utc)
+    analog_waveform = AnalogWaveform.from_array_1d([1.0, 2.0, 3.0], dtype=float)
+    mocked_data_store_service_client.publish_measurement.return_value = PublishMeasurementResponse(
+        measurement_id="response_id"
+    )
+
+    with unittest.mock.patch("ni.datastore.data._grpc_conversion.ht.datetime") as mock_ht_datetime:
+        mock_ht_datetime.now.return_value = now
+        data_store_client.publish_measurement("name", analog_waveform, "step_id")
+
+    args, __ = mocked_data_store_service_client.publish_measurement.call_args
+    request = cast(PublishMeasurementRequest, args[0])
+    assert request.timestamp == hightime_datetime_to_protobuf(now)
 
 
 def test___none___publish_measurement___raises_type_error(
