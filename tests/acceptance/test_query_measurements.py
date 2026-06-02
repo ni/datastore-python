@@ -1,9 +1,9 @@
 """Acceptance tests that exercise DataStoreClient.query_measurements()."""
 
-from ni.datastore.data import DataStoreClient
 from nitypes.vector import Vector
 from utilities import DataStoreContext
 
+from ni.datastore.data import DataStoreClient
 from tests.acceptance._utils import append_hashed_time, create_test_result_and_step
 
 

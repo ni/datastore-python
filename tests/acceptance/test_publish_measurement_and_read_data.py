@@ -1,16 +1,17 @@
 """Acceptance tests that publish various values then reads the data back."""
 
 import numpy as np
-from ni.datastore.data import (
-    DataStoreClient,
-    Step,
-    TestResult,
-)
 from nitypes.scalar import Scalar
 from nitypes.vector import Vector
 from nitypes.waveform import AnalogWaveform, ComplexWaveform, DigitalWaveform, Spectrum
 from nitypes.xy_data import XYData
 from utilities import DataStoreContext
+
+from ni.datastore.data import (
+    DataStoreClient,
+    Step,
+    TestResult,
+)
 
 
 def test___publish_float___read_measurement_value_returns_vector(

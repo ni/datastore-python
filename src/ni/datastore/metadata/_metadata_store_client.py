@@ -11,18 +11,6 @@ from types import TracebackType
 from typing import TYPE_CHECKING
 
 from grpc import Channel
-from ni.datastore.metadata._types._alias import Alias
-from ni.datastore.metadata._types._extension_schema import ExtensionSchema
-from ni.datastore.metadata._types._hardware_item import HardwareItem
-from ni.datastore.metadata._types._metadata_items import MetadataItems
-from ni.datastore.metadata._types._operator import Operator
-from ni.datastore.metadata._types._software_item import SoftwareItem
-from ni.datastore.metadata._types._test import Test
-from ni.datastore.metadata._types._test_adapter import TestAdapter
-from ni.datastore.metadata._types._test_description import TestDescription
-from ni.datastore.metadata._types._test_station import TestStation
-from ni.datastore.metadata._types._uut import Uut
-from ni.datastore.metadata._types._uut_instance import UutInstance
 from ni.measurementlink.discovery.v1.client import DiscoveryClient
 from ni.measurements.metadata.v1.client import (
     MetadataStoreClient as MetadataStoreServiceClient,
@@ -64,6 +52,19 @@ from ni.measurements.metadata.v1.metadata_store_service_pb2 import (
     RegisterSchemaRequest,
 )
 from ni_grpc_extensions.channelpool import GrpcChannelPool
+
+from ni.datastore.metadata._types._alias import Alias
+from ni.datastore.metadata._types._extension_schema import ExtensionSchema
+from ni.datastore.metadata._types._hardware_item import HardwareItem
+from ni.datastore.metadata._types._metadata_items import MetadataItems
+from ni.datastore.metadata._types._operator import Operator
+from ni.datastore.metadata._types._software_item import SoftwareItem
+from ni.datastore.metadata._types._test import Test
+from ni.datastore.metadata._types._test_adapter import TestAdapter
+from ni.datastore.metadata._types._test_description import TestDescription
+from ni.datastore.metadata._types._test_station import TestStation
+from ni.datastore.metadata._types._uut import Uut
+from ni.datastore.metadata._types._uut_instance import UutInstance
 
 if TYPE_CHECKING:
     if sys.version_info >= (3, 11):

@@ -6,7 +6,6 @@ from typing import cast
 from unittest.mock import NonCallableMock
 
 import pytest
-from ni.datastore.data import DataStoreClient
 from ni.measurements.data.v1.data_store_service_pb2 import (
     PublishConditionBatchRequest,
     PublishConditionBatchResponse,
@@ -14,6 +13,8 @@ from ni.measurements.data.v1.data_store_service_pb2 import (
     PublishConditionResponse,
 )
 from nitypes.vector import Vector
+
+from ni.datastore.data import DataStoreClient
 
 
 def test___publish_condition___calls_data_store_service_client(

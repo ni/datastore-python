@@ -7,9 +7,10 @@ from typing import Any
 from unittest.mock import NonCallableMock
 
 import pytest
+from pytest_mock import MockerFixture
+
 from ni.datastore.data import DataStoreClient
 from ni.datastore.metadata import MetadataStoreClient
-from pytest_mock import MockerFixture
 
 
 @pytest.fixture

@@ -6,7 +6,6 @@ from unittest.mock import Mock, NonCallableMock
 
 import numpy as np
 import pytest
-from ni.datastore.data import DataStoreClient, PublishedCondition, PublishedMeasurement
 from ni.protobuf.types import (
     array_pb2,
     attribute_value_pb2,
@@ -18,6 +17,8 @@ from nitypes.complex import ComplexInt32DType
 from nitypes.vector import Vector
 from nitypes.waveform import AnalogWaveform, ComplexWaveform, DigitalWaveform, Spectrum
 from nitypes.xy_data import XYData
+
+from ni.datastore.data import DataStoreClient, PublishedCondition, PublishedMeasurement
 
 
 def test___read_measurement_value___calls_data_store_client(

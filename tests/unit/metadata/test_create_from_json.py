@@ -8,13 +8,14 @@ from typing import cast
 from unittest.mock import NonCallableMock
 
 import pytest
-from ni.datastore.metadata import (
-    MetadataItems,
-    MetadataStoreClient,
-)
 from ni.measurements.metadata.v1.metadata_store_service_pb2 import (
     CreateFromJsonDocumentRequest,
     CreateFromJsonDocumentResponse,
+)
+
+from ni.datastore.metadata import (
+    MetadataItems,
+    MetadataStoreClient,
 )
 
 

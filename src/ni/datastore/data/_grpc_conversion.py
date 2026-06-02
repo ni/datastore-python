@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import datetime as std_datetime
 import logging
-from typing import Iterable, cast
+from itertools import chain
+from typing import Any, Callable, Iterable, Sequence, cast
 
 import hightime as ht
 import numpy as np
@@ -49,6 +50,129 @@ from nitypes.xy_data import XYData
 _logger = logging.getLogger(__name__)
 
 
+def _copy_batch_values(
+    repeated_field: Any,
+    batch_values: Iterable[object],
+    is_supported: Callable[[object], bool],
+    convert_value: Callable[[Any], Any],
+    error_message: str,
+) -> None:
+    for value in batch_values:
+        if not is_supported(value):
+            raise TypeError(error_message)
+        repeated_field.add().CopyFrom(convert_value(value))
+
+
+def _populate_vector_batch_values(
+    publish_request: PublishMeasurementBatchRequest, values: Iterable[object]
+) -> None:
+    _copy_batch_values(
+        publish_request.vector_values.vectors,
+        values,
+        lambda value: isinstance(value, Vector),
+        vector_to_protobuf,
+        "Unsupported iterable: all values must be Vector.",
+    )
+
+
+def _populate_analog_waveform_batch_values(
+    publish_request: PublishMeasurementBatchRequest,
+    first_value: AnalogWaveform[Any],
+    values: Iterable[object],
+) -> None:
+    if first_value.dtype == np.float64:
+        _copy_batch_values(
+            publish_request.double_analog_waveform_values.waveforms,
+            values,
+            lambda value: isinstance(value, AnalogWaveform) and value.dtype == np.float64,
+            float64_analog_waveform_to_protobuf,
+            "Unsupported iterable: all values must be float64 AnalogWaveform.",
+        )
+        return
+    elif first_value.dtype == np.int16:
+        _copy_batch_values(
+            publish_request.i16_analog_waveform_values.waveforms,
+            values,
+            lambda value: isinstance(value, AnalogWaveform) and value.dtype == np.int16,
+            int16_analog_waveform_to_protobuf,
+            "Unsupported iterable: all values must be int16 AnalogWaveform.",
+        )
+        return
+    raise TypeError(f"Unsupported AnalogWaveform dtype: {first_value.dtype}")
+
+
+def _populate_complex_waveform_batch_values(
+    publish_request: PublishMeasurementBatchRequest,
+    first_value: ComplexWaveform[Any],
+    values: Iterable[object],
+) -> None:
+    if first_value.dtype == np.complex128:
+        _copy_batch_values(
+            publish_request.double_complex_waveform_values.waveforms,
+            values,
+            lambda value: isinstance(value, ComplexWaveform) and value.dtype == np.complex128,
+            float64_complex_waveform_to_protobuf,
+            "Unsupported iterable: all values must be complex128 ComplexWaveform.",
+        )
+        return
+    if first_value.dtype == ComplexInt32DType:
+        _copy_batch_values(
+            publish_request.i16_complex_waveform_values.waveforms,
+            values,
+            lambda value: isinstance(value, ComplexWaveform) and value.dtype == ComplexInt32DType,
+            int16_complex_waveform_to_protobuf,
+            "Unsupported iterable: all values must be ComplexWaveform with ComplexInt32DType.",
+        )
+        return
+    raise TypeError(f"Unsupported ComplexWaveform dtype: {first_value.dtype}")
+
+
+def _populate_spectrum_batch_values(
+    publish_request: PublishMeasurementBatchRequest,
+    first_value: Spectrum[Any],
+    values: Iterable[object],
+) -> None:
+    if first_value.dtype != np.float64:
+        raise TypeError(f"Unsupported Spectrum dtype: {first_value.dtype}")
+
+    _copy_batch_values(
+        publish_request.double_spectrum_values.waveforms,
+        values,
+        lambda value: isinstance(value, Spectrum) and value.dtype == np.float64,
+        float64_spectrum_to_protobuf,
+        "Unsupported iterable: all values must be float64 Spectrum.",
+    )
+
+
+def _populate_digital_waveform_batch_values(
+    publish_request: PublishMeasurementBatchRequest, values: Iterable[object]
+) -> None:
+    _copy_batch_values(
+        publish_request.digital_waveform_values.waveforms,
+        values,
+        lambda value: isinstance(value, DigitalWaveform),
+        digital_waveform_to_protobuf,
+        "Unsupported iterable: all values must be DigitalWaveform.",
+    )
+
+
+def _populate_xydata_batch_values(
+    publish_request: PublishMeasurementBatchRequest,
+    first_value: XYData[Any],
+    values: Iterable[object],
+) -> None:
+    if first_value.dtype != np.float64:
+        raise TypeError(f"Unsupported XYData dtype: {first_value.dtype}")
+
+    _copy_batch_values(
+        publish_request.x_y_data_values.x_y_data,
+        values,
+        lambda value: isinstance(value, XYData) and value.dtype == np.float64,
+        float64_xydata_to_protobuf,
+        "Unsupported iterable: all values must be float64 XYData.",
+    )
+
+
 def populate_publish_condition_request_value(
     publish_request: PublishConditionRequest, value: object
 ) -> None:
@@ -78,11 +202,16 @@ def populate_publish_condition_batch_request_values(
     elif isinstance(values, Iterable):
         if not values:
             raise ValueError("Cannot publish an empty Iterable.")
+
+        # Vector initialization requires the Iterable to be iterated over multiple times.
+        # We convert the Iterable to a list if we don't know that the Iterable type
+        # supports multiple iterations.
+        condition_values = values if isinstance(values, Sequence) else list(values)
         try:
-            vector = Vector(values)
+            vector = Vector(condition_values)
         except (TypeError, ValueError):
             raise TypeError(
-                f"Unsupported iterable: {values}. Subtype must be bool, float, int, or string."
+                f"Unsupported iterable: {condition_values}. Subtype must be bool, float, int, or string."
             )
 
         publish_request.scalar_values.CopyFrom(vector_to_protobuf(vector))
@@ -162,16 +291,34 @@ def populate_publish_measurement_batch_request_values(
     if isinstance(values, Vector):
         publish_request.scalar_values.CopyFrom(vector_to_protobuf(values))
     elif isinstance(values, Iterable):
-        if not values:
-            raise ValueError("Cannot publish an empty Iterable.")
+        values_iterator = iter(values)
         try:
-            vector = Vector(values)
-        except (TypeError, ValueError):
-            raise TypeError(
-                f"Unsupported iterable: {values}. Subtype must be bool, float, int, or string."
-            )
+            first_value = next(values_iterator)
+        except StopIteration as exc:
+            raise ValueError("Cannot publish an empty Iterable.") from exc
 
-        publish_request.scalar_values.CopyFrom(vector_to_protobuf(vector))
+        all_values = chain([first_value], values_iterator)
+        if isinstance(first_value, Vector):
+            _populate_vector_batch_values(publish_request, all_values)
+        elif isinstance(first_value, AnalogWaveform):
+            _populate_analog_waveform_batch_values(publish_request, first_value, all_values)
+        elif isinstance(first_value, ComplexWaveform):
+            _populate_complex_waveform_batch_values(publish_request, first_value, all_values)
+        elif isinstance(first_value, Spectrum):
+            _populate_spectrum_batch_values(publish_request, first_value, all_values)
+        elif isinstance(first_value, DigitalWaveform):
+            _populate_digital_waveform_batch_values(publish_request, all_values)
+        elif isinstance(first_value, XYData):
+            _populate_xydata_batch_values(publish_request, first_value, all_values)
+        else:
+            try:
+                vector = Vector(cast(Iterable[bool | int | float | str], list(all_values)))
+            except (TypeError, ValueError):
+                raise TypeError(
+                    f"Unsupported iterable. Subtype must be bool, float, int, string, Vector, "
+                    "AnalogWaveform, ComplexWaveform, Spectrum, DigitalWaveform, or XYData."
+                )
+            publish_request.scalar_values.CopyFrom(vector_to_protobuf(vector))
     else:
         raise TypeError(
             f"Unsupported measurement values type: {type(values)}. Please consult the documentation."

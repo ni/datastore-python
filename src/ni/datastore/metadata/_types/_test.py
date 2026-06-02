@@ -4,12 +4,13 @@ from __future__ import annotations
 
 from typing import Mapping, MutableMapping
 
+from ni.measurements.metadata.v1.metadata_store_pb2 import (
+    Test as TestProto,
+)
+
 from ni.datastore.metadata._grpc_conversion import (
     populate_extension_value_message_map,
     populate_from_extension_value_message_map,
-)
-from ni.measurements.metadata.v1.metadata_store_pb2 import (
-    Test as TestProto,
 )
 
 

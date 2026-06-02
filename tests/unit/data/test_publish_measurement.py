@@ -4,13 +4,12 @@ from __future__ import annotations
 
 import datetime as std_datetime
 import unittest.mock
-from typing import Any, Iterable, cast
+from typing import Any, cast, Iterable
 from unittest.mock import NonCallableMock
 
 import numpy as np
 import pytest
 from hightime import datetime, timedelta
-from ni.datastore.data import DataStoreClient, ErrorInformation, Outcome
 from ni.measurements.data.v1.data_store_pb2 import (
     ErrorInformation as ErrorInformationProto,
     Outcome as OutcomeProto,
@@ -33,6 +32,8 @@ from ni.protobuf.types.xydata_pb2 import DoubleXYData
 from nitypes.vector import Vector
 from nitypes.waveform import AnalogWaveform, Timing
 from nitypes.xy_data import XYData
+
+from ni.datastore.data import DataStoreClient, ErrorInformation, Outcome
 
 
 @pytest.mark.parametrize("value", [True, False])
@@ -447,7 +448,7 @@ def test___unsupported_list___publish_measurement_batch___raises_type_error(
             step_id="step_id",
         )
 
-    assert exc.value.args[0].startswith("Unsupported iterable:")
+    assert exc.value.args[0].startswith("Unsupported iterable.")
 
 
 def test___empty_list___publish_measurement_batch___raises_type_error(
