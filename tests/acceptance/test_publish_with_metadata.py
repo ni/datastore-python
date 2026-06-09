@@ -5,7 +5,7 @@ import os
 
 import hightime as ht
 import numpy as np
-from nitypes.waveform import AnalogWaveform
+from nitypes.waveform import AnalogWaveform, NoneScaleMode, Timing, SampleIntervalMode
 from utilities import DataStoreContext
 
 from ni.datastore.data import (
@@ -155,6 +155,8 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         expected_waveform = AnalogWaveform(
             sample_count=3,
             raw_data=np.array([1.0, 2.0, 3.0]),
+            scale_mode=NoneScaleMode(),
+            timing=Timing(SampleIntervalMode.NONE, time_offset=ht.timedelta()),
         )
 
         # Metadata: Test
