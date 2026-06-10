@@ -1,9 +1,9 @@
 """Acceptance tests that publish various batch measurement values then reads the data back."""
 
-import numpy as np
 import hightime as ht
+import numpy as np
 from nitypes.vector import Vector
-from nitypes.waveform import AnalogWaveform, NoneScaleMode, Timing, SampleIntervalMode
+from nitypes.waveform import AnalogWaveform, NoneScaleMode, SampleIntervalMode, Timing
 from utilities import DataStoreContext
 
 from ni.datastore.data import (

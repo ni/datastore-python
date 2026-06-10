@@ -5,7 +5,7 @@ from __future__ import annotations
 import datetime as std_datetime
 import logging
 from itertools import chain
-from typing import Any, Callable, Iterable, Sequence, cast
+from typing import Any, Callable, cast, Iterable
 
 import hightime as ht
 import numpy as np
