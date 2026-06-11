@@ -113,7 +113,7 @@ def test___empty_generator___populate_condition_batch___raises_error() -> None:
     request = PublishConditionBatchRequest()
 
     with pytest.raises(ValueError, match="Cannot publish an empty Iterable."):
-        populate_publish_condition_batch_request_values(request, (x for x in []))
+        populate_publish_condition_batch_request_values(request, iter([]))
 
 
 def test___python_unsupported_iterable___populate_condition_batch___raises_error() -> None:
@@ -743,7 +743,7 @@ def test___empty_generator___populate_measurement_batch___raises_error() -> None
     request = PublishMeasurementBatchRequest()
 
     with pytest.raises(ValueError, match="Cannot publish an empty Iterable."):
-        populate_publish_measurement_batch_request_values(request, (x for x in []))
+        populate_publish_measurement_batch_request_values(request, iter([]))
 
 
 def test___python_unsupported_iterable___populate_measurement_batch___raises_error() -> None:
