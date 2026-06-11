@@ -1,3 +1,4 @@
+from collections.abc import Generator
 from typing import Any, Iterable
 
 import numpy as np
@@ -110,10 +111,13 @@ def test___empty_iterable___populate_condition_batch___raises_error() -> None:
 
 
 def test___empty_generator___populate_condition_batch___raises_error() -> None:
+    def _values() -> Generator[float, None, None]:
+        yield from []
+
     request = PublishConditionBatchRequest()
 
     with pytest.raises(ValueError, match="Cannot publish an empty Iterable."):
-        populate_publish_condition_batch_request_values(request, iter([]))
+        populate_publish_condition_batch_request_values(request, _values())
 
 
 def test___python_unsupported_iterable___populate_condition_batch___raises_error() -> None:
@@ -740,10 +744,13 @@ def test___empty_iterable___populate_measurement_batch___raises_error() -> None:
 
 
 def test___empty_generator___populate_measurement_batch___raises_error() -> None:
+    def _values() -> Generator[float, None, None]:
+        yield from []
+
     request = PublishMeasurementBatchRequest()
 
     with pytest.raises(ValueError, match="Cannot publish an empty Iterable."):
-        populate_publish_measurement_batch_request_values(request, iter([]))
+        populate_publish_measurement_batch_request_values(request, _values())
 
 
 def test___python_unsupported_iterable___populate_measurement_batch___raises_error() -> None:
