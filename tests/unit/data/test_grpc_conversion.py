@@ -276,6 +276,37 @@ def test___python_float64_xydata___populate_measurement___measurement_updated_co
     assert request.x_y_data.attributes["NI_UnitDescription_Y"].string_value == "Seconds"
 
 
+@pytest.mark.parametrize(
+    "values, attribute_name",
+    [
+        ([1.5, 2.5, 3.5], "double_array"),
+        ([1, 2, 3], "sint32_array"),
+        ([True, False, True], "bool_array"),
+        (["one", "two", "three"], "string_array"),
+    ],
+)
+def test___python_scalar_iterable___populate_measurement___measurement_updated_correctly(
+    values: list[object], attribute_name: str
+) -> None:
+    request = PublishMeasurementRequest()
+    populate_publish_measurement_request_value(request, values)
+
+    assert isinstance(request.vector, vector_pb2.Vector)
+    assert list(getattr(request.vector, attribute_name).values) == values
+
+
+def test___empty_iterable___populate_measurement___raises_value_error() -> None:
+    request = PublishMeasurementRequest()
+    with pytest.raises(ValueError, match="Cannot publish an empty Iterable."):
+        populate_publish_measurement_request_value(request, [])
+
+
+def test___unsupported_iterable___populate_measurement___raises_type_error() -> None:
+    request = PublishMeasurementRequest()
+    with pytest.raises(TypeError, match="Unsupported iterable"):
+        populate_publish_measurement_request_value(request, [object(), object()])
+
+
 # ========================================================
 # Populate Measurement Batch
 # ========================================================
