@@ -1,8 +1,9 @@
 """Acceptance tests that publish various batch measurement values then reads the data back."""
 
+import hightime as ht
 import numpy as np
 from nitypes.vector import Vector
-from nitypes.waveform import AnalogWaveform
+from nitypes.waveform import AnalogWaveform, NoneScaleMode, SampleIntervalMode, Timing
 from utilities import DataStoreContext
 
 from ni.datastore.data import (
@@ -84,8 +85,18 @@ def test___publish_batch_double_analog_waveforms___read_measurement_value_return
         test_result = TestResult(name=test_result_name)
         test_result_id = data_store_client.create_test_result(test_result)
         expected_waveforms = [
-            AnalogWaveform(sample_count=3, raw_data=np.array([1.0, 2.0, 3.0], dtype=np.float64)),
-            AnalogWaveform(sample_count=3, raw_data=np.array([4.0, 5.0, 6.0], dtype=np.float64)),
+            AnalogWaveform(
+                sample_count=3,
+                raw_data=np.array([1.0, 2.0, 3.0]),
+                scale_mode=NoneScaleMode(),
+                timing=Timing(SampleIntervalMode.NONE, time_offset=ht.timedelta()),
+            ),
+            AnalogWaveform(
+                sample_count=3,
+                raw_data=np.array([4.0, 5.0, 6.0]),
+                scale_mode=NoneScaleMode(),
+                timing=Timing(SampleIntervalMode.NONE, time_offset=ht.timedelta()),
+            ),
         ]
         step = Step(name="Initial step", test_result_id=test_result_id)
         step_id = data_store_client.create_step(step)

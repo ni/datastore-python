@@ -1,9 +1,17 @@
 """Acceptance tests that publish various values then reads the data back."""
 
+import hightime as ht
 import numpy as np
 from nitypes.scalar import Scalar
 from nitypes.vector import Vector
-from nitypes.waveform import AnalogWaveform, ComplexWaveform, DigitalWaveform, Spectrum
+from nitypes.waveform import (
+    AnalogWaveform,
+    ComplexWaveform,
+    DigitalWaveform,
+    SampleIntervalMode,
+    Spectrum,
+    Timing,
+)
 from nitypes.xy_data import XYData
 from utilities import DataStoreContext
 
@@ -113,6 +121,7 @@ def test___publish_analog_waveform___read_measurement_value_returns_analog_wavef
         expected_waveform = AnalogWaveform(
             sample_count=3,
             raw_data=np.array([1.0, 2.0, 3.0]),
+            timing=Timing(SampleIntervalMode.NONE, time_offset=ht.timedelta()),
         )
 
         published_measurement_id = data_store_client.publish_measurement(
@@ -133,7 +142,10 @@ def test___publish_digital_waveform___read_measurement_value_returns_digital_wav
 ) -> None:
     with DataStoreClient() as data_store_client:
         step_id = _create_step(data_store_client, "digital waveform")
-        expected_waveform = DigitalWaveform(10)
+        expected_waveform = DigitalWaveform(
+            10,
+            timing=Timing(SampleIntervalMode.NONE, time_offset=ht.timedelta()),
+        )
         published_measurement_id = data_store_client.publish_measurement(
             name="python publish digital waveform",
             value=expected_waveform,
@@ -152,7 +164,10 @@ def test___publish_complex_waveform___read_measurement_value_returns_complex_wav
 ) -> None:
     with DataStoreClient() as data_store_client:
         step_id = _create_step(data_store_client, "complex waveform")
-        expected_waveform = ComplexWaveform(10)
+        expected_waveform = ComplexWaveform(
+            10,
+            timing=Timing(SampleIntervalMode.NONE, time_offset=ht.timedelta()),
+        )
         published_measurement_id = data_store_client.publish_measurement(
             name="python publish complex waveform",
             value=expected_waveform,

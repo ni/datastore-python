@@ -5,7 +5,7 @@ from __future__ import annotations
 import datetime as std_datetime
 import logging
 from itertools import chain
-from typing import Any, Callable, Iterable, Sequence, cast
+from typing import Any, Callable, cast, Iterable
 
 import hightime as ht
 import numpy as np
@@ -200,18 +200,18 @@ def populate_publish_condition_batch_request_values(
     if isinstance(values, Vector):
         publish_request.scalar_values.CopyFrom(vector_to_protobuf(values))
     elif isinstance(values, Iterable):
-        if not values:
-            raise ValueError("Cannot publish an empty Iterable.")
-
-        # Vector initialization requires the Iterable to be iterated over multiple times.
-        # We convert the Iterable to a list if we don't know that the Iterable type
-        # supports multiple iterations.
-        condition_values = values if isinstance(values, Sequence) else list(values)
+        values_iterator = iter(values)
         try:
-            vector = Vector(condition_values)
+            first_value = next(values_iterator)
+        except StopIteration as exc:
+            raise ValueError("Cannot publish an empty Iterable.") from exc
+
+        all_values = chain([first_value], values_iterator)
+        try:
+            vector = Vector(cast(Iterable[bool | int | float | str], all_values))
         except (TypeError, ValueError):
             raise TypeError(
-                f"Unsupported iterable: {condition_values}. Subtype must be bool, float, int, or string."
+                f"Unsupported iterable: {values}. Subtype must be bool, float, int, or string."
             )
 
         publish_request.scalar_values.CopyFrom(vector_to_protobuf(vector))
@@ -268,10 +268,15 @@ def populate_publish_measurement_request_value(
         else:
             raise TypeError(f"Unsupported XYData dtype: {value.dtype}")
     elif isinstance(value, Iterable):
-        if not value:
-            raise ValueError("Cannot publish an empty Iterable.")
+        value_iterator = iter(value)
         try:
-            vector = Vector(value)
+            first_item = next(value_iterator)
+        except StopIteration as exc:
+            raise ValueError("Cannot publish an empty Iterable.") from exc
+
+        all_items = chain([first_item], value_iterator)
+        try:
+            vector = Vector(cast(Iterable[bool | int | float | str], all_items))
         except (TypeError, ValueError):
             raise TypeError(
                 f"Unsupported iterable: {value}. Subtype must be bool, float, int, or string."
@@ -312,7 +317,7 @@ def populate_publish_measurement_batch_request_values(
             _populate_xydata_batch_values(publish_request, first_value, all_values)
         else:
             try:
-                vector = Vector(cast(Iterable[bool | int | float | str], list(all_values)))
+                vector = Vector(cast(Iterable[bool | int | float | str], all_values))
             except (TypeError, ValueError):
                 raise TypeError(
                     f"Unsupported iterable. Subtype must be bool, float, int, string, Vector, "
