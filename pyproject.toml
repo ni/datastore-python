@@ -42,7 +42,7 @@ python = "^3.10"
 protobuf = {version=">=4.21"}
 ni-measurements-data-v1-client = { version = ">=1.1.0dev1", allow-prereleases = true }
 ni-measurements-metadata-v1-client = { version = ">=1.0.0" }
-ni-protobuf-types = { version = ">=1.1.0" }
+ni-protobuf-types = { version = ">=1.2.0dev1", allow-prereleases = true }
 hightime = { version = ">=1.0.0" }
 
 [tool.poetry.group.dev.dependencies]
