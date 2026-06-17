@@ -23,6 +23,7 @@ from ni.measurements.data.v1.data_store_service_pb2 import (
 from ni.protobuf.types.precision_timestamp_conversion import (
     hightime_datetime_to_protobuf,
 )
+from ni.protobuf.types.precision_timestamp_pb2 import PrecisionTimestamp
 from ni.protobuf.types.vector_conversion import vector_to_protobuf
 from ni.protobuf.types.vector_pb2 import Vector as VectorProto
 from ni.protobuf.types.waveform_conversion import float64_analog_waveform_to_protobuf
@@ -65,7 +66,7 @@ def test___publish_boolean_data___calls_data_store_service_client(
     assert request.step_id == "step_id"
     assert request.name == "name"
     assert request.notes == "notes"
-    assert request.timestamp == unittest.mock.ANY
+    assert request.timestamp == hightime_datetime_to_protobuf(timestamp)
     assert request.scalar.bool_value == value
     assert request.outcome == OutcomeProto.OUTCOME_PASSED
     assert request.error_information == ErrorInformationProto()
@@ -184,7 +185,7 @@ def test___unsupported_list___publish_measurement___raises_type_error(
     assert exc.value.args[0].startswith("Unsupported iterable:")
 
 
-def test___publish_analog_waveform_data_without_timestamp_parameter___uses_waveform_t0(
+def test___publish_analog_waveform_data_without_timestamp_parameter___timestamp_is_default(
     data_store_client: DataStoreClient,
     mocked_data_store_service_client: NonCallableMock,
 ) -> None:
@@ -203,7 +204,7 @@ def test___publish_analog_waveform_data_without_timestamp_parameter___uses_wavef
     args, __ = mocked_data_store_service_client.publish_measurement.call_args
     request = cast(PublishMeasurementRequest, args[0])  # The PublishMeasurementRequest object
     assert measurement_id == "response_id"
-    assert request.timestamp == hightime_datetime_to_protobuf(timestamp)
+    assert request.timestamp == PrecisionTimestamp()
 
 
 def test___publish_analog_waveform_data_without_t0___uses_timestamp_parameter(
@@ -251,7 +252,7 @@ def test___publish_analog_waveform_data_with_mismatched_timestamp_parameter___us
     assert request.timestamp == hightime_datetime_to_protobuf(mismatched_timestamp)
 
 
-def test___publish_analog_waveform_data_without_t0_or_timestamp___uses_now(
+def test___publish_analog_waveform_data_without_t0_or_timestamp___timestamp_is_default(
     data_store_client: DataStoreClient,
     mocked_data_store_service_client: NonCallableMock,
 ) -> None:
@@ -267,7 +268,7 @@ def test___publish_analog_waveform_data_without_t0_or_timestamp___uses_now(
 
     args, __ = mocked_data_store_service_client.publish_measurement.call_args
     request = cast(PublishMeasurementRequest, args[0])
-    assert request.timestamp == hightime_datetime_to_protobuf(now)
+    assert request.timestamp == PrecisionTimestamp()
 
 
 def test___none___publish_measurement___raises_type_error(

@@ -37,9 +37,9 @@ from ni.protobuf.types.precision_timestamp_conversion import (
 from ni_grpc_extensions.channelpool import GrpcChannelPool
 
 from ni.datastore.data._grpc_conversion import (
+    convert_measurement_timestamp_to_protobuf,
     convert_read_condition_response_from_protobuf,
     convert_read_measurement_response_from_protobuf,
-    get_publish_measurement_timestamp,
     populate_publish_condition_batch_request_values,
     populate_publish_condition_request_value,
     populate_publish_measurement_batch_request_values,
@@ -275,11 +275,9 @@ class DataStoreClient:
             test_adapter_ids=test_adapter_ids,
             software_item_ids=software_item_ids,
             notes=notes,
+            timestamp=convert_measurement_timestamp_to_protobuf(timestamp),
         )
         populate_publish_measurement_request_value(publish_request, value)
-        publish_request.timestamp.CopyFrom(
-            get_publish_measurement_timestamp(publish_request, timestamp)
-        )
         publish_response = self._get_data_store_client().publish_measurement(publish_request)
         return publish_response.measurement_id
 
