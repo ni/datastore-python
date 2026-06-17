@@ -206,6 +206,33 @@ def test___publish_analog_waveform_data_without_timestamp_parameter___uses_wavef
     assert request.timestamp == hightime_datetime_to_protobuf(timestamp)
 
 
+def test___batch_publish_analog_waveform_data_without_timestamp_parameter___uses_waveform_t0s(
+    data_store_client: DataStoreClient,
+    mocked_data_store_service_client: NonCallableMock,
+) -> None:
+    timestamp = datetime.now(tz=std_datetime.timezone.utc)
+    waveform_values = [1.0, 2.0, 3.0]
+    analog_waveforms = [
+        AnalogWaveform(
+            sample_count=len(waveform_values),
+            raw_data=np.array(waveform_values, dtype=np.float64),
+            timing=Timing.create_with_regular_interval(timedelta(seconds=1), timestamp),
+        ),
+    ]
+    expected_response = PublishMeasurementBatchResponse(measurement_ids=["response_id"])
+    mocked_data_store_service_client.publish_measurement_batch.return_value = expected_response
+
+    measurement_ids = data_store_client.publish_measurement_batch(
+        "name", analog_waveforms, "step_id"
+    )
+
+    args, __ = mocked_data_store_service_client.publish_measurement_batch.call_args
+    request = cast(PublishMeasurementBatchRequest, args[0])
+    assert next(iter(measurement_ids)) == "response_id"
+    timestamp_proto = hightime_datetime_to_protobuf(timestamp)
+    assert request.timestamps == [timestamp_proto]
+
+
 def test___publish_analog_waveform_data_without_t0___uses_timestamp_parameter(
     data_store_client: DataStoreClient,
     mocked_data_store_service_client: NonCallableMock,
@@ -223,6 +250,29 @@ def test___publish_analog_waveform_data_without_t0___uses_timestamp_parameter(
     request = cast(PublishMeasurementRequest, args[0])  # The PublishMeasurementRequest object
     assert measurement_id == "response_id"
     assert request.timestamp == hightime_datetime_to_protobuf(timestamp)
+
+
+def test___batch_publish_analog_waveform_data_without_t0___uses_timestamps_parameter(
+    data_store_client: DataStoreClient,
+    mocked_data_store_service_client: NonCallableMock,
+) -> None:
+    timestamp = datetime.now(tz=std_datetime.timezone.utc)
+    analog_waveforms = [AnalogWaveform.from_array_1d([1.0, 2.0, 3.0], dtype=float)]
+    publish_measurement_batch_response = PublishMeasurementBatchResponse(
+        measurement_ids=["response_id"]
+    )
+    mocked_data_store_service_client.publish_measurement_batch.return_value = (
+        publish_measurement_batch_response
+    )
+
+    measurement_ids = data_store_client.publish_measurement_batch(
+        "name", analog_waveforms, "step_id", [timestamp]
+    )
+
+    args, __ = mocked_data_store_service_client.publish_measurement_batch.call_args
+    request = cast(PublishMeasurementBatchRequest, args[0])
+    assert measurement_ids == ["response_id"]
+    assert request.timestamps == [hightime_datetime_to_protobuf(timestamp)]
 
 
 def test___publish_analog_waveform_data_with_mismatched_timestamp_parameter___uses_provided_timestamp(
@@ -251,6 +301,34 @@ def test___publish_analog_waveform_data_with_mismatched_timestamp_parameter___us
     assert request.timestamp == hightime_datetime_to_protobuf(mismatched_timestamp)
 
 
+def test___batch_publish_analog_waveform_data_with_mismatched_timestamp_parameter___uses_provided_timestamps(
+    data_store_client: DataStoreClient,
+    mocked_data_store_service_client: NonCallableMock,
+) -> None:
+    timestamp = datetime.now(tz=std_datetime.timezone.utc)
+    waveform_values = [1.0, 2.0, 3.0]
+    analog_waveforms = [
+        AnalogWaveform(
+            sample_count=len(waveform_values),
+            raw_data=np.array(waveform_values, dtype=np.float64),
+            timing=Timing.create_with_regular_interval(timedelta(seconds=1), timestamp),
+        )
+    ]
+    mismatched_timestamp = timestamp + timedelta(seconds=1)
+    mocked_data_store_service_client.publish_measurement_batch.return_value = (
+        PublishMeasurementBatchResponse(measurement_ids=["response_id"])
+    )
+
+    measurement_ids = data_store_client.publish_measurement_batch(
+        "name", analog_waveforms, "step_id", [mismatched_timestamp]
+    )
+
+    args, __ = mocked_data_store_service_client.publish_measurement_batch.call_args
+    request = cast(PublishMeasurementBatchRequest, args[0])
+    assert measurement_ids == ["response_id"]
+    assert request.timestamps == [hightime_datetime_to_protobuf(mismatched_timestamp)]
+
+
 def test___publish_analog_waveform_data_without_t0_or_timestamp___uses_now(
     data_store_client: DataStoreClient,
     mocked_data_store_service_client: NonCallableMock,
@@ -268,6 +346,25 @@ def test___publish_analog_waveform_data_without_t0_or_timestamp___uses_now(
     args, __ = mocked_data_store_service_client.publish_measurement.call_args
     request = cast(PublishMeasurementRequest, args[0])
     assert request.timestamp == hightime_datetime_to_protobuf(now)
+
+
+def test___batch_publish_analog_waveform_data_without_t0_or_timestamp___uses_now(
+    data_store_client: DataStoreClient,
+    mocked_data_store_service_client: NonCallableMock,
+) -> None:
+    now = datetime.now(tz=std_datetime.timezone.utc)
+    analog_waveforms = [AnalogWaveform.from_array_1d([1.0, 2.0, 3.0], dtype=float)]
+    mocked_data_store_service_client.publish_measurement_batch.return_value = (
+        PublishMeasurementBatchResponse(measurement_ids=["response_id"])
+    )
+
+    with unittest.mock.patch("ni.datastore.data._grpc_conversion.ht.datetime") as mock_ht_datetime:
+        mock_ht_datetime.now.return_value = now
+        data_store_client.publish_measurement_batch("name", analog_waveforms, "step_id")
+
+    args, __ = mocked_data_store_service_client.publish_measurement_batch.call_args
+    request = cast(PublishMeasurementBatchRequest, args[0])
+    assert request.timestamps == [hightime_datetime_to_protobuf(now)]
 
 
 def test___none___publish_measurement___raises_type_error(

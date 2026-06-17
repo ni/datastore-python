@@ -393,3 +393,49 @@ def get_publish_measurement_timestamp(
         if no_client_timestamp_provided:
             publish_time = waveform_t0
     return publish_time
+
+
+def get_publish_measurement_batch_timestamps(
+    publish_request: PublishMeasurementBatchRequest,
+    client_provided_timestamps: Iterable[ht.datetime],
+) -> list[PrecisionTimestamp]:
+    """Determine the correct timestamps to use for publishing a measurement batch."""
+    client_timestamps = [hightime_datetime_to_protobuf(ts) for ts in client_provided_timestamps]
+
+    waveform_t0s: list[PrecisionTimestamp] = []
+    value_case = publish_request.WhichOneof("values")
+    if value_case == "double_analog_waveform_values":
+        waveform_t0s = [w.t0 for w in publish_request.double_analog_waveform_values.waveforms]
+    elif value_case == "i16_analog_waveform_values":
+        waveform_t0s = [w.t0 for w in publish_request.i16_analog_waveform_values.waveforms]
+    elif value_case == "double_complex_waveform_values":
+        waveform_t0s = [w.t0 for w in publish_request.double_complex_waveform_values.waveforms]
+    elif value_case == "i16_complex_waveform_values":
+        waveform_t0s = [w.t0 for w in publish_request.i16_complex_waveform_values.waveforms]
+    elif value_case == "digital_waveform_values":
+        waveform_t0s = [w.t0 for w in publish_request.digital_waveform_values.waveforms]
+
+    # Determining count here accounts for the case where the user passes in less
+    # timestamps than the number of waveforms in the batch. In that case, we will
+    # backfill the "missing" timestamps with waveform t0 or "now".
+    # TODO: If the user passes in more timestamps than the number of waveforms,
+    # we'll end up passing that same larger number of timestamps into the publish
+    # request. Is this OK? Is the server going to get confused about this?
+    count = max(len(client_timestamps), len(waveform_t0s))
+    now = hightime_datetime_to_protobuf(ht.datetime.now(std_datetime.timezone.utc))
+    default_t0 = PrecisionTimestamp()
+
+    publish_times: list[PrecisionTimestamp] = []
+    for i in range(count):
+        if i < len(client_timestamps):
+            publish_times.append(client_timestamps[i])
+        else:
+            t0 = waveform_t0s[i] if i < len(waveform_t0s) else None
+            # If an initialized waveform t0 value is present and no client timestamp was
+            # provided, use the waveform t0 as the measurement start time.
+            if t0 is not None and t0 != default_t0:
+                publish_times.append(t0)
+            else:
+                publish_times.append(now)
+
+    return publish_times

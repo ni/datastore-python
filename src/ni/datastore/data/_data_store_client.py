@@ -31,14 +31,12 @@ from ni.measurements.data.v1.data_store_service_pb2 import (
     ReadConditionValueRequest,
     ReadMeasurementValueRequest,
 )
-from ni.protobuf.types.precision_timestamp_conversion import (
-    hightime_datetime_to_protobuf,
-)
 from ni_grpc_extensions.channelpool import GrpcChannelPool
 
 from ni.datastore.data._grpc_conversion import (
     convert_read_condition_response_from_protobuf,
     convert_read_measurement_response_from_protobuf,
+    get_publish_measurement_batch_timestamps,
     get_publish_measurement_timestamp,
     populate_publish_condition_batch_request_values,
     populate_publish_condition_request_value,
@@ -347,7 +345,6 @@ class DataStoreClient:
         publish_request = PublishMeasurementBatchRequest(
             name=name,
             step_id=step_id,
-            timestamps=[hightime_datetime_to_protobuf(ts) for ts in timestamps],
             outcomes=[outcome.to_protobuf() for outcome in outcomes],
             error_information=(
                 [ei.to_protobuf() for ei in (error_information or [])] if error_information else []
@@ -358,6 +355,9 @@ class DataStoreClient:
             notes=notes,
         )
         populate_publish_measurement_batch_request_values(publish_request, values)
+        publish_request.timestamps.extend(
+            get_publish_measurement_batch_timestamps(publish_request, timestamps)
+        )
         publish_response = self._get_data_store_client().publish_measurement_batch(publish_request)
         return publish_response.measurement_ids
 
