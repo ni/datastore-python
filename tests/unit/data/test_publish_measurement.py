@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import datetime as std_datetime
-import unittest.mock
 from typing import Any, cast, Iterable
 from unittest.mock import NonCallableMock
 
@@ -185,7 +184,7 @@ def test___unsupported_list___publish_measurement___raises_type_error(
     assert exc.value.args[0].startswith("Unsupported iterable:")
 
 
-def test___publish_analog_waveform_data_without_timestamp_parameter___timestamp_is_default(
+def test___publish_analog_waveform_data_without_timestamp_parameter___timestamp_is_unset(
     data_store_client: DataStoreClient,
     mocked_data_store_service_client: NonCallableMock,
 ) -> None:
@@ -204,6 +203,7 @@ def test___publish_analog_waveform_data_without_timestamp_parameter___timestamp_
     args, __ = mocked_data_store_service_client.publish_measurement.call_args
     request = cast(PublishMeasurementRequest, args[0])  # The PublishMeasurementRequest object
     assert measurement_id == "response_id"
+    assert not request.HasField("timestamp")
     assert request.timestamp == PrecisionTimestamp()
 
 
@@ -252,22 +252,20 @@ def test___publish_analog_waveform_data_with_mismatched_timestamp_parameter___us
     assert request.timestamp == hightime_datetime_to_protobuf(mismatched_timestamp)
 
 
-def test___publish_analog_waveform_data_without_t0_or_timestamp___timestamp_is_default(
+def test___publish_analog_waveform_data_without_t0_or_timestamp___timestamp_is_unset(
     data_store_client: DataStoreClient,
     mocked_data_store_service_client: NonCallableMock,
 ) -> None:
-    now = datetime.now(tz=std_datetime.timezone.utc)
     analog_waveform = AnalogWaveform.from_array_1d([1.0, 2.0, 3.0], dtype=float)
     mocked_data_store_service_client.publish_measurement.return_value = PublishMeasurementResponse(
         measurement_id="response_id"
     )
 
-    with unittest.mock.patch("ni.datastore.data._grpc_conversion.ht.datetime") as mock_ht_datetime:
-        mock_ht_datetime.now.return_value = now
-        data_store_client.publish_measurement("name", analog_waveform, "step_id")
+    data_store_client.publish_measurement("name", analog_waveform, "step_id")
 
     args, __ = mocked_data_store_service_client.publish_measurement.call_args
     request = cast(PublishMeasurementRequest, args[0])
+    assert not request.HasField("timestamp")
     assert request.timestamp == PrecisionTimestamp()
 
 

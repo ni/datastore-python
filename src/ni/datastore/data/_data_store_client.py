@@ -238,8 +238,8 @@ class DataStoreClient:
             step_id: The ID of the step associated with this measurement. This
                 value is expected to be a parsable GUID.
 
-            timestamp: The timestamp of the measurement. If None, the current
-                time will be used.
+            timestamp: The timestamp of the measurement. If None, no timestamp
+                will be specified.
 
             outcome: The outcome of the measurement (PASSED, FAILED,
                 INDETERMINATE, or UNSPECIFIED).
