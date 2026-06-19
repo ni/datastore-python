@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import datetime as std_datetime
 import logging
 from itertools import chain
 from typing import Any, Callable, cast, Iterable
@@ -364,32 +363,11 @@ def convert_read_condition_response_from_protobuf(response: ReadConditionValueRe
         raise TypeError(f"Invalid read type: {read_data_type}")
 
 
-def get_publish_measurement_timestamp(
-    publish_request: PublishMeasurementRequest, client_provided_timestamp: ht.datetime | None
-) -> PrecisionTimestamp:
-    """Determine the correct timestamp to use for publishing a measurement."""
-    no_client_timestamp_provided = client_provided_timestamp is None
-    if no_client_timestamp_provided:
-        publish_time = hightime_datetime_to_protobuf(ht.datetime.now(std_datetime.timezone.utc))
+def convert_measurement_timestamp_to_protobuf(
+    client_provided_timestamp: ht.datetime | None,
+) -> PrecisionTimestamp | None:
+    """Convert the provided timestamp to PrecisionTimestamp if it's not None."""
+    if client_provided_timestamp is not None:
+        return hightime_datetime_to_protobuf(client_provided_timestamp)
     else:
-        publish_time = hightime_datetime_to_protobuf(cast(ht.datetime, client_provided_timestamp))
-
-    waveform_t0: PrecisionTimestamp | None = None
-    value_case = publish_request.WhichOneof("value")
-    if value_case == "double_analog_waveform":
-        waveform_t0 = publish_request.double_analog_waveform.t0
-    elif value_case == "i16_analog_waveform":
-        waveform_t0 = publish_request.i16_analog_waveform.t0
-    elif value_case == "double_complex_waveform":
-        waveform_t0 = publish_request.double_complex_waveform.t0
-    elif value_case == "i16_complex_waveform":
-        waveform_t0 = publish_request.i16_complex_waveform.t0
-    elif value_case == "digital_waveform":
-        waveform_t0 = publish_request.digital_waveform.t0
-
-    # If an initialized waveform t0 value is present and no client timestamp was provided,
-    # use the waveform t0 as the measurement start time.
-    if waveform_t0 is not None and waveform_t0 != PrecisionTimestamp():
-        if no_client_timestamp_provided:
-            publish_time = waveform_t0
-    return publish_time
+        return None
