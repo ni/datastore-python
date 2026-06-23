@@ -31,6 +31,7 @@ from nitypes.vector import Vector
 from nitypes.waveform import AnalogWaveform
 ```
 
+(setup-phase)=
 ## Setup Phase
 
 Before running tests, establish the metadata foundation that describes your test environment and processes.
@@ -269,6 +270,7 @@ metadata_store_client.create_alias("Current_PowerSupply_Design", power_supply_uu
 
 ---
 
+(test-execution-phase)=
 ## Test Execution Phase
 
 With metadata established, execute tests and publish measurement data.
@@ -411,6 +413,7 @@ data_store_client.publish_condition_batch(
 )
 ```
 
+(analysis-phase)=
 ## Analysis Phase
 
 Query and analyze the stored measurement data and metadata.
