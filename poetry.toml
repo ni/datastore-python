@@ -6,6 +6,7 @@ in-project = true
 min-release-age = 14
 min-release-age-exclude = [
     "jupyter-server",
+    "jupyterlab",
     "ni-python-styleguide",
     "ni-measurements-data-v1-client",
     "ni-measurements-data-v1-proto",
