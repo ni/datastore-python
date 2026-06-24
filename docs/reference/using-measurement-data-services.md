@@ -11,7 +11,7 @@ The NI Measurement Data Services provide a comprehensive solution for storing, o
 The typical measurement data workflow follows this sequence:
 
 1. [**Setup Phase**](#setup-phase) - Register metadata entities and schemas
-2. [**Test Execution Phase**](#test-execution-phase) - Create test sessions and publish data  
+2. [**Test Execution Phase**](#test-execution-phase) - Create test sessions and publish data
 3. [**Analysis Phase**](#analysis-phase) - Query and analyze results
 
 ## **Required Imports**
@@ -23,7 +23,7 @@ from datetime import datetime
 from ni.datastore.data import DataStoreClient, TestResult, Step, Outcome
 from ni.datastore.metadata import MetadataStoreClient
 from ni.datastore.metadata import (
-    Operator, TestStation, HardwareItem, SoftwareItem, 
+    Operator, TestStation, HardwareItem, SoftwareItem,
     Uut, UutInstance, TestDescription, Test, TestAdapter
 )
 from nitypes.scalar import Scalar
@@ -31,7 +31,8 @@ from nitypes.vector import Vector
 from nitypes.waveform import AnalogWaveform
 ```
 
-## **Setup Phase**
+(setup-phase)=
+## Setup Phase
 
 Before running tests, establish the metadata foundation that describes your test environment and processes.
 
@@ -56,7 +57,7 @@ sarah = Operator(
 sarah_id = metadata_store_client.create_operator(sarah)
 
 mike_id = metadata_store_client.create_operator(Operator(
-    name="Mike Chen", 
+    name="Mike Chen",
     role="Senior Technician",
     schema_id=schema_id,
     extension={
@@ -66,7 +67,7 @@ mike_id = metadata_store_client.create_operator(Operator(
 ))
 ```
 
-#### **Test Stations** 
+#### **Test Stations**
 Define the physical locations where testing occurs:
 
 ```python
@@ -83,7 +84,7 @@ station_a1_id = metadata_store_client.create_test_station(TestStation(
 
 rf_lab_id = metadata_store_client.create_test_station(TestStation(
     name="RF_Lab_Bench_1",
-    asset_identifier="RFL-001", 
+    asset_identifier="RFL-001",
     schema_id=schema_id,
     extension={
         "location": "R&D Lab, Building B",
@@ -112,14 +113,14 @@ dmm = HardwareItem(
 dmm_id = metadata_store_client.create_hardware_item(dmm)
 
 scope_id = metadata_store_client.create_hardware_item(HardwareItem(
-    manufacturer="NI", 
+    manufacturer="NI",
     model="PXIe-5171",
     serial_number="SCOPE-001",
     part_number="783513-01",
     calibration_due_date="2025-08-20",
     schema_id=schema_id,
     extension={
-        "bandwidth": "1 GHz", 
+        "bandwidth": "1 GHz",
         "sample_rate": "1.25 GS/s"
     }
 ))
@@ -136,7 +137,7 @@ python_id = metadata_store_client.create_software_item(SoftwareItem(
 ))
 
 nidaqmx_id = metadata_store_client.create_software_item(SoftwareItem(
-    product="NI-DAQmx", 
+    product="NI-DAQmx",
     version="23.3.0"
 ))
 
@@ -219,7 +220,7 @@ voltage_test_id = metadata_store_client.create_test(Test(
 ))
 
 load_test_id = metadata_store_client.create_test(Test(
-    name="Load Regulation Test", 
+    name="Load Regulation Test",
     description="Tests voltage stability under varying load conditions",
     schema_id=schema_id,
     extension={
@@ -241,7 +242,7 @@ power_supply_schema = """
   "type": "object",
   "properties": {
     "hardware_item": {
-      "type": "object", 
+      "type": "object",
       "properties": {
         "asset_tag": {"type": "string"},
         "calibration_cert": {"type": "string"},
@@ -269,7 +270,8 @@ metadata_store_client.create_alias("Current_PowerSupply_Design", power_supply_uu
 
 ---
 
-## **Test Execution Phase**
+(test-execution-phase)=
+## Test Execution Phase
 
 With metadata established, execute tests and publish measurement data.
 
@@ -311,9 +313,9 @@ voltage_step_id = data_store_client.create_step(Step(
 
 load_step_id = data_store_client.create_step(Step(
     name="Load Regulation Test",
-    test_result_id=test_result_id, 
+    test_result_id=test_result_id,
     test_id=load_test_id,
-    type="Measurement", 
+    type="Measurement",
     notes="Variable load from 0% to 100% rated current"
 ))
 ```
@@ -327,7 +329,7 @@ Record environmental and setup conditions during testing:
 voltage = Scalar(value=120.0, units="V")
 data_store_client.publish_condition(
     condition_name="Supply Voltage",
-    type="Input Parameter", 
+    type="Input Parameter",
     value=voltage,
     step_id=voltage_step_id
 )
@@ -342,7 +344,7 @@ data_store_client.publish_condition(
 
 humidity = Scalar(value=45.2, units="%RH")
 data_store_client.publish_condition(
-    condition_name="Humidity", 
+    condition_name="Humidity",
     type="Environment",
     value=humidity,
     step_id=voltage_step_id
@@ -367,7 +369,7 @@ published_measurement = data_store_client.publish_measurement(
 )
 ```
 
-#### **Waveform Measurements**  
+#### **Waveform Measurements**
 ```python
 # Publish complex data (waveforms, spectra, etc.)
 waveform_data = AnalogWaveform(
@@ -381,7 +383,7 @@ data_store_client.publish_measurement(
     value=waveform_data,
     timestamp=datetime.now(),
     outcome=Outcome.PASSED,
-    step_id=voltage_step_id, 
+    step_id=voltage_step_id,
     hardware_item_ids=[scope_id],
     notes="Ripple measurement at full load"
 )
@@ -404,14 +406,15 @@ data_store_client.publish_measurement_batch(
 
 # Publish corresponding load conditions
 data_store_client.publish_condition_batch(
-    name="Load Current", 
+    name="Load Current",
     condition_type="Test Parameter",
     values=load_currents,
     step_id=load_step_id
 )
 ```
 
-## **Analysis Phase**
+(analysis-phase)=
+## Analysis Phase
 
 Query and analyze the stored measurement data and metadata.
 
@@ -505,20 +508,20 @@ for measurement in measurements:
     # Get associated metadata
     test_result = data_store_client.get_test_result(measurement.test_result_id)
     step = data_store_client.get_step(measurement.step_id)
-    
+
     # Get UUT instance and model info
     uut_instance = metadata_store_client.get_uut_instance(test_result.uut_instance_id)
     uut = metadata_store_client.get_uut(uut_instance.uut_id)
-    
+
     # Get operator info
     operator = metadata_store_client.get_operator(test_result.operator_id)
-    
+
     # Get equipment info
     hardware_items = [
-        metadata_store_client.get_hardware_item(hw_id) 
+        metadata_store_client.get_hardware_item(hw_id)
         for hw_id in measurement.hardware_item_ids
     ]
-    
+
     print(f"Measurement: {measurement.name}")
     print(f"  UUT: {uut.model_name} S/N: {uut_instance.serial_number}")
     print(f"  Operator: {operator.name} ({operator.role})")
@@ -610,21 +613,21 @@ class TestAutomation:
     def __init__(self):
         self.metadata_client = MetadataStoreClient()
         self.data_client = DataStoreClient()
-        
+
     def run_automated_test(self, uut_serial: str):
         # 1. Look up UUT instance by serial number
         instances = self.metadata_client.query_uut_instances(
             odata_query=f"$filter=serial_number eq '{uut_serial}'"
         )
-        
+
         # 2. Create test result
         test_result_id = self.data_client.create_test_result(...)
-        
+
         # 3. Execute test steps
         for test_step in self.test_sequence:
             step_id = self.data_client.create_step(...)
             self.execute_step(step_id, test_step)
-            
+
         # 4. Determine overall result
         self.finalize_test_result(test_result_id)
 ```
@@ -633,17 +636,17 @@ class TestAutomation:
 ```python
 def process_test_batch(uut_serials: List[str]):
     """Process multiple UUTs efficiently."""
-    
+
     # Create all test results first
     test_result_ids = []
     for serial in uut_serials:
         test_result_id = data_store_client.create_test_result(...)
         test_result_ids.append(test_result_id)
-    
+
     # Execute tests in parallel/batch
     for test_result_id in test_result_ids:
         execute_test_sequence(test_result_id)
-        
+
     # Analyze results
     analyze_batch_results(test_result_ids)
 ```

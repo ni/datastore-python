@@ -11,7 +11,7 @@ import toml
 # ones.
 extensions = [
     "autoapi.extension",
-    "m2r2",
+    "myst_parser",
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
