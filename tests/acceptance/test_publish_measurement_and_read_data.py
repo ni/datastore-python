@@ -113,11 +113,11 @@ def test___publish_spectrum___read_measurement_value_returns_spectrum(
         assert spectrum == expected_spectrum
 
 
-def test___publish_analog_waveform___read_measurement_value_returns_analog_waveform(
+def test___publish_analog_waveform_double___read_measurement_value_returns_analog_waveform_double(
     acceptance_test_context: DataStoreContext,
 ) -> None:
     with DataStoreClient() as data_store_client:
-        step_id = _create_step(data_store_client, "analog waveform")
+        step_id = _create_step(data_store_client, "analog waveform double")
         expected_waveform = AnalogWaveform(
             sample_count=3,
             raw_data=np.array([1.0, 2.0, 3.0]),
@@ -125,7 +125,32 @@ def test___publish_analog_waveform___read_measurement_value_returns_analog_wavef
         )
 
         published_measurement_id = data_store_client.publish_measurement(
-            name="python publish analog waveform",
+            name="python publish analog waveform double",
+            value=expected_waveform,
+            step_id=step_id,
+        )
+
+        published_measurement = data_store_client.get_measurement(published_measurement_id)
+        waveform = data_store_client.read_measurement_value(
+            published_measurement, expected_type=AnalogWaveform
+        )
+        assert waveform == expected_waveform
+
+
+def test___publish_analog_waveform_float___read_measurement_value_returns_analog_waveform_float(
+    acceptance_test_context: DataStoreContext,
+) -> None:
+    with DataStoreClient() as data_store_client:
+        step_id = _create_step(data_store_client, "analog waveform float")
+        expected_waveform = AnalogWaveform(
+            sample_count=3,
+            dtype=np.float32,
+            raw_data=np.array([1.0, 2.0, 3.0], dtype=np.float32),
+            timing=Timing(SampleIntervalMode.NONE, time_offset=ht.timedelta()),
+        )
+
+        published_measurement_id = data_store_client.publish_measurement(
+            name="python publish analog waveform float",
             value=expected_waveform,
             step_id=step_id,
         )
@@ -159,17 +184,40 @@ def test___publish_digital_waveform___read_measurement_value_returns_digital_wav
         assert waveform == expected_waveform
 
 
-def test___publish_complex_waveform___read_measurement_value_returns_complex_waveform(
+def test___publish_complex_waveform_double___read_measurement_value_returns_complex_waveform_double(
     acceptance_test_context: DataStoreContext,
 ) -> None:
     with DataStoreClient() as data_store_client:
-        step_id = _create_step(data_store_client, "complex waveform")
+        step_id = _create_step(data_store_client, "complex waveform double")
         expected_waveform = ComplexWaveform(
             10,
             timing=Timing(SampleIntervalMode.NONE, time_offset=ht.timedelta()),
         )
         published_measurement_id = data_store_client.publish_measurement(
-            name="python publish complex waveform",
+            name="python publish complex waveform double",
+            value=expected_waveform,
+            step_id=step_id,
+        )
+
+        published_measurement = data_store_client.get_measurement(published_measurement_id)
+        waveform = data_store_client.read_measurement_value(
+            published_measurement, expected_type=ComplexWaveform
+        )
+        assert waveform == expected_waveform
+
+
+def test___publish_complex_waveform_float___read_measurement_value_returns_complex_waveform_float(
+    acceptance_test_context: DataStoreContext,
+) -> None:
+    with DataStoreClient() as data_store_client:
+        step_id = _create_step(data_store_client, "complex waveform float")
+        expected_waveform = ComplexWaveform(
+            10,
+            dtype=np.complex64,
+            timing=Timing(SampleIntervalMode.NONE, time_offset=ht.timedelta()),
+        )
+        published_measurement_id = data_store_client.publish_measurement(
+            name="python publish complex waveform float",
             value=expected_waveform,
             step_id=step_id,
         )

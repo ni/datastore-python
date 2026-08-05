@@ -228,11 +228,14 @@ class DataStoreClient:
                 - Scalar: Single float, int, str or boolean
                 - Vector: Array of float, int, str or boolean values
                 - DoubleAnalogWaveform: Analog waveform with double precision
+                - FloatAnalogWaveform: Analog waveform with single precision
                 - DoubleXYData: XY coordinate data with double precision
                 - I16AnalogWaveform: Analog waveform with 16-bit integer precision
                 - DoubleComplexWaveform: Complex waveform with double precision
+                - FloatComplexWaveform: Complex waveform with single precision
                 - I16ComplexWaveform: Complex waveform with 16-bit integer precision
                 - DoubleSpectrum: Frequency spectrum data with double precision
+                - FloatSpectrum: Frequency spectrum data with single precision
                 - DigitalWaveform: Digital waveform data
 
             step_id: The ID of the step associated with this measurement. This
