@@ -261,7 +261,9 @@ def populate_publish_measurement_request_value(
                 float64_complex_waveform_to_protobuf(value)
             )
         elif value.dtype == np.complex64:
-            publish_request.float_complex_waveform.CopyFrom(float32_complex_waveform_to_protobuf(value))
+            publish_request.float_complex_waveform.CopyFrom(
+                float32_complex_waveform_to_protobuf(value)
+            )
         elif value.dtype == ComplexInt32DType:
             publish_request.i16_complex_waveform.CopyFrom(int16_complex_waveform_to_protobuf(value))
         else:
