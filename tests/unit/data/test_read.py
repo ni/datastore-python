@@ -136,6 +136,7 @@ def test___read_float_complex_waveform___value_correct(
     assert isinstance(actual_waveform, ComplexWaveform)
     assert actual_waveform.sample_count == actual_waveform.capacity == 2
     assert len(actual_waveform.raw_data) == 2
+    assert list(actual_waveform.raw_data) == [1.0 + 2.0j, 3.0 + 4.0j]
     assert actual_waveform.dtype == np.complex64
 
 
