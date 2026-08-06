@@ -88,11 +88,11 @@ def test___publish_xydata___read_measurement_value_returns_xydata(
         assert xydata == expected_xydata
 
 
-def test___publish_spectrum___read_measurement_value_returns_spectrum(
+def test___publish_float64_spectrum___read_measurement_value_returns_spectrum(
     acceptance_test_context: DataStoreContext,
 ) -> None:
     with DataStoreClient() as data_store_client:
-        step_id = _create_step(data_store_client, "spectrum")
+        step_id = _create_step(data_store_client, "float64 spectrum")
         expected_spectrum = Spectrum.from_array_1d(
             array=[1.0, 10.0, 100.0],
             dtype=np.float64,
@@ -101,7 +101,7 @@ def test___publish_spectrum___read_measurement_value_returns_spectrum(
         )
 
         published_measurement_id = data_store_client.publish_measurement(
-            name="python publish spectrum",
+            name="python publish float64 spectrum",
             value=expected_spectrum,
             step_id=step_id,
         )
@@ -113,11 +113,36 @@ def test___publish_spectrum___read_measurement_value_returns_spectrum(
         assert spectrum == expected_spectrum
 
 
-def test___publish_analog_waveform___read_measurement_value_returns_analog_waveform(
+def test___publish_float32_spectrum___read_measurement_value_returns_spectrum(
     acceptance_test_context: DataStoreContext,
 ) -> None:
     with DataStoreClient() as data_store_client:
-        step_id = _create_step(data_store_client, "analog waveform")
+        step_id = _create_step(data_store_client, "float32 spectrum")
+        expected_spectrum = Spectrum.from_array_1d(
+            array=[1.0, 10.0, 100.0],
+            dtype=np.float32,
+            start_frequency=1.0,
+            frequency_increment=1.0,
+        )
+
+        published_measurement_id = data_store_client.publish_measurement(
+            name="python publish spectrum float",
+            value=expected_spectrum,
+            step_id=step_id,
+        )
+
+        published_measurement = data_store_client.get_measurement(published_measurement_id)
+        spectrum = data_store_client.read_measurement_value(
+            published_measurement, expected_type=Spectrum
+        )
+        assert spectrum == expected_spectrum
+
+
+def test___publish_float64_analog_waveform___read_measurement_value_returns_float64_analog_waveform(
+    acceptance_test_context: DataStoreContext,
+) -> None:
+    with DataStoreClient() as data_store_client:
+        step_id = _create_step(data_store_client, "float64 analog waveform")
         expected_waveform = AnalogWaveform(
             sample_count=3,
             raw_data=np.array([1.0, 2.0, 3.0]),
@@ -125,7 +150,32 @@ def test___publish_analog_waveform___read_measurement_value_returns_analog_wavef
         )
 
         published_measurement_id = data_store_client.publish_measurement(
-            name="python publish analog waveform",
+            name="python publish float64 analog waveform",
+            value=expected_waveform,
+            step_id=step_id,
+        )
+
+        published_measurement = data_store_client.get_measurement(published_measurement_id)
+        waveform = data_store_client.read_measurement_value(
+            published_measurement, expected_type=AnalogWaveform
+        )
+        assert waveform == expected_waveform
+
+
+def test___publish_float32_analog_waveform___read_measurement_value_returns_float32_analog_waveform(
+    acceptance_test_context: DataStoreContext,
+) -> None:
+    with DataStoreClient() as data_store_client:
+        step_id = _create_step(data_store_client, "float32 analog waveform")
+        expected_waveform = AnalogWaveform(
+            sample_count=3,
+            dtype=np.float32,
+            raw_data=np.array([1.0, 2.0, 3.0], dtype=np.float32),
+            timing=Timing(SampleIntervalMode.NONE, time_offset=ht.timedelta()),
+        )
+
+        published_measurement_id = data_store_client.publish_measurement(
+            name="python publish float32 analog waveform",
             value=expected_waveform,
             step_id=step_id,
         )
@@ -159,17 +209,40 @@ def test___publish_digital_waveform___read_measurement_value_returns_digital_wav
         assert waveform == expected_waveform
 
 
-def test___publish_complex_waveform___read_measurement_value_returns_complex_waveform(
+def test___publish_float64_complex_waveform___read_measurement_value_returns_float64_complex_waveform(
     acceptance_test_context: DataStoreContext,
 ) -> None:
     with DataStoreClient() as data_store_client:
-        step_id = _create_step(data_store_client, "complex waveform")
+        step_id = _create_step(data_store_client, "float64 complex waveform")
         expected_waveform = ComplexWaveform(
             10,
             timing=Timing(SampleIntervalMode.NONE, time_offset=ht.timedelta()),
         )
         published_measurement_id = data_store_client.publish_measurement(
-            name="python publish complex waveform",
+            name="python publish float64 complex waveform",
+            value=expected_waveform,
+            step_id=step_id,
+        )
+
+        published_measurement = data_store_client.get_measurement(published_measurement_id)
+        waveform = data_store_client.read_measurement_value(
+            published_measurement, expected_type=ComplexWaveform
+        )
+        assert waveform == expected_waveform
+
+
+def test___publish_float32_complex_waveform___read_measurement_value_returns_float32_complex_waveform(
+    acceptance_test_context: DataStoreContext,
+) -> None:
+    with DataStoreClient() as data_store_client:
+        step_id = _create_step(data_store_client, "float32 complex waveform")
+        expected_waveform = ComplexWaveform(
+            10,
+            dtype=np.complex64,
+            timing=Timing(SampleIntervalMode.NONE, time_offset=ht.timedelta()),
+        )
+        published_measurement_id = data_store_client.publish_measurement(
+            name="python publish float32 complex waveform",
             value=expected_waveform,
             step_id=step_id,
         )

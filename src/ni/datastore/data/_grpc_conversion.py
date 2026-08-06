@@ -25,6 +25,12 @@ from ni.protobuf.types.vector_conversion import vector_from_protobuf, vector_to_
 from ni.protobuf.types.waveform_conversion import (
     digital_waveform_from_protobuf,
     digital_waveform_to_protobuf,
+    float32_analog_waveform_from_protobuf,
+    float32_analog_waveform_to_protobuf,
+    float32_complex_waveform_from_protobuf,
+    float32_complex_waveform_to_protobuf,
+    float32_spectrum_from_protobuf,
+    float32_spectrum_to_protobuf,
     float64_analog_waveform_from_protobuf,
     float64_analog_waveform_to_protobuf,
     float64_complex_waveform_from_protobuf,
@@ -241,6 +247,10 @@ def populate_publish_measurement_request_value(
             publish_request.double_analog_waveform.CopyFrom(
                 float64_analog_waveform_to_protobuf(value)
             )
+        elif value.dtype == np.float32:
+            publish_request.float_analog_waveform.CopyFrom(
+                float32_analog_waveform_to_protobuf(value)
+            )
         elif value.dtype == np.int16:
             publish_request.i16_analog_waveform.CopyFrom(int16_analog_waveform_to_protobuf(value))
         else:
@@ -250,6 +260,10 @@ def populate_publish_measurement_request_value(
             publish_request.double_complex_waveform.CopyFrom(
                 float64_complex_waveform_to_protobuf(value)
             )
+        elif value.dtype == np.complex64:
+            publish_request.float_complex_waveform.CopyFrom(
+                float32_complex_waveform_to_protobuf(value)
+            )
         elif value.dtype == ComplexInt32DType:
             publish_request.i16_complex_waveform.CopyFrom(int16_complex_waveform_to_protobuf(value))
         else:
@@ -257,6 +271,8 @@ def populate_publish_measurement_request_value(
     elif isinstance(value, Spectrum):
         if value.dtype == np.float64:
             publish_request.double_spectrum.CopyFrom(float64_spectrum_to_protobuf(value))
+        elif value.dtype == np.float32:
+            publish_request.float_spectrum.CopyFrom(float32_spectrum_to_protobuf(value))
         else:
             raise TypeError(f"Unsupported Spectrum dtype: {value.dtype}")
     elif isinstance(value, DigitalWaveform):
@@ -338,10 +354,16 @@ def convert_read_measurement_response_from_protobuf(
         return digital_waveform_from_protobuf(response.digital_waveform)
     elif read_data_type == "double_analog_waveform":
         return float64_analog_waveform_from_protobuf(response.double_analog_waveform)
+    elif read_data_type == "float_analog_waveform":
+        return float32_analog_waveform_from_protobuf(response.float_analog_waveform)
     elif read_data_type == "double_complex_waveform":
         return float64_complex_waveform_from_protobuf(response.double_complex_waveform)
+    elif read_data_type == "float_complex_waveform":
+        return float32_complex_waveform_from_protobuf(response.float_complex_waveform)
     elif read_data_type == "double_spectrum":
         return float64_spectrum_from_protobuf(response.double_spectrum)
+    elif read_data_type == "float_spectrum":
+        return float32_spectrum_from_protobuf(response.float_spectrum)
     elif read_data_type == "i16_analog_waveform":
         return int16_analog_waveform_from_protobuf(response.i16_analog_waveform)
     elif read_data_type == "i16_complex_waveform":

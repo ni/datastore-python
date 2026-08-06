@@ -2463,36 +2463,36 @@ protobuf = ">=4.21"
 
 [[package]]
 name = "ni-measurements-data-v1-client"
-version = "1.1.0"
+version = "1.2.0.dev0"
 description = "gRPC Client for NI Data Store Service"
 optional = false
 python-versions = "<4.0,>=3.10"
 groups = ["main"]
 files = [
-    {file = "ni_measurements_data_v1_client-1.1.0-py3-none-any.whl", hash = "sha256:dfc38d56fdd710a930fbc05383d43ab96f64aee545937f9ef605a3bb6f88cc31"},
-    {file = "ni_measurements_data_v1_client-1.1.0.tar.gz", hash = "sha256:16b1ac8b82277e41719aa8b1aeae3f1040dba47e63651f83e30fe115cd036278"},
+    {file = "ni_measurements_data_v1_client-1.2.0.dev0-py3-none-any.whl", hash = "sha256:ad6292348984847bc919e7083f3512033c415dbaa0a112e4466c3f8d4ca9e3d8"},
+    {file = "ni_measurements_data_v1_client-1.2.0.dev0.tar.gz", hash = "sha256:8b6c40221fca3b9a258d734cab86d4c1511264519c32ed4c21e521396eb2f347"},
 ]
 
 [package.dependencies]
 ni-measurementlink-discovery-v1-client = ">=1.1.0"
-ni-measurements-data-v1-proto = ">=1.1.0"
+ni-measurements-data-v1-proto = ">=1.2.0.dev0"
 
 [[package]]
 name = "ni-measurements-data-v1-proto"
-version = "1.1.0"
+version = "1.2.0.dev0"
 description = "Protobuf data types and service stubs for NI data store gRPC APIs"
 optional = false
 python-versions = "<4.0,>=3.10"
 groups = ["main"]
 files = [
-    {file = "ni_measurements_data_v1_proto-1.1.0-py3-none-any.whl", hash = "sha256:06096cea733717b60281c92d0a1b44eac97194781507ba4fd9b3aa080a4450df"},
-    {file = "ni_measurements_data_v1_proto-1.1.0.tar.gz", hash = "sha256:df1ca7ce3603dd5a0adc8795f0844da9a78ddc026f219bf596957cf3ed08da3d"},
+    {file = "ni_measurements_data_v1_proto-1.2.0.dev0-py3-none-any.whl", hash = "sha256:d0e5331bdad20c3f812b4a1801969f390497213d0c7988f058c7761eb886e700"},
+    {file = "ni_measurements_data_v1_proto-1.2.0.dev0.tar.gz", hash = "sha256:a10b15ddd7dd1196db51b6752653ffec487297db7812602346505771b7b37299"},
 ]
 
 [package.dependencies]
 ni-datamonikers-v1-proto = ">=1.0.0"
 ni-measurements-metadata-v1-proto = ">=1.0.0"
-ni-protobuf-types = ">=1.2.0"
+ni-protobuf-types = ">=1.3.0.dev0"
 protobuf = ">=4.21"
 
 [[package]]
@@ -2528,14 +2528,14 @@ protobuf = ">=4.21"
 
 [[package]]
 name = "ni-protobuf-types"
-version = "1.2.0"
+version = "1.3.0.dev0"
 description = "Protobuf data types for NI gRPC APIs"
 optional = false
 python-versions = "<4.0,>=3.10"
 groups = ["main"]
 files = [
-    {file = "ni_protobuf_types-1.2.0-py3-none-any.whl", hash = "sha256:461c4825571d0054fd5427664403c3d69fcd180c9c00868ac1911693dd9bf901"},
-    {file = "ni_protobuf_types-1.2.0.tar.gz", hash = "sha256:e8226f8ef44b104ffb1b1f6e416511c416be4d91bf5c2633db7ab58294e037bb"},
+    {file = "ni_protobuf_types-1.3.0.dev0-py3-none-any.whl", hash = "sha256:a1851f0bccf7da857e1745933e5517fd6d95a79a79141d108fce42af958bde35"},
+    {file = "ni_protobuf_types-1.3.0.dev0.tar.gz", hash = "sha256:674b4930dbb6baff6183df9bb4f90f3a3a0723bbe97a4cdeb3962163c220bc23"},
 ]
 
 [package.dependencies]
@@ -4726,4 +4726,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10"
-content-hash = "1bda39cb633d744840c96991f1bcb283cf0e1faddfa49db451bf942399a31ee8"
+content-hash = "1fe2999dd0533f875d6528337b9d72247e3f7e6bebe09f1bb767ed95dda8ef6d"

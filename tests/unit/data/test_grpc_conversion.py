@@ -186,6 +186,17 @@ def test___python_float64_analog_waveform___populate_measurement___measurement_u
     assert list(request.double_analog_waveform.y_data) == [0.0, 0.0, 0.0]
 
 
+def test___python_float32_analog_waveform___populate_measurement___measurement_updated_correctly() -> (
+    None
+):
+    wfm_obj = AnalogWaveform(3, np.float32)
+    request = PublishMeasurementRequest()
+    populate_publish_measurement_request_value(request, wfm_obj)
+
+    assert isinstance(request.float_analog_waveform, waveform_pb2.FloatAnalogWaveform)
+    assert list(request.float_analog_waveform.y_data) == [0.0, 0.0, 0.0]
+
+
 def test___python_int16_analog_waveform___populate_measurement___measurement_updated_correctly() -> (
     None
 ):
@@ -206,6 +217,17 @@ def test___python_float64_complex_waveform___populate_measurement___measurement_
 
     assert isinstance(request.double_complex_waveform, waveform_pb2.DoubleComplexWaveform)
     assert list(request.double_complex_waveform.y_data) == [0.0, 0.0, 0.0, 0.0]
+
+
+def test___python_float32_complex_waveform___populate_measurement___measurement_updated_correctly() -> (
+    None
+):
+    wfm_obj = ComplexWaveform(2, np.complex64)
+    request = PublishMeasurementRequest()
+    populate_publish_measurement_request_value(request, wfm_obj)
+
+    assert isinstance(request.float_complex_waveform, waveform_pb2.FloatComplexWaveform)
+    assert list(request.float_complex_waveform.y_data) == [0.0, 0.0, 0.0, 0.0]
 
 
 def test___python_int16_complex_waveform___populate_measurement___measurement_updated_correctly() -> (
@@ -259,6 +281,20 @@ def test___python_float64_spectrum___populate_measurement___measurement_updated_
     assert list(request.double_spectrum.data) == [1.0, 2.0, 3.0]
     assert request.double_spectrum.start_frequency == 100.0
     assert request.double_spectrum.frequency_increment == 10.0
+
+
+def test___python_float32_spectrum___populate_measurement___measurement_updated_correctly() -> None:
+    spectrum = Spectrum.from_array_1d(np.array([1.0, 2.0, 3.0]), dtype=np.float32)
+    spectrum.start_frequency = 100.0
+    spectrum.frequency_increment = 10.0
+
+    request = PublishMeasurementRequest()
+    populate_publish_measurement_request_value(request, spectrum)
+
+    assert isinstance(request.float_spectrum, waveform_pb2.FloatSpectrum)
+    assert list(request.float_spectrum.data) == [1.0, 2.0, 3.0]
+    assert request.float_spectrum.start_frequency == 100.0
+    assert request.float_spectrum.frequency_increment == 10.0
 
 
 def test___python_float64_xydata___populate_measurement___measurement_updated_correctly() -> None:

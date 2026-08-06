@@ -59,6 +59,26 @@ def test___read_double_analog_waveform___value_correct(
 
     assert isinstance(actual_waveform, AnalogWaveform)
     assert list(actual_waveform.scaled_data) == list(expected_waveform.y_data)
+    assert actual_waveform.dtype == np.float64
+
+
+def test___read_float_analog_waveform___value_correct(
+    data_store_client: DataStoreClient, mocked_data_store_service_client: NonCallableMock
+) -> None:
+    published_measurement = PublishedMeasurement(id="measurement-123")
+    expected_waveform = waveform_pb2.FloatAnalogWaveform(y_data=[1.0, 2.0, 3.0])
+    response = Mock()
+    response.WhichOneof.return_value = "float_analog_waveform"
+    response.float_analog_waveform = expected_waveform
+    mocked_data_store_service_client.read_measurement_value.return_value = response
+
+    actual_waveform = data_store_client.read_measurement_value(
+        published_measurement, AnalogWaveform
+    )
+
+    assert isinstance(actual_waveform, AnalogWaveform)
+    assert list(actual_waveform.scaled_data) == list(expected_waveform.y_data)
+    assert actual_waveform.dtype == np.float32
 
 
 def test___read_i16_analog_waveform___value_correct(
@@ -97,6 +117,27 @@ def test___read_double_complex_waveform___value_correct(
     assert actual_waveform.sample_count == actual_waveform.capacity == 2
     assert len(actual_waveform.raw_data) == 2
     assert actual_waveform.dtype == np.complex128
+
+
+def test___read_float_complex_waveform___value_correct(
+    data_store_client: DataStoreClient, mocked_data_store_service_client: NonCallableMock
+) -> None:
+    published_measurement = PublishedMeasurement(id="measurement-789")
+    expected_waveform = waveform_pb2.FloatComplexWaveform(y_data=[1.0, 2.0, 3.0, 4.0])
+    response = Mock()
+    response.WhichOneof.return_value = "float_complex_waveform"
+    response.float_complex_waveform = expected_waveform
+    mocked_data_store_service_client.read_measurement_value.return_value = response
+
+    actual_waveform = data_store_client.read_measurement_value(
+        published_measurement, ComplexWaveform
+    )
+
+    assert isinstance(actual_waveform, ComplexWaveform)
+    assert actual_waveform.sample_count == actual_waveform.capacity == 2
+    assert len(actual_waveform.raw_data) == 2
+    assert list(actual_waveform.raw_data) == [1.0 + 2.0j, 3.0 + 4.0j]
+    assert actual_waveform.dtype == np.complex64
 
 
 def test___read_i16_complex_waveform___value_correct(
@@ -159,6 +200,30 @@ def test___read_double_spectrum___value_correct(
     assert list(actual_waveform.data) == [1.0, 2.0, 3.0]
     assert actual_waveform.start_frequency == 100.0
     assert actual_waveform.frequency_increment == 10.0
+    assert actual_waveform.dtype == np.float64
+
+
+def test___read_float_spectrum___value_correct(
+    data_store_client: DataStoreClient, mocked_data_store_service_client: NonCallableMock
+) -> None:
+    published_measurement = PublishedMeasurement(id="measurement-303")
+    expected_waveform = waveform_pb2.FloatSpectrum(
+        data=[1.0, 2.0, 3.0],
+        start_frequency=100.0,
+        frequency_increment=10.0,
+    )
+    response = Mock()
+    response.WhichOneof.return_value = "float_spectrum"
+    response.float_spectrum = expected_waveform
+    mocked_data_store_service_client.read_measurement_value.return_value = response
+
+    actual_waveform = data_store_client.read_measurement_value(published_measurement, Spectrum)
+
+    assert isinstance(actual_waveform, Spectrum)
+    assert list(actual_waveform.data) == [1.0, 2.0, 3.0]
+    assert actual_waveform.start_frequency == 100.0
+    assert actual_waveform.frequency_increment == 10.0
+    assert actual_waveform.dtype == np.float32
 
 
 def test___read_vector___value_correct(
