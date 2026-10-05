@@ -2995,14 +2995,14 @@ files = [
 
 [[package]]
 name = "plotly"
-version = "7.0.0"
+version = "7.1.0"
 description = "An open-source interactive data visualization library for Python"
 optional = false
 python-versions = ">=3.8"
 groups = ["dev"]
 files = [
-    {file = "plotly-7.0.0-py3-none-any.whl", hash = "sha256:78cbf7bd06d1b05bb3b8ec1b709864695229b55151b6f7530fbf55517ead6fdd"},
-    {file = "plotly-7.0.0.tar.gz", hash = "sha256:08b21f1244a97e7a1a699833c4bb2678475aa108b3f1989886ed0b038ebfd849"},
+    {file = "plotly-7.1.0-py3-none-any.whl", hash = "sha256:dbb7fa18afce40d0a8e80d1bf162eceb3faa0ce5a77fe741ad09a74cf78f53f3"},
+    {file = "plotly-7.1.0.tar.gz", hash = "sha256:f860166a4a3d78c69cb1f4a15f28a5c8283eade98a282a698f3bb853a449ace5"},
 ]
 
 [package.dependencies]
@@ -3010,11 +3010,11 @@ narwhals = ">=1.15.1"
 packaging = "*"
 
 [package.extras]
-dev = ["anywidget", "build", "colorcet", "fiona (<=1.9.6) ; python_version <= \"3.8\"", "geopandas", "inflect", "jupyter-builder", "jupyterlab", "kaleido (>=1.3.0)", "numpy (>=1.22)", "orjson", "pandas", "pdfrw", "pillow", "polars[timezone]", "pyarrow", "pytest", "pytz", "requests", "ruff (==0.11.12)", "scikit-image", "scipy", "statsmodels", "vaex ; python_version <= \"3.9\"", "xarray"]
+dev = ["anywidget", "build", "colorcet", "fiona (<=1.9.6) ; python_version <= \"3.8\"", "geopandas", "inflect", "jupyter-builder", "jupyterlab", "kaleido (>=1.3.0)", "numpy (>=1.22)", "orjson", "pandas", "pdfrw", "pillow", "polars[timezone]", "pyarrow", "pytest", "pytz", "requests", "ruff (==0.11.12)", "scikit-image", "scipy", "sphinx-gallery", "statsmodels", "vaex ; python_version <= \"3.9\"", "xarray"]
 dev-build = ["build", "jupyter-builder", "pytest", "requests", "ruff (==0.11.12)"]
 dev-codegen = ["inflect", "pytest", "requests", "ruff (==0.11.12)"]
 dev-core = ["pytest", "requests", "ruff (==0.11.12)"]
-dev-optional = ["anywidget", "build", "colorcet", "fiona (<=1.9.6) ; python_version <= \"3.8\"", "geopandas", "inflect", "jupyter-builder", "jupyterlab", "kaleido (>=1.3.0)", "numpy (>=1.22)", "orjson", "pandas", "pdfrw", "pillow", "polars[timezone]", "pyarrow", "pytest", "pytz", "requests", "ruff (==0.11.12)", "scikit-image", "scipy", "statsmodels", "vaex ; python_version <= \"3.9\"", "xarray"]
+dev-optional = ["anywidget", "build", "colorcet", "fiona (<=1.9.6) ; python_version <= \"3.8\"", "geopandas", "inflect", "jupyter-builder", "jupyterlab", "kaleido (>=1.3.0)", "numpy (>=1.22)", "orjson", "pandas", "pdfrw", "pillow", "polars[timezone]", "pyarrow", "pytest", "pytz", "requests", "ruff (==0.11.12)", "scikit-image", "scipy", "sphinx-gallery", "statsmodels", "vaex ; python_version <= \"3.9\"", "xarray"]
 dev-pandas1 = ["numpy (>=1,<2)", "pandas (>=1,<2)", "setuptools (<82)"]
 dev-pandas2 = ["pandas (>=2,<3)"]
 dev-pandas3 = ["pandas (>=3) ; python_version >= \"3.11\""]
@@ -3071,20 +3071,20 @@ wcwidth = "*"
 
 [[package]]
 name = "protobuf"
-version = "7.36.1"
+version = "7.36.2"
 description = ""
 optional = false
 python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "protobuf-7.36.1-cp310-abi3-macosx_10_9_universal2.whl", hash = "sha256:3cf2ee25d006cee57294a1196ea43b37feb78e0dcd1e8af5c1aeddb777655aca"},
-    {file = "protobuf-7.36.1-cp310-abi3-manylinux2014_aarch64.whl", hash = "sha256:43d3d37b1eb24c113b9b7d02008cac44e423f00b611b7781ae998d7623972969"},
-    {file = "protobuf-7.36.1-cp310-abi3-manylinux2014_s390x.whl", hash = "sha256:39c518c05586c016d7874ff6079ee115bcec1ea5fbb1d177fbf7867ef4c67e44"},
-    {file = "protobuf-7.36.1-cp310-abi3-manylinux2014_x86_64.whl", hash = "sha256:97198b77e369a0abd8e262b8f6c7266c55ddb796a3a12c76d7b8881188ed83aa"},
-    {file = "protobuf-7.36.1-cp310-abi3-win32.whl", hash = "sha256:0b53ce95272aad50ad25d7ff03373743209822e8ba42ea7fad27d2bee1547d00"},
-    {file = "protobuf-7.36.1-cp310-abi3-win_amd64.whl", hash = "sha256:51139351435d9b43d88a55eaa49fb6f737fbb478fb0cbf2cf694d1a04a9d3363"},
-    {file = "protobuf-7.36.1-py3-none-any.whl", hash = "sha256:7d951e46b3f963d6c264c367c437921de9d5aedd9c3f9612b9077736b4e3ad5c"},
-    {file = "protobuf-7.36.1.tar.gz", hash = "sha256:d0f6470f0ce2b84e3feaea2d4b816378b37ba4d4aa08a274305373de93e2d524"},
+    {file = "protobuf-7.36.2-cp310-abi3-macosx_10_9_universal2.whl", hash = "sha256:cbc70b17ee27e28894c7fee8bb04be1abead49e936bc70eb60052531eee2079e"},
+    {file = "protobuf-7.36.2-cp310-abi3-manylinux2014_aarch64.whl", hash = "sha256:e11e1f0180583a2af89db6a2ecd9e8dc40aa6d2988ca175bfd0e6d12ea72d74e"},
+    {file = "protobuf-7.36.2-cp310-abi3-manylinux2014_s390x.whl", hash = "sha256:f4fee11ec330d238b34a05c9b675f693c20415d1c5bd7d5320cc2f8a798eb9cf"},
+    {file = "protobuf-7.36.2-cp310-abi3-manylinux2014_x86_64.whl", hash = "sha256:89f23aa53c24553a2416fd4fd1ec06f74fa42b14b546d8883128813f775bbfd2"},
+    {file = "protobuf-7.36.2-cp310-abi3-win32.whl", hash = "sha256:912c1221170e16c08d1f086762f563dd61ff83c18b5fa6652952dfaded66f728"},
+    {file = "protobuf-7.36.2-cp310-abi3-win_amd64.whl", hash = "sha256:a300819d441e078a5608c0d3c709796bb548136058fda017ae51d425b44fd353"},
+    {file = "protobuf-7.36.2-py3-none-any.whl", hash = "sha256:bdb3a345d48db958e6ce1f18e508beb0cc981d64f24088427549c866cd039f1e"},
+    {file = "protobuf-7.36.2.tar.gz", hash = "sha256:497d0463ff3316681da6c0b9e8d06cb465d61abce00b613ab42226175644d1bb"},
 ]
 
 [[package]]
