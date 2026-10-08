@@ -54,6 +54,9 @@ nbformat = ">=4.2.0"
 ipython = ">=7.0"
 jupyter = ">=1.0"
 datastore-utilities = { path = "./utilities", develop = true }
+urllib3 = ">=2.8.0"
+tornado = ">=6.5.9"
+jupyterlab = ">=4.6.4"
 
 [tool.poetry.group.lint.dependencies]
 bandit = { version = ">=1.7", extras = ["toml"] }
@@ -80,6 +83,7 @@ sphinx-rtd-theme = ">=1.0.0"
 sphinx-autoapi = ">=1.8.4"
 myst-parser = ">=4.0.1"
 toml = ">=0.10.2"
+urllib3 = ">=2.8.0"
 
 [build-system]
 requires = ["poetry-core>=1.8"]
