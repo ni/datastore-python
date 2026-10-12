@@ -491,10 +491,10 @@ Access the actual measured values:
 # Get measurement data
 for measurement in measurements:
     if measurement.data_type == "type.googleapis.com/ni.protobuf.types.Vector":
-        value = data_store_client.read_data(measurement, expected_type=Vector)
+        value = data_store_client.read_measurement_value(measurement, expected_type=Vector)
         print(f"{measurement.name}: {value}")
     elif measurement.data_type == "type.googleapis.com/ni.protobuf.types.DoubleAnalogWaveform":
-        waveform = data_store_client.read_data(measurement, expected_type=AnalogWaveform)
+        waveform = data_store_client.read_measurement_value(measurement, expected_type=AnalogWaveform)
         print(f"{measurement.name}: {len(waveform.raw_data)} samples")
 ```
 
