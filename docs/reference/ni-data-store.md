@@ -79,11 +79,14 @@ A **PublishedMeasurement** represents actual measurement data captured during a 
 - **Scalar** - Single float, int, str or boolean values
 - **Vector** - Arrays of float, int, str or boolean values
 - **DoubleAnalogWaveform** - Analog waveform with double precision
+- **FloatAnalogWaveform** - Analog waveform with float precision
 - **DoubleXYData** - XY coordinate data with double precision
 - **I16AnalogWaveform** - Analog waveform with 16-bit integer precision
 - **DoubleComplexWaveform** - Complex waveform with double precision
+- **FloatComplexWaveform** - Complex waveform with float precision
 - **I16ComplexWaveform** - Complex waveform with 16-bit integer precision
 - **DoubleSpectrum** - Frequency spectrum data with double precision
+- **FloatSpectrum** - Frequency spectrum data with float precision
 - **DigitalWaveform** - Digital waveform data
 
 **Real-world examples**:
