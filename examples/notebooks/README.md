@@ -2,7 +2,7 @@
 
 The Jupyter Notebooks contained within the sub-directories of this directory demonstrate usage and functionality of the Measurement Data Store Python API.
 
-These notebooks use a dedicated Python environment. To create it, execute the following commands from this directory:
+These notebooks use a dedicated Python environment. To create it, execute the following commands from the repository root:
 
 ```powershell
 cd examples\notebooks
