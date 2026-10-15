@@ -1,0 +1,23 @@
+[project]
+name = "datastore_notebooks"
+version = "1.0.0"
+description = "Jupyter notebooks demonstrating the NI Measurement Data Store Python API"
+readme = "README.md"
+requires-python = ">=3.10,<4.0"
+dynamic = ["dependencies"]
+
+[tool.poetry]
+requires-poetry = ">=2.1,<3.0"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.10"
+ni-datastore = { path = "../..", develop = true }
+datastore-utilities = { path = "../../utilities", develop = true }
+plotly = ">=5.0"
+jupyter = ">=1.1.1"
+jupyterlab = ">=4.6.4"
+
+[build-system]
+requires = ["poetry-core>=1.8"]
+build-backend = "poetry.core.masonry.api"
