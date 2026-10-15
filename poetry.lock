@@ -428,6 +428,20 @@ tomli = {version = "*", optional = true, markers = "python_full_version <= \"3.1
 toml = ["tomli ; python_full_version <= \"3.11.0a6\""]
 
 [[package]]
+name = "datastore-utilities"
+version = "0.1.0.dev0"
+description = "Development utilities for datastore-python"
+optional = false
+python-versions = "^3.10"
+groups = ["dev"]
+files = []
+develop = true
+
+[package.source]
+type = "directory"
+url = "utilities"
+
+[[package]]
 name = "docutils"
 version = "0.21.2"
 description = "Docutils -- Python Documentation Utilities"
@@ -2574,4 +2588,4 @@ zstd = ["backports-zstd (>=1.0.0) ; python_version < \"3.14\""]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10"
-content-hash = "e4a514ad850dfb687e89fef945fbe7852d832a30901c4cc818dac7bc3fed0c9e"
+content-hash = "e8d29f090b5bbc01cb6e3142fe7c134217fb52ef0e296c5326c603b94d9b53d2"
