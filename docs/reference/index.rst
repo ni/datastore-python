@@ -8,5 +8,6 @@ This section provides comprehensive documentation for the NI Data Store system c
    :maxdepth: 3
 
    ni-data-store
+   ni-data-store-v2
    ni-metadata-store
    using-measurement-data-services
