@@ -36,5 +36,7 @@ jobs:
           python-version: ${{ inputs.python-version }}
       - name: Set up Poetry
         uses: ni/python-actions/setup-poetry@dee640bba235ae28fdc6b7337c643bd06358ae90 # v0.9.0
+        with:
+          use-cache: false
       - name: Run and upload unit tests for ni.datastore
         uses: ./.github/actions/run_and_upload_unit_tests
