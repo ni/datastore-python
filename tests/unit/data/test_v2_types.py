@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import datetime as std_datetime
+from typing import Any
 
 import pytest
 from google.protobuf import json_format
@@ -11,15 +12,28 @@ from ni.measurements.data.v2 import data_store_pb2
 from ni.protobuf.types.precision_duration_conversion import hightime_timedelta_to_protobuf
 from ni.protobuf.types.precision_timestamp_conversion import hightime_datetime_to_protobuf
 from nitypes.scalar import Scalar
+from nitypes.vector import Vector
 
 from ni.datastore.data.v2 import (
     Condition,
     ErrorInformation,
+    JsonValue,
     Measurement,
     Outcome,
     Status,
     Step,
     TestResult,
+)
+from ni.datastore.metadata import (
+    HardwareItem,
+    Operator,
+    SoftwareItem,
+    Test,
+    TestAdapter,
+    TestDescription,
+    TestStation,
+    Uut,
+    UutInstance,
 )
 
 UTC = std_datetime.timezone.utc
@@ -197,3 +211,140 @@ def test___error_information___round_trips_through_protobuf() -> None:
 def test___enums___reject_unknown_protobuf_values(enum_type: type[Outcome] | type[Status]) -> None:
     with pytest.raises(ValueError):
         enum_type.from_protobuf(999)  # type: ignore[arg-type]
+
+
+def test___measurement___round_trips_value_limits_and_metadata() -> None:
+    measurement = Measurement(
+        name="voltage",
+        step_id="step-id",
+        value=Scalar(5.0, "V"),
+        upper_limit=5.5,
+        lower_limit=Vector([4.5, 4.6]),
+        schema_id="schema",
+        software_items=[SoftwareItem(product="p", version="1")],
+        hardware_items=[HardwareItem(manufacturer="m", model="x", serial_number="1")],
+        test_adapters=[TestAdapter(name="adapter")],
+    )
+
+    proto = measurement.to_protobuf()
+
+    assert proto.value.scalar.double_value == 5.0
+    assert proto.upper_limit.scalar.double_value == 5.5
+    assert proto.schema_id == "schema"
+    assert proto.software_items[0].product == "p"
+    assert Measurement.from_protobuf(proto) == measurement
+
+
+def test___measurement___moniker_or_missing_value_reads_as_none() -> None:
+    proto = data_store_pb2.Measurement(id="m")
+    proto.value.data_moniker.data_instance = 1
+
+    measurement = Measurement.from_protobuf(proto)
+
+    assert (measurement.value, measurement.upper_limit, measurement.lower_limit) == (
+        None,
+        None,
+        None,
+    )
+
+
+def test___test_result___round_trips_metadata_objects_and_nested_steps() -> None:
+    test_result = TestResult(
+        "Power test",
+        uut_instance=UutInstance(uut_id="uut", serial_number="sn"),
+        uut=Uut(model_name="model"),
+        operator=Operator(name="Ada", role="Engineer"),
+        test_station=TestStation(name="station"),
+        test_description=TestDescription(uut_id="uut", name="desc"),
+        software_items=[SoftwareItem(product="p", version="1")],
+        schema_id="schema",
+        steps=[
+            Step(
+                "parent",
+                test=Test(name="t"),
+                schema_id="step-schema",
+                measurements=[Measurement(name="m", value=1.0)],
+                children=[Step("child")],
+            )
+        ],
+    )
+
+    proto = test_result.to_protobuf()
+
+    assert proto.operator.name == "Ada"
+    assert proto.steps[0].children[0].name == "child"
+    assert proto.steps[0].measurements[0].value.scalar.double_value == 1.0
+    assert proto.steps[0].test.name == "t"
+    assert TestResult.from_protobuf(proto) == test_result
+
+
+def test___test_result___unset_metadata_objects_read_as_none() -> None:
+    test_result = TestResult.from_protobuf(data_store_pb2.TestResult(name="n"))
+
+    assert (test_result.operator, test_result.uut_instance, test_result.uut) == (None, None, None)
+    assert test_result.steps == []
+
+
+def test___json_value___round_trips_attributes_and_schema() -> None:
+    value = JsonValue(
+        {"a": 1, "nested": {"ok": True}},
+        attributes={"flag": True, "count": 3, "ratio": 0.5, "name": "x"},
+        schema_id="schema",
+    )
+
+    proto = value.to_protobuf()
+
+    assert proto.attributes["count"].integer_value == 3
+    assert proto.attributes["flag"].bool_value is True
+    assert proto.schema_id == "schema"
+    assert JsonValue.from_protobuf(proto) == value
+
+
+def test___json_value___rejects_unsupported_attribute() -> None:
+    with pytest.raises(TypeError):
+        JsonValue({}, attributes={"bad": [1]}).to_protobuf()  # type: ignore[dict-item]
+
+
+def test___condition___json_value_with_attributes_round_trips() -> None:
+    condition = Condition("config", JsonValue({"mode": "fast"}, attributes={"source": "fixture"}))
+
+    assert Condition.from_protobuf(condition.to_protobuf()) == condition
+
+
+def test___condition___plain_json_reads_as_dict() -> None:
+    proto = Condition("config", {"mode": "fast"}).to_protobuf()
+
+    assert Condition.from_protobuf(proto).value == {"mode": "fast"}
+
+
+@pytest.mark.parametrize(
+    ("proto_type", "model_type"),
+    [
+        (data_store_pb2.TestResult, TestResult),
+        (data_store_pb2.Step, Step),
+        (data_store_pb2.Measurement, Measurement),
+        (data_store_pb2.Condition, Condition),
+        (data_store_pb2.ErrorInformation, ErrorInformation),
+        (data_store_pb2.JsonValue, JsonValue),
+    ],
+)
+def test___models___expose_every_protobuf_field(proto_type: Any, model_type: Any) -> None:
+    model_fields = {slot.lstrip("_") for slot in model_type.__slots__}
+
+    missing = [f.name for f in proto_type.DESCRIPTOR.fields if f.name not in model_fields]
+
+    assert missing == []
+
+
+def test___client___wraps_every_low_level_method() -> None:
+    from ni.measurements.data.v2.client import DataStoreClient as LowLevelClient
+
+    from ni.datastore.data.v2 import DataStoreClient
+
+    low_level_methods = {
+        name
+        for name in dir(LowLevelClient)
+        if not name.startswith("_") and callable(getattr(LowLevelClient, name))
+    }
+
+    assert sorted(low_level_methods - set(dir(DataStoreClient))) == []

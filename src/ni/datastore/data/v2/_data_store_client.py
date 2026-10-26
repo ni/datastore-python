@@ -20,9 +20,23 @@ from ni.measurements.data.v2.data_store_pb2 import (
 )
 from ni.measurements.data.v2.data_store_service_pb2 import (
     AddConditionRequest,
+    AddMeasurementMetadataRequest,
+    AddTestResultMetadataRequest,
+    BatchCreateMeasurementsRequest,
+    BatchCreateStepsRequest,
+    BatchCreateTestResultsRequest,
+    BatchDeleteMeasurementsRequest,
+    BatchDeleteStepsRequest,
+    BatchDeleteTestResultsRequest,
+    BatchUpdateMeasurementsRequest,
+    BatchUpdateStepsRequest,
+    BatchUpdateTestResultsRequest,
     CreateMeasurementRequest,
     CreateStepRequest,
     CreateTestResultRequest,
+    DeleteMeasurementRequest,
+    DeleteStepRequest,
+    DeleteTestResultRequest,
     GetMeasurementRequest,
     GetStepRequest,
     GetTestResultRequest,
@@ -30,6 +44,9 @@ from ni.measurements.data.v2.data_store_service_pb2 import (
     QueryStepsRequest,
     QueryTestResultsRequest,
     ReadMeasurementValuesRequest,
+    RemoveConditionRequest,
+    RemoveMeasurementMetadataRequest,
+    RemoveTestResultMetadataRequest,
     UpdateMeasurementRequest,
     UpdateStepRequest,
     UpdateTestResultRequest,
@@ -40,14 +57,16 @@ from ni_grpc_extensions.channelpool import GrpcChannelPool
 
 from ni.datastore.data.v2._grpc_conversion import (
     convert_measurement_value_from_protobuf,
-    populate_measurement_value,
+    measurement_value_from_protobuf,
 )
 from ni.datastore.data.v2._types._condition import Condition
 from ni.datastore.data.v2._types._error_information import ErrorInformation
 from ni.datastore.data.v2._types._measurement import Measurement
 from ni.datastore.data.v2._types._outcome import Outcome
+from ni.datastore.data.v2._types._query_results import QueryResults
 from ni.datastore.data.v2._types._step import Step
 from ni.datastore.data.v2._types._test_result import TestResult
+from ni.datastore.metadata import HardwareItem, SoftwareItem, TestAdapter
 
 if TYPE_CHECKING:
     if sys.version_info >= (3, 11):
@@ -150,6 +169,22 @@ class DataStoreClient:
         add_request = AddConditionRequest(step_id=step_id, condition=condition.to_protobuf())
         return Step.from_protobuf(self._get_data_store_client().add_condition(add_request).step)
 
+    def remove_condition(self, step_id: str, condition_name: str) -> Step:
+        """Remove a condition from a step.
+
+        Args:
+            step_id: The ID of the step that owns the condition.
+
+            condition_name: The name of the condition to remove.
+
+        Returns:
+            Step: The updated step.
+        """
+        remove_request = RemoveConditionRequest(step_id=step_id, condition_name=condition_name)
+        return Step.from_protobuf(
+            self._get_data_store_client().remove_condition(remove_request).step
+        )
+
     def create_measurement(
         self,
         name: str,
@@ -157,15 +192,23 @@ class DataStoreClient:
         step_id: str,
         *,
         units: str = "",
+        upper_limit: object = None,
+        lower_limit: object = None,
+        comparison_type: str = "",
         notes: str = "",
         start_date_time: ht.datetime | None = None,
         end_date_time: ht.datetime | None = None,
         duration: ht.timedelta | None = None,
         outcome: Outcome = Outcome.UNSPECIFIED,
         error_information: ErrorInformation | None = None,
+        extension: Mapping[str, Any] | None = None,
+        schema_id: str = "",
         software_item_ids: Iterable[str] = (),
         hardware_item_ids: Iterable[str] = (),
         test_adapter_ids: Iterable[str] = (),
+        software_items: Iterable[SoftwareItem] = (),
+        hardware_items: Iterable[HardwareItem] = (),
+        test_adapters: Iterable[TestAdapter] = (),
     ) -> str:
         """Create a measurement associated with a test step.
 
@@ -181,6 +224,15 @@ class DataStoreClient:
 
             units: Engineering units of the value.
 
+            upper_limit: The publisher-supplied upper limit. Any supported value
+                type is accepted.
+
+            lower_limit: The publisher-supplied lower limit. Any supported value
+                type is accepted.
+
+            comparison_type: The publisher-defined comparison operation. The
+                service stores it but does not derive the outcome from it.
+
             notes: Any notes to associate with the measurement.
 
             start_date_time: The start time of the measurement.
@@ -193,6 +245,11 @@ class DataStoreClient:
 
             error_information: Error details for the measurement.
 
+            extension: Custom JSON data for the measurement.
+
+            schema_id: Schema that governs the extension. Reserved by the service
+                for future support.
+
             software_item_ids: The software item IDs for the measurement. These
                 must already be linked to the test result.
 
@@ -202,26 +259,95 @@ class DataStoreClient:
             test_adapter_ids: The test adapter IDs for the measurement. These
                 must already be linked to the test result.
 
+            software_items: Software items to find or create as part of this
+                request.
+
+            hardware_items: Hardware items to find or create as part of this
+                request.
+
+            test_adapters: Test adapters to find or create as part of this
+                request.
+
         Returns:
             str: The measurement ID.
         """
         measurement = Measurement(
             name=name,
+            value=value,
             step_id=step_id,
             units=units,
+            upper_limit=upper_limit,
+            lower_limit=lower_limit,
+            comparison_type=comparison_type,
             notes=notes,
             start_date_time=start_date_time,
             end_date_time=end_date_time,
             duration=duration,
             outcome=outcome,
             error_information=error_information,
+            extension=extension,
+            schema_id=schema_id,
             software_item_ids=software_item_ids,
             hardware_item_ids=hardware_item_ids,
             test_adapter_ids=test_adapter_ids,
-        ).to_protobuf()
-        populate_measurement_value(measurement.value, value)
-        create_request = CreateMeasurementRequest(measurement=measurement)
+            software_items=software_items,
+            hardware_items=hardware_items,
+            test_adapters=test_adapters,
+        )
+        create_request = CreateMeasurementRequest(measurement=measurement.to_protobuf())
         return self._get_data_store_client().create_measurement(create_request).id
+
+    def batch_create_test_results(self, test_results: Iterable[TestResult]) -> Sequence[str]:
+        """Create several test results, including any nested steps, in one atomic call.
+
+        Args:
+            test_results: The test results to create.
+
+        Returns:
+            Sequence[str]: The test result IDs, in request order.
+        """
+        batch_request = BatchCreateTestResultsRequest(
+            requests=[
+                CreateTestResultRequest(test_result=test_result.to_protobuf())
+                for test_result in test_results
+            ]
+        )
+        batch_response = self._get_data_store_client().batch_create_test_results(batch_request)
+        return [test_result.id for test_result in batch_response.test_results]
+
+    def batch_create_steps(self, steps: Iterable[Step]) -> Sequence[str]:
+        """Create several steps, including any nested children, in one atomic call.
+
+        Args:
+            steps: The steps to create.
+
+        Returns:
+            Sequence[str]: The step IDs, in request order.
+        """
+        batch_request = BatchCreateStepsRequest(
+            requests=[CreateStepRequest(step=step.to_protobuf()) for step in steps]
+        )
+        batch_response = self._get_data_store_client().batch_create_steps(batch_request)
+        return [step.id for step in batch_response.steps]
+
+    def batch_create_measurements(self, measurements: Iterable[Measurement]) -> Sequence[str]:
+        """Create several measurements in one atomic call.
+
+        Args:
+            measurements: The measurements to create. Each must set step_id and
+                value, and may target a different step or test result.
+
+        Returns:
+            Sequence[str]: The measurement IDs, in request order.
+        """
+        batch_request = BatchCreateMeasurementsRequest(
+            requests=[
+                CreateMeasurementRequest(measurement=measurement.to_protobuf())
+                for measurement in measurements
+            ]
+        )
+        batch_response = self._get_data_store_client().batch_create_measurements(batch_request)
+        return [measurement.id for measurement in batch_response.measurements]
 
     @overload
     def read_measurement_value(
@@ -263,6 +389,32 @@ class DataStoreClient:
         if expected_type is not None and not isinstance(read_value, expected_type):
             raise TypeError(f"Expected type {expected_type}, got {type(read_value)}")
         return read_value
+
+    def read_measurement_values(
+        self, read_source: Measurement, *, read_fields: Iterable[str] = ()
+    ) -> Measurement:
+        """Read the value and limits of a measurement.
+
+        Args:
+            read_source: The measurement to read. Only its id is used.
+
+            read_fields: Optional fields to read: "value", "upper_limit", and
+                "lower_limit". All three are read when empty.
+
+        Returns:
+            Measurement: A measurement with id, value, upper_limit, and
+                lower_limit set. A limit that was not published is None.
+        """
+        read_request = ReadMeasurementValuesRequest(
+            measurement_id=read_source.id, read_mask=_read_mask(read_fields)
+        )
+        response = self._get_data_store_client().read_measurement_values(read_request)
+        return Measurement(
+            id=read_source.id,
+            value=measurement_value_from_protobuf(response, "value"),
+            upper_limit=measurement_value_from_protobuf(response, "upper_limit"),
+            lower_limit=measurement_value_from_protobuf(response, "lower_limit"),
+        )
 
     def get_test_result(
         self, test_result_id: str, *, read_fields: Iterable[str] = ()
@@ -319,7 +471,7 @@ class DataStoreClient:
 
     def query_test_results(
         self, odata_query: str = "", *, read_fields: Iterable[str] = ()
-    ) -> Sequence[TestResult]:
+    ) -> QueryResults[TestResult]:
         """Query test results using OData query syntax.
 
         Args:
@@ -329,17 +481,21 @@ class DataStoreClient:
             read_fields: Optional field names to return for each test result.
 
         Returns:
-            Sequence[TestResult]: The matching test results.
+            QueryResults[TestResult]: The matching test results, with next_link
+                set when more results are available.
         """
         query_request = QueryTestResultsRequest(
             odata_query=odata_query, read_mask=_read_mask(read_fields)
         )
         query_response = self._get_data_store_client().query_test_results(query_request)
-        return [TestResult.from_protobuf(proto) for proto in query_response.test_results]
+        return QueryResults(
+            (TestResult.from_protobuf(proto) for proto in query_response.test_results),
+            query_response.next_link,
+        )
 
     def query_steps(
         self, odata_query: str = "", *, read_fields: Iterable[str] = ()
-    ) -> Sequence[Step]:
+    ) -> QueryResults[Step]:
         """Query steps using OData query syntax.
 
         Args:
@@ -349,17 +505,21 @@ class DataStoreClient:
             read_fields: Optional field names to return for each step.
 
         Returns:
-            Sequence[Step]: The matching steps.
+            QueryResults[Step]: The matching steps, with next_link set when more
+                results are available.
         """
         query_request = QueryStepsRequest(
             odata_query=odata_query, read_mask=_read_mask(read_fields)
         )
         query_response = self._get_data_store_client().query_steps(query_request)
-        return [Step.from_protobuf(proto) for proto in query_response.steps]
+        return QueryResults(
+            (Step.from_protobuf(proto) for proto in query_response.steps),
+            query_response.next_link,
+        )
 
     def query_measurements(
         self, odata_query: str = "", *, read_fields: Iterable[str] = ()
-    ) -> Sequence[Measurement]:
+    ) -> QueryResults[Measurement]:
         """Query measurements using OData query syntax.
 
         Args:
@@ -370,13 +530,17 @@ class DataStoreClient:
             read_fields: Optional field names to return for each measurement.
 
         Returns:
-            Sequence[Measurement]: The matching measurements.
+            QueryResults[Measurement]: The matching measurements, with next_link
+                set when more results are available.
         """
         query_request = QueryMeasurementsRequest(
             odata_query=odata_query, read_mask=_read_mask(read_fields)
         )
         query_response = self._get_data_store_client().query_measurements(query_request)
-        return [Measurement.from_protobuf(proto) for proto in query_response.measurements]
+        return QueryResults(
+            (Measurement.from_protobuf(proto) for proto in query_response.measurements),
+            query_response.next_link,
+        )
 
     def update_test_result(self, test_result_id: str, **fields: object) -> TestResult:
         """Update mutable test result fields.
@@ -442,6 +606,306 @@ class DataStoreClient:
             self._get_data_store_client().update_measurement(update_request)
         )
 
+    def batch_update_test_results(
+        self, updates: Mapping[str, Mapping[str, object]]
+    ) -> Sequence[TestResult]:
+        """Update several test results in one atomic call.
+
+        Args:
+            updates: The fields to change, keyed by test result ID. Each value
+                follows the update_test_result field rules.
+
+        Returns:
+            Sequence[TestResult]: The updated test results, in request order.
+
+        Raises:
+            ValueError: If no updates are given, or an update has no fields or
+                a field that cannot be updated.
+        """
+        requests = []
+        for test_result_id, fields in _require_items(updates).items():
+            test_result = TestResultProto(id=test_result_id)
+            mask = _populate_update(test_result, fields, _TEST_RESULT_UPDATE_FIELDS)
+            requests.append(UpdateTestResultRequest(test_result=test_result, update_mask=mask))
+        batch_request = BatchUpdateTestResultsRequest(requests=requests)
+        batch_response = self._get_data_store_client().batch_update_test_results(batch_request)
+        return [TestResult.from_protobuf(proto) for proto in batch_response.test_results]
+
+    def batch_update_steps(self, updates: Mapping[str, Mapping[str, object]]) -> Sequence[Step]:
+        """Update several steps in one atomic call.
+
+        Args:
+            updates: The fields to change, keyed by step ID. Each value follows
+                the update_step field rules.
+
+        Returns:
+            Sequence[Step]: The updated steps, in request order.
+
+        Raises:
+            ValueError: If no updates are given, or an update has no fields or
+                a field that cannot be updated.
+        """
+        requests = []
+        for step_id, fields in _require_items(updates).items():
+            step = StepProto(id=step_id)
+            mask = _populate_update(step, fields, _STEP_UPDATE_FIELDS)
+            requests.append(UpdateStepRequest(step=step, update_mask=mask))
+        batch_request = BatchUpdateStepsRequest(requests=requests)
+        batch_response = self._get_data_store_client().batch_update_steps(batch_request)
+        return [Step.from_protobuf(proto) for proto in batch_response.steps]
+
+    def batch_update_measurements(
+        self, updates: Mapping[str, Mapping[str, object]]
+    ) -> Sequence[Measurement]:
+        """Update several measurements in one atomic call.
+
+        Args:
+            updates: The fields to change, keyed by measurement ID. Each value
+                follows the update_measurement field rules.
+
+        Returns:
+            Sequence[Measurement]: The updated measurements, in request order.
+
+        Raises:
+            ValueError: If no updates are given, or an update has no fields or
+                a field that cannot be updated.
+        """
+        requests = []
+        for measurement_id, fields in _require_items(updates).items():
+            measurement = MeasurementProto(id=measurement_id)
+            mask = _populate_update(measurement, fields, _MEASUREMENT_UPDATE_FIELDS)
+            requests.append(UpdateMeasurementRequest(measurement=measurement, update_mask=mask))
+        batch_request = BatchUpdateMeasurementsRequest(requests=requests)
+        batch_response = self._get_data_store_client().batch_update_measurements(batch_request)
+        return [Measurement.from_protobuf(proto) for proto in batch_response.measurements]
+
+    def add_test_result_metadata(
+        self,
+        test_result_id: str,
+        *,
+        software_item_ids: Iterable[str] = (),
+        hardware_item_ids: Iterable[str] = (),
+        test_adapter_ids: Iterable[str] = (),
+    ) -> TestResult:
+        """Link existing software items, hardware items, or test adapters to a test result.
+
+        Args:
+            test_result_id: The ID of the test result.
+
+            software_item_ids: The software item IDs to link.
+
+            hardware_item_ids: The hardware item IDs to link.
+
+            test_adapter_ids: The test adapter IDs to link.
+
+        Returns:
+            TestResult: The updated test result.
+        """
+        add_request = AddTestResultMetadataRequest(
+            test_result_id=test_result_id,
+            software_item_ids=software_item_ids,
+            hardware_item_ids=hardware_item_ids,
+            test_adapter_ids=test_adapter_ids,
+        )
+        return TestResult.from_protobuf(
+            self._get_data_store_client().add_test_result_metadata(add_request).test_result
+        )
+
+    def remove_test_result_metadata(
+        self,
+        test_result_id: str,
+        *,
+        software_item_ids: Iterable[str] = (),
+        hardware_item_ids: Iterable[str] = (),
+        test_adapter_ids: Iterable[str] = (),
+    ) -> TestResult:
+        """Unlink software items, hardware items, or test adapters from a test result.
+
+        The service rejects the request if a measurement of the test result
+        still references a removed item.
+
+        Args:
+            test_result_id: The ID of the test result.
+
+            software_item_ids: The software item IDs to unlink.
+
+            hardware_item_ids: The hardware item IDs to unlink.
+
+            test_adapter_ids: The test adapter IDs to unlink.
+
+        Returns:
+            TestResult: The updated test result.
+        """
+        remove_request = RemoveTestResultMetadataRequest(
+            test_result_id=test_result_id,
+            software_item_ids=software_item_ids,
+            hardware_item_ids=hardware_item_ids,
+            test_adapter_ids=test_adapter_ids,
+        )
+        return TestResult.from_protobuf(
+            self._get_data_store_client().remove_test_result_metadata(remove_request).test_result
+        )
+
+    def add_measurement_metadata(
+        self,
+        measurement_id: str,
+        *,
+        software_item_ids: Iterable[str] = (),
+        hardware_item_ids: Iterable[str] = (),
+        test_adapter_ids: Iterable[str] = (),
+    ) -> Measurement:
+        """Link software items, hardware items, or test adapters to a measurement.
+
+        Each item must already be linked to the measurement's test result.
+
+        Args:
+            measurement_id: The ID of the measurement.
+
+            software_item_ids: The software item IDs to link.
+
+            hardware_item_ids: The hardware item IDs to link.
+
+            test_adapter_ids: The test adapter IDs to link.
+
+        Returns:
+            Measurement: The updated measurement.
+        """
+        add_request = AddMeasurementMetadataRequest(
+            measurement_id=measurement_id,
+            software_item_ids=software_item_ids,
+            hardware_item_ids=hardware_item_ids,
+            test_adapter_ids=test_adapter_ids,
+        )
+        return Measurement.from_protobuf(
+            self._get_data_store_client().add_measurement_metadata(add_request).measurement
+        )
+
+    def remove_measurement_metadata(
+        self,
+        measurement_id: str,
+        *,
+        software_item_ids: Iterable[str] = (),
+        hardware_item_ids: Iterable[str] = (),
+        test_adapter_ids: Iterable[str] = (),
+    ) -> Measurement:
+        """Unlink software items, hardware items, or test adapters from a measurement.
+
+        Args:
+            measurement_id: The ID of the measurement.
+
+            software_item_ids: The software item IDs to unlink.
+
+            hardware_item_ids: The hardware item IDs to unlink.
+
+            test_adapter_ids: The test adapter IDs to unlink.
+
+        Returns:
+            Measurement: The updated measurement.
+        """
+        remove_request = RemoveMeasurementMetadataRequest(
+            measurement_id=measurement_id,
+            software_item_ids=software_item_ids,
+            hardware_item_ids=hardware_item_ids,
+            test_adapter_ids=test_adapter_ids,
+        )
+        return Measurement.from_protobuf(
+            self._get_data_store_client().remove_measurement_metadata(remove_request).measurement
+        )
+
+    def delete_test_result(self, test_result_id: str, *, force: bool = False) -> None:
+        """Delete a test result.
+
+        Args:
+            test_result_id: The ID of the test result to delete.
+
+            force: If True, also delete the steps, measurements, and conditions that the
+                test result owns. If False, the service rejects the delete with
+                FAILED_PRECONDITION when owned children exist.
+        """
+        delete_request = DeleteTestResultRequest(test_result_id=test_result_id, force=force)
+        self._get_data_store_client().delete_test_result(delete_request)
+
+    def delete_step(self, step_id: str, *, force: bool = False) -> None:
+        """Delete a step.
+
+        A step that has child steps cannot be deleted.
+
+        Args:
+            step_id: The ID of the step to delete.
+
+            force: If True, also delete the measurements of the step. If False, the
+                service rejects the delete with FAILED_PRECONDITION when measurements exist.
+        """
+        delete_request = DeleteStepRequest(step_id=step_id, force=force)
+        self._get_data_store_client().delete_step(delete_request)
+
+    def delete_measurement(self, measurement_id: str) -> None:
+        """Delete a measurement.
+
+        Args:
+            measurement_id: The ID of the measurement to delete.
+        """
+        delete_request = DeleteMeasurementRequest(measurement_id=measurement_id)
+        self._get_data_store_client().delete_measurement(delete_request)
+
+    def batch_delete_test_results(
+        self, test_result_ids: Iterable[str], *, force: bool | Iterable[bool] = False
+    ) -> None:
+        """Delete several test results in one atomic call.
+
+        Args:
+            test_result_ids: The IDs of the test results to delete.
+
+            force: One flag for every test result, or one flag per test result.
+                See delete_test_result.
+
+        Raises:
+            ValueError: If one flag per item is given and the counts differ.
+        """
+        batch_request = BatchDeleteTestResultsRequest(
+            requests=[
+                DeleteTestResultRequest(test_result_id=test_result_id, force=item_force)
+                for test_result_id, item_force in _with_force(test_result_ids, force)
+            ]
+        )
+        self._get_data_store_client().batch_delete_test_results(batch_request)
+
+    def batch_delete_steps(
+        self, step_ids: Iterable[str], *, force: bool | Iterable[bool] = False
+    ) -> None:
+        """Delete several steps in one atomic call.
+
+        Args:
+            step_ids: The IDs of the steps to delete. A step and its ancestor or
+                descendant cannot be deleted in the same call.
+
+            force: One flag for every step, or one flag per step. See delete_step.
+
+        Raises:
+            ValueError: If one flag per item is given and the counts differ.
+        """
+        batch_request = BatchDeleteStepsRequest(
+            requests=[
+                DeleteStepRequest(step_id=step_id, force=item_force)
+                for step_id, item_force in _with_force(step_ids, force)
+            ]
+        )
+        self._get_data_store_client().batch_delete_steps(batch_request)
+
+    def batch_delete_measurements(self, measurement_ids: Iterable[str]) -> None:
+        """Delete several measurements in one atomic call.
+
+        Args:
+            measurement_ids: The IDs of the measurements to delete.
+        """
+        batch_request = BatchDeleteMeasurementsRequest(
+            requests=[
+                DeleteMeasurementRequest(measurement_id=measurement_id)
+                for measurement_id in measurement_ids
+            ]
+        )
+        self._get_data_store_client().batch_delete_measurements(batch_request)
+
     def _get_data_store_client(self) -> DataStoreServiceClient:
         if self._closed:
             raise RuntimeError(self._DATA_STORE_CLIENT_CLOSED_ERROR)
@@ -456,6 +920,10 @@ _TEST_RESULT_UPDATE_FIELDS = frozenset(
         "operator_id",
         "test_station_id",
         "test_description_id",
+        "uut_instance",
+        "operator",
+        "test_station",
+        "test_description",
         "start_date_time",
         "end_date_time",
         "duration",
@@ -470,6 +938,7 @@ _TEST_RESULT_UPDATE_FIELDS = frozenset(
 _STEP_UPDATE_FIELDS = frozenset(
     {
         "test_id",
+        "test",
         "notes",
         "start_date_time",
         "end_date_time",
@@ -495,9 +964,35 @@ _MEASUREMENT_UPDATE_FIELDS = frozenset(
 )
 
 
+# Update fields that take a metadata model, such as Operator, and are sent as its protobuf.
+_METADATA_UPDATE_FIELDS = frozenset(
+    {"uut_instance", "operator", "test_station", "test_description", "test"}
+)
+
+
 def _read_mask(fields: Iterable[str]) -> FieldMask | None:
     paths = list(fields)
     return FieldMask(paths=paths) if paths else None
+
+
+def _require_items(
+    updates: Mapping[str, Mapping[str, object]],
+) -> Mapping[str, Mapping[str, object]]:
+    if not updates:
+        raise ValueError("At least one update must be supplied for a batch update.")
+    return updates
+
+
+def _with_force(ids: Iterable[str], force: bool | Iterable[bool]) -> list[tuple[str, bool]]:
+    id_list = list(ids)
+    if isinstance(force, bool):
+        return [(resource_id, force) for resource_id in id_list]
+    force_list = list(force)
+    if len(force_list) != len(id_list):
+        raise ValueError(
+            f"Expected {len(id_list)} force flags, one per ID, but got {len(force_list)}."
+        )
+    return list(zip(id_list, force_list))
 
 
 def _populate_update(
@@ -525,6 +1020,8 @@ def _populate_update(
             json_format.ParseDict(dict(cast(Mapping[str, Any], value)), target.extension)
         elif name == "error_information":
             target.error_information.CopyFrom(cast(ErrorInformation, value).to_protobuf())
+        elif name in _METADATA_UPDATE_FIELDS:
+            getattr(target, name).CopyFrom(cast(Any, value).to_protobuf())
         else:
             setattr(target, name, value)
 

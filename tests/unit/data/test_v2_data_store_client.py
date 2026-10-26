@@ -23,8 +23,10 @@ from ni.datastore.data.v2 import (
     Condition,
     DataStoreClient,
     ErrorInformation,
+    JsonValue,
     Measurement,
     Outcome,
+    QueryResults,
     Status,
     Step,
     TestResult,
@@ -161,6 +163,30 @@ def test___create_measurement___converts_value_and_metadata(
     assert request.measurement.outcome == data_store_pb2.OUTCOME_PASSED
     assert request.measurement.error_information.message == "m"
     assert list(request.measurement.software_item_ids) == ["sw"]
+
+
+def test___create_measurement___accepts_inline_metadata_objects(
+    client: DataStoreClient, service_client: Any
+) -> None:
+    from ni.datastore.metadata import HardwareItem, SoftwareItem, TestAdapter
+
+    software = SoftwareItem(product="p", version="1")
+    hardware = HardwareItem(manufacturer="m", model="x", serial_number="1")
+    adapter = TestAdapter(name="adapter")
+
+    client.create_measurement(
+        "voltage",
+        5.0,
+        "step-id",
+        software_items=[software],
+        hardware_items=[hardware],
+        test_adapters=[adapter],
+    )
+
+    measurement = _sent(service_client.create_measurement).measurement
+    assert list(measurement.software_items) == [software.to_protobuf()]
+    assert list(measurement.hardware_items) == [hardware.to_protobuf()]
+    assert list(measurement.test_adapters) == [adapter.to_protobuf()]
 
 
 def test___create_measurement___converts_mapping_to_json_value(
@@ -376,6 +402,52 @@ def test___query_measurements___returns_models(
     assert measurements == [Measurement(id="m-id", name="voltage")]
 
 
+@pytest.mark.parametrize(
+    ("method", "response_type", "items_field"),
+    [
+        ("query_test_results", "QueryTestResultsResponse", "test_results"),
+        ("query_steps", "QueryStepsResponse", "steps"),
+        ("query_measurements", "QueryMeasurementsResponse", "measurements"),
+    ],
+)
+def test___query___returns_next_link(
+    client: DataStoreClient,
+    service_client: Any,
+    method: str,
+    response_type: str,
+    items_field: str,
+) -> None:
+    getattr(service_client, method).return_value = getattr(data_store_service_pb2, response_type)(
+        next_link="https://next"
+    )
+
+    results = getattr(client, method)()
+
+    assert isinstance(results, QueryResults)
+    assert (list(results), results.next_link) == ([], "https://next")
+
+
+def test___query___next_link_is_empty_on_last_page(
+    client: DataStoreClient, service_client: Any
+) -> None:
+    service_client.query_steps.return_value = data_store_service_pb2.QueryStepsResponse()
+
+    assert client.query_steps().next_link == ""
+
+
+def test___json_value_measurement___sends_and_reads_attributes(
+    client: DataStoreClient, service_client: Any
+) -> None:
+    service_client.create_measurement.return_value = data_store_pb2.Measurement(id="m-id")
+    value = JsonValue({"serial": "SN-1"}, attributes={"source": "dmm", "rev": 2})
+
+    client.create_measurement("config", value, "step-id")
+
+    sent = _sent(service_client.create_measurement).measurement.value
+    _read_response(service_client, sent)
+    assert client.read_measurement_value(Measurement(id="m-id")) == value
+
+
 # ---------------------------------------------------------------- update
 
 
@@ -507,6 +579,366 @@ def test___update___rejects_immutable_field_before_rpc(
         getattr(client, method)("resource-id", **{field: "x"})
 
     getattr(service_client, method).assert_not_called()
+
+
+# ---------------------------------------------------------------- delete
+
+
+@pytest.mark.parametrize("force", [False, True])
+def test___delete_test_result___sends_id_and_force(
+    client: DataStoreClient, service_client: Any, force: bool
+) -> None:
+    client.delete_test_result("tr-id", force=force)
+
+    assert _sent(service_client.delete_test_result) == (
+        data_store_service_pb2.DeleteTestResultRequest(test_result_id="tr-id", force=force)
+    )
+
+
+@pytest.mark.parametrize("force", [False, True])
+def test___delete_step___sends_id_and_force(
+    client: DataStoreClient, service_client: Any, force: bool
+) -> None:
+    client.delete_step("step-id", force=force)
+
+    assert _sent(service_client.delete_step) == data_store_service_pb2.DeleteStepRequest(
+        step_id="step-id", force=force
+    )
+
+
+def test___delete_measurement___sends_id(client: DataStoreClient, service_client: Any) -> None:
+    client.delete_measurement("m-id")
+
+    assert _sent(service_client.delete_measurement) == (
+        data_store_service_pb2.DeleteMeasurementRequest(measurement_id="m-id")
+    )
+
+
+def test___delete___defaults_to_no_force(client: DataStoreClient, service_client: Any) -> None:
+    client.delete_test_result("tr-id")
+    client.delete_step("step-id")
+
+    assert _sent(service_client.delete_test_result).force is False
+    assert _sent(service_client.delete_step).force is False
+
+
+# ---------------------------------------------------------------- conditions and metadata links
+
+
+def test___remove_condition___sends_name_and_returns_step(
+    client: DataStoreClient, service_client: Any
+) -> None:
+    service_client.remove_condition.return_value = data_store_service_pb2.RemoveConditionResponse(
+        step=data_store_pb2.Step(id="step-id")
+    )
+
+    step = client.remove_condition("step-id", "temperature")
+
+    assert _sent(service_client.remove_condition) == data_store_service_pb2.RemoveConditionRequest(
+        step_id="step-id", condition_name="temperature"
+    )
+    assert step.id == "step-id"
+
+
+@pytest.mark.parametrize(
+    ("method", "id_field", "response_type", "response_field"),
+    [
+        (
+            "add_test_result_metadata",
+            "test_result_id",
+            "AddTestResultMetadataResponse",
+            "test_result",
+        ),
+        (
+            "remove_test_result_metadata",
+            "test_result_id",
+            "RemoveTestResultMetadataResponse",
+            "test_result",
+        ),
+        (
+            "add_measurement_metadata",
+            "measurement_id",
+            "AddMeasurementMetadataResponse",
+            "measurement",
+        ),
+        (
+            "remove_measurement_metadata",
+            "measurement_id",
+            "RemoveMeasurementMetadataResponse",
+            "measurement",
+        ),
+    ],
+)
+def test___metadata_link_methods___send_ids_and_return_model(
+    client: DataStoreClient,
+    service_client: Any,
+    method: str,
+    id_field: str,
+    response_type: str,
+    response_field: str,
+) -> None:
+    response = getattr(data_store_service_pb2, response_type)()
+    getattr(response, response_field).id = "resource-id"
+    getattr(service_client, method).return_value = response
+
+    result = getattr(client, method)(
+        "resource-id", software_item_ids=["sw"], hardware_item_ids=["hw"], test_adapter_ids=["ta"]
+    )
+
+    request = _sent(getattr(service_client, method))
+    assert getattr(request, id_field) == "resource-id"
+    assert (
+        list(request.software_item_ids),
+        list(request.hardware_item_ids),
+        list(request.test_adapter_ids),
+    ) == (["sw"], ["hw"], ["ta"])
+    assert result.id == "resource-id"
+
+
+# ---------------------------------------------------------------- limits and value reads
+
+
+def test___create_measurement___sends_limits_and_extra_fields(
+    client: DataStoreClient, service_client: Any
+) -> None:
+    service_client.create_measurement.return_value = data_store_pb2.Measurement(id="m-id")
+
+    client.create_measurement(
+        "voltage",
+        5.0,
+        "step-id",
+        upper_limit=5.5,
+        lower_limit=Vector([4.5, 4.6]),
+        comparison_type="GELE",
+        extension={"lot": "A1"},
+        schema_id="schema",
+    )
+
+    sent = _sent(service_client.create_measurement).measurement
+    assert sent.value.scalar.double_value == 5.0
+    assert sent.upper_limit.scalar.double_value == 5.5
+    assert sent.lower_limit.vector == vector_to_protobuf(Vector([4.5, 4.6]))
+    assert (sent.comparison_type, sent.schema_id) == ("GELE", "schema")
+    assert sent.extension["lot"] == "A1"
+
+
+def test___create_measurement___omits_limits_when_not_given(
+    client: DataStoreClient, service_client: Any
+) -> None:
+    service_client.create_measurement.return_value = data_store_pb2.Measurement(id="m-id")
+
+    client.create_measurement("voltage", 5.0, "step-id")
+
+    sent = _sent(service_client.create_measurement).measurement
+    assert not sent.HasField("upper_limit")
+    assert not sent.HasField("lower_limit")
+
+
+def test___read_measurement_values___returns_value_and_limits(
+    client: DataStoreClient, service_client: Any
+) -> None:
+    response = data_store_service_pb2.ReadMeasurementValuesResponse()
+    response.value.scalar.double_value = 5.0
+    response.upper_limit.scalar.double_value = 5.5
+    service_client.read_measurement_values.return_value = response
+
+    result = client.read_measurement_values(Measurement(id="m-id"))
+
+    assert _sent(service_client.read_measurement_values) == (
+        data_store_service_pb2.ReadMeasurementValuesRequest(measurement_id="m-id")
+    )
+    assert (result.id, result.value, result.upper_limit, result.lower_limit) == (
+        "m-id",
+        5.0,
+        5.5,
+        None,
+    )
+
+
+def test___read_measurement_values___sends_read_fields(
+    client: DataStoreClient, service_client: Any
+) -> None:
+    service_client.read_measurement_values.return_value = (
+        data_store_service_pb2.ReadMeasurementValuesResponse()
+    )
+
+    client.read_measurement_values(Measurement(id="m-id"), read_fields=["upper_limit"])
+
+    assert list(_sent(service_client.read_measurement_values).read_mask.paths) == ["upper_limit"]
+
+
+# ---------------------------------------------------------------- batch create
+
+
+def test___batch_create_test_results___sends_models_and_returns_ids(
+    client: DataStoreClient, service_client: Any
+) -> None:
+    service_client.batch_create_test_results.return_value = (
+        data_store_service_pb2.BatchCreateTestResultsResponse(
+            test_results=[data_store_pb2.TestResult(id="a"), data_store_pb2.TestResult(id="b")]
+        )
+    )
+    nested = TestResult("tr-1", steps=[Step("s", measurements=[Measurement(name="m", value=1.0)])])
+
+    ids = client.batch_create_test_results([nested, TestResult("tr-2")])
+
+    requests = _sent(service_client.batch_create_test_results).requests
+    assert [r.test_result.name for r in requests] == ["tr-1", "tr-2"]
+    assert requests[0].test_result.steps[0].measurements[0].value.scalar.double_value == 1.0
+    assert ids == ["a", "b"]
+
+
+def test___batch_create_steps___sends_models_and_returns_ids(
+    client: DataStoreClient, service_client: Any
+) -> None:
+    service_client.batch_create_steps.return_value = (
+        data_store_service_pb2.BatchCreateStepsResponse(steps=[data_store_pb2.Step(id="a")])
+    )
+
+    ids = client.batch_create_steps([Step("parent", children=[Step("child")])])
+
+    [request] = _sent(service_client.batch_create_steps).requests
+    assert request.step.children[0].name == "child"
+    assert ids == ["a"]
+
+
+def test___batch_create_measurements___sends_values_and_returns_ids(
+    client: DataStoreClient, service_client: Any
+) -> None:
+    service_client.batch_create_measurements.return_value = (
+        data_store_service_pb2.BatchCreateMeasurementsResponse(
+            measurements=[data_store_pb2.Measurement(id="a"), data_store_pb2.Measurement(id="b")]
+        )
+    )
+
+    ids = client.batch_create_measurements(
+        [
+            Measurement(name="m1", step_id="s1", value=1.0, upper_limit=2.0),
+            Measurement(name="m2", step_id="s2", value="PASS"),
+        ]
+    )
+
+    requests = _sent(service_client.batch_create_measurements).requests
+    assert requests[0].measurement.upper_limit.scalar.double_value == 2.0
+    assert requests[1].measurement.value.scalar.string_value == "PASS"
+    assert ids == ["a", "b"]
+
+
+# ---------------------------------------------------------------- batch update
+
+
+@pytest.mark.parametrize(
+    ("method", "response_type", "response_field", "resource_field", "proto_type"),
+    [
+        (
+            "batch_update_test_results",
+            "BatchUpdateTestResultsResponse",
+            "test_results",
+            "test_result",
+            data_store_pb2.TestResult,
+        ),
+        ("batch_update_steps", "BatchUpdateStepsResponse", "steps", "step", data_store_pb2.Step),
+        (
+            "batch_update_measurements",
+            "BatchUpdateMeasurementsResponse",
+            "measurements",
+            "measurement",
+            data_store_pb2.Measurement,
+        ),
+    ],
+)
+def test___batch_update___sends_per_item_masks_and_returns_models(
+    client: DataStoreClient,
+    service_client: Any,
+    method: str,
+    response_type: str,
+    response_field: str,
+    resource_field: str,
+    proto_type: Any,
+) -> None:
+    response = getattr(data_store_service_pb2, response_type)(
+        **{response_field: [proto_type(id="a"), proto_type(id="b")]}
+    )
+    getattr(service_client, method).return_value = response
+
+    results = getattr(client, method)(
+        {"a": {"outcome": Outcome.PASSED}, "b": {"extension": {"x": 1}, "outcome": None}}
+    )
+
+    first, second = _sent(getattr(service_client, method)).requests
+    assert getattr(first, resource_field).id == "a"
+    assert list(first.update_mask.paths) == ["outcome"]
+    assert getattr(first, resource_field).outcome == data_store_pb2.OUTCOME_PASSED
+    assert getattr(second, resource_field).id == "b"
+    assert list(second.update_mask.paths) == ["extension", "outcome"]
+    assert [r.id for r in results] == ["a", "b"]
+
+
+@pytest.mark.parametrize(
+    "method", ["batch_update_test_results", "batch_update_steps", "batch_update_measurements"]
+)
+def test___batch_update___rejects_empty_or_invalid_before_rpc(
+    client: DataStoreClient, service_client: Any, method: str
+) -> None:
+    with pytest.raises(ValueError, match="At least one update"):
+        getattr(client, method)({})
+    with pytest.raises(ValueError, match="At least one field"):
+        getattr(client, method)({"a": {}})
+    with pytest.raises(ValueError, match="Fields cannot be updated: name"):
+        getattr(client, method)({"a": {"name": "x"}})
+
+    getattr(service_client, method).assert_not_called()
+
+
+def test___update_test_result___accepts_metadata_models(
+    client: DataStoreClient, service_client: Any
+) -> None:
+    from ni.datastore.metadata import Operator
+
+    client.update_test_result("tr-id", operator=Operator(name="Ada", role="Engineer"))
+
+    sent = _sent(service_client.update_test_result)
+    assert sent.test_result.operator.name == "Ada"
+    assert list(sent.update_mask.paths) == ["operator"]
+
+
+# ---------------------------------------------------------------- batch delete
+
+
+def test___batch_delete_test_results___applies_single_force_to_all(
+    client: DataStoreClient, service_client: Any
+) -> None:
+    client.batch_delete_test_results(["a", "b"], force=True)
+
+    requests = _sent(service_client.batch_delete_test_results).requests
+    assert [(r.test_result_id, r.force) for r in requests] == [("a", True), ("b", True)]
+
+
+def test___batch_delete_steps___accepts_per_item_force(
+    client: DataStoreClient, service_client: Any
+) -> None:
+    client.batch_delete_steps(["a", "b"], force=[True, False])
+
+    requests = _sent(service_client.batch_delete_steps).requests
+    assert [(r.step_id, r.force) for r in requests] == [("a", True), ("b", False)]
+
+
+def test___batch_delete___rejects_mismatched_force_count(
+    client: DataStoreClient, service_client: Any
+) -> None:
+    with pytest.raises(ValueError, match="Expected 2 force flags"):
+        client.batch_delete_steps(["a", "b"], force=[True])
+
+    service_client.batch_delete_steps.assert_not_called()
+
+
+def test___batch_delete_measurements___sends_ids(
+    client: DataStoreClient, service_client: Any
+) -> None:
+    client.batch_delete_measurements(["a", "b"])
+
+    requests = _sent(service_client.batch_delete_measurements).requests
+    assert [r.measurement_id for r in requests] == ["a", "b"]
 
 
 # ---------------------------------------------------------------- lifecycle

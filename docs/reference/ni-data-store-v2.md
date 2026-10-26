@@ -49,6 +49,34 @@ Updates accept mutable fields as keyword arguments and build the protobuf field
 mask automatically. Empty updates and fields that the service does not allow to
 change raise `ValueError` before an RPC is made.
 
+`delete_test_result`, `delete_step`, and `delete_measurement` remove resources.
+Without `force=True`, deleting a test result with steps, or a step with
+measurements, fails with `FAILED_PRECONDITION`; with `force=True`, the owned
+children are deleted too. A step that has child steps cannot be deleted.
+
+The client wraps every method of the V2 low-level client:
+
+- `remove_condition` removes a condition from a step.
+- `add_test_result_metadata`, `remove_test_result_metadata`,
+  `add_measurement_metadata`, and `remove_measurement_metadata` link or unlink
+  software items, hardware items, and test adapters after creation.
+- `create_measurement` accepts `upper_limit` and `lower_limit` of any supported
+  value type. `read_measurement_values` returns the value and both limits.
+- `batch_create_*`, `batch_update_*`, and `batch_delete_*` handle many test
+  results, steps, or measurements in one atomic call. Batch updates take a
+  dictionary of fields keyed by ID, and batch deletes accept one `force` flag or
+  one flag per ID.
+- `TestResult.steps`, `Step.children`, and `Step.measurements` create a whole
+  tree in one call. Metadata objects such as `Operator` or `SoftwareItem` can be
+  passed instead of IDs to find or create them.
+- `create_measurement` accepts `SoftwareItem`, `HardwareItem`, and
+  `TestAdapter` objects for inline find-or-create, in addition to their IDs.
+- `query_*` methods return `QueryResults`, a list with a `next_link` attribute
+  that is set when the service has more results.
+- JSON values and conditions accept a plain dictionary, or `JsonValue` when the
+  value needs attributes. Reads return a `JsonValue` only when attributes are
+  present.
+
 ## V1 Convenience Differences
 
 - V1 `publish_condition` and `publish_condition_batch` do not have direct V2
@@ -56,9 +84,9 @@ change raise `ValueError` before an RPC is made.
   to add or replace one. Read conditions through the containing step returned
   by `get_step` or `query_steps`; there are no standalone V2 condition get/query
   methods in this high-level API.
-- This high-level V2 API does not include the V1 batch-publish convenience.
-  Call `create_measurement` once per measurement; these are separate service
-  operations and are not atomic as a group.
+- V1 `publish_measurement_batch` is shaped for parametric sweeps. In V2, use
+  `batch_create_measurements` with `Measurement` objects; each item can target a
+  different step, and the whole batch is atomic.
 - V2 has its own `TestResult`, `Step`, `Measurement`, `Condition`, and
   `ErrorInformation` types in `ni.datastore.data.v2`, because the V2 resource
   fields differ from V1. They follow the V1 style: create methods take them,

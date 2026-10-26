@@ -18,6 +18,17 @@ from ni.datastore.data.v2._grpc_conversion import (
 from ni.datastore.data.v2._types._error_information import ErrorInformation
 from ni.datastore.data.v2._types._outcome import Outcome
 from ni.datastore.data.v2._types._status import Status
+from ni.datastore.data.v2._types._step import Step
+from ni.datastore.metadata import (
+    HardwareItem,
+    Operator,
+    SoftwareItem,
+    TestAdapter,
+    TestDescription,
+    TestStation,
+    Uut,
+    UutInstance,
+)
 
 
 class TestResult:
@@ -36,9 +47,17 @@ class TestResult:
         "operator_id",
         "test_station_id",
         "test_description_id",
+        "uut_instance",
+        "uut",
+        "operator",
+        "test_station",
+        "test_description",
         "_software_item_ids",
         "_hardware_item_ids",
         "_test_adapter_ids",
+        "_software_items",
+        "_hardware_items",
+        "_test_adapters",
         "start_date_time",
         "end_date_time",
         "duration",
@@ -47,7 +66,9 @@ class TestResult:
         "link",
         "_keywords",
         "_extension",
+        "schema_id",
         "error_information",
+        "_steps",
         "created_at",
         "updated_at",
         "created_by",
@@ -70,6 +91,26 @@ class TestResult:
         return self._test_adapter_ids
 
     @property
+    def software_items(self) -> MutableSequence[SoftwareItem]:
+        """Software items to find or create on create, or expanded on read."""
+        return self._software_items
+
+    @property
+    def hardware_items(self) -> MutableSequence[HardwareItem]:
+        """Hardware items to find or create on create, or expanded on read."""
+        return self._hardware_items
+
+    @property
+    def test_adapters(self) -> MutableSequence[TestAdapter]:
+        """Test adapters to find or create on create, or expanded on read."""
+        return self._test_adapters
+
+    @property
+    def steps(self) -> MutableSequence[Step]:
+        """Steps created with the test result, or expanded on read."""
+        return self._steps
+
+    @property
     def keywords(self) -> MutableSequence[str]:
         """Labels used to classify the test result."""
         return self._keywords
@@ -89,9 +130,17 @@ class TestResult:
         operator_id: str = "",
         test_station_id: str = "",
         test_description_id: str = "",
+        uut_instance: UutInstance | None = None,
+        uut: Uut | None = None,
+        operator: Operator | None = None,
+        test_station: TestStation | None = None,
+        test_description: TestDescription | None = None,
         software_item_ids: Iterable[str] | None = None,
         hardware_item_ids: Iterable[str] | None = None,
         test_adapter_ids: Iterable[str] | None = None,
+        software_items: Iterable[SoftwareItem] | None = None,
+        hardware_items: Iterable[HardwareItem] | None = None,
+        test_adapters: Iterable[TestAdapter] | None = None,
         start_date_time: ht.datetime | None = None,
         end_date_time: ht.datetime | None = None,
         duration: ht.timedelta | None = None,
@@ -100,7 +149,9 @@ class TestResult:
         link: str = "",
         keywords: Iterable[str] | None = None,
         extension: Mapping[str, Any] | None = None,
+        schema_id: str = "",
         error_information: ErrorInformation | None = None,
+        steps: Iterable[Step] | None = None,
         created_at: ht.datetime | None = None,
         updated_at: ht.datetime | None = None,
         created_by: str = "",
@@ -116,9 +167,20 @@ class TestResult:
             operator_id (optional): ID or alias of the operator who ran the test.
             test_station_id (optional): ID or alias of the test station used.
             test_description_id (optional): ID or alias of the test description executed.
+            uut_instance (optional): UUT instance to find or create on create, or expanded
+                on read.
+            uut (optional): UUT to find or create on create, or expanded on read.
+            operator (optional): Operator to find or create on create, or expanded on read.
+            test_station (optional): Test station to find or create on create, or expanded
+                on read.
+            test_description (optional): Test description to find or create on create, or
+                expanded on read.
             software_item_ids (optional): IDs of software items used in the test.
             hardware_item_ids (optional): IDs of hardware items used in the test.
             test_adapter_ids (optional): IDs of test adapters used in the test.
+            software_items (optional): Software items to find or create on create.
+            hardware_items (optional): Hardware items to find or create on create.
+            test_adapters (optional): Test adapters to find or create on create.
             start_date_time (optional): The start date and time of the test execution.
             end_date_time (optional): The end date and time of the test execution.
             duration (optional): The duration of the test execution.
@@ -127,7 +189,10 @@ class TestResult:
             link (optional): A URI associated with the test result.
             keywords (optional): Labels used to classify the test result.
             extension (optional): Custom JSON data for the test result.
+            schema_id (optional): Schema that governs the extension. Reserved by the
+                service for future support.
             error_information (optional): Error details for the test result.
+            steps (optional): Steps created with the test result.
             created_at (optional): Output only. When the service created the test result.
             updated_at (optional): Output only. When the service last updated the test result.
             created_by (optional): Output only. Who created the test result.
@@ -140,6 +205,11 @@ class TestResult:
         self.operator_id = operator_id
         self.test_station_id = test_station_id
         self.test_description_id = test_description_id
+        self.uut_instance = uut_instance
+        self.uut = uut
+        self.operator = operator
+        self.test_station = test_station
+        self.test_description = test_description
         self._software_item_ids: MutableSequence[str] = (
             list(software_item_ids) if software_item_ids is not None else []
         )
@@ -149,6 +219,15 @@ class TestResult:
         self._test_adapter_ids: MutableSequence[str] = (
             list(test_adapter_ids) if test_adapter_ids is not None else []
         )
+        self._software_items: MutableSequence[SoftwareItem] = (
+            list(software_items) if software_items is not None else []
+        )
+        self._hardware_items: MutableSequence[HardwareItem] = (
+            list(hardware_items) if hardware_items is not None else []
+        )
+        self._test_adapters: MutableSequence[TestAdapter] = (
+            list(test_adapters) if test_adapters is not None else []
+        )
         self.start_date_time = start_date_time
         self.end_date_time = end_date_time
         self.duration = duration
@@ -157,7 +236,9 @@ class TestResult:
         self.link = link
         self._keywords: MutableSequence[str] = list(keywords) if keywords is not None else []
         self._extension: MutableMapping[str, Any] = dict(extension) if extension is not None else {}
+        self.schema_id = schema_id
         self.error_information = error_information
+        self._steps: MutableSequence[Step] = list(steps) if steps is not None else []
         self.created_at = created_at
         self.updated_at = updated_at
         self.created_by = created_by
@@ -166,34 +247,57 @@ class TestResult:
     @staticmethod
     def from_protobuf(test_result_proto: TestResultProto) -> "TestResult":
         """Create a TestResult instance from a protobuf TestResult message."""
+        proto = test_result_proto
         return TestResult(
-            name=test_result_proto.name,
-            id=test_result_proto.id,
-            uut_instance_id=test_result_proto.uut_instance_id,
-            uut_id=test_result_proto.uut_id,
-            operator_id=test_result_proto.operator_id,
-            test_station_id=test_result_proto.test_station_id,
-            test_description_id=test_result_proto.test_description_id,
-            software_item_ids=test_result_proto.software_item_ids,
-            hardware_item_ids=test_result_proto.hardware_item_ids,
-            test_adapter_ids=test_result_proto.test_adapter_ids,
-            start_date_time=timestamp_from_protobuf(test_result_proto, "start_date_time"),
-            end_date_time=timestamp_from_protobuf(test_result_proto, "end_date_time"),
-            duration=duration_from_protobuf(test_result_proto, "duration"),
-            outcome=Outcome.from_protobuf(test_result_proto.outcome),
-            status=Status.from_protobuf(test_result_proto.status),
-            link=test_result_proto.link,
-            keywords=test_result_proto.keywords,
-            extension=extension_from_protobuf(test_result_proto.extension),
-            error_information=(
-                ErrorInformation.from_protobuf(test_result_proto.error_information)
-                if test_result_proto.HasField("error_information")
+            name=proto.name,
+            id=proto.id,
+            uut_instance_id=proto.uut_instance_id,
+            uut_id=proto.uut_id,
+            operator_id=proto.operator_id,
+            test_station_id=proto.test_station_id,
+            test_description_id=proto.test_description_id,
+            uut_instance=(
+                UutInstance.from_protobuf(proto.uut_instance)
+                if proto.HasField("uut_instance")
                 else None
             ),
-            created_at=timestamp_from_protobuf(test_result_proto, "created_at"),
-            updated_at=timestamp_from_protobuf(test_result_proto, "updated_at"),
-            created_by=test_result_proto.created_by,
-            updated_by=test_result_proto.updated_by,
+            uut=Uut.from_protobuf(proto.uut) if proto.HasField("uut") else None,
+            operator=Operator.from_protobuf(proto.operator) if proto.HasField("operator") else None,
+            test_station=(
+                TestStation.from_protobuf(proto.test_station)
+                if proto.HasField("test_station")
+                else None
+            ),
+            test_description=(
+                TestDescription.from_protobuf(proto.test_description)
+                if proto.HasField("test_description")
+                else None
+            ),
+            software_item_ids=proto.software_item_ids,
+            hardware_item_ids=proto.hardware_item_ids,
+            test_adapter_ids=proto.test_adapter_ids,
+            software_items=[SoftwareItem.from_protobuf(i) for i in proto.software_items],
+            hardware_items=[HardwareItem.from_protobuf(i) for i in proto.hardware_items],
+            test_adapters=[TestAdapter.from_protobuf(i) for i in proto.test_adapters],
+            start_date_time=timestamp_from_protobuf(proto, "start_date_time"),
+            end_date_time=timestamp_from_protobuf(proto, "end_date_time"),
+            duration=duration_from_protobuf(proto, "duration"),
+            outcome=Outcome.from_protobuf(proto.outcome),
+            status=Status.from_protobuf(proto.status),
+            link=proto.link,
+            keywords=proto.keywords,
+            extension=extension_from_protobuf(proto.extension),
+            schema_id=proto.schema_id,
+            error_information=(
+                ErrorInformation.from_protobuf(proto.error_information)
+                if proto.HasField("error_information")
+                else None
+            ),
+            steps=[Step.from_protobuf(step) for step in proto.steps],
+            created_at=timestamp_from_protobuf(proto, "created_at"),
+            updated_at=timestamp_from_protobuf(proto, "updated_at"),
+            created_by=proto.created_by,
+            updated_by=proto.updated_by,
         )
 
     def to_protobuf(self) -> TestResultProto:
@@ -209,9 +313,17 @@ class TestResult:
             operator_id=self.operator_id,
             test_station_id=self.test_station_id,
             test_description_id=self.test_description_id,
+            uut_instance=_optional_to_protobuf(self.uut_instance),
+            uut=_optional_to_protobuf(self.uut),
+            operator=_optional_to_protobuf(self.operator),
+            test_station=_optional_to_protobuf(self.test_station),
+            test_description=_optional_to_protobuf(self.test_description),
             software_item_ids=self.software_item_ids,
             hardware_item_ids=self.hardware_item_ids,
             test_adapter_ids=self.test_adapter_ids,
+            software_items=[item.to_protobuf() for item in self.software_items],
+            hardware_items=[item.to_protobuf() for item in self.hardware_items],
+            test_adapters=[item.to_protobuf() for item in self.test_adapters],
             start_date_time=timestamp_to_protobuf(self.start_date_time),
             end_date_time=timestamp_to_protobuf(self.end_date_time),
             duration=duration_to_protobuf(self.duration),
@@ -220,9 +332,11 @@ class TestResult:
             link=self.link,
             keywords=self.keywords,
             extension=extension_to_protobuf(self.extension),
+            schema_id=self.schema_id,
             error_information=(
                 self.error_information.to_protobuf() if self.error_information is not None else None
             ),
+            steps=[step.to_protobuf() for step in self.steps],
         )
 
     def __eq__(self, other: object) -> bool:
@@ -237,9 +351,17 @@ class TestResult:
             and self.operator_id == other.operator_id
             and self.test_station_id == other.test_station_id
             and self.test_description_id == other.test_description_id
+            and self.uut_instance == other.uut_instance
+            and self.uut == other.uut
+            and self.operator == other.operator
+            and self.test_station == other.test_station
+            and self.test_description == other.test_description
             and self.software_item_ids == other.software_item_ids
             and self.hardware_item_ids == other.hardware_item_ids
             and self.test_adapter_ids == other.test_adapter_ids
+            and self.software_items == other.software_items
+            and self.hardware_items == other.hardware_items
+            and self.test_adapters == other.test_adapters
             and self.start_date_time == other.start_date_time
             and self.end_date_time == other.end_date_time
             and self.duration == other.duration
@@ -248,7 +370,9 @@ class TestResult:
             and self.link == other.link
             and self.keywords == other.keywords
             and self.extension == other.extension
+            and self.schema_id == other.schema_id
             and self.error_information == other.error_information
+            and self.steps == other.steps
             and self.created_at == other.created_at
             and self.updated_at == other.updated_at
             and self.created_by == other.created_by
@@ -258,3 +382,7 @@ class TestResult:
     def __str__(self) -> str:
         """Return a string representation of the TestResult."""
         return str(self.to_protobuf())
+
+
+def _optional_to_protobuf(item: Any) -> Any:
+    return item.to_protobuf() if item is not None else None

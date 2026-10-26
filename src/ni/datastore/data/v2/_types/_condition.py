@@ -10,6 +10,8 @@ from ni.measurements.data.v2.data_store_pb2 import Condition as ConditionProto
 from ni.protobuf.types.scalar_conversion import scalar_from_protobuf, scalar_to_protobuf
 from nitypes.scalar import Scalar
 
+from ni.datastore.data.v2._types._json_value import JsonValue, json_value_from_protobuf
+
 
 class Condition:
     """An operational condition, such as a temperature or supply voltage, owned by a step.
@@ -39,7 +41,8 @@ class Condition:
 
         Args:
             name: The condition name, unique within a step.
-            value: A bool, int, float, str, or Scalar value, or a JSON mapping.
+            value: A bool, int, float, str, or Scalar value, a JSON mapping, or a
+                JsonValue.
             condition_type (optional): The type of the condition. For example,
                 "Environment" or "Setup".
             value_label (optional): A label for the value.
@@ -60,7 +63,7 @@ class Condition:
         if value_kind == "scalar":
             value = scalar_from_protobuf(condition_proto.value.scalar).value
         elif value_kind == "json_value":
-            value = json_format.MessageToDict(condition_proto.value.json_value.value)
+            value = json_value_from_protobuf(condition_proto.value.json_value)
         return Condition(
             name=condition_proto.name,
             value=value,
@@ -90,13 +93,16 @@ class Condition:
             condition_proto.value.scalar.CopyFrom(scalar_to_protobuf(value))
             if not self.units:
                 condition_proto.units = value.units
+        elif isinstance(value, JsonValue):
+            condition_proto.value.json_value.CopyFrom(value.to_protobuf())
         elif isinstance(value, Mapping):
             json_format.ParseDict(
                 cast(dict[str, Any], dict(value)), condition_proto.value.json_value.value
             )
         else:
             raise TypeError(
-                "Condition values must be bool, int, float, str, Scalar, or a JSON mapping."
+                "Condition values must be bool, int, float, str, Scalar, a JSON mapping, "
+                "or a JsonValue."
             )
         return condition_proto
 

@@ -53,6 +53,8 @@ from nitypes.vector import Vector
 from nitypes.waveform import AnalogWaveform, ComplexWaveform, DigitalWaveform, Spectrum
 from nitypes.xy_data import XYData
 
+from ni.datastore.data.v2._types._json_value import JsonValue, json_value_from_protobuf
+
 
 def populate_measurement_value(measurement_value: MeasurementValue, value: object) -> None:
     """Convert a Python scalar or vector into a V2 measurement value."""
@@ -109,6 +111,8 @@ def populate_measurement_value(measurement_value: MeasurementValue, value: objec
         if value.dtype != np.float64:
             raise TypeError(f"Unsupported XYData dtype: {value.dtype}")
         measurement_value.x_y_data.CopyFrom(float64_xydata_to_protobuf(value))
+    elif isinstance(value, JsonValue):
+        measurement_value.json_value.CopyFrom(value.to_protobuf())
     elif isinstance(value, Mapping):
         json_format.ParseDict(cast(dict[str, Any], dict(value)), measurement_value.json_value.value)
     elif isinstance(value, Iterable):
@@ -154,8 +158,28 @@ def convert_measurement_value_from_protobuf(measurement_value: MeasurementValue)
     if value_type == "x_y_data":
         return float64_xydata_from_protobuf(measurement_value.x_y_data)
     if value_type == "json_value":
-        return json_format.MessageToDict(measurement_value.json_value.value)
+        return json_value_from_protobuf(measurement_value.json_value)
     raise TypeError(f"Unsupported or missing measurement value type: {value_type}.")
+
+
+def measurement_value_to_protobuf(value: object) -> MeasurementValue | None:
+    """Convert an optional measurement value or limit to a MeasurementValue."""
+    if value is None:
+        return None
+    measurement_value = MeasurementValue()
+    populate_measurement_value(measurement_value, value)
+    return measurement_value
+
+
+def measurement_value_from_protobuf(message: Message, field: str) -> object:
+    """Convert an optional MeasurementValue field, or return None when it has no inline value."""
+    if not message.HasField(field):
+        return None
+    measurement_value = cast(MeasurementValue, getattr(message, field))
+    # Non-scalar payloads may be returned only as a data_moniker reference.
+    if measurement_value.WhichOneof("value") in (None, "data_moniker"):
+        return None
+    return convert_measurement_value_from_protobuf(measurement_value)
 
 
 def timestamp_to_protobuf(value: ht.datetime | None) -> PrecisionTimestamp | None:
