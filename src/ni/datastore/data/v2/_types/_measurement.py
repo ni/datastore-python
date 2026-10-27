@@ -6,6 +6,7 @@ from typing import Any, Iterable, Mapping, MutableMapping, MutableSequence
 
 import hightime as ht
 from ni.measurements.data.v2.data_store_pb2 import Measurement as MeasurementProto
+from nitypes.scalar import Scalar
 
 from ni.datastore.data.v2._grpc_conversion import (
     duration_from_protobuf,
@@ -150,7 +151,8 @@ class Measurement:
             lower_limit (optional): The publisher-supplied lower limit. Any value type
                 supported for value is accepted.
             value_type (optional): Output only. The service-generated value type.
-            units (optional): Engineering units of the value.
+            units (optional): Engineering units of the value. Defaults to the units of a
+                Scalar value.
             notes (optional): Additional notes about the measurement.
             start_date_time (optional): The start date and time of the measurement.
             end_date_time (optional): The end date and time of the measurement.
@@ -163,9 +165,12 @@ class Measurement:
             software_item_ids (optional): IDs of software items used for the measurement.
             hardware_item_ids (optional): IDs of hardware items used for the measurement.
             test_adapter_ids (optional): IDs of test adapters used for the measurement.
-            software_items (optional): Software items to find or create on create.
-            hardware_items (optional): Hardware items to find or create on create.
-            test_adapters (optional): Test adapters to find or create on create.
+            software_items (optional): Software items to find or create on create. Each
+                item must already be linked to the test result.
+            hardware_items (optional): Hardware items to find or create on create. Each
+                item must already be linked to the test result.
+            test_adapters (optional): Test adapters to find or create on create. Each
+                item must already be linked to the test result.
             comparison_type (optional): The publisher-defined comparison operation.
             conditions (optional): Output only. Conditions copied from the owning step.
             created_at (optional): Output only. When the service created the measurement.
@@ -273,7 +278,7 @@ class Measurement:
             value=measurement_value_to_protobuf(self.value),
             upper_limit=measurement_value_to_protobuf(self.upper_limit),
             lower_limit=measurement_value_to_protobuf(self.lower_limit),
-            units=self.units,
+            units=self.units or (self.value.units if isinstance(self.value, Scalar) else ""),
             notes=self.notes,
             start_date_time=timestamp_to_protobuf(self.start_date_time),
             end_date_time=timestamp_to_protobuf(self.end_date_time),
@@ -338,4 +343,11 @@ def _values_equal(left: object, right: object) -> bool:
     # Waveform equality returns arrays, so compare through the protobuf form.
     if left is None or right is None:
         return left is right
-    return measurement_value_to_protobuf(left) == measurement_value_to_protobuf(right)
+    return measurement_value_to_protobuf(_as_scalar(left)) == measurement_value_to_protobuf(
+        _as_scalar(right)
+    )
+
+
+def _as_scalar(value: object) -> object:
+    # A plain value is read back as a Scalar, so compare it as one.
+    return Scalar(value) if isinstance(value, (bool, int, float, str)) else value

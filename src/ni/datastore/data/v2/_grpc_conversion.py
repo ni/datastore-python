@@ -133,8 +133,7 @@ def convert_measurement_value_from_protobuf(measurement_value: MeasurementValue)
     """Convert a V2 measurement value into a useful Python value."""
     value_type = measurement_value.WhichOneof("value")
     if value_type == "scalar":
-        scalar = scalar_from_protobuf(measurement_value.scalar)
-        return scalar if scalar.units else scalar.value
+        return scalar_from_protobuf(measurement_value.scalar)
     if value_type == "vector":
         return vector_from_protobuf(measurement_value.vector)
     if value_type == "double_analog_waveform":

@@ -11,7 +11,7 @@ jobs:
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
         python-version: [3.14]
-        example-name: ['overview', 'system']
+        example-name: ['overview', 'overview-v2', 'system']
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out repo

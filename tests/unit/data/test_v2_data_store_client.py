@@ -42,6 +42,12 @@ def service_client(mocker: MockerFixture) -> Any:
     service_client.update_test_result.return_value = data_store_pb2.TestResult()
     service_client.update_step.return_value = data_store_pb2.Step()
     service_client.update_measurement.return_value = data_store_pb2.Measurement()
+    service_client.query_measurements.return_value = (
+        data_store_service_pb2.QueryMeasurementsResponse()
+    )
+    service_client.remove_test_result_metadata.return_value = (
+        data_store_service_pb2.RemoveTestResultMetadataResponse()
+    )
     mocker.patch(
         "ni.datastore.data.v2._data_store_client.DataStoreServiceClient",
         return_value=service_client,
@@ -165,6 +171,26 @@ def test___create_measurement___converts_value_and_metadata(
     assert list(request.measurement.software_item_ids) == ["sw"]
 
 
+def test___create_measurement___uses_scalar_units_when_units_not_given(
+    client: DataStoreClient, service_client: Any
+) -> None:
+    service_client.create_measurement.return_value = data_store_pb2.Measurement(id="m-id")
+
+    client.create_measurement("voltage", Scalar(5.2, "V"), "step-id")
+
+    assert _sent(service_client.create_measurement).measurement.units == "V"
+
+
+def test___create_measurement___keeps_given_units_for_scalar_value(
+    client: DataStoreClient, service_client: Any
+) -> None:
+    service_client.create_measurement.return_value = data_store_pb2.Measurement(id="m-id")
+
+    client.create_measurement("voltage", Scalar(5.2, "V"), "step-id", units="mV")
+
+    assert _sent(service_client.create_measurement).measurement.units == "mV"
+
+
 def test___create_measurement___accepts_inline_metadata_objects(
     client: DataStoreClient, service_client: Any
 ) -> None:
@@ -239,7 +265,19 @@ def test___read_measurement_value___requests_value_of_measurement_id(
     request = _sent(service_client.read_measurement_values)
     assert request.measurement_id == "m-id"
     assert list(request.read_mask.paths) == ["value"]
-    assert read_value is True
+    assert read_value == Scalar(True)
+
+
+def test___read_measurement_value___returns_scalar_without_units(
+    client: DataStoreClient, service_client: Any
+) -> None:
+    value = data_store_pb2.MeasurementValue()
+    value.scalar.double_value = 5.2
+    _read_response(service_client, value)
+
+    read_value = client.read_measurement_value(Measurement(id="m-id"), Scalar)
+
+    assert (read_value.value, read_value.units) == (5.2, "")
 
 
 def test___read_measurement_value___preserves_scalar_units(
@@ -625,6 +663,54 @@ def test___delete___defaults_to_no_force(client: DataStoreClient, service_client
 # ---------------------------------------------------------------- conditions and metadata links
 
 
+def test___remove_test_result_metadata___checks_measurements_before_removing(
+    client: DataStoreClient, service_client: Any
+) -> None:
+    service_client.query_measurements.return_value = (
+        data_store_service_pb2.QueryMeasurementsResponse(
+            measurements=[data_store_pb2.Measurement(id="m-id", software_item_ids=["other"])]
+        )
+    )
+
+    client.remove_test_result_metadata("tr-id", software_item_ids=["sw"])
+
+    query = _sent(service_client.query_measurements)
+    assert query.odata_query == "$filter=TestResultId eq tr-id"
+    assert list(query.read_mask.paths) == [
+        "id",
+        "software_item_ids",
+        "hardware_item_ids",
+        "test_adapter_ids",
+    ]
+    assert list(_sent(service_client.remove_test_result_metadata).software_item_ids) == ["sw"]
+
+
+@pytest.mark.parametrize("field", ["software_item_ids", "hardware_item_ids", "test_adapter_ids"])
+def test___remove_test_result_metadata___item_used_by_measurement___raises_without_removing(
+    client: DataStoreClient, service_client: Any, field: str
+) -> None:
+    measurement = data_store_pb2.Measurement(id="m-id")
+    getattr(measurement, field).append("item")
+    service_client.query_measurements.return_value = (
+        data_store_service_pb2.QueryMeasurementsResponse(measurements=[measurement])
+    )
+    item_ids: dict[str, Any] = {field: ["item"]}
+
+    with pytest.raises(ValueError, match=r"item \(measurement m-id\)"):
+        client.remove_test_result_metadata("tr-id", **item_ids)
+
+    service_client.remove_test_result_metadata.assert_not_called()
+
+
+def test___remove_test_result_metadata___no_ids___skips_measurement_check(
+    client: DataStoreClient, service_client: Any
+) -> None:
+    client.remove_test_result_metadata("tr-id")
+
+    service_client.query_measurements.assert_not_called()
+    service_client.remove_test_result_metadata.assert_called_once()
+
+
 def test___remove_condition___sends_name_and_returns_step(
     client: DataStoreClient, service_client: Any
 ) -> None:
@@ -749,8 +835,8 @@ def test___read_measurement_values___returns_value_and_limits(
     )
     assert (result.id, result.value, result.upper_limit, result.lower_limit) == (
         "m-id",
-        5.0,
-        5.5,
+        Scalar(5.0),
+        Scalar(5.5),
         None,
     )
 

@@ -24,6 +24,9 @@ from ni.datastore.metadata import (
 )
 from nitypes.waveform import AnalogWaveform, Timing
 
+# Remove gRPC's 4 MB receive limit so that large values, such as long waveforms, can be read.
+_GRPC_OPTIONS = [("grpc.max_receive_message_length", -1)]
+
 
 def main() -> None:
     """Main function to demonstrate V2 data publishing and querying."""
@@ -36,7 +39,9 @@ def main() -> None:
     args = parser.parse_args()
 
     # The clients do not close a channel that they did not create, so close it here.
-    grpc_channel = grpc.insecure_channel(args.grpc_target) if args.grpc_target else None
+    grpc_channel = (
+        grpc.insecure_channel(args.grpc_target, options=_GRPC_OPTIONS) if args.grpc_target else None
+    )
     try:
         published_measurement_id = publish_data(grpc_channel)
         query_data(published_measurement_id, grpc_channel)

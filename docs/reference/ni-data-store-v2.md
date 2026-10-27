@@ -59,7 +59,10 @@ The client wraps every method of the V2 low-level client:
 - `remove_condition` removes a condition from a step.
 - `add_test_result_metadata`, `remove_test_result_metadata`,
   `add_measurement_metadata`, and `remove_measurement_metadata` link or unlink
-  software items, hardware items, and test adapters after creation.
+  software items, hardware items, and test adapters after creation. As defined
+  by DEC-017, `remove_test_result_metadata` raises `ValueError`, without
+  removing anything, if a measurement of the test result still references an
+  item; unlink it from those measurements first.
 - `create_measurement` accepts `upper_limit` and `lower_limit` of any supported
   value type. `read_measurement_values` returns the value and both limits.
 - `batch_create_*`, `batch_update_*`, and `batch_delete_*` handle many test
@@ -100,7 +103,10 @@ The client wraps every method of the V2 low-level client:
   the Stage 2 New Resource Fields feature.
 - Measurement values are converted to scalar, vector, supported NI
   waveform-family, or JSON values; `read_measurement_value` converts them back to
-  Python or nitypes values. Conditions accept scalar or JSON values. JSON values
+  Python or nitypes values. A single value is always read back as a `Scalar`,
+  with or without units, and a list of values as a `Vector`. When a `Scalar` is
+  given and `units` is not, the measurement's `units` are taken from the
+  `Scalar`. Conditions accept scalar or JSON values. JSON values
   require the service's Stage 3 Structured JSON Storage And Query Support.
 - Software item, hardware item, and test adapter IDs on a measurement must first
   be linked to its test result; pass them to `create_test_result`.
@@ -112,3 +118,16 @@ The client wraps every method of the V2 low-level client:
 - V1 and V2 hosts both register the metadata store interface. When both run in
   the same discovery cluster, `MetadataStoreClient()` cannot choose between
   them; pass a `grpc_channel` for the intended host.
+- `status` and `outcome` are separate, but the service requires status `DONE`
+  (or no status) whenever a test result or step has an outcome other than
+  `UNSPECIFIED`. For example, `status=Status.RUNNING` with
+  `outcome=Outcome.FAILED` is rejected with `INVALID_ARGUMENT`.
+- When you pass your own `grpc_channel`, gRPC limits received messages to 4 MB
+  by default, so reading a large value such as a 1-million-sample waveform fails
+  with `RESOURCE_EXHAUSTED`. Create the channel with
+  `options=[("grpc.max_receive_message_length", -1)]` to remove the limit. The
+  default discovery path already does this.
+- Waveform values read back with the same data, but their timing start time is a
+  `nitypes.bintime.DateTime` rather than a `hightime.datetime`. As a result, `==`
+  between a published waveform and the one read back returns `False`; compare
+  the data, such as `raw_data`, instead.

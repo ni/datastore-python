@@ -230,9 +230,15 @@ def test___measurement___round_trips_value_limits_and_metadata() -> None:
 
     assert proto.value.scalar.double_value == 5.0
     assert proto.upper_limit.scalar.double_value == 5.5
+    assert proto.units == "V"
     assert proto.schema_id == "schema"
     assert proto.software_items[0].product == "p"
-    assert Measurement.from_protobuf(proto) == measurement
+    round_tripped = Measurement.from_protobuf(proto)
+    assert round_tripped.units == "V"
+    assert round_tripped.value == Scalar(5.0, "V")
+    assert round_tripped.upper_limit == Scalar(5.5)
+    assert round_tripped.lower_limit == Vector([4.5, 4.6])
+    assert round_tripped.software_items == measurement.software_items
 
 
 def test___measurement___moniker_or_missing_value_reads_as_none() -> None:
@@ -276,6 +282,13 @@ def test___test_result___round_trips_metadata_objects_and_nested_steps() -> None
     assert proto.steps[0].measurements[0].value.scalar.double_value == 1.0
     assert proto.steps[0].test.name == "t"
     assert TestResult.from_protobuf(proto) == test_result
+
+
+def test___measurement___plain_value_equals_scalar_read_back() -> None:
+    assert Measurement(value=1.0, upper_limit=2) == Measurement(
+        value=Scalar(1.0), upper_limit=Scalar(2)
+    )
+    assert Measurement(value=1.0) != Measurement(value=Scalar(1.0, "V"))
 
 
 def test___test_result___unset_metadata_objects_read_as_none() -> None:
