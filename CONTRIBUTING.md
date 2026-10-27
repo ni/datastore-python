@@ -27,7 +27,6 @@ See [GitHub's official documentation](https://help.github.com/articles/using-pul
 - Install [Git](https://git-scm.com)
 - Install [Python](https://www.python.org/downloads/), any version from the [README](README.md)
 - Install [Poetry](https://python-poetry.org/docs/#installation), version >= 2.1.4
-  (the Python 3.14 example analyzer jobs use Poetry 2.5.1).
 
 ## Install the package and its dependencies
 
@@ -42,9 +41,6 @@ poetry install
 # Include dependencies for building the documentation (requires Python 3.11 or newer)
 poetry install --with docs
 ```
-
-After changing dependencies or merging dependency changes, run `poetry lock` and
-`poetry check --lock` from the repository root before running validation.
 
 ## Activate the virtual environment (if needed)
 
