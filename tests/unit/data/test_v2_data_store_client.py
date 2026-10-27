@@ -42,12 +42,6 @@ def service_client(mocker: MockerFixture) -> Any:
     service_client.update_test_result.return_value = data_store_pb2.TestResult()
     service_client.update_step.return_value = data_store_pb2.Step()
     service_client.update_measurement.return_value = data_store_pb2.Measurement()
-    service_client.query_measurements.return_value = (
-        data_store_service_pb2.QueryMeasurementsResponse()
-    )
-    service_client.remove_test_result_metadata.return_value = (
-        data_store_service_pb2.RemoveTestResultMetadataResponse()
-    )
     mocker.patch(
         "ni.datastore.data.v2._data_store_client.DataStoreServiceClient",
         return_value=service_client,
@@ -661,54 +655,6 @@ def test___delete___defaults_to_no_force(client: DataStoreClient, service_client
 
 
 # ---------------------------------------------------------------- conditions and metadata links
-
-
-def test___remove_test_result_metadata___checks_measurements_before_removing(
-    client: DataStoreClient, service_client: Any
-) -> None:
-    service_client.query_measurements.return_value = (
-        data_store_service_pb2.QueryMeasurementsResponse(
-            measurements=[data_store_pb2.Measurement(id="m-id", software_item_ids=["other"])]
-        )
-    )
-
-    client.remove_test_result_metadata("tr-id", software_item_ids=["sw"])
-
-    query = _sent(service_client.query_measurements)
-    assert query.odata_query == "$filter=TestResultId eq tr-id"
-    assert list(query.read_mask.paths) == [
-        "id",
-        "software_item_ids",
-        "hardware_item_ids",
-        "test_adapter_ids",
-    ]
-    assert list(_sent(service_client.remove_test_result_metadata).software_item_ids) == ["sw"]
-
-
-@pytest.mark.parametrize("field", ["software_item_ids", "hardware_item_ids", "test_adapter_ids"])
-def test___remove_test_result_metadata___item_used_by_measurement___raises_without_removing(
-    client: DataStoreClient, service_client: Any, field: str
-) -> None:
-    measurement = data_store_pb2.Measurement(id="m-id")
-    getattr(measurement, field).append("item")
-    service_client.query_measurements.return_value = (
-        data_store_service_pb2.QueryMeasurementsResponse(measurements=[measurement])
-    )
-    item_ids: dict[str, Any] = {field: ["item"]}
-
-    with pytest.raises(ValueError, match=r"item \(measurement m-id\)"):
-        client.remove_test_result_metadata("tr-id", **item_ids)
-
-    service_client.remove_test_result_metadata.assert_not_called()
-
-
-def test___remove_test_result_metadata___no_ids___skips_measurement_check(
-    client: DataStoreClient, service_client: Any
-) -> None:
-    client.remove_test_result_metadata("tr-id")
-
-    service_client.query_measurements.assert_not_called()
-    service_client.remove_test_result_metadata.assert_called_once()
 
 
 def test___remove_condition___sends_name_and_returns_step(

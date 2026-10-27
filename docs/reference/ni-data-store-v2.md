@@ -59,10 +59,11 @@ The client wraps every method of the V2 low-level client:
 - `remove_condition` removes a condition from a step.
 - `add_test_result_metadata`, `remove_test_result_metadata`,
   `add_measurement_metadata`, and `remove_measurement_metadata` link or unlink
-  software items, hardware items, and test adapters after creation. As defined
-  by DEC-017, `remove_test_result_metadata` raises `ValueError`, without
-  removing anything, if a measurement of the test result still references an
-  item; unlink it from those measurements first.
+  software items, hardware items, and test adapters after creation. Linking an
+  item to a test result also links it to the test result's existing
+  measurements, and unlinking it from a test result also unlinks it from all of
+  its measurements. A measurement can only link items that are already linked to
+  its test result.
 - `create_measurement` accepts `upper_limit` and `lower_limit` of any supported
   value type. `read_measurement_values` returns the value and both limits.
 - `batch_create_*`, `batch_update_*`, and `batch_delete_*` handle many test

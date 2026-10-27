@@ -692,14 +692,18 @@ class DataStoreClient:
     ) -> TestResult:
         """Link existing software items, hardware items, or test adapters to a test result.
 
+        The service also links each newly linked item to every existing
+        measurement of the test result. Items that are already linked are
+        ignored.
+
         Args:
             test_result_id: The ID of the test result.
 
-            software_item_ids: The software item IDs to link.
+            software_item_ids: The software item IDs or aliases to link.
 
-            hardware_item_ids: The hardware item IDs to link.
+            hardware_item_ids: The hardware item IDs or aliases to link.
 
-            test_adapter_ids: The test adapter IDs to link.
+            test_adapter_ids: The test adapter IDs or aliases to link.
 
         Returns:
             TestResult: The updated test result.
@@ -724,38 +728,21 @@ class DataStoreClient:
     ) -> TestResult:
         """Unlink software items, hardware items, or test adapters from a test result.
 
-        As defined by DEC-017, an item cannot be unlinked while a measurement of
-        the test result still references it. Unlink it from those measurements
-        first with remove_measurement_metadata. The client checks this before
-        calling the service, so nothing is removed when the check fails.
+        The service also unlinks each item from every measurement of the test
+        result. Each item must currently be linked to the test result.
 
         Args:
             test_result_id: The ID of the test result.
 
-            software_item_ids: The software item IDs to unlink.
+            software_item_ids: The software item IDs or aliases to unlink.
 
-            hardware_item_ids: The hardware item IDs to unlink.
+            hardware_item_ids: The hardware item IDs or aliases to unlink.
 
-            test_adapter_ids: The test adapter IDs to unlink.
+            test_adapter_ids: The test adapter IDs or aliases to unlink.
 
         Returns:
             TestResult: The updated test result.
-
-        Raises:
-            ValueError: If a measurement of the test result still references an
-                item to unlink.
         """
-        software_item_ids = list(software_item_ids)
-        hardware_item_ids = list(hardware_item_ids)
-        test_adapter_ids = list(test_adapter_ids)
-        self._raise_if_used_by_measurements(
-            test_result_id,
-            {
-                "software_item_ids": set(software_item_ids),
-                "hardware_item_ids": set(hardware_item_ids),
-                "test_adapter_ids": set(test_adapter_ids),
-            },
-        )
         remove_request = RemoveTestResultMetadataRequest(
             test_result_id=test_result_id,
             software_item_ids=software_item_ids,
@@ -930,31 +917,6 @@ class DataStoreClient:
         if self._closed:
             raise RuntimeError(self._DATA_STORE_CLIENT_CLOSED_ERROR)
         return self._data_store_client
-
-    def _raise_if_used_by_measurements(
-        self, test_result_id: str, removed_ids: Mapping[str, set[str]]
-    ) -> None:
-        if not any(removed_ids.values()):
-            return
-        query_request = QueryMeasurementsRequest(
-            odata_query=f"$filter=TestResultId eq {test_result_id}",
-            read_mask=FieldMask(paths=["id", *removed_ids]),
-        )
-        measurements = self._get_data_store_client().query_measurements(query_request).measurements
-        in_use = sorted(
-            {
-                f"{item_id} (measurement {measurement.id})"
-                for measurement in measurements
-                for field, ids in removed_ids.items()
-                for item_id in ids.intersection(getattr(measurement, field))
-            }
-        )
-        if in_use:
-            raise ValueError(
-                f"Cannot unlink metadata from test result {test_result_id} while measurements "
-                f"still reference it: {', '.join(in_use)}. Unlink it from those measurements "
-                "first with remove_measurement_metadata."
-            )
 
 
 # Mutable update-mask paths from the V2 mutability design, including Stage 2 resource fields.
