@@ -39,6 +39,8 @@ TIMESTAMP = datetime(2026, 5, 6, 7, 8, 9, tzinfo=UTC)
 @pytest.fixture
 def service_client(mocker: MockerFixture) -> Any:
     service_client = Mock()
+    # Default responses for tests that check only the request. Tests that check
+    # the returned model set their own response.
     service_client.update_test_result.return_value = data_store_pb2.TestResult()
     service_client.update_step.return_value = data_store_pb2.Step()
     service_client.update_measurement.return_value = data_store_pb2.Measurement()
@@ -239,6 +241,7 @@ def test___create_measurement___converts_analog_waveform(
     value = _sent(service_client.create_measurement).measurement.value
     assert value.WhichOneof("value") == "double_analog_waveform"
     assert list(value.double_analog_waveform.y_data) == [1.0, 2.0]
+    assert value.double_analog_waveform.dt == 1.0
 
 
 def test___create_measurement___rejects_unsupported_value_before_rpc(
@@ -312,7 +315,9 @@ def test___read_measurement_value___converts_json(
     value.json_value.value.update({"enabled": True})
     _read_response(service_client, value)
 
-    assert client.read_measurement_value(Measurement(id="m-id")) == {"enabled": True}
+    read_value = client.read_measurement_value(Measurement(id="m-id"))
+
+    assert read_value == {"enabled": True}
 
 
 def test___read_measurement_value___converts_analog_waveform(
@@ -405,11 +410,12 @@ def test___query_test_results___returns_models(
             test_results=[data_store_pb2.TestResult(id="tr-id", name="Power test")]
         )
     )
+    odata_query = "$filter=Name eq 'Power test'"
 
-    results = client.query_test_results("$filter=Name eq 'Power test'", read_fields=["name"])
+    results = client.query_test_results(odata_query, read_fields=["name"])
 
     request = _sent(service_client.query_test_results)
-    assert request.odata_query == "$filter=Name eq 'Power test'"
+    assert request.odata_query == odata_query
     assert list(request.read_mask.paths) == ["name"]
     assert results == [TestResult("Power test", id="tr-id")]
 
@@ -418,10 +424,11 @@ def test___query_steps___returns_models(client: DataStoreClient, service_client:
     service_client.query_steps.return_value = data_store_service_pb2.QueryStepsResponse(
         steps=[data_store_pb2.Step(id="step-id", name="s")]
     )
+    odata_query = "$filter=Name eq 's'"
 
-    steps = client.query_steps("$filter=Name eq 's'")
+    steps = client.query_steps(odata_query)
 
-    assert _sent(service_client.query_steps).odata_query == "$filter=Name eq 's'"
+    assert _sent(service_client.query_steps).odata_query == odata_query
     assert steps == [Step("s", id="step-id")]
 
 
@@ -433,19 +440,20 @@ def test___query_measurements___returns_models(
             measurements=[data_store_pb2.Measurement(id="m-id", name="voltage")]
         )
     )
+    odata_query = "$filter=Name eq 'voltage'"
 
-    measurements = client.query_measurements("$filter=Name eq 'voltage'")
+    measurements = client.query_measurements(odata_query)
 
-    assert _sent(service_client.query_measurements).odata_query == "$filter=Name eq 'voltage'"
+    assert _sent(service_client.query_measurements).odata_query == odata_query
     assert measurements == [Measurement(id="m-id", name="voltage")]
 
 
 @pytest.mark.parametrize(
-    ("method", "response_type", "items_field"),
+    ("method", "response_type"),
     [
-        ("query_test_results", "QueryTestResultsResponse", "test_results"),
-        ("query_steps", "QueryStepsResponse", "steps"),
-        ("query_measurements", "QueryMeasurementsResponse", "measurements"),
+        ("query_test_results", "QueryTestResultsResponse"),
+        ("query_steps", "QueryStepsResponse"),
+        ("query_measurements", "QueryMeasurementsResponse"),
     ],
 )
 def test___query___returns_next_link(
@@ -453,7 +461,6 @@ def test___query___returns_next_link(
     service_client: Any,
     method: str,
     response_type: str,
-    items_field: str,
 ) -> None:
     getattr(service_client, method).return_value = getattr(data_store_service_pb2, response_type)(
         next_link="https://next"
@@ -470,7 +477,9 @@ def test___query___next_link_is_empty_on_last_page(
 ) -> None:
     service_client.query_steps.return_value = data_store_service_pb2.QueryStepsResponse()
 
-    assert client.query_steps().next_link == ""
+    results = client.query_steps()
+
+    assert results.next_link == ""
 
 
 def test___json_value_measurement___sends_and_reads_attributes(
@@ -483,7 +492,9 @@ def test___json_value_measurement___sends_and_reads_attributes(
 
     sent = _sent(service_client.create_measurement).measurement.value
     _read_response(service_client, sent)
-    assert client.read_measurement_value(Measurement(id="m-id")) == value
+    read_value = client.read_measurement_value(Measurement(id="m-id"))
+
+    assert read_value == value
 
 
 # ---------------------------------------------------------------- update
@@ -526,8 +537,6 @@ def test___update_step___builds_mask_and_returns_model(
 def test___update_measurement___converts_error_information_and_extension(
     client: DataStoreClient, service_client: Any
 ) -> None:
-    service_client.update_measurement.return_value = data_store_pb2.Measurement(id="m-id")
-
     client.update_measurement(
         "m-id",
         error_information=ErrorInformation(error_code=2, message="boom"),
@@ -576,18 +585,21 @@ def test___update___replaces_keywords(
 def test___update___converts_duration(
     client: DataStoreClient, service_client: Any, method: str, resource_field: str
 ) -> None:
-    getattr(client, method)("resource-id", duration=timedelta(seconds=3))
+    duration = timedelta(seconds=3)
+
+    getattr(client, method)("resource-id", duration=duration)
 
     request = _sent(getattr(service_client, method))
-    assert getattr(request, resource_field).duration == hightime_timedelta_to_protobuf(
-        timedelta(seconds=3)
-    )
+    assert getattr(request, resource_field).duration == hightime_timedelta_to_protobuf(duration)
     assert list(request.update_mask.paths) == ["duration"]
 
 
-def test___update___none_clears_field(client: DataStoreClient, service_client: Any) -> None:
+def test___update___none_sends_field_in_mask_with_empty_value(
+    client: DataStoreClient, service_client: Any
+) -> None:
     client.update_test_result("tr-id", link=None)
 
+    # The service clears a field that is in the update mask but has an empty value.
     request = _sent(service_client.update_test_result)
     assert request.test_result.link == ""
     assert list(request.update_mask.paths) == ["link"]
@@ -702,6 +714,24 @@ def test___remove_test_result_metadata___item_used_by_measurement___raises_witho
     service_client.remove_test_result_metadata.assert_not_called()
 
 
+def test___remove_test_result_metadata___measurements_span_multiple_pages___raises_without_removing(
+    client: DataStoreClient, service_client: Any
+) -> None:
+    first_page = data_store_service_pb2.QueryMeasurementsResponse(
+        measurements=[data_store_pb2.Measurement(id="m-1", software_item_ids=["other"])],
+        next_link="https://next",
+    )
+    second_page = data_store_service_pb2.QueryMeasurementsResponse(
+        measurements=[data_store_pb2.Measurement(id="m-2", software_item_ids=["sw"])]
+    )
+    service_client.query_measurements.side_effect = [first_page, second_page]
+
+    with pytest.raises(RuntimeError, match="more than one page"):
+        client.remove_test_result_metadata("tr-id", software_item_ids=["sw"])
+
+    service_client.remove_test_result_metadata.assert_not_called()
+
+
 def test___remove_test_result_metadata___no_ids___skips_measurement_check(
     client: DataStoreClient, service_client: Any
 ) -> None:
@@ -773,11 +803,9 @@ def test___metadata_link_methods___send_ids_and_return_model(
 
     request = _sent(getattr(service_client, method))
     assert getattr(request, id_field) == "resource-id"
-    assert (
-        list(request.software_item_ids),
-        list(request.hardware_item_ids),
-        list(request.test_adapter_ids),
-    ) == (["sw"], ["hw"], ["ta"])
+    assert list(request.software_item_ids) == ["sw"]
+    assert list(request.hardware_item_ids) == ["hw"]
+    assert list(request.test_adapter_ids) == ["ta"]
     assert result.id == "resource-id"
 
 

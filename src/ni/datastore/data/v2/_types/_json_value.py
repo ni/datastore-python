@@ -42,8 +42,7 @@ class JsonValue:
         Args:
             value: The JSON object.
             attributes (optional): Attributes that describe the JSON value.
-            schema_id (optional): Schema for the JSON content. Reserved by the
-                service for future support.
+            schema_id (optional): Schema for the JSON content. Reserved for future use.
         """
         self._value: MutableMapping[str, Any] = dict(value)
         self._attributes: MutableMapping[str, AttributeValueType] = (

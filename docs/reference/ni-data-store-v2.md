@@ -62,9 +62,12 @@ The client wraps every method of the V2 low-level client:
   software items, hardware items, and test adapters after creation. As defined
   by DEC-017, `remove_test_result_metadata` raises `ValueError`, without
   removing anything, if a measurement of the test result still references an
-  item; unlink it from those measurements first.
+  item; unlink it from those measurements first. If the test result's
+  measurements come back across more than one page of query results, it raises
+  `RuntimeError` instead of removing, because the check cannot be completed.
 - `create_measurement` accepts `upper_limit` and `lower_limit` of any supported
-  value type. `read_measurement_values` returns the value and both limits.
+  value type. The service stores the limits as given and does not compare them
+  with the value. `read_measurement_values` returns the value and both limits.
 - `batch_create_*`, `batch_update_*`, and `batch_delete_*` handle many test
   results, steps, or measurements in one atomic call. Batch updates take a
   dictionary of fields keyed by ID, and batch deletes accept one `force` flag or
@@ -106,7 +109,9 @@ The client wraps every method of the V2 low-level client:
   Python or nitypes values. A single value is always read back as a `Scalar`,
   with or without units, and a list of values as a `Vector`. When a `Scalar` is
   given and `units` is not, the measurement's `units` are taken from the
-  `Scalar`. Conditions accept scalar or JSON values. JSON values
+  `Scalar`. Conditions accept scalar or JSON values. A scalar condition value
+  reads back as a plain Python value, or as a `Scalar` when it has extended
+  properties other than units. JSON values
   require the service's Stage 3 Structured JSON Storage And Query Support.
 - Software item, hardware item, and test adapter IDs on a measurement must first
   be linked to its test result; pass them to `create_test_result`.

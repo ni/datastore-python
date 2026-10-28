@@ -78,22 +78,22 @@ class Step:
 
     @property
     def measurements(self) -> MutableSequence[Measurement]:
-        """Measurements created with the step, or expanded on read."""
+        """Measurements created with the step, or expand on read."""
         return self._measurements
 
     @property
     def children(self) -> MutableSequence[Step]:
-        """Child steps created with the step, or expanded on read."""
+        """Child steps created with the step, or expand on read."""
         return self._children
 
     @property
     def path(self) -> MutableSequence[str]:
-        """Output only. The step-name path, including this step."""
+        """Output only. Names of this Step and its ancestors, ordered root-first."""
         return self._path
 
     @property
     def path_ids(self) -> MutableSequence[str]:
-        """Output only. The step-identifier path, including this step."""
+        """Output only. IDs of this Step and its ancestors, ordered root-first."""
         return self._path_ids
 
     def __init__(
@@ -134,8 +134,9 @@ class Step:
             id (optional): Unique identifier for the step.
             parent_step_id (optional): ID of the parent step if this is a nested step.
             test_result_id (optional): ID of the test result this step belongs to.
-            test_id (optional): ID or alias of the test associated with this step.
-            test (optional): Test to find or create on create, or expanded on read.
+            test_id (optional): ID or registered alias of the test associated with this
+                step. Reads return the ID.
+            test (optional): Test to find or create on create, or expand on read.
             step_type (optional): Free-form classification of the step.
             notes (optional): Additional notes about the step.
             start_date_time (optional): The start date and time of the step execution.
@@ -146,16 +147,16 @@ class Step:
             link (optional): A URI associated with the step.
             keywords (optional): Labels used to classify the step.
             extension (optional): Custom JSON data for the step.
-            schema_id (optional): Schema that governs the extension. Reserved by the
-                service for future support.
+            schema_id (optional): Schema that governs the extension. Reserved for
+                future use.
             error_information (optional): Error details for the step.
             conditions (optional): Conditions created with the step.
             measurements (optional): Measurements created with the step.
             children (optional): Child steps created with the step.
             path (optional): Output only. The step-name path, including this step.
             path_ids (optional): Output only. The step-identifier path, including this step.
-            created_at (optional): Output only. When the service created the step.
-            updated_at (optional): Output only. When the service last updated the step.
+            created_at (optional): Output only. When the step was created.
+            updated_at (optional): Output only. When the step was last updated.
             created_by (optional): Output only. Who created the step.
             updated_by (optional): Output only. Who last updated the step.
         """
@@ -217,8 +218,10 @@ class Step:
                 if step_proto.HasField("error_information")
                 else None
             ),
-            conditions=[Condition.from_protobuf(c) for c in step_proto.conditions],
-            measurements=[Measurement.from_protobuf(m) for m in step_proto.measurements],
+            conditions=[Condition.from_protobuf(condition) for condition in step_proto.conditions],
+            measurements=[
+                Measurement.from_protobuf(measurement) for measurement in step_proto.measurements
+            ],
             children=[Step.from_protobuf(child) for child in step_proto.children],
             path=step_proto.path,
             path_ids=step_proto.path_ids,

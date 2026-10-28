@@ -57,7 +57,7 @@ from ni.datastore.data.v2._types._json_value import JsonValue, json_value_from_p
 
 
 def populate_measurement_value(measurement_value: MeasurementValue, value: object) -> None:
-    """Convert a Python scalar or vector into a V2 measurement value."""
+    """Convert a supported Python value into a V2 measurement value."""
     if isinstance(value, bool):
         measurement_value.scalar.bool_value = value
     elif isinstance(value, int):
@@ -162,7 +162,7 @@ def convert_measurement_value_from_protobuf(measurement_value: MeasurementValue)
 
 
 def measurement_value_to_protobuf(value: object) -> MeasurementValue | None:
-    """Convert an optional measurement value or limit to a MeasurementValue."""
+    """Convert an optional measurement value, upper limit, or lower limit to protobuf."""
     if value is None:
         return None
     measurement_value = MeasurementValue()

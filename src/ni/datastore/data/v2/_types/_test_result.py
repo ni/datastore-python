@@ -92,22 +92,22 @@ class TestResult:
 
     @property
     def software_items(self) -> MutableSequence[SoftwareItem]:
-        """Software items to find or create on create, or expanded on read."""
+        """Software items to find or create on create, or expand on read."""
         return self._software_items
 
     @property
     def hardware_items(self) -> MutableSequence[HardwareItem]:
-        """Hardware items to find or create on create, or expanded on read."""
+        """Hardware items to find or create on create, or expand on read."""
         return self._hardware_items
 
     @property
     def test_adapters(self) -> MutableSequence[TestAdapter]:
-        """Test adapters to find or create on create, or expanded on read."""
+        """Test adapters to find or create on create, or expand on read."""
         return self._test_adapters
 
     @property
     def steps(self) -> MutableSequence[Step]:
-        """Steps created with the test result, or expanded on read."""
+        """Steps created with the test result, or expand on read."""
         return self._steps
 
     @property
@@ -162,19 +162,23 @@ class TestResult:
         Args:
             name: Human-readable name for the test result.
             id (optional): Unique identifier for the test result.
-            uut_instance_id (optional): ID or alias of the UUT instance that was tested.
+            uut_instance_id (optional): ID or registered alias of the UUT instance that
+                was tested. Reads return the ID.
             uut_id (optional): ID of the UUT product definition.
-            operator_id (optional): ID or alias of the operator who ran the test.
-            test_station_id (optional): ID or alias of the test station used.
-            test_description_id (optional): ID or alias of the test description executed.
-            uut_instance (optional): UUT instance to find or create on create, or expanded
+            operator_id (optional): ID or registered alias of the operator who ran the
+                test. Reads return the ID.
+            test_station_id (optional): ID or registered alias of the test station used.
+                Reads return the ID.
+            test_description_id (optional): ID or registered alias of the test
+                description executed. Reads return the ID.
+            uut_instance (optional): UUT instance to find or create on create, or expand
                 on read.
-            uut (optional): UUT to find or create on create, or expanded on read.
-            operator (optional): Operator to find or create on create, or expanded on read.
-            test_station (optional): Test station to find or create on create, or expanded
+            uut (optional): UUT to find or create on create, or expand on read.
+            operator (optional): Operator to find or create on create, or expand on read.
+            test_station (optional): Test station to find or create on create, or expand
                 on read.
             test_description (optional): Test description to find or create on create, or
-                expanded on read.
+                expand on read.
             software_item_ids (optional): IDs of software items used in the test.
             hardware_item_ids (optional): IDs of hardware items used in the test.
             test_adapter_ids (optional): IDs of test adapters used in the test.
@@ -189,12 +193,12 @@ class TestResult:
             link (optional): A URI associated with the test result.
             keywords (optional): Labels used to classify the test result.
             extension (optional): Custom JSON data for the test result.
-            schema_id (optional): Schema that governs the extension. Reserved by the
-                service for future support.
+            schema_id (optional): Schema that governs the extension. Reserved for
+                future use.
             error_information (optional): Error details for the test result.
             steps (optional): Steps created with the test result.
-            created_at (optional): Output only. When the service created the test result.
-            updated_at (optional): Output only. When the service last updated the test result.
+            created_at (optional): Output only. When the test result was created.
+            updated_at (optional): Output only. When the test result was last updated.
             created_by (optional): Output only. Who created the test result.
             updated_by (optional): Output only. Who last updated the test result.
         """
@@ -276,9 +280,9 @@ class TestResult:
             software_item_ids=proto.software_item_ids,
             hardware_item_ids=proto.hardware_item_ids,
             test_adapter_ids=proto.test_adapter_ids,
-            software_items=[SoftwareItem.from_protobuf(i) for i in proto.software_items],
-            hardware_items=[HardwareItem.from_protobuf(i) for i in proto.hardware_items],
-            test_adapters=[TestAdapter.from_protobuf(i) for i in proto.test_adapters],
+            software_items=[SoftwareItem.from_protobuf(item) for item in proto.software_items],
+            hardware_items=[HardwareItem.from_protobuf(item) for item in proto.hardware_items],
+            test_adapters=[TestAdapter.from_protobuf(adapter) for adapter in proto.test_adapters],
             start_date_time=timestamp_from_protobuf(proto, "start_date_time"),
             end_date_time=timestamp_from_protobuf(proto, "end_date_time"),
             duration=duration_from_protobuf(proto, "duration"),
@@ -323,7 +327,7 @@ class TestResult:
             test_adapter_ids=self.test_adapter_ids,
             software_items=[item.to_protobuf() for item in self.software_items],
             hardware_items=[item.to_protobuf() for item in self.hardware_items],
-            test_adapters=[item.to_protobuf() for item in self.test_adapters],
+            test_adapters=[adapter.to_protobuf() for adapter in self.test_adapters],
             start_date_time=timestamp_to_protobuf(self.start_date_time),
             end_date_time=timestamp_to_protobuf(self.end_date_time),
             duration=duration_to_protobuf(self.duration),

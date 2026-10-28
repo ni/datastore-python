@@ -9,10 +9,14 @@ T = TypeVar("T")
 
 
 class QueryResults(list[T]):
-    """A list of query results with the service's next-page link."""
+    """One page of query results with a continuation link when more results exist.
+
+    Page size is not configured by this class; it contains the items and link
+    returned by the query.
+    """
 
     next_link: str
-    """The OData link to the next page of results, or an empty string on the last page."""
+    """The link for retrieving the next page, or an empty string when there is none."""
 
     def __init__(self, items: Iterable[T] = (), next_link: str = "") -> None:
         """Initialize a QueryResults instance.

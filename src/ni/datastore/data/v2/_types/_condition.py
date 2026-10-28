@@ -12,6 +12,8 @@ from nitypes.scalar import Scalar
 
 from ni.datastore.data.v2._types._json_value import JsonValue, json_value_from_protobuf
 
+_UNIT_DESCRIPTION = "NI_UnitDescription"
+
 
 class Condition:
     """An operational condition, such as a temperature or supply voltage, owned by a step.
@@ -42,7 +44,8 @@ class Condition:
         Args:
             name: The condition name, unique within a step.
             value: A bool, int, float, str, or Scalar value, a JSON mapping, or a
-                JsonValue.
+                JsonValue. A scalar value reads back as a plain Python value, or as
+                a Scalar when it has extended properties other than units.
             condition_type (optional): The type of the condition. For example,
                 "Environment" or "Setup".
             value_label (optional): A label for the value.
@@ -61,7 +64,12 @@ class Condition:
         value_kind = condition_proto.value.WhichOneof("value")
         value: object = None
         if value_kind == "scalar":
-            value = scalar_from_protobuf(condition_proto.value.scalar).value
+            scalar = scalar_from_protobuf(condition_proto.value.scalar)
+            # Keep the Scalar only when it carries properties a plain value cannot.
+            has_extra_properties = any(
+                key != _UNIT_DESCRIPTION for key in scalar.extended_properties
+            )
+            value = scalar if has_extra_properties else scalar.value
         elif value_kind == "json_value":
             value = json_value_from_protobuf(condition_proto.value.json_value)
         return Condition(

@@ -4,7 +4,7 @@ version = "1.0.0"
 license = "MIT"
 description = "Overview of how to use the NI Measurement Data Store V2 APIs for publishing and reading data"
 maintainers = [
-  {name = "Johann Scholtz", email = "johann.scholtz@emerson.com"},
+  {name = "Michael Johansen", email = "michael.johansen@emerson.com"},
   {name = "Joel Dixon", email = "joel.dixon@emerson.com"}
 ]
 readme = "README.md"

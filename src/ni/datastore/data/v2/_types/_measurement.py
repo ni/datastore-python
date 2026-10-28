@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Iterable, Mapping, MutableMapping, MutableSequence
+from typing import Any, Iterable, Mapping, MutableMapping, MutableSequence, Sequence
 
 import hightime as ht
 from ni.measurements.data.v2.data_store_pb2 import Measurement as MeasurementProto
@@ -86,22 +86,22 @@ class Measurement:
 
     @property
     def software_items(self) -> MutableSequence[SoftwareItem]:
-        """Software items to find or create on create, or expanded on read."""
+        """Software items to find or create on create, or expand on read."""
         return self._software_items
 
     @property
     def hardware_items(self) -> MutableSequence[HardwareItem]:
-        """Hardware items to find or create on create, or expanded on read."""
+        """Hardware items to find or create on create, or expand on read."""
         return self._hardware_items
 
     @property
     def test_adapters(self) -> MutableSequence[TestAdapter]:
-        """Test adapters to find or create on create, or expanded on read."""
+        """Test adapters to find or create on create, or expand on read."""
         return self._test_adapters
 
     @property
-    def conditions(self) -> MutableSequence[Condition]:
-        """Output only. The conditions copied from the owning step."""
+    def conditions(self) -> Sequence[Condition]:
+        """Read-only output-only conditions copied from the owning step."""
         return self._conditions
 
     def __init__(
@@ -139,6 +139,10 @@ class Measurement:
     ) -> None:
         """Initialize a Measurement instance.
 
+        Output-only fields are accepted so a Measurement can represent a service
+        response. They are not included in protobuf requests. Update conditions by
+        calling DataStoreClient.add_condition or remove_condition on the owning step.
+
         Args:
             id (optional): Unique identifier of the measurement.
             test_result_id (optional): ID of the test result the measurement belongs to.
@@ -147,9 +151,11 @@ class Measurement:
             value (optional): The measured value. See DataStoreClient.create_measurement
                 for the supported types.
             upper_limit (optional): The publisher-supplied upper limit. Any value type
-                supported for value is accepted.
+                supported for value is accepted. The service stores it but does not
+                compare it with the value.
             lower_limit (optional): The publisher-supplied lower limit. Any value type
-                supported for value is accepted.
+                supported for value is accepted. The service stores it but does not
+                compare it with the value.
             value_type (optional): Output only. The service-generated value type.
             units (optional): Engineering units of the value. Defaults to the units of a
                 Scalar value.
@@ -160,21 +166,22 @@ class Measurement:
             outcome (optional): The outcome of the measurement.
             error_information (optional): Error details for the measurement.
             extension (optional): Custom JSON data for the measurement.
-            schema_id (optional): Schema that governs the extension. Reserved by the
-                service for future support.
+            schema_id (optional): Schema that governs the extension. Reserved for
+                future use.
             software_item_ids (optional): IDs of software items used for the measurement.
             hardware_item_ids (optional): IDs of hardware items used for the measurement.
             test_adapter_ids (optional): IDs of test adapters used for the measurement.
             software_items (optional): Software items to find or create on create. Each
-                item must already be linked to the test result.
+                item must already be linked to the owning test result.
             hardware_items (optional): Hardware items to find or create on create. Each
-                item must already be linked to the test result.
+                item must already be linked to the owning test result.
             test_adapters (optional): Test adapters to find or create on create. Each
-                item must already be linked to the test result.
+                item must already be linked to the owning test result.
             comparison_type (optional): The publisher-defined comparison operation.
-            conditions (optional): Output only. Conditions copied from the owning step.
-            created_at (optional): Output only. When the service created the measurement.
-            updated_at (optional): Output only. When the service last updated the measurement.
+            conditions (optional): Output only. Read-only conditions copied from the
+                owning step.
+            created_at (optional): Output only. When the measurement was created.
+            updated_at (optional): Output only. When the measurement was last updated.
             created_by (optional): Output only. Who created the measurement.
             updated_by (optional): Output only. Who last updated the measurement.
         """
@@ -214,8 +221,8 @@ class Measurement:
             list(test_adapters) if test_adapters is not None else []
         )
         self.comparison_type = comparison_type
-        self._conditions: MutableSequence[Condition] = (
-            list(conditions) if conditions is not None else []
+        self._conditions: tuple[Condition, ...] = (
+            tuple(conditions) if conditions is not None else ()
         )
         self.created_at = created_at
         self.updated_at = updated_at
@@ -251,14 +258,18 @@ class Measurement:
             hardware_item_ids=measurement_proto.hardware_item_ids,
             test_adapter_ids=measurement_proto.test_adapter_ids,
             software_items=[
-                SoftwareItem.from_protobuf(i) for i in measurement_proto.software_items
+                SoftwareItem.from_protobuf(item) for item in measurement_proto.software_items
             ],
             hardware_items=[
-                HardwareItem.from_protobuf(i) for i in measurement_proto.hardware_items
+                HardwareItem.from_protobuf(item) for item in measurement_proto.hardware_items
             ],
-            test_adapters=[TestAdapter.from_protobuf(i) for i in measurement_proto.test_adapters],
+            test_adapters=[
+                TestAdapter.from_protobuf(adapter) for adapter in measurement_proto.test_adapters
+            ],
             comparison_type=measurement_proto.comparison_type,
-            conditions=[Condition.from_protobuf(c) for c in measurement_proto.conditions],
+            conditions=[
+                Condition.from_protobuf(condition) for condition in measurement_proto.conditions
+            ],
             created_at=timestamp_from_protobuf(measurement_proto, "created_at"),
             updated_at=timestamp_from_protobuf(measurement_proto, "updated_at"),
             created_by=measurement_proto.created_by,
@@ -268,7 +279,8 @@ class Measurement:
     def to_protobuf(self) -> MeasurementProto:
         """Convert this Measurement to a protobuf Measurement message.
 
-        Output-only fields, such as value_type and conditions, are not included.
+        Output-only fields, such as value_type and conditions, are not included in
+        protobuf requests.
         """
         return MeasurementProto(
             id=self.id,
@@ -294,7 +306,7 @@ class Measurement:
             test_adapter_ids=self.test_adapter_ids,
             software_items=[item.to_protobuf() for item in self.software_items],
             hardware_items=[item.to_protobuf() for item in self.hardware_items],
-            test_adapters=[item.to_protobuf() for item in self.test_adapters],
+            test_adapters=[adapter.to_protobuf() for adapter in self.test_adapters],
             comparison_type=self.comparison_type,
         )
 
@@ -349,5 +361,5 @@ def _values_equal(left: object, right: object) -> bool:
 
 
 def _as_scalar(value: object) -> object:
-    # A plain value is read back as a Scalar, so compare it as one.
+    # Normalize plain values so protobuf comparison includes Scalar unit attributes.
     return Scalar(value) if isinstance(value, (bool, int, float, str)) else value

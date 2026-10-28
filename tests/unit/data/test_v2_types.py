@@ -80,7 +80,7 @@ def test___test_result___round_trips_through_protobuf() -> None:
     assert TestResult.from_protobuf(proto) == test_result
 
 
-def test___test_result___unset_optional_fields_read_as_none() -> None:
+def test___test_result___unset_optional_fields_read_as_default() -> None:
     test_result = TestResult.from_protobuf(data_store_pb2.TestResult(id="id", name="name"))
 
     assert test_result.start_date_time is None
@@ -150,20 +150,47 @@ def test___measurement___reads_metadata_and_conditions_from_protobuf() -> None:
     assert measurement.outcome == Outcome.PASSED
     assert measurement.start_date_time == START
     assert list(measurement.software_item_ids) == ["sw"]
-    assert measurement.conditions == [Condition("temperature", 25.0)]
+    assert measurement.conditions == (Condition("temperature", 25.0),)
 
 
-def test___measurement___to_protobuf_does_not_send_value_or_output_fields() -> None:
+def test___measurement___conditions_are_read_only() -> None:
+    condition = Condition("temperature", 25.0)
+    measurement = Measurement(conditions=[condition])
+
+    assert isinstance(measurement.conditions, tuple)
+    with pytest.raises(AttributeError):
+        getattr(measurement.conditions, "append")(Condition("humidity", 50.0))
+    with pytest.raises(AttributeError):
+        getattr(measurement.conditions, "pop")(0)
+
+
+def test___measurement___accepts_but_does_not_send_output_fields() -> None:
+    condition = Condition("temperature", 25.0)
     measurement = Measurement(
-        id="measurement-id", name="voltage", step_id="step-id", value_type="x"
+        id="measurement-id",
+        name="voltage",
+        step_id="step-id",
+        value_type="x",
+        conditions=[condition],
     )
 
     proto = measurement.to_protobuf()
 
     assert proto.id == "measurement-id"
-    assert not proto.HasField("value")
+    assert measurement.value_type == "x"
+    assert measurement.conditions == (condition,)
     assert proto.value_type == ""
     assert len(proto.conditions) == 0
+
+
+def test___measurement___to_protobuf_omits_unset_value() -> None:
+    measurement = Measurement(name="voltage", step_id="step-id")
+
+    proto = measurement.to_protobuf()
+
+    assert not proto.HasField("value")
+    assert not proto.HasField("upper_limit")
+    assert not proto.HasField("lower_limit")
 
 
 @pytest.mark.parametrize(
@@ -187,6 +214,29 @@ def test___condition___uses_scalar_units_when_units_not_given() -> None:
 
     assert proto.units == "V"
     assert proto.value.scalar.double_value == 3.3
+
+
+def test___condition___scalar_with_only_units_reads_as_plain_value() -> None:
+    proto = Condition("voltage", Scalar(3.3, "V")).to_protobuf()
+
+    condition = Condition.from_protobuf(proto)
+
+    assert condition.value == 3.3
+    assert not isinstance(condition.value, Scalar)
+    assert condition.units == "V"
+
+
+def test___condition___scalar_extended_properties_round_trip() -> None:
+    proto = Condition(
+        "supply", Scalar(1.25, "V", extended_properties={"custom": "source"})
+    ).to_protobuf()
+
+    condition = Condition.from_protobuf(proto)
+
+    assert isinstance(condition.value, Scalar)
+    assert condition.value.value == 1.25
+    assert condition.value.extended_properties["custom"] == "source"
+    assert condition.units == "V"
 
 
 def test___condition___converts_json_mapping() -> None:
@@ -284,7 +334,7 @@ def test___test_result___round_trips_metadata_objects_and_nested_steps() -> None
     assert TestResult.from_protobuf(proto) == test_result
 
 
-def test___measurement___plain_value_equals_scalar_read_back() -> None:
+def test___measurement___plain_value_equals_scalar() -> None:
     assert Measurement(value=1.0, upper_limit=2) == Measurement(
         value=Scalar(1.0), upper_limit=Scalar(2)
     )

@@ -9,16 +9,18 @@ V2 reuses the V1 Metadata API, so these notebooks create and read metadata with
 
 ## Setup
 
-These notebooks use the main Python environment / kernel of `ni.datastore`. To
-execute the code in these notebooks, first execute the following command from
-the repo's root directory:
+These notebooks use the dedicated Python environment configured for the
+notebooks. To create it, run the following commands from the repository root:
 
-```sh
+```powershell
+cd examples\notebooks
 poetry install
 ```
 
-After executing this command, select the environment that it creates as the
-kernel to use for executing any of the provided notebooks.
+This creates one environment containing the dependencies used by all notebooks,
+including the local `ni.datastore` package and notebook utilities. Select the
+environment it creates as the kernel when executing any of the provided
+notebooks.
 
 The notebooks need NI Measurement Data Services running in V2 mode. By
 default, the clients use discovery to find the service. To connect to a specific
@@ -33,7 +35,7 @@ target, such as `[::1]:59606`, before starting Jupyter.
   Run this first.
 - `query/query_measurements.ipynb`: Query test results, steps, measurements, and
   conditions with OData.
-- `publish/batch_create.ipynb`: Create test results, steps, and measurements in
+- `batch-create/batch_create.ipynb`: Create test results, steps, and measurements in
   atomic batches, including nested steps and measurements.
 - `measurement-values/measurement_values.ipynb`: Scalar and non-scalar
   measurement values, and limits.

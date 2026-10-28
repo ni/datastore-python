@@ -135,7 +135,7 @@ class DataStoreClient:
         """Create a test result.
 
         Args:
-            test_result: The metadata of the test result to be created.
+            test_result: The test result object to be created.
 
         Returns:
             str: The test result ID. Generated if not specified.
@@ -147,7 +147,7 @@ class DataStoreClient:
         """Create a step, including any conditions on the step.
 
         Args:
-            step: The metadata of the step to be created.
+            step: The step object to be created.
 
         Returns:
             str: The step ID. Generated if not specified.
@@ -226,10 +226,12 @@ class DataStoreClient:
                 Scalar value.
 
             upper_limit: The publisher-supplied upper limit. Any supported value
-                type is accepted.
+                type is accepted. The service stores it but does not compare it
+                with the value.
 
             lower_limit: The publisher-supplied lower limit. Any supported value
-                type is accepted.
+                type is accepted. The service stores it but does not compare it
+                with the value.
 
             comparison_type: The publisher-defined comparison operation. The
                 service stores it but does not derive the outcome from it.
@@ -248,26 +250,25 @@ class DataStoreClient:
 
             extension: Custom JSON data for the measurement.
 
-            schema_id: Schema that governs the extension. Reserved by the service
-                for future support.
+            schema_id: Schema that governs the extension. Reserved for future use.
 
             software_item_ids: The software item IDs for the measurement. These
-                must already be linked to the test result.
+                must already be linked to the owning test result.
 
             hardware_item_ids: The hardware item IDs for the measurement. These
-                must already be linked to the test result.
+                must already be linked to the owning test result.
 
             test_adapter_ids: The test adapter IDs for the measurement. These
-                must already be linked to the test result.
+                must already be linked to the owning test result.
 
             software_items: Software items to find or create as part of this
-                request. Each item must already be linked to the test result.
+                request. Each item must already be linked to the owning test result.
 
             hardware_items: Hardware items to find or create as part of this
-                request. Each item must already be linked to the test result.
+                request. Each item must already be linked to the owning test result.
 
             test_adapters: Test adapters to find or create as part of this
-                request. Each item must already be linked to the test result.
+                request. Each item must already be linked to the owning test result.
 
         Returns:
             str: The measurement ID.
@@ -299,7 +300,7 @@ class DataStoreClient:
         return self._get_data_store_client().create_measurement(create_request).id
 
     def batch_create_test_results(self, test_results: Iterable[TestResult]) -> Sequence[str]:
-        """Create several test results, including any nested steps, in one atomic call.
+        """Create multiple test results, including any nested steps, in one atomic call.
 
         Args:
             test_results: The test results to create.
@@ -317,7 +318,7 @@ class DataStoreClient:
         return [test_result.id for test_result in batch_response.test_results]
 
     def batch_create_steps(self, steps: Iterable[Step]) -> Sequence[str]:
-        """Create several steps, including any nested children, in one atomic call.
+        """Create multiple steps, including any nested children, in one atomic call.
 
         Args:
             steps: The steps to create.
@@ -332,11 +333,11 @@ class DataStoreClient:
         return [step.id for step in batch_response.steps]
 
     def batch_create_measurements(self, measurements: Iterable[Measurement]) -> Sequence[str]:
-        """Create several measurements in one atomic call.
+        """Create multiple measurements in one atomic call.
 
         Args:
-            measurements: The measurements to create. Each must set step_id and
-                value, and may target a different step or test result.
+            measurements: The measurements to create. Each must include a step ID and
+                value. They may target different steps or test results.
 
         Returns:
             Sequence[str]: The measurement IDs, in request order.
@@ -427,8 +428,8 @@ class DataStoreClient:
         Args:
             test_result_id: The ID of the test result.
 
-            read_fields: Optional field names to return. All fields are returned
-                when empty.
+            read_fields: Optional field names to return. When empty, the service returns
+                its default fields.
 
         Returns:
             TestResult: The requested test result.
@@ -444,8 +445,8 @@ class DataStoreClient:
         Args:
             step_id: The ID of the step.
 
-            read_fields: Optional field names to return, such as "conditions".
-                All default fields are returned when empty.
+            read_fields: Optional field names to return, such as "conditions". When
+                empty, the service returns its default fields.
 
         Returns:
             Step: The requested step.
@@ -461,11 +462,11 @@ class DataStoreClient:
         Args:
             measurement_id: The ID of the measurement.
 
-            read_fields: Optional field names to return, such as "conditions".
-                All default fields are returned when empty.
+            read_fields: Optional field names to return, such as "conditions". When
+                empty, the service returns its default fields.
 
         Returns:
-            Measurement: The requested measurement metadata.
+            Measurement: The requested measurement.
         """
         get_request = GetMeasurementRequest(
             measurement_id=measurement_id, read_mask=_read_mask(read_fields)
@@ -612,7 +613,7 @@ class DataStoreClient:
     def batch_update_test_results(
         self, updates: Mapping[str, Mapping[str, object]]
     ) -> Sequence[TestResult]:
-        """Update several test results in one atomic call.
+        """Update multiple test results in one atomic call.
 
         Args:
             updates: The fields to change, keyed by test result ID. Each value
@@ -635,7 +636,7 @@ class DataStoreClient:
         return [TestResult.from_protobuf(proto) for proto in batch_response.test_results]
 
     def batch_update_steps(self, updates: Mapping[str, Mapping[str, object]]) -> Sequence[Step]:
-        """Update several steps in one atomic call.
+        """Update multiple steps in one atomic call.
 
         Args:
             updates: The fields to change, keyed by step ID. Each value follows
@@ -660,7 +661,7 @@ class DataStoreClient:
     def batch_update_measurements(
         self, updates: Mapping[str, Mapping[str, object]]
     ) -> Sequence[Measurement]:
-        """Update several measurements in one atomic call.
+        """Update multiple measurements in one atomic call.
 
         Args:
             updates: The fields to change, keyed by measurement ID. Each value
@@ -724,10 +725,10 @@ class DataStoreClient:
     ) -> TestResult:
         """Unlink software items, hardware items, or test adapters from a test result.
 
-        As defined by DEC-017, an item cannot be unlinked while a measurement of
-        the test result still references it. Unlink it from those measurements
-        first with remove_measurement_metadata. The client checks this before
-        calling the service, so nothing is removed when the check fails.
+        An item cannot be unlinked while a measurement of the test result still
+        references it. Unlink it from those measurements first with
+        remove_measurement_metadata. The client checks this before calling the
+        service, so nothing is removed when the check fails.
 
         Args:
             test_result_id: The ID of the test result.
@@ -744,6 +745,9 @@ class DataStoreClient:
         Raises:
             ValueError: If a measurement of the test result still references an
                 item to unlink.
+
+            RuntimeError: If the test result's measurements are returned across
+                more than one page, so the check cannot be completed.
         """
         software_item_ids = list(software_item_ids)
         hardware_item_ids = list(hardware_item_ids)
@@ -776,7 +780,7 @@ class DataStoreClient:
     ) -> Measurement:
         """Link software items, hardware items, or test adapters to a measurement.
 
-        Each item must already be linked to the measurement's test result.
+        Each item must already be linked to the measurement's owning test result.
 
         Args:
             measurement_id: The ID of the measurement.
@@ -871,13 +875,13 @@ class DataStoreClient:
     def batch_delete_test_results(
         self, test_result_ids: Iterable[str], *, force: bool | Iterable[bool] = False
     ) -> None:
-        """Delete several test results in one atomic call.
+        """Delete multiple test results in one atomic call.
 
         Args:
-            test_result_ids: The IDs of the test results to delete.
+            test_result_ids: The IDs of all test results to delete.
 
             force: One flag for every test result, or one flag per test result.
-                See delete_test_result.
+                See delete_test_result for details on force behavior.
 
         Raises:
             ValueError: If one flag per item is given and the counts differ.
@@ -893,13 +897,14 @@ class DataStoreClient:
     def batch_delete_steps(
         self, step_ids: Iterable[str], *, force: bool | Iterable[bool] = False
     ) -> None:
-        """Delete several steps in one atomic call.
+        """Delete multiple steps in one atomic call.
 
         Args:
             step_ids: The IDs of the steps to delete. A step and its ancestor or
                 descendant cannot be deleted in the same call.
 
-            force: One flag for every step, or one flag per step. See delete_step.
+            force: One flag for every step, or one flag per step. See delete_step
+                for details on force behavior.
 
         Raises:
             ValueError: If one flag per item is given and the counts differ.
@@ -913,7 +918,7 @@ class DataStoreClient:
         self._get_data_store_client().batch_delete_steps(batch_request)
 
     def batch_delete_measurements(self, measurement_ids: Iterable[str]) -> None:
-        """Delete several measurements in one atomic call.
+        """Delete multiple measurements in one atomic call.
 
         Args:
             measurement_ids: The IDs of the measurements to delete.
@@ -940,7 +945,14 @@ class DataStoreClient:
             odata_query=f"$filter=TestResultId eq {test_result_id}",
             read_mask=FieldMask(paths=["id", *removed_ids]),
         )
-        measurements = self._get_data_store_client().query_measurements(query_request).measurements
+        measurements_response = self._get_data_store_client().query_measurements(query_request)
+        if measurements_response.next_link:
+            raise RuntimeError(
+                f"Cannot unlink metadata from test result {test_result_id} because its "
+                "measurements span more than one page of query results, so the client cannot "
+                "verify that none of them still reference the metadata."
+            )
+        measurements = measurements_response.measurements
         in_use = sorted(
             {
                 f"{item_id} (measurement {measurement.id})"
