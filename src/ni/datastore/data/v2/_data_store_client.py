@@ -878,9 +878,9 @@ class DataStoreClient:
         """Delete multiple test results in one atomic call.
 
         Args:
-            test_result_ids: The IDs of all test results to delete.
+            test_result_ids: The IDs of the test results to delete.
 
-            force: One flag for every test result, or one flag per test result.
+            force: One flag for all test results, or one flag per test result.
                 See delete_test_result for details on force behavior.
 
         Raises:
@@ -903,7 +903,7 @@ class DataStoreClient:
             step_ids: The IDs of the steps to delete. A step and its ancestor or
                 descendant cannot be deleted in the same call.
 
-            force: One flag for every step, or one flag per step. See delete_step
+            force: One flag for all steps, or one flag per step. See delete_step
                 for details on force behavior.
 
         Raises:

@@ -1385,7 +1385,7 @@ ni-measurements-data-v2-proto = ">=1.0.0.dev0"
 type = "git"
 url = "https://github.com/ni/ni-apis-python.git"
 reference = "users/sudharshana/add-v2-proto-and-client-package"
-resolved_reference = "28aee05fe1ce46d2d349311cd600bf0a47937d1d"
+resolved_reference = "ec5f96947086e862712f3def3f7f745a89cc2ef9"
 subdirectory = "packages/ni.measurements.data.v2.client"
 
 [[package]]
@@ -1409,7 +1409,7 @@ protobuf = ">=4.21"
 type = "git"
 url = "https://github.com/ni/ni-apis-python.git"
 reference = "users/sudharshana/add-v2-proto-and-client-package"
-resolved_reference = "28aee05fe1ce46d2d349311cd600bf0a47937d1d"
+resolved_reference = "ec5f96947086e862712f3def3f7f745a89cc2ef9"
 subdirectory = "packages/ni.measurements.data.v2.proto"
 
 [[package]]
