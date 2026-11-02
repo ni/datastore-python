@@ -62,8 +62,9 @@ The client wraps every method of the V2 low-level client:
   software items, hardware items, and test adapters after creation. A
   measurement can only link items that are linked to its test result, and each
   measurement keeps its own selection. Linking an item to a test result does not
-  link it to the test result's measurements. Unlinking an item from a test
-  result also unlinks it from any of its measurements that still reference it.
+  link it to the test result's measurements. An item cannot be unlinked from a
+  test result while a measurement of that test result still references it;
+  unlink it from those measurements first.
 - `create_measurement` accepts `upper_limit` and `lower_limit` of any supported
   value type. The service stores the limits as given and does not compare them
   with the value. `read_measurement_values` returns the value and both limits.

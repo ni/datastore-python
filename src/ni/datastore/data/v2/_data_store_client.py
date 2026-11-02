@@ -730,9 +730,9 @@ class DataStoreClient:
     ) -> TestResult:
         """Unlink software items, hardware items, or test adapters from a test result.
 
-        The service also unlinks the items from any measurements of the test result
-        that still reference them, because a measurement can only reference items
-        that are linked to its owning test result.
+        An item cannot be unlinked from a test result while a measurement of that
+        test result still references it. Unlink it from those measurements first
+        with remove_measurement_metadata.
 
         Args:
             test_result_id: The ID of the test result.
