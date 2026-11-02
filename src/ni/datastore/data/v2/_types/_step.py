@@ -12,6 +12,7 @@ from ni.datastore.data.v2._grpc_conversion import (
     duration_to_protobuf,
     extension_from_protobuf,
     extension_to_protobuf,
+    string_list,
     timestamp_from_protobuf,
     timestamp_to_protobuf,
 )
@@ -174,7 +175,7 @@ class Step:
         self.outcome = outcome
         self.status = status
         self.link = link
-        self._keywords: MutableSequence[str] = list(keywords) if keywords is not None else []
+        self._keywords: MutableSequence[str] = string_list(keywords, "keywords")
         self._extension: MutableMapping[str, Any] = dict(extension) if extension is not None else {}
         self.schema_id = schema_id
         self.error_information = error_information
@@ -185,8 +186,8 @@ class Step:
             list(measurements) if measurements is not None else []
         )
         self._children: MutableSequence[Step] = list(children) if children is not None else []
-        self._path: MutableSequence[str] = list(path) if path is not None else []
-        self._path_ids: MutableSequence[str] = list(path_ids) if path_ids is not None else []
+        self._path: MutableSequence[str] = string_list(path, "path")
+        self._path_ids: MutableSequence[str] = string_list(path_ids, "path_ids")
         self.created_at = created_at
         self.updated_at = updated_at
         self.created_by = created_by

@@ -12,6 +12,7 @@ from ni.datastore.data.v2._grpc_conversion import (
     duration_to_protobuf,
     extension_from_protobuf,
     extension_to_protobuf,
+    string_list,
     timestamp_from_protobuf,
     timestamp_to_protobuf,
 )
@@ -214,14 +215,14 @@ class TestResult:
         self.operator = operator
         self.test_station = test_station
         self.test_description = test_description
-        self._software_item_ids: MutableSequence[str] = (
-            list(software_item_ids) if software_item_ids is not None else []
+        self._software_item_ids: MutableSequence[str] = string_list(
+            software_item_ids, "software_item_ids"
         )
-        self._hardware_item_ids: MutableSequence[str] = (
-            list(hardware_item_ids) if hardware_item_ids is not None else []
+        self._hardware_item_ids: MutableSequence[str] = string_list(
+            hardware_item_ids, "hardware_item_ids"
         )
-        self._test_adapter_ids: MutableSequence[str] = (
-            list(test_adapter_ids) if test_adapter_ids is not None else []
+        self._test_adapter_ids: MutableSequence[str] = string_list(
+            test_adapter_ids, "test_adapter_ids"
         )
         self._software_items: MutableSequence[SoftwareItem] = (
             list(software_items) if software_items is not None else []
@@ -238,7 +239,7 @@ class TestResult:
         self.outcome = outcome
         self.status = status
         self.link = link
-        self._keywords: MutableSequence[str] = list(keywords) if keywords is not None else []
+        self._keywords: MutableSequence[str] = string_list(keywords, "keywords")
         self._extension: MutableMapping[str, Any] = dict(extension) if extension is not None else {}
         self.schema_id = schema_id
         self.error_information = error_information

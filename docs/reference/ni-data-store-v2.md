@@ -59,12 +59,11 @@ The client wraps every method of the V2 low-level client:
 - `remove_condition` removes a condition from a step.
 - `add_test_result_metadata`, `remove_test_result_metadata`,
   `add_measurement_metadata`, and `remove_measurement_metadata` link or unlink
-  software items, hardware items, and test adapters after creation. As defined
-  by DEC-017, `remove_test_result_metadata` raises `ValueError`, without
-  removing anything, if a measurement of the test result still references an
-  item; unlink it from those measurements first. If the test result's
-  measurements come back across more than one page of query results, it raises
-  `RuntimeError` instead of removing, because the check cannot be completed.
+  software items, hardware items, and test adapters after creation. A
+  measurement can only link items that are linked to its test result, and each
+  measurement keeps its own selection. Linking an item to a test result does not
+  link it to the test result's measurements. Unlinking an item from a test
+  result also unlinks it from any of its measurements that still reference it.
 - `create_measurement` accepts `upper_limit` and `lower_limit` of any supported
   value type. The service stores the limits as given and does not compare them
   with the value. `read_measurement_values` returns the value and both limits.
@@ -115,6 +114,10 @@ The client wraps every method of the V2 low-level client:
   require the service's Stage 3 Structured JSON Storage And Query Support.
 - Software item, hardware item, and test adapter IDs on a measurement must first
   be linked to its test result; pass them to `create_test_result`.
+- Arguments that take several strings, such as `keywords`, item IDs,
+  `read_fields`, and the IDs passed to batch deletes, raise `TypeError` when
+  given a single string. Pass a list, for example `keywords=["smoke"]`, so a
+  string is not split into its characters.
 - Discovery, channel configuration, and cleanup are delegated to the low-level
   V2 client. Its gRPC transport exceptions pass through unchanged; invalid
   wrapper values and update fields fail locally with `TypeError` or

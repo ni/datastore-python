@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import datetime as std_datetime
+from collections.abc import Callable
 from typing import Any
 
 import pytest
@@ -261,6 +262,54 @@ def test___error_information___round_trips_through_protobuf() -> None:
 def test___enums___reject_unknown_protobuf_values(enum_type: type[Outcome] | type[Status]) -> None:
     with pytest.raises(ValueError):
         enum_type.from_protobuf(999)  # type: ignore[arg-type]
+
+
+@pytest.mark.parametrize(
+    ("argument", "create_model"),
+    [
+        pytest.param(
+            "keywords", lambda: TestResult("t", keywords="smoke"), id="test_result_keywords"
+        ),
+        pytest.param(
+            "software_item_ids",
+            lambda: TestResult("t", software_item_ids="sw"),
+            id="test_result_software_item_ids",
+        ),
+        pytest.param(
+            "hardware_item_ids",
+            lambda: TestResult("t", hardware_item_ids="hw"),
+            id="test_result_hardware_item_ids",
+        ),
+        pytest.param(
+            "test_adapter_ids",
+            lambda: TestResult("t", test_adapter_ids="ta"),
+            id="test_result_test_adapter_ids",
+        ),
+        pytest.param("keywords", lambda: Step("s", keywords="smoke"), id="step_keywords"),
+        pytest.param("path", lambda: Step("s", path="root"), id="step_path"),
+        pytest.param("path_ids", lambda: Step("s", path_ids="root-id"), id="step_path_ids"),
+        pytest.param(
+            "software_item_ids",
+            lambda: Measurement(software_item_ids="sw"),
+            id="measurement_software_item_ids",
+        ),
+        pytest.param(
+            "hardware_item_ids",
+            lambda: Measurement(hardware_item_ids="hw"),
+            id="measurement_hardware_item_ids",
+        ),
+        pytest.param(
+            "test_adapter_ids",
+            lambda: Measurement(test_adapter_ids="ta"),
+            id="measurement_test_adapter_ids",
+        ),
+    ],
+)
+def test___models___single_string_for_string_list___raises_type_error(
+    argument: str, create_model: Callable[[], object]
+) -> None:
+    with pytest.raises(TypeError, match=f"^{argument} must be"):
+        create_model()
 
 
 def test___measurement___round_trips_value_limits_and_metadata() -> None:

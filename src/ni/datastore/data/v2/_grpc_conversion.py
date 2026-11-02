@@ -217,3 +217,12 @@ def extension_to_protobuf(value: Mapping[str, Any]) -> Struct | None:
 def extension_from_protobuf(value: Struct) -> dict[str, Any]:
     """Convert a protobuf Struct extension to a Python dictionary."""
     return json_format.MessageToDict(value)
+
+
+def string_list(values: Iterable[str] | None, name: str) -> list[str]:
+    """Convert an iterable of strings to a list, rejecting a single string."""
+    # A str is itself an iterable of one-character strings, so list("smoke") would
+    # silently become ["s", "m", "o", "k", "e"].
+    if isinstance(values, str):
+        raise TypeError(f"{name} must be a list or other iterable of strings, not a single str.")
+    return list(values) if values is not None else []

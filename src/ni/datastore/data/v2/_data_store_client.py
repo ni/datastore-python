@@ -58,6 +58,7 @@ from ni_grpc_extensions.channelpool import GrpcChannelPool
 from ni.datastore.data.v2._grpc_conversion import (
     convert_measurement_value_from_protobuf,
     measurement_value_from_protobuf,
+    string_list,
 )
 from ni.datastore.data.v2._types._condition import Condition
 from ni.datastore.data.v2._types._error_information import ErrorInformation
@@ -693,6 +694,10 @@ class DataStoreClient:
     ) -> TestResult:
         """Link existing software items, hardware items, or test adapters to a test result.
 
+        The items become available to the test result's measurements, but are not
+        linked to them. Link an item to a specific measurement with
+        add_measurement_metadata.
+
         Args:
             test_result_id: The ID of the test result.
 
@@ -707,9 +712,9 @@ class DataStoreClient:
         """
         add_request = AddTestResultMetadataRequest(
             test_result_id=test_result_id,
-            software_item_ids=software_item_ids,
-            hardware_item_ids=hardware_item_ids,
-            test_adapter_ids=test_adapter_ids,
+            software_item_ids=string_list(software_item_ids, "software_item_ids"),
+            hardware_item_ids=string_list(hardware_item_ids, "hardware_item_ids"),
+            test_adapter_ids=string_list(test_adapter_ids, "test_adapter_ids"),
         )
         return TestResult.from_protobuf(
             self._get_data_store_client().add_test_result_metadata(add_request).test_result
@@ -725,10 +730,9 @@ class DataStoreClient:
     ) -> TestResult:
         """Unlink software items, hardware items, or test adapters from a test result.
 
-        An item cannot be unlinked while a measurement of the test result still
-        references it. Unlink it from those measurements first with
-        remove_measurement_metadata. The client checks this before calling the
-        service, so nothing is removed when the check fails.
+        The service also unlinks the items from any measurements of the test result
+        that still reference them, because a measurement can only reference items
+        that are linked to its owning test result.
 
         Args:
             test_result_id: The ID of the test result.
@@ -741,30 +745,12 @@ class DataStoreClient:
 
         Returns:
             TestResult: The updated test result.
-
-        Raises:
-            ValueError: If a measurement of the test result still references an
-                item to unlink.
-
-            RuntimeError: If the test result's measurements are returned across
-                more than one page, so the check cannot be completed.
         """
-        software_item_ids = list(software_item_ids)
-        hardware_item_ids = list(hardware_item_ids)
-        test_adapter_ids = list(test_adapter_ids)
-        self._raise_if_used_by_measurements(
-            test_result_id,
-            {
-                "software_item_ids": set(software_item_ids),
-                "hardware_item_ids": set(hardware_item_ids),
-                "test_adapter_ids": set(test_adapter_ids),
-            },
-        )
         remove_request = RemoveTestResultMetadataRequest(
             test_result_id=test_result_id,
-            software_item_ids=software_item_ids,
-            hardware_item_ids=hardware_item_ids,
-            test_adapter_ids=test_adapter_ids,
+            software_item_ids=string_list(software_item_ids, "software_item_ids"),
+            hardware_item_ids=string_list(hardware_item_ids, "hardware_item_ids"),
+            test_adapter_ids=string_list(test_adapter_ids, "test_adapter_ids"),
         )
         return TestResult.from_protobuf(
             self._get_data_store_client().remove_test_result_metadata(remove_request).test_result
@@ -796,9 +782,9 @@ class DataStoreClient:
         """
         add_request = AddMeasurementMetadataRequest(
             measurement_id=measurement_id,
-            software_item_ids=software_item_ids,
-            hardware_item_ids=hardware_item_ids,
-            test_adapter_ids=test_adapter_ids,
+            software_item_ids=string_list(software_item_ids, "software_item_ids"),
+            hardware_item_ids=string_list(hardware_item_ids, "hardware_item_ids"),
+            test_adapter_ids=string_list(test_adapter_ids, "test_adapter_ids"),
         )
         return Measurement.from_protobuf(
             self._get_data_store_client().add_measurement_metadata(add_request).measurement
@@ -828,9 +814,9 @@ class DataStoreClient:
         """
         remove_request = RemoveMeasurementMetadataRequest(
             measurement_id=measurement_id,
-            software_item_ids=software_item_ids,
-            hardware_item_ids=hardware_item_ids,
-            test_adapter_ids=test_adapter_ids,
+            software_item_ids=string_list(software_item_ids, "software_item_ids"),
+            hardware_item_ids=string_list(hardware_item_ids, "hardware_item_ids"),
+            test_adapter_ids=string_list(test_adapter_ids, "test_adapter_ids"),
         )
         return Measurement.from_protobuf(
             self._get_data_store_client().remove_measurement_metadata(remove_request).measurement
@@ -889,7 +875,9 @@ class DataStoreClient:
         batch_request = BatchDeleteTestResultsRequest(
             requests=[
                 DeleteTestResultRequest(test_result_id=test_result_id, force=item_force)
-                for test_result_id, item_force in _with_force(test_result_ids, force)
+                for test_result_id, item_force in _with_force(
+                    test_result_ids, force, "test_result_ids"
+                )
             ]
         )
         self._get_data_store_client().batch_delete_test_results(batch_request)
@@ -912,7 +900,7 @@ class DataStoreClient:
         batch_request = BatchDeleteStepsRequest(
             requests=[
                 DeleteStepRequest(step_id=step_id, force=item_force)
-                for step_id, item_force in _with_force(step_ids, force)
+                for step_id, item_force in _with_force(step_ids, force, "step_ids")
             ]
         )
         self._get_data_store_client().batch_delete_steps(batch_request)
@@ -926,7 +914,7 @@ class DataStoreClient:
         batch_request = BatchDeleteMeasurementsRequest(
             requests=[
                 DeleteMeasurementRequest(measurement_id=measurement_id)
-                for measurement_id in measurement_ids
+                for measurement_id in string_list(measurement_ids, "measurement_ids")
             ]
         )
         self._get_data_store_client().batch_delete_measurements(batch_request)
@@ -935,38 +923,6 @@ class DataStoreClient:
         if self._closed:
             raise RuntimeError(self._DATA_STORE_CLIENT_CLOSED_ERROR)
         return self._data_store_client
-
-    def _raise_if_used_by_measurements(
-        self, test_result_id: str, removed_ids: Mapping[str, set[str]]
-    ) -> None:
-        if not any(removed_ids.values()):
-            return
-        query_request = QueryMeasurementsRequest(
-            odata_query=f"$filter=TestResultId eq {test_result_id}",
-            read_mask=FieldMask(paths=["id", *removed_ids]),
-        )
-        measurements_response = self._get_data_store_client().query_measurements(query_request)
-        if measurements_response.next_link:
-            raise RuntimeError(
-                f"Cannot unlink metadata from test result {test_result_id} because its "
-                "measurements span more than one page of query results, so the client cannot "
-                "verify that none of them still reference the metadata."
-            )
-        measurements = measurements_response.measurements
-        in_use = sorted(
-            {
-                f"{item_id} (measurement {measurement.id})"
-                for measurement in measurements
-                for field, ids in removed_ids.items()
-                for item_id in ids.intersection(getattr(measurement, field))
-            }
-        )
-        if in_use:
-            raise ValueError(
-                f"Cannot unlink metadata from test result {test_result_id} while measurements "
-                f"still reference it: {', '.join(in_use)}. Unlink it from those measurements "
-                "first with remove_measurement_metadata."
-            )
 
 
 # Mutable update-mask paths from the V2 mutability design, including Stage 2 resource fields.
@@ -1029,7 +985,7 @@ _METADATA_UPDATE_FIELDS = frozenset(
 
 
 def _read_mask(fields: Iterable[str]) -> FieldMask | None:
-    paths = list(fields)
+    paths = string_list(fields, "read_fields")
     return FieldMask(paths=paths) if paths else None
 
 
@@ -1041,8 +997,10 @@ def _require_items(
     return updates
 
 
-def _with_force(ids: Iterable[str], force: bool | Iterable[bool]) -> list[tuple[str, bool]]:
-    id_list = list(ids)
+def _with_force(
+    ids: Iterable[str], force: bool | Iterable[bool], ids_name: str
+) -> list[tuple[str, bool]]:
+    id_list = string_list(ids, ids_name)
     if isinstance(force, bool):
         return [(resource_id, force) for resource_id in id_list]
     force_list = list(force)
@@ -1073,7 +1031,7 @@ def _populate_update(
         elif name == "duration":
             target.duration.CopyFrom(hightime_timedelta_to_protobuf(cast(ht.timedelta, value)))
         elif name == "keywords":
-            target.keywords[:] = cast(Iterable[str], value)
+            target.keywords[:] = string_list(cast(Iterable[str], value), "keywords")
         elif name == "extension":
             json_format.ParseDict(dict(cast(Mapping[str, Any], value)), target.extension)
         elif name == "error_information":

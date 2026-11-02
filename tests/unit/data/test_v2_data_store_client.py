@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import datetime as std_datetime
+from collections.abc import Callable
 from typing import Any
 from unittest.mock import Mock
 
@@ -44,9 +45,6 @@ def service_client(mocker: MockerFixture) -> Any:
     service_client.update_test_result.return_value = data_store_pb2.TestResult()
     service_client.update_step.return_value = data_store_pb2.Step()
     service_client.update_measurement.return_value = data_store_pb2.Measurement()
-    service_client.query_measurements.return_value = (
-        data_store_service_pb2.QueryMeasurementsResponse()
-    )
     service_client.remove_test_result_metadata.return_value = (
         data_store_service_pb2.RemoveTestResultMetadataResponse()
     )
@@ -675,70 +673,22 @@ def test___delete___defaults_to_no_force(client: DataStoreClient, service_client
 # ---------------------------------------------------------------- conditions and metadata links
 
 
-def test___remove_test_result_metadata___checks_measurements_before_removing(
+def test___remove_test_result_metadata___sends_request_without_checking_measurements(
     client: DataStoreClient, service_client: Any
 ) -> None:
-    service_client.query_measurements.return_value = (
-        data_store_service_pb2.QueryMeasurementsResponse(
-            measurements=[data_store_pb2.Measurement(id="m-id", software_item_ids=["other"])]
-        )
+    client.remove_test_result_metadata(
+        "tr-id", software_item_ids=["sw"], hardware_item_ids=["hw"], test_adapter_ids=["ta"]
     )
-
-    client.remove_test_result_metadata("tr-id", software_item_ids=["sw"])
-
-    query = _sent(service_client.query_measurements)
-    assert query.odata_query == "$filter=TestResultId eq tr-id"
-    assert list(query.read_mask.paths) == [
-        "id",
-        "software_item_ids",
-        "hardware_item_ids",
-        "test_adapter_ids",
-    ]
-    assert list(_sent(service_client.remove_test_result_metadata).software_item_ids) == ["sw"]
-
-
-@pytest.mark.parametrize("field", ["software_item_ids", "hardware_item_ids", "test_adapter_ids"])
-def test___remove_test_result_metadata___item_used_by_measurement___raises_without_removing(
-    client: DataStoreClient, service_client: Any, field: str
-) -> None:
-    measurement = data_store_pb2.Measurement(id="m-id")
-    getattr(measurement, field).append("item")
-    service_client.query_measurements.return_value = (
-        data_store_service_pb2.QueryMeasurementsResponse(measurements=[measurement])
-    )
-    item_ids: dict[str, Any] = {field: ["item"]}
-
-    with pytest.raises(ValueError, match=r"item \(measurement m-id\)"):
-        client.remove_test_result_metadata("tr-id", **item_ids)
-
-    service_client.remove_test_result_metadata.assert_not_called()
-
-
-def test___remove_test_result_metadata___measurements_span_multiple_pages___raises_without_removing(
-    client: DataStoreClient, service_client: Any
-) -> None:
-    first_page = data_store_service_pb2.QueryMeasurementsResponse(
-        measurements=[data_store_pb2.Measurement(id="m-1", software_item_ids=["other"])],
-        next_link="https://next",
-    )
-    second_page = data_store_service_pb2.QueryMeasurementsResponse(
-        measurements=[data_store_pb2.Measurement(id="m-2", software_item_ids=["sw"])]
-    )
-    service_client.query_measurements.side_effect = [first_page, second_page]
-
-    with pytest.raises(RuntimeError, match="more than one page"):
-        client.remove_test_result_metadata("tr-id", software_item_ids=["sw"])
-
-    service_client.remove_test_result_metadata.assert_not_called()
-
-
-def test___remove_test_result_metadata___no_ids___skips_measurement_check(
-    client: DataStoreClient, service_client: Any
-) -> None:
-    client.remove_test_result_metadata("tr-id")
 
     service_client.query_measurements.assert_not_called()
-    service_client.remove_test_result_metadata.assert_called_once()
+    assert _sent(service_client.remove_test_result_metadata) == (
+        data_store_service_pb2.RemoveTestResultMetadataRequest(
+            test_result_id="tr-id",
+            software_item_ids=["sw"],
+            hardware_item_ids=["hw"],
+            test_adapter_ids=["ta"],
+        )
+    )
 
 
 def test___remove_condition___sends_name_and_returns_step(
@@ -1072,6 +1022,123 @@ def test___batch_delete_measurements___sends_ids(
 
     requests = _sent(service_client.batch_delete_measurements).requests
     assert [r.measurement_id for r in requests] == ["a", "b"]
+
+
+# ---------------------------------------------------------------- string list arguments
+
+
+@pytest.mark.parametrize(
+    ("argument", "call"),
+    [
+        pytest.param(
+            "keywords",
+            lambda client: client.update_test_result("tr-id", keywords="smoke"),
+            id="update_test_result",
+        ),
+        pytest.param(
+            "keywords",
+            lambda client: client.update_step("step-id", keywords="smoke"),
+            id="update_step",
+        ),
+        pytest.param(
+            "keywords",
+            lambda client: client.batch_update_test_results({"tr-id": {"keywords": "smoke"}}),
+            id="batch_update_test_results",
+        ),
+        pytest.param(
+            "keywords",
+            lambda client: client.batch_update_steps({"step-id": {"keywords": "smoke"}}),
+            id="batch_update_steps",
+        ),
+        pytest.param(
+            "software_item_ids",
+            lambda client: client.create_measurement("v", 1.0, "step-id", software_item_ids="sw"),
+            id="create_measurement",
+        ),
+        pytest.param(
+            "software_item_ids",
+            lambda client: client.add_test_result_metadata("tr-id", software_item_ids="sw"),
+            id="add_test_result_metadata",
+        ),
+        pytest.param(
+            "hardware_item_ids",
+            lambda client: client.remove_test_result_metadata("tr-id", hardware_item_ids="hw"),
+            id="remove_test_result_metadata",
+        ),
+        pytest.param(
+            "test_adapter_ids",
+            lambda client: client.add_measurement_metadata("m-id", test_adapter_ids="ta"),
+            id="add_measurement_metadata",
+        ),
+        pytest.param(
+            "software_item_ids",
+            lambda client: client.remove_measurement_metadata("m-id", software_item_ids="sw"),
+            id="remove_measurement_metadata",
+        ),
+        pytest.param(
+            "read_fields",
+            lambda client: client.get_test_result("tr-id", read_fields="name"),
+            id="get_test_result",
+        ),
+        pytest.param(
+            "read_fields",
+            lambda client: client.get_step("step-id", read_fields="name"),
+            id="get_step",
+        ),
+        pytest.param(
+            "read_fields",
+            lambda client: client.get_measurement("m-id", read_fields="name"),
+            id="get_measurement",
+        ),
+        pytest.param(
+            "read_fields",
+            lambda client: client.query_test_results(read_fields="name"),
+            id="query_test_results",
+        ),
+        pytest.param(
+            "read_fields",
+            lambda client: client.query_steps(read_fields="name"),
+            id="query_steps",
+        ),
+        pytest.param(
+            "read_fields",
+            lambda client: client.query_measurements(read_fields="name"),
+            id="query_measurements",
+        ),
+        pytest.param(
+            "read_fields",
+            lambda client: client.read_measurement_values(
+                Measurement(id="m-id"), read_fields="value"
+            ),
+            id="read_measurement_values",
+        ),
+        pytest.param(
+            "test_result_ids",
+            lambda client: client.batch_delete_test_results("tr-id"),
+            id="batch_delete_test_results",
+        ),
+        pytest.param(
+            "step_ids",
+            lambda client: client.batch_delete_steps("step-id"),
+            id="batch_delete_steps",
+        ),
+        pytest.param(
+            "measurement_ids",
+            lambda client: client.batch_delete_measurements("m-id"),
+            id="batch_delete_measurements",
+        ),
+    ],
+)
+def test___string_list_argument___single_string___raises_before_rpc(
+    client: DataStoreClient,
+    service_client: Any,
+    argument: str,
+    call: Callable[[DataStoreClient], object],
+) -> None:
+    with pytest.raises(TypeError, match=f"^{argument} must be"):
+        call(client)
+
+    assert service_client.method_calls == []
 
 
 # ---------------------------------------------------------------- lifecycle
