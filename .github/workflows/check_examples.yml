@@ -15,7 +15,7 @@ jobs:
         os: [windows-latest, ubuntu-latest, macos-latest]
         # Pin to 3.14.8 to workaround AB#4147280
         python-version: [3.14.8]
-        example-name: ['overview', 'system']
+        example-name: ['overview', 'overview-v2', 'system']
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out repo
@@ -29,6 +29,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Set up Poetry
         uses: ni/python-actions/setup-poetry@dee640bba235ae28fdc6b7337c643bd06358ae90 # v0.9.0
+        with:
+          poetry-version: '2.5.1'
       - name: Analyze Python Project
         uses: ni/python-actions/analyze-project@dee640bba235ae28fdc6b7337c643bd06358ae90 # v0.9.0
         with:
