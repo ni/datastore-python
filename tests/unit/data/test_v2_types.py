@@ -3,13 +3,16 @@
 from __future__ import annotations
 
 import datetime as std_datetime
+import inspect
+import uuid
 from collections.abc import Callable
+from enum import Enum
 from typing import Any
 
 import pytest
 from google.protobuf import json_format
 from hightime import datetime, timedelta
-from ni.measurements.data.v2 import data_store_pb2
+from ni.measurements.data.v2 import data_store_pb2, data_store_service_pb2
 from ni.protobuf.types.precision_duration_conversion import hightime_timedelta_to_protobuf
 from ni.protobuf.types.precision_timestamp_conversion import hightime_datetime_to_protobuf
 from nitypes.scalar import Scalar
@@ -20,10 +23,22 @@ from ni.datastore.data.v2 import (
     ErrorInformation,
     JsonValue,
     Measurement,
+    MeasurementField,
+    MeasurementValueField,
     Outcome,
     Status,
     Step,
+    StepCreateFields,
+    StepField,
+    StepUpdateFields,
     TestResult,
+    TestResultCreateFields,
+    TestResultField,
+    TestResultUpdateFields,
+)
+from ni.datastore.data.v2._update_conversion import (
+    STEP_UPDATE_FIELDS,
+    TEST_RESULT_UPDATE_FIELDS,
 )
 from ni.datastore.metadata import (
     HardwareItem,
@@ -217,6 +232,48 @@ def test___condition___uses_scalar_units_when_units_not_given() -> None:
     assert proto.value.scalar.double_value == 3.3
 
 
+@pytest.mark.parametrize("model", ["condition", "measurement"])
+def test___scalar_value_on_construction___sets_units(model: str) -> None:
+    value = Scalar(3.4, "V")
+    item = Condition("Vcc", value) if model == "condition" else Measurement(name="Vcc", value=value)
+
+    assert item.units == "V"
+
+
+@pytest.mark.parametrize("model", ["condition", "measurement"])
+def test___scalar_value_with_given_units___keeps_given_units(model: str) -> None:
+    value = Scalar(3.4, "V")
+    item = (
+        Condition("Vcc", value, units="mV")
+        if model == "condition"
+        else Measurement(name="Vcc", value=value, units="mV")
+    )
+
+    assert item.units == "mV"
+
+
+@pytest.mark.parametrize("model", ["condition", "measurement"])
+def test___scalar_value_set_later___sets_empty_units(model: str) -> None:
+    item = Condition("Vcc", 3.4) if model == "condition" else Measurement(name="Vcc", value=3.4)
+
+    item.value = Scalar(3.4, "V")
+
+    assert item.units == "V"
+
+
+@pytest.mark.parametrize("model", ["condition", "measurement"])
+def test___scalar_value_set_later___keeps_existing_units(model: str) -> None:
+    item = (
+        Condition("Vcc", 3.4, units="mV")
+        if model == "condition"
+        else Measurement(name="Vcc", value=3.4, units="mV")
+    )
+
+    item.value = Scalar(3.4, "V")
+
+    assert item.units == "mV"
+
+
 def test___condition___scalar_with_only_units_reads_as_plain_value() -> None:
     proto = Condition("voltage", Scalar(3.3, "V")).to_protobuf()
 
@@ -262,6 +319,23 @@ def test___error_information___round_trips_through_protobuf() -> None:
 def test___enums___reject_unknown_protobuf_values(enum_type: type[Outcome] | type[Status]) -> None:
     with pytest.raises(ValueError):
         enum_type.from_protobuf(999)  # type: ignore[arg-type]
+
+
+@pytest.mark.parametrize(
+    ("field_type", "message_type"),
+    [
+        (TestResultField, data_store_pb2.TestResult),
+        (StepField, data_store_pb2.Step),
+        (MeasurementField, data_store_pb2.Measurement),
+        (MeasurementValueField, data_store_service_pb2.ReadMeasurementValuesResponse),
+    ],
+)
+def test___read_field_enums___match_protobuf_fields(
+    field_type: type[Enum], message_type: Any
+) -> None:
+    field_names = sorted(field.value for field in field_type)
+
+    assert field_names == sorted(field.name for field in message_type.DESCRIPTOR.fields)
 
 
 @pytest.mark.parametrize(
@@ -460,3 +534,85 @@ def test___client___wraps_every_low_level_method() -> None:
     }
 
     assert sorted(low_level_methods - set(dir(DataStoreClient))) == []
+
+
+_OUTPUT_ONLY_INIT_PARAMETERS = {"id", "created_at", "updated_at", "created_by", "updated_by"}
+
+
+@pytest.mark.parametrize(
+    ("model", "create_fields", "excluded"),
+    [
+        (TestResult, TestResultCreateFields, {"name"}),
+        (Step, StepCreateFields, {"name", "path", "path_ids"}),
+    ],
+)
+def test___create_fields___match_model_constructor(
+    model: type, create_fields: type, excluded: set[str]
+) -> None:
+    parameters = set(inspect.signature(model).parameters)
+
+    expected = parameters - excluded - _OUTPUT_ONLY_INIT_PARAMETERS
+    assert set(create_fields.__annotations__) == expected
+
+
+@pytest.mark.parametrize(
+    ("update_fields", "allowed"),
+    [
+        (TestResultUpdateFields, TEST_RESULT_UPDATE_FIELDS),
+        (StepUpdateFields, STEP_UPDATE_FIELDS),
+    ],
+)
+def test___update_fields___match_updatable_fields(
+    update_fields: type, allowed: frozenset[str]
+) -> None:
+    assert set(update_fields.__annotations__) == allowed
+
+
+_UUID = uuid.UUID("3f2b8c1e-5a7d-4e2b-9c1f-2d4e6a8b0c3d")
+
+
+def test___test_result___uuid_ids___stored_as_strings() -> None:
+    test_result = TestResult(
+        "t",
+        id=_UUID,
+        uut_instance_id=_UUID,
+        uut_id=_UUID,
+        operator_id=_UUID,
+        test_station_id=_UUID,
+        test_description_id=_UUID,
+        software_item_ids=[_UUID, "alias"],
+        hardware_item_ids=[_UUID],
+        test_adapter_ids=[_UUID],
+    )
+
+    proto = test_result.to_protobuf()
+    assert test_result.id == str(_UUID)
+    assert test_result.operator_id == str(_UUID)
+    assert list(test_result.software_item_ids) == [str(_UUID), "alias"]
+    assert proto.uut_instance_id == proto.test_description_id == str(_UUID)
+    assert list(proto.hardware_item_ids) == list(proto.test_adapter_ids) == [str(_UUID)]
+
+
+def test___step___uuid_ids___stored_as_strings() -> None:
+    step = Step("s", id=_UUID, parent_step_id=_UUID, test_result_id=_UUID, test_id=_UUID)
+
+    assert (step.id, step.parent_step_id, step.test_result_id, step.test_id) == (str(_UUID),) * 4
+
+
+def test___measurement___uuid_ids___stored_as_strings() -> None:
+    measurement = Measurement(
+        id=_UUID,
+        test_result_id=_UUID,
+        step_id=_UUID,
+        software_item_ids=[_UUID],
+        hardware_item_ids=[_UUID],
+        test_adapter_ids=[_UUID],
+    )
+
+    assert (measurement.id, measurement.test_result_id, measurement.step_id) == (str(_UUID),) * 3
+    assert list(measurement.to_protobuf().software_item_ids) == [str(_UUID)]
+
+
+def test___model___single_uuid_for_id_list___raises_type_error() -> None:
+    with pytest.raises(TypeError, match="^software_item_ids must be"):
+        TestResult("t", software_item_ids=_UUID)  # type: ignore[arg-type]

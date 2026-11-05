@@ -4,13 +4,14 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
 from typing import Any, cast
+from uuid import UUID
 
 import hightime as ht
 import numpy as np
 from google.protobuf import json_format
 from google.protobuf.message import Message
 from google.protobuf.struct_pb2 import Struct
-from ni.measurements.data.v2.data_store_pb2 import MeasurementValue
+from ni.measurements.data.v2.data_store_pb2 import MeasurementValue as MeasurementValueProto
 from ni.protobuf.types.precision_duration_conversion import (
     hightime_timedelta_from_protobuf,
     hightime_timedelta_to_protobuf,
@@ -54,9 +55,10 @@ from nitypes.waveform import AnalogWaveform, ComplexWaveform, DigitalWaveform, S
 from nitypes.xy_data import XYData
 
 from ni.datastore.data.v2._types._json_value import JsonValue, json_value_from_protobuf
+from ni.datastore.data.v2._types._measurement_value import MeasurementReadValue
 
 
-def populate_measurement_value(measurement_value: MeasurementValue, value: object) -> None:
+def populate_measurement_value(measurement_value: MeasurementValueProto, value: object) -> None:
     """Convert a supported Python value into a V2 measurement value."""
     if isinstance(value, bool):
         measurement_value.scalar.bool_value = value
@@ -129,7 +131,9 @@ def populate_measurement_value(measurement_value: MeasurementValue, value: objec
         )
 
 
-def convert_measurement_value_from_protobuf(measurement_value: MeasurementValue) -> object:
+def convert_measurement_value_from_protobuf(
+    measurement_value: MeasurementValueProto,
+) -> MeasurementReadValue:
     """Convert a V2 measurement value into a useful Python value."""
     value_type = measurement_value.WhichOneof("value")
     if value_type == "scalar":
@@ -161,20 +165,20 @@ def convert_measurement_value_from_protobuf(measurement_value: MeasurementValue)
     raise TypeError(f"Unsupported or missing measurement value type: {value_type}.")
 
 
-def measurement_value_to_protobuf(value: object) -> MeasurementValue | None:
+def measurement_value_to_protobuf(value: object) -> MeasurementValueProto | None:
     """Convert an optional measurement value, upper limit, or lower limit to protobuf."""
     if value is None:
         return None
-    measurement_value = MeasurementValue()
+    measurement_value = MeasurementValueProto()
     populate_measurement_value(measurement_value, value)
     return measurement_value
 
 
-def measurement_value_from_protobuf(message: Message, field: str) -> object:
+def measurement_value_from_protobuf(message: Message, field: str) -> MeasurementReadValue | None:
     """Convert an optional MeasurementValue field, or return None when it has no inline value."""
     if not message.HasField(field):
         return None
-    measurement_value = cast(MeasurementValue, getattr(message, field))
+    measurement_value = cast(MeasurementValueProto, getattr(message, field))
     # Non-scalar payloads may be returned only as a data_moniker reference.
     if measurement_value.WhichOneof("value") in (None, "data_moniker"):
         return None
@@ -226,3 +230,17 @@ def string_list(values: Iterable[str] | None, name: str) -> list[str]:
     if isinstance(values, str):
         raise TypeError(f"{name} must be a list or other iterable of strings, not a single str.")
     return list(values) if values is not None else []
+
+
+def id_string(value: str | UUID) -> str:
+    """Convert a resource or metadata ID to its string form."""
+    return str(value) if isinstance(value, UUID) else value
+
+
+def id_list(values: Iterable[str | UUID] | None, name: str) -> list[str]:
+    """Convert an iterable of IDs to a list of strings, rejecting a single ID."""
+    if isinstance(values, (str, UUID)):
+        raise TypeError(
+            f"{name} must be a list or other iterable of IDs, not a single {type(values).__name__}."
+        )
+    return [id_string(value) for value in values] if values is not None else []

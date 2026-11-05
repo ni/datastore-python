@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import Any, Iterable, Mapping, MutableMapping, MutableSequence
+from uuid import UUID
 
 import hightime as ht
 from ni.measurements.data.v2.data_store_pb2 import TestResult as TestResultProto
@@ -12,6 +13,8 @@ from ni.datastore.data.v2._grpc_conversion import (
     duration_to_protobuf,
     extension_from_protobuf,
     extension_to_protobuf,
+    id_list,
+    id_string,
     string_list,
     timestamp_from_protobuf,
     timestamp_to_protobuf,
@@ -125,20 +128,20 @@ class TestResult:
         self,
         name: str,
         *,
-        id: str = "",
-        uut_instance_id: str = "",
-        uut_id: str = "",
-        operator_id: str = "",
-        test_station_id: str = "",
-        test_description_id: str = "",
+        id: str | UUID = "",
+        uut_instance_id: str | UUID = "",
+        uut_id: str | UUID = "",
+        operator_id: str | UUID = "",
+        test_station_id: str | UUID = "",
+        test_description_id: str | UUID = "",
         uut_instance: UutInstance | None = None,
         uut: Uut | None = None,
         operator: Operator | None = None,
         test_station: TestStation | None = None,
         test_description: TestDescription | None = None,
-        software_item_ids: Iterable[str] | None = None,
-        hardware_item_ids: Iterable[str] | None = None,
-        test_adapter_ids: Iterable[str] | None = None,
+        software_item_ids: Iterable[str | UUID] | None = None,
+        hardware_item_ids: Iterable[str | UUID] | None = None,
+        test_adapter_ids: Iterable[str | UUID] | None = None,
         software_items: Iterable[SoftwareItem] | None = None,
         hardware_items: Iterable[HardwareItem] | None = None,
         test_adapters: Iterable[TestAdapter] | None = None,
@@ -204,26 +207,24 @@ class TestResult:
             updated_by (optional): Output only. Who last updated the test result.
         """
         self.name = name
-        self.id = id
-        self.uut_instance_id = uut_instance_id
-        self.uut_id = uut_id
-        self.operator_id = operator_id
-        self.test_station_id = test_station_id
-        self.test_description_id = test_description_id
+        self.id = id_string(id)
+        self.uut_instance_id = id_string(uut_instance_id)
+        self.uut_id = id_string(uut_id)
+        self.operator_id = id_string(operator_id)
+        self.test_station_id = id_string(test_station_id)
+        self.test_description_id = id_string(test_description_id)
         self.uut_instance = uut_instance
         self.uut = uut
         self.operator = operator
         self.test_station = test_station
         self.test_description = test_description
-        self._software_item_ids: MutableSequence[str] = string_list(
+        self._software_item_ids: MutableSequence[str] = id_list(
             software_item_ids, "software_item_ids"
         )
-        self._hardware_item_ids: MutableSequence[str] = string_list(
+        self._hardware_item_ids: MutableSequence[str] = id_list(
             hardware_item_ids, "hardware_item_ids"
         )
-        self._test_adapter_ids: MutableSequence[str] = string_list(
-            test_adapter_ids, "test_adapter_ids"
-        )
+        self._test_adapter_ids: MutableSequence[str] = id_list(test_adapter_ids, "test_adapter_ids")
         self._software_items: MutableSequence[SoftwareItem] = (
             list(software_items) if software_items is not None else []
         )

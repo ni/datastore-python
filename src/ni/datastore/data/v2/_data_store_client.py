@@ -4,11 +4,12 @@ from __future__ import annotations
 
 import sys
 from collections.abc import Iterable, Mapping, Sequence
+from enum import Enum
 from types import TracebackType
-from typing import Any, cast, overload, Type, TYPE_CHECKING, TypeVar
+from typing import Any, overload, Type, TYPE_CHECKING, TypeVar
+from uuid import UUID
 
 import hightime as ht
-from google.protobuf import json_format
 from google.protobuf.field_mask_pb2 import FieldMask
 from grpc import Channel
 from ni.measurementlink.discovery.v1.client import DiscoveryClient
@@ -51,31 +52,57 @@ from ni.measurements.data.v2.data_store_service_pb2 import (
     UpdateStepRequest,
     UpdateTestResultRequest,
 )
-from ni.protobuf.types.precision_duration_conversion import hightime_timedelta_to_protobuf
-from ni.protobuf.types.precision_timestamp_conversion import hightime_datetime_to_protobuf
 from ni_grpc_extensions.channelpool import GrpcChannelPool
 
 from ni.datastore.data.v2._grpc_conversion import (
     convert_measurement_value_from_protobuf,
+    id_list,
+    id_string,
     measurement_value_from_protobuf,
     string_list,
 )
 from ni.datastore.data.v2._types._condition import Condition
+from ni.datastore.data.v2._types._create import StepCreateFields, TestResultCreateFields
 from ni.datastore.data.v2._types._error_information import ErrorInformation
 from ni.datastore.data.v2._types._measurement import Measurement
+from ni.datastore.data.v2._types._measurement_value import MeasurementReadValue, MeasurementValue
 from ni.datastore.data.v2._types._outcome import Outcome
 from ni.datastore.data.v2._types._query_results import QueryResults
+from ni.datastore.data.v2._types._read_fields import (
+    MeasurementField,
+    MeasurementValueField,
+    StepField,
+    TestResultField,
+)
 from ni.datastore.data.v2._types._step import Step
 from ni.datastore.data.v2._types._test_result import TestResult
+from ni.datastore.data.v2._types._update import (
+    MeasurementUpdateBuilder,
+    MeasurementUpdateFields,
+    StepUpdateBuilder,
+    StepUpdateFields,
+    TestResultUpdateBuilder,
+    TestResultUpdateFields,
+)
+from ni.datastore.data.v2._update_conversion import (
+    MEASUREMENT_UPDATE_FIELDS,
+    populate_update,
+    resource_update_fields,
+    STEP_RELATIONSHIPS,
+    STEP_UPDATE_FIELDS,
+    TEST_RESULT_RELATIONSHIPS,
+    TEST_RESULT_UPDATE_FIELDS,
+)
 from ni.datastore.metadata import HardwareItem, SoftwareItem, TestAdapter
 
 if TYPE_CHECKING:
     if sys.version_info >= (3, 11):
-        from typing import Self
+        from typing import Self, Unpack
     else:
-        from typing_extensions import Self
+        from typing_extensions import Self, Unpack
 
 TRead = TypeVar("TRead")
+_T = TypeVar("_T")
 
 
 class DataStoreClient:
@@ -132,31 +159,77 @@ class DataStoreClient:
         self._closed = True
         self._data_store_client.close()
 
-    def create_test_result(self, test_result: TestResult) -> str:
-        """Create a test result.
+    @overload
+    def create_test_result(self, test_result: TestResult, /) -> TestResult: ...
+
+    @overload
+    def create_test_result(
+        self, name: str, /, **fields: Unpack[TestResultCreateFields]
+    ) -> TestResult: ...
+
+    def create_test_result(
+        self, test_result: TestResult | str, /, **fields: Unpack[TestResultCreateFields]
+    ) -> TestResult:
+        """Create a test result, including any nested steps.
+
+        Pass either a TestResult, or its name and fields as keyword arguments.
 
         Args:
-            test_result: The test result object to be created.
+            test_result: The test result to create, or its name.
+
+            **fields: The test result fields, when a name is given. Each has the
+                same meaning as the matching TestResult argument.
 
         Returns:
-            str: The test result ID. Generated if not specified.
+            TestResult: The created test result as returned by the service, including
+                its ID. Nested steps and expanded metadata are not included.
+
+        Raises:
+            TypeError: If fields are given with a TestResult.
         """
+        if isinstance(test_result, TestResult):
+            _reject_model_fields(fields, "a TestResult", "test result")
+        else:
+            test_result = TestResult(test_result, **fields)
         create_request = CreateTestResultRequest(test_result=test_result.to_protobuf())
-        return self._get_data_store_client().create_test_result(create_request).id
+        return TestResult.from_protobuf(
+            self._get_data_store_client().create_test_result(create_request)
+        )
 
-    def create_step(self, step: Step) -> str:
-        """Create a step, including any conditions on the step.
+    @overload
+    def create_step(self, step: Step, /) -> Step: ...
+
+    @overload
+    def create_step(self, name: str, /, **fields: Unpack[StepCreateFields]) -> Step: ...
+
+    def create_step(self, step: Step | str, /, **fields: Unpack[StepCreateFields]) -> Step:
+        """Create a step, including any conditions, child steps, and measurements.
+
+        Pass either a Step, or its name and fields as keyword arguments.
 
         Args:
-            step: The step object to be created.
+            step: The step to create, or its name.
+
+            **fields: The step fields, when a name is given, such as
+                test_result_id. Each has the same meaning as the matching Step
+                argument.
 
         Returns:
-            str: The step ID. Generated if not specified.
-        """
-        create_request = CreateStepRequest(step=step.to_protobuf())
-        return self._get_data_store_client().create_step(create_request).id
+            Step: The created step as returned by the service, including its ID.
+                Conditions, child steps, measurements, and expanded metadata are not
+                included.
 
-    def add_condition(self, step_id: str, condition: Condition) -> Step:
+        Raises:
+            TypeError: If fields are given with a Step.
+        """
+        if isinstance(step, Step):
+            _reject_model_fields(fields, "a Step", "step")
+        else:
+            step = Step(step, **fields)
+        create_request = CreateStepRequest(step=step.to_protobuf())
+        return Step.from_protobuf(self._get_data_store_client().create_step(create_request))
+
+    def add_condition(self, step_id: str | UUID, condition: Condition) -> Step:
         """Add a condition to a step, replacing any condition with the same name.
 
         Args:
@@ -167,10 +240,12 @@ class DataStoreClient:
         Returns:
             Step: The updated step.
         """
-        add_request = AddConditionRequest(step_id=step_id, condition=condition.to_protobuf())
+        add_request = AddConditionRequest(
+            step_id=id_string(step_id), condition=condition.to_protobuf()
+        )
         return Step.from_protobuf(self._get_data_store_client().add_condition(add_request).step)
 
-    def remove_condition(self, step_id: str, condition_name: str) -> Step:
+    def remove_condition(self, step_id: str | UUID, condition_name: str) -> Step:
         """Remove a condition from a step.
 
         Args:
@@ -181,20 +256,26 @@ class DataStoreClient:
         Returns:
             Step: The updated step.
         """
-        remove_request = RemoveConditionRequest(step_id=step_id, condition_name=condition_name)
+        remove_request = RemoveConditionRequest(
+            step_id=id_string(step_id), condition_name=condition_name
+        )
         return Step.from_protobuf(
             self._get_data_store_client().remove_condition(remove_request).step
         )
 
+    @overload
+    def create_measurement(self, measurement: Measurement, /) -> Measurement: ...
+
+    @overload
     def create_measurement(
         self,
         name: str,
-        value: object,
-        step_id: str,
+        value: MeasurementValue,
+        step_id: str | UUID,
         *,
         units: str = "",
-        upper_limit: object = None,
-        lower_limit: object = None,
+        upper_limit: MeasurementValue | None = None,
+        lower_limit: MeasurementValue | None = None,
         comparison_type: str = "",
         notes: str = "",
         start_date_time: ht.datetime | None = None,
@@ -204,16 +285,23 @@ class DataStoreClient:
         error_information: ErrorInformation | None = None,
         extension: Mapping[str, Any] | None = None,
         schema_id: str = "",
-        software_item_ids: Iterable[str] = (),
-        hardware_item_ids: Iterable[str] = (),
-        test_adapter_ids: Iterable[str] = (),
+        software_item_ids: Iterable[str | UUID] = (),
+        hardware_item_ids: Iterable[str | UUID] = (),
+        test_adapter_ids: Iterable[str | UUID] = (),
         software_items: Iterable[SoftwareItem] = (),
         hardware_items: Iterable[HardwareItem] = (),
         test_adapters: Iterable[TestAdapter] = (),
-    ) -> str:
+    ) -> Measurement: ...
+
+    def create_measurement(self, *args: Any, **kwargs: Any) -> Measurement:
         """Create a measurement associated with a test step.
 
+        Pass either a Measurement, or the measurement fields as arguments.
+
         Args:
+            measurement: The measurement to create. It must include a step ID and
+                value. Cannot be combined with the other arguments.
+
             name: The name used for grouping conceptually alike measurements.
 
             value: The measured value. Supported types are bool, int, float, str,
@@ -272,42 +360,33 @@ class DataStoreClient:
                 request. Each item must already be linked to the owning test result.
 
         Returns:
-            str: The measurement ID.
-        """
-        measurement = Measurement(
-            name=name,
-            value=value,
-            step_id=step_id,
-            units=units,
-            upper_limit=upper_limit,
-            lower_limit=lower_limit,
-            comparison_type=comparison_type,
-            notes=notes,
-            start_date_time=start_date_time,
-            end_date_time=end_date_time,
-            duration=duration,
-            outcome=outcome,
-            error_information=error_information,
-            extension=extension,
-            schema_id=schema_id,
-            software_item_ids=software_item_ids,
-            hardware_item_ids=hardware_item_ids,
-            test_adapter_ids=test_adapter_ids,
-            software_items=software_items,
-            hardware_items=hardware_items,
-            test_adapters=test_adapters,
-        )
-        create_request = CreateMeasurementRequest(measurement=measurement.to_protobuf())
-        return self._get_data_store_client().create_measurement(create_request).id
+            Measurement: The created measurement as returned by the service,
+                including its ID. Expanded metadata is not included.
 
-    def batch_create_test_results(self, test_results: Iterable[TestResult]) -> Sequence[str]:
+        Raises:
+            TypeError: If fields are given with a Measurement.
+        """
+        if args and isinstance(args[0], Measurement):
+            _reject_model_fields(
+                {**kwargs, **dict(enumerate(args[1:]))}, "a Measurement", "measurement"
+            )
+            measurement: Measurement = args[0]
+        else:
+            measurement = _measurement_from_fields(*args, **kwargs)
+        create_request = CreateMeasurementRequest(measurement=measurement.to_protobuf())
+        return Measurement.from_protobuf(
+            self._get_data_store_client().create_measurement(create_request)
+        )
+
+    def batch_create_test_results(self, test_results: Iterable[TestResult]) -> Sequence[TestResult]:
         """Create multiple test results, including any nested steps, in one atomic call.
 
         Args:
             test_results: The test results to create.
 
         Returns:
-            Sequence[str]: The test result IDs, in request order.
+            Sequence[TestResult]: The created test results, in request order. Nested
+                steps and expanded metadata are not included.
         """
         batch_request = BatchCreateTestResultsRequest(
             requests=[
@@ -316,24 +395,29 @@ class DataStoreClient:
             ]
         )
         batch_response = self._get_data_store_client().batch_create_test_results(batch_request)
-        return [test_result.id for test_result in batch_response.test_results]
+        return [
+            TestResult.from_protobuf(test_result) for test_result in batch_response.test_results
+        ]
 
-    def batch_create_steps(self, steps: Iterable[Step]) -> Sequence[str]:
+    def batch_create_steps(self, steps: Iterable[Step]) -> Sequence[Step]:
         """Create multiple steps, including any nested children, in one atomic call.
 
         Args:
             steps: The steps to create.
 
         Returns:
-            Sequence[str]: The step IDs, in request order.
+            Sequence[Step]: The created steps, in request order. Conditions, child
+                steps, measurements, and expanded metadata are not included.
         """
         batch_request = BatchCreateStepsRequest(
             requests=[CreateStepRequest(step=step.to_protobuf()) for step in steps]
         )
         batch_response = self._get_data_store_client().batch_create_steps(batch_request)
-        return [step.id for step in batch_response.steps]
+        return [Step.from_protobuf(step) for step in batch_response.steps]
 
-    def batch_create_measurements(self, measurements: Iterable[Measurement]) -> Sequence[str]:
+    def batch_create_measurements(
+        self, measurements: Iterable[Measurement]
+    ) -> Sequence[Measurement]:
         """Create multiple measurements in one atomic call.
 
         Args:
@@ -341,7 +425,8 @@ class DataStoreClient:
                 value. They may target different steps or test results.
 
         Returns:
-            Sequence[str]: The measurement IDs, in request order.
+            Sequence[Measurement]: The created measurements, in request order.
+                Expanded metadata is not included.
         """
         batch_request = BatchCreateMeasurementsRequest(
             requests=[
@@ -350,30 +435,32 @@ class DataStoreClient:
             ]
         )
         batch_response = self._get_data_store_client().batch_create_measurements(batch_request)
-        return [measurement.id for measurement in batch_response.measurements]
+        return [
+            Measurement.from_protobuf(measurement) for measurement in batch_response.measurements
+        ]
 
     @overload
     def read_measurement_value(
         self,
-        read_source: Measurement,
+        read_source: Measurement | str | UUID,
         expected_type: Type[TRead],
     ) -> TRead: ...
 
     @overload
     def read_measurement_value(
         self,
-        read_source: Measurement,
-    ) -> object: ...
+        read_source: Measurement | str | UUID,
+    ) -> MeasurementReadValue: ...
 
     def read_measurement_value(
         self,
-        read_source: Measurement,
+        read_source: Measurement | str | UUID,
         expected_type: Type[TRead] | None = None,
-    ) -> TRead | object:
+    ) -> TRead | MeasurementReadValue:
         """Read the value of a measurement.
 
         Args:
-            read_source: The measurement to read. Only its id is used.
+            read_source: The measurement to read, or its ID. Only the ID is used.
 
             expected_type: Optional type to validate the returned data against.
 
@@ -387,7 +474,7 @@ class DataStoreClient:
                 doesn't match.
         """
         read_request = ReadMeasurementValuesRequest(
-            measurement_id=read_source.id, read_mask=FieldMask(paths=["value"])
+            measurement_id=_resource_id(read_source), read_mask=FieldMask(paths=["value"])
         )
         response = self._get_data_store_client().read_measurement_values(read_request)
         read_value = convert_measurement_value_from_protobuf(response.value)
@@ -396,86 +483,93 @@ class DataStoreClient:
         return read_value
 
     def read_measurement_values(
-        self, read_source: Measurement, *, read_fields: Iterable[str] = ()
+        self,
+        read_source: Measurement | str | UUID,
+        *,
+        read_fields: Iterable[MeasurementValueField] = (),
     ) -> Measurement:
         """Read the value and limits of a measurement.
 
         Args:
-            read_source: The measurement to read. Only its id is used.
+            read_source: The measurement to read, or its ID. Only the ID is used.
 
-            read_fields: Optional fields to read: "value", "upper_limit", and
-                "lower_limit". All three are read when empty.
+            read_fields: Optional fields to read, such as MeasurementValueField.VALUE.
+                The value and both limits are read when empty.
 
         Returns:
             Measurement: A measurement with id, value, upper_limit, and
                 lower_limit set. A limit that was not published is None.
         """
+        measurement_id = _resource_id(read_source)
         read_request = ReadMeasurementValuesRequest(
-            measurement_id=read_source.id, read_mask=_read_mask(read_fields)
+            measurement_id=measurement_id, read_mask=_read_mask(read_fields)
         )
         response = self._get_data_store_client().read_measurement_values(read_request)
         return Measurement(
-            id=read_source.id,
+            id=measurement_id,
             value=measurement_value_from_protobuf(response, "value"),
             upper_limit=measurement_value_from_protobuf(response, "upper_limit"),
             lower_limit=measurement_value_from_protobuf(response, "lower_limit"),
         )
 
     def get_test_result(
-        self, test_result_id: str, *, read_fields: Iterable[str] = ()
+        self, test_result_id: str | UUID, *, read_fields: Iterable[TestResultField | str] = ()
     ) -> TestResult:
         """Get the test result with the given ID.
 
         Args:
             test_result_id: The ID of the test result.
 
-            read_fields: Optional field names to return. When empty, the service returns
-                its default fields.
+            read_fields: Optional fields to return, such as TestResultField.NAME. Field
+                names as strings are also accepted. When empty, the service returns its
+                default fields.
 
         Returns:
             TestResult: The requested test result.
         """
         get_request = GetTestResultRequest(
-            test_result_id=test_result_id, read_mask=_read_mask(read_fields)
+            test_result_id=id_string(test_result_id), read_mask=_read_mask(read_fields)
         )
         return TestResult.from_protobuf(self._get_data_store_client().get_test_result(get_request))
 
-    def get_step(self, step_id: str, *, read_fields: Iterable[str] = ()) -> Step:
+    def get_step(self, step_id: str | UUID, *, read_fields: Iterable[StepField | str] = ()) -> Step:
         """Get the step with the given ID.
 
         Args:
             step_id: The ID of the step.
 
-            read_fields: Optional field names to return, such as "conditions". When
-                empty, the service returns its default fields.
+            read_fields: Optional fields to return, such as StepField.CONDITIONS. Field
+                names as strings are also accepted. When empty, the service returns its
+                default fields.
 
         Returns:
             Step: The requested step.
         """
-        get_request = GetStepRequest(step_id=step_id, read_mask=_read_mask(read_fields))
+        get_request = GetStepRequest(step_id=id_string(step_id), read_mask=_read_mask(read_fields))
         return Step.from_protobuf(self._get_data_store_client().get_step(get_request))
 
     def get_measurement(
-        self, measurement_id: str, *, read_fields: Iterable[str] = ()
+        self, measurement_id: str | UUID, *, read_fields: Iterable[MeasurementField | str] = ()
     ) -> Measurement:
         """Get the measurement with the given ID.
 
         Args:
             measurement_id: The ID of the measurement.
 
-            read_fields: Optional field names to return, such as "conditions". When
-                empty, the service returns its default fields.
+            read_fields: Optional fields to return, such as MeasurementField.CONDITIONS.
+                Field names as strings are also accepted. When empty, the service returns
+                its default fields.
 
         Returns:
             Measurement: The requested measurement.
         """
         get_request = GetMeasurementRequest(
-            measurement_id=measurement_id, read_mask=_read_mask(read_fields)
+            measurement_id=id_string(measurement_id), read_mask=_read_mask(read_fields)
         )
         return Measurement.from_protobuf(self._get_data_store_client().get_measurement(get_request))
 
     def query_test_results(
-        self, odata_query: str = "", *, read_fields: Iterable[str] = ()
+        self, odata_query: str = "", *, read_fields: Iterable[TestResultField | str] = ()
     ) -> QueryResults[TestResult]:
         """Query test results using OData query syntax.
 
@@ -483,7 +577,8 @@ class DataStoreClient:
             odata_query: An OData query string. An empty string returns all test
                 results. $select, $count, $expand, and $apply are not supported.
 
-            read_fields: Optional field names to return for each test result.
+            read_fields: Optional fields to return for each test result, such as
+                TestResultField.NAME. Field names as strings are also accepted.
 
         Returns:
             QueryResults[TestResult]: The matching test results, with next_link
@@ -499,7 +594,7 @@ class DataStoreClient:
         )
 
     def query_steps(
-        self, odata_query: str = "", *, read_fields: Iterable[str] = ()
+        self, odata_query: str = "", *, read_fields: Iterable[StepField | str] = ()
     ) -> QueryResults[Step]:
         """Query steps using OData query syntax.
 
@@ -507,7 +602,8 @@ class DataStoreClient:
             odata_query: An OData query string. An empty string returns all
                 steps. $select, $count, $expand, and $apply are not supported.
 
-            read_fields: Optional field names to return for each step.
+            read_fields: Optional fields to return for each step, such as
+                StepField.CONDITIONS. Field names as strings are also accepted.
 
         Returns:
             QueryResults[Step]: The matching steps, with next_link set when more
@@ -523,7 +619,7 @@ class DataStoreClient:
         )
 
     def query_measurements(
-        self, odata_query: str = "", *, read_fields: Iterable[str] = ()
+        self, odata_query: str = "", *, read_fields: Iterable[MeasurementField | str] = ()
     ) -> QueryResults[Measurement]:
         """Query measurements using OData query syntax.
 
@@ -532,7 +628,8 @@ class DataStoreClient:
                 measurements. $select, $count, $expand, and $apply are not
                 supported.
 
-            read_fields: Optional field names to return for each measurement.
+            read_fields: Optional fields to return for each measurement, such as
+                MeasurementField.CONDITIONS. Field names as strings are also accepted.
 
         Returns:
             QueryResults[Measurement]: The matching measurements, with next_link
@@ -547,78 +644,159 @@ class DataStoreClient:
             query_response.next_link,
         )
 
-    def update_test_result(self, test_result_id: str, **fields: object) -> TestResult:
+    @overload
+    def update_test_result(self, test_result: TestResultUpdateBuilder, /) -> TestResult: ...
+
+    @overload
+    def update_test_result(
+        self, test_result: TestResult | str | UUID, /, **fields: Unpack[TestResultUpdateFields]
+    ) -> TestResult: ...
+
+    def update_test_result(
+        self,
+        test_result: TestResult | TestResultUpdateBuilder | str | UUID,
+        /,
+        **fields: Unpack[TestResultUpdateFields],
+    ) -> TestResult:
         """Update mutable test result fields.
 
         Args:
-            test_result_id: The ID of the test result to update.
+            test_result: What to update. One of:
 
-            **fields: The fields to change, such as link="..." or
-                outcome=Outcome.FAILED. A value of None clears the field.
+                * A TestResultUpdateBuilder. Only the fields selected on the
+                  builder change.
+                * An ID or a TestResult with keyword fields, such as
+                  link="..." or outcome=Outcome.FAILED. Only those fields
+                  change. A value of None clears the field.
+                * A TestResult on its own. Every updatable field is set from
+                  it, so empty fields are cleared. Stage 2 fields are sent only
+                  when they have a value. When a relationship has both an ID
+                  and inline metadata, only the ID is sent.
+
+            **fields: The fields to change. Not allowed with a builder.
 
         Returns:
             TestResult: The updated test result.
 
         Raises:
+            TypeError: If keyword fields are given with a builder.
             ValueError: If no fields are given or a field cannot be updated.
         """
-        test_result = TestResultProto(id=test_result_id)
-        mask = _populate_update(test_result, fields, _TEST_RESULT_UPDATE_FIELDS)
-        update_request = UpdateTestResultRequest(test_result=test_result, update_mask=mask)
+        update_request = _test_result_update(test_result, fields)
         return TestResult.from_protobuf(
             self._get_data_store_client().update_test_result(update_request)
         )
 
-    def update_step(self, step_id: str, **fields: object) -> Step:
+    @overload
+    def update_step(self, step: StepUpdateBuilder, /) -> Step: ...
+
+    @overload
+    def update_step(
+        self, step: Step | str | UUID, /, **fields: Unpack[StepUpdateFields]
+    ) -> Step: ...
+
+    def update_step(
+        self, step: Step | StepUpdateBuilder | str | UUID, /, **fields: Unpack[StepUpdateFields]
+    ) -> Step:
         """Update mutable step fields.
 
         Args:
-            step_id: The ID of the step to update.
+            step: What to update. One of:
 
-            **fields: The fields to change, such as notes="...". A value of None
-                clears the field.
+                * A StepUpdateBuilder. Only the fields selected on the builder
+                  change.
+                * An ID or a Step with keyword fields, such as notes="...".
+                  Only those fields change. A value of None clears the field.
+                * A Step on its own. Every updatable field is set from it, so
+                  empty fields are cleared. Stage 2 fields are sent only when
+                  they have a value. When both test_id and test are set, only
+                  test_id is sent.
+
+            **fields: The fields to change. Not allowed with a builder.
 
         Returns:
             Step: The updated step.
 
         Raises:
+            TypeError: If keyword fields are given with a builder.
             ValueError: If no fields are given or a field cannot be updated.
         """
-        step = StepProto(id=step_id)
-        mask = _populate_update(step, fields, _STEP_UPDATE_FIELDS)
-        update_request = UpdateStepRequest(step=step, update_mask=mask)
+        update_request = _step_update(step, fields)
         return Step.from_protobuf(self._get_data_store_client().update_step(update_request))
 
-    def update_measurement(self, measurement_id: str, **fields: object) -> Measurement:
+    @overload
+    def update_measurement(self, measurement: MeasurementUpdateBuilder, /) -> Measurement: ...
+
+    @overload
+    def update_measurement(
+        self, measurement: Measurement | str | UUID, /, **fields: Unpack[MeasurementUpdateFields]
+    ) -> Measurement: ...
+
+    def update_measurement(
+        self,
+        measurement: Measurement | MeasurementUpdateBuilder | str | UUID,
+        /,
+        **fields: Unpack[MeasurementUpdateFields],
+    ) -> Measurement:
         """Update mutable measurement fields.
 
-        Args:
-            measurement_id: The ID of the measurement to update.
+        The value, units, and limits cannot be updated.
 
-            **fields: The fields to change, such as notes="...". A value of None
-                clears the field.
+        Args:
+            measurement: What to update. One of:
+
+                * A MeasurementUpdateBuilder. Only the fields selected on the
+                  builder change.
+                * An ID or a Measurement with keyword fields, such as
+                  notes="...". Only those fields change. A value of None
+                  clears the field.
+                * A Measurement on its own. Every updatable field is set from
+                  it, so empty fields are cleared. duration is sent only when
+                  it has a value.
+
+            **fields: The fields to change. Not allowed with a builder.
 
         Returns:
             Measurement: The updated measurement metadata.
 
         Raises:
+            TypeError: If keyword fields are given with a builder.
             ValueError: If no fields are given or a field cannot be updated.
         """
-        measurement = MeasurementProto(id=measurement_id)
-        mask = _populate_update(measurement, fields, _MEASUREMENT_UPDATE_FIELDS)
-        update_request = UpdateMeasurementRequest(measurement=measurement, update_mask=mask)
+        update_request = _measurement_update(measurement, fields)
         return Measurement.from_protobuf(
             self._get_data_store_client().update_measurement(update_request)
         )
 
+    @overload
     def batch_update_test_results(
-        self, updates: Mapping[str, Mapping[str, object]]
+        self, updates: Mapping[UUID, TestResultUpdateFields]
+    ) -> Sequence[TestResult]: ...
+
+    @overload
+    def batch_update_test_results(
+        self, updates: Mapping[str, TestResultUpdateFields]
+    ) -> Sequence[TestResult]: ...
+
+    @overload
+    def batch_update_test_results(
+        self, updates: Iterable[TestResult | TestResultUpdateBuilder]
+    ) -> Sequence[TestResult]: ...
+
+    def batch_update_test_results(
+        self,
+        updates: (
+            Mapping[str, TestResultUpdateFields]
+            | Mapping[UUID, TestResultUpdateFields]
+            | Iterable[TestResult | TestResultUpdateBuilder]
+        ),
     ) -> Sequence[TestResult]:
         """Update multiple test results in one atomic call.
 
         Args:
-            updates: The fields to change, keyed by test result ID. Each value
-                follows the update_test_result field rules.
+            updates: Either the fields to change, keyed by test result ID, or
+                builders and test results. Each item follows the
+                update_test_result rules.
 
         Returns:
             Sequence[TestResult]: The updated test results, in request order.
@@ -627,21 +805,35 @@ class DataStoreClient:
             ValueError: If no updates are given, or an update has no fields or
                 a field that cannot be updated.
         """
-        requests = []
-        for test_result_id, fields in _require_items(updates).items():
-            test_result = TestResultProto(id=test_result_id)
-            mask = _populate_update(test_result, fields, _TEST_RESULT_UPDATE_FIELDS)
-            requests.append(UpdateTestResultRequest(test_result=test_result, update_mask=mask))
+        requests = [
+            _test_result_update(target, fields) for target, fields in _update_items(updates)
+        ]
         batch_request = BatchUpdateTestResultsRequest(requests=requests)
         batch_response = self._get_data_store_client().batch_update_test_results(batch_request)
         return [TestResult.from_protobuf(proto) for proto in batch_response.test_results]
 
-    def batch_update_steps(self, updates: Mapping[str, Mapping[str, object]]) -> Sequence[Step]:
+    @overload
+    def batch_update_steps(self, updates: Mapping[UUID, StepUpdateFields]) -> Sequence[Step]: ...
+
+    @overload
+    def batch_update_steps(self, updates: Mapping[str, StepUpdateFields]) -> Sequence[Step]: ...
+
+    @overload
+    def batch_update_steps(self, updates: Iterable[Step | StepUpdateBuilder]) -> Sequence[Step]: ...
+
+    def batch_update_steps(
+        self,
+        updates: (
+            Mapping[str, StepUpdateFields]
+            | Mapping[UUID, StepUpdateFields]
+            | Iterable[Step | StepUpdateBuilder]
+        ),
+    ) -> Sequence[Step]:
         """Update multiple steps in one atomic call.
 
         Args:
-            updates: The fields to change, keyed by step ID. Each value follows
-                the update_step field rules.
+            updates: Either the fields to change, keyed by step ID, or builders
+                and steps. Each item follows the update_step rules.
 
         Returns:
             Sequence[Step]: The updated steps, in request order.
@@ -650,23 +842,40 @@ class DataStoreClient:
             ValueError: If no updates are given, or an update has no fields or
                 a field that cannot be updated.
         """
-        requests = []
-        for step_id, fields in _require_items(updates).items():
-            step = StepProto(id=step_id)
-            mask = _populate_update(step, fields, _STEP_UPDATE_FIELDS)
-            requests.append(UpdateStepRequest(step=step, update_mask=mask))
+        requests = [_step_update(target, fields) for target, fields in _update_items(updates)]
         batch_request = BatchUpdateStepsRequest(requests=requests)
         batch_response = self._get_data_store_client().batch_update_steps(batch_request)
         return [Step.from_protobuf(proto) for proto in batch_response.steps]
 
+    @overload
     def batch_update_measurements(
-        self, updates: Mapping[str, Mapping[str, object]]
+        self, updates: Mapping[UUID, MeasurementUpdateFields]
+    ) -> Sequence[Measurement]: ...
+
+    @overload
+    def batch_update_measurements(
+        self, updates: Mapping[str, MeasurementUpdateFields]
+    ) -> Sequence[Measurement]: ...
+
+    @overload
+    def batch_update_measurements(
+        self, updates: Iterable[Measurement | MeasurementUpdateBuilder]
+    ) -> Sequence[Measurement]: ...
+
+    def batch_update_measurements(
+        self,
+        updates: (
+            Mapping[str, MeasurementUpdateFields]
+            | Mapping[UUID, MeasurementUpdateFields]
+            | Iterable[Measurement | MeasurementUpdateBuilder]
+        ),
     ) -> Sequence[Measurement]:
         """Update multiple measurements in one atomic call.
 
         Args:
-            updates: The fields to change, keyed by measurement ID. Each value
-                follows the update_measurement field rules.
+            updates: Either the fields to change, keyed by measurement ID, or
+                builders and measurements. Each item follows the
+                update_measurement rules.
 
         Returns:
             Sequence[Measurement]: The updated measurements, in request order.
@@ -675,22 +884,20 @@ class DataStoreClient:
             ValueError: If no updates are given, or an update has no fields or
                 a field that cannot be updated.
         """
-        requests = []
-        for measurement_id, fields in _require_items(updates).items():
-            measurement = MeasurementProto(id=measurement_id)
-            mask = _populate_update(measurement, fields, _MEASUREMENT_UPDATE_FIELDS)
-            requests.append(UpdateMeasurementRequest(measurement=measurement, update_mask=mask))
+        requests = [
+            _measurement_update(target, fields) for target, fields in _update_items(updates)
+        ]
         batch_request = BatchUpdateMeasurementsRequest(requests=requests)
         batch_response = self._get_data_store_client().batch_update_measurements(batch_request)
         return [Measurement.from_protobuf(proto) for proto in batch_response.measurements]
 
     def add_test_result_metadata(
         self,
-        test_result_id: str,
+        test_result_id: str | UUID,
         *,
-        software_item_ids: Iterable[str] = (),
-        hardware_item_ids: Iterable[str] = (),
-        test_adapter_ids: Iterable[str] = (),
+        software_item_ids: Iterable[str | UUID] = (),
+        hardware_item_ids: Iterable[str | UUID] = (),
+        test_adapter_ids: Iterable[str | UUID] = (),
     ) -> TestResult:
         """Link existing software items, hardware items, or test adapters to a test result.
 
@@ -711,10 +918,10 @@ class DataStoreClient:
             TestResult: The updated test result.
         """
         add_request = AddTestResultMetadataRequest(
-            test_result_id=test_result_id,
-            software_item_ids=string_list(software_item_ids, "software_item_ids"),
-            hardware_item_ids=string_list(hardware_item_ids, "hardware_item_ids"),
-            test_adapter_ids=string_list(test_adapter_ids, "test_adapter_ids"),
+            test_result_id=id_string(test_result_id),
+            software_item_ids=id_list(software_item_ids, "software_item_ids"),
+            hardware_item_ids=id_list(hardware_item_ids, "hardware_item_ids"),
+            test_adapter_ids=id_list(test_adapter_ids, "test_adapter_ids"),
         )
         return TestResult.from_protobuf(
             self._get_data_store_client().add_test_result_metadata(add_request).test_result
@@ -722,11 +929,11 @@ class DataStoreClient:
 
     def remove_test_result_metadata(
         self,
-        test_result_id: str,
+        test_result_id: str | UUID,
         *,
-        software_item_ids: Iterable[str] = (),
-        hardware_item_ids: Iterable[str] = (),
-        test_adapter_ids: Iterable[str] = (),
+        software_item_ids: Iterable[str | UUID] = (),
+        hardware_item_ids: Iterable[str | UUID] = (),
+        test_adapter_ids: Iterable[str | UUID] = (),
     ) -> TestResult:
         """Unlink software items, hardware items, or test adapters from a test result.
 
@@ -747,10 +954,10 @@ class DataStoreClient:
             TestResult: The updated test result.
         """
         remove_request = RemoveTestResultMetadataRequest(
-            test_result_id=test_result_id,
-            software_item_ids=string_list(software_item_ids, "software_item_ids"),
-            hardware_item_ids=string_list(hardware_item_ids, "hardware_item_ids"),
-            test_adapter_ids=string_list(test_adapter_ids, "test_adapter_ids"),
+            test_result_id=id_string(test_result_id),
+            software_item_ids=id_list(software_item_ids, "software_item_ids"),
+            hardware_item_ids=id_list(hardware_item_ids, "hardware_item_ids"),
+            test_adapter_ids=id_list(test_adapter_ids, "test_adapter_ids"),
         )
         return TestResult.from_protobuf(
             self._get_data_store_client().remove_test_result_metadata(remove_request).test_result
@@ -758,11 +965,11 @@ class DataStoreClient:
 
     def add_measurement_metadata(
         self,
-        measurement_id: str,
+        measurement_id: str | UUID,
         *,
-        software_item_ids: Iterable[str] = (),
-        hardware_item_ids: Iterable[str] = (),
-        test_adapter_ids: Iterable[str] = (),
+        software_item_ids: Iterable[str | UUID] = (),
+        hardware_item_ids: Iterable[str | UUID] = (),
+        test_adapter_ids: Iterable[str | UUID] = (),
     ) -> Measurement:
         """Link software items, hardware items, or test adapters to a measurement.
 
@@ -781,10 +988,10 @@ class DataStoreClient:
             Measurement: The updated measurement.
         """
         add_request = AddMeasurementMetadataRequest(
-            measurement_id=measurement_id,
-            software_item_ids=string_list(software_item_ids, "software_item_ids"),
-            hardware_item_ids=string_list(hardware_item_ids, "hardware_item_ids"),
-            test_adapter_ids=string_list(test_adapter_ids, "test_adapter_ids"),
+            measurement_id=id_string(measurement_id),
+            software_item_ids=id_list(software_item_ids, "software_item_ids"),
+            hardware_item_ids=id_list(hardware_item_ids, "hardware_item_ids"),
+            test_adapter_ids=id_list(test_adapter_ids, "test_adapter_ids"),
         )
         return Measurement.from_protobuf(
             self._get_data_store_client().add_measurement_metadata(add_request).measurement
@@ -792,11 +999,11 @@ class DataStoreClient:
 
     def remove_measurement_metadata(
         self,
-        measurement_id: str,
+        measurement_id: str | UUID,
         *,
-        software_item_ids: Iterable[str] = (),
-        hardware_item_ids: Iterable[str] = (),
-        test_adapter_ids: Iterable[str] = (),
+        software_item_ids: Iterable[str | UUID] = (),
+        hardware_item_ids: Iterable[str | UUID] = (),
+        test_adapter_ids: Iterable[str | UUID] = (),
     ) -> Measurement:
         """Unlink software items, hardware items, or test adapters from a measurement.
 
@@ -813,58 +1020,65 @@ class DataStoreClient:
             Measurement: The updated measurement.
         """
         remove_request = RemoveMeasurementMetadataRequest(
-            measurement_id=measurement_id,
-            software_item_ids=string_list(software_item_ids, "software_item_ids"),
-            hardware_item_ids=string_list(hardware_item_ids, "hardware_item_ids"),
-            test_adapter_ids=string_list(test_adapter_ids, "test_adapter_ids"),
+            measurement_id=id_string(measurement_id),
+            software_item_ids=id_list(software_item_ids, "software_item_ids"),
+            hardware_item_ids=id_list(hardware_item_ids, "hardware_item_ids"),
+            test_adapter_ids=id_list(test_adapter_ids, "test_adapter_ids"),
         )
         return Measurement.from_protobuf(
             self._get_data_store_client().remove_measurement_metadata(remove_request).measurement
         )
 
-    def delete_test_result(self, test_result_id: str, *, force: bool = False) -> None:
+    def delete_test_result(
+        self, test_result: TestResult | str | UUID, /, *, force: bool = False
+    ) -> None:
         """Delete a test result.
 
         Args:
-            test_result_id: The ID of the test result to delete.
+            test_result: The test result to delete, or its ID.
 
             force: If True, also delete the steps, measurements, and conditions that the
                 test result owns. If False, the service rejects the delete with
                 FAILED_PRECONDITION when owned children exist.
         """
-        delete_request = DeleteTestResultRequest(test_result_id=test_result_id, force=force)
+        delete_request = DeleteTestResultRequest(
+            test_result_id=_resource_id(test_result), force=force
+        )
         self._get_data_store_client().delete_test_result(delete_request)
 
-    def delete_step(self, step_id: str, *, force: bool = False) -> None:
+    def delete_step(self, step: Step | str | UUID, /, *, force: bool = False) -> None:
         """Delete a step.
 
         A step that has child steps cannot be deleted.
 
         Args:
-            step_id: The ID of the step to delete.
+            step: The step to delete, or its ID.
 
             force: If True, also delete the measurements of the step. If False, the
                 service rejects the delete with FAILED_PRECONDITION when measurements exist.
         """
-        delete_request = DeleteStepRequest(step_id=step_id, force=force)
+        delete_request = DeleteStepRequest(step_id=_resource_id(step), force=force)
         self._get_data_store_client().delete_step(delete_request)
 
-    def delete_measurement(self, measurement_id: str) -> None:
+    def delete_measurement(self, measurement: Measurement | str | UUID, /) -> None:
         """Delete a measurement.
 
         Args:
-            measurement_id: The ID of the measurement to delete.
+            measurement: The measurement to delete, or its ID.
         """
-        delete_request = DeleteMeasurementRequest(measurement_id=measurement_id)
+        delete_request = DeleteMeasurementRequest(measurement_id=_resource_id(measurement))
         self._get_data_store_client().delete_measurement(delete_request)
 
     def batch_delete_test_results(
-        self, test_result_ids: Iterable[str], *, force: bool | Iterable[bool] = False
+        self,
+        test_results: Iterable[TestResult | str | UUID],
+        *,
+        force: bool | Iterable[bool] = False,
     ) -> None:
         """Delete multiple test results in one atomic call.
 
         Args:
-            test_result_ids: The IDs of the test results to delete.
+            test_results: The test results to delete, or their IDs.
 
             force: One flag for all test results, or one flag per test result.
                 See delete_test_result for details on force behavior.
@@ -875,20 +1089,18 @@ class DataStoreClient:
         batch_request = BatchDeleteTestResultsRequest(
             requests=[
                 DeleteTestResultRequest(test_result_id=test_result_id, force=item_force)
-                for test_result_id, item_force in _with_force(
-                    test_result_ids, force, "test_result_ids"
-                )
+                for test_result_id, item_force in _with_force(test_results, force, "test_results")
             ]
         )
         self._get_data_store_client().batch_delete_test_results(batch_request)
 
     def batch_delete_steps(
-        self, step_ids: Iterable[str], *, force: bool | Iterable[bool] = False
+        self, steps: Iterable[Step | str | UUID], *, force: bool | Iterable[bool] = False
     ) -> None:
         """Delete multiple steps in one atomic call.
 
         Args:
-            step_ids: The IDs of the steps to delete. A step and its ancestor or
+            steps: The steps to delete, or their IDs. A step and its ancestor or
                 descendant cannot be deleted in the same call.
 
             force: One flag for all steps, or one flag per step. See delete_step
@@ -900,21 +1112,21 @@ class DataStoreClient:
         batch_request = BatchDeleteStepsRequest(
             requests=[
                 DeleteStepRequest(step_id=step_id, force=item_force)
-                for step_id, item_force in _with_force(step_ids, force, "step_ids")
+                for step_id, item_force in _with_force(steps, force, "steps")
             ]
         )
         self._get_data_store_client().batch_delete_steps(batch_request)
 
-    def batch_delete_measurements(self, measurement_ids: Iterable[str]) -> None:
+    def batch_delete_measurements(self, measurements: Iterable[Measurement | str | UUID]) -> None:
         """Delete multiple measurements in one atomic call.
 
         Args:
-            measurement_ids: The IDs of the measurements to delete.
+            measurements: The measurements to delete, or their IDs.
         """
         batch_request = BatchDeleteMeasurementsRequest(
             requests=[
                 DeleteMeasurementRequest(measurement_id=measurement_id)
-                for measurement_id in string_list(measurement_ids, "measurement_ids")
+                for measurement_id in _resource_ids(measurements, "measurements")
             ]
         )
         self._get_data_store_client().batch_delete_measurements(batch_request)
@@ -925,82 +1137,19 @@ class DataStoreClient:
         return self._data_store_client
 
 
-# Mutable update-mask paths from the V2 mutability design, including Stage 2 resource fields.
-_TEST_RESULT_UPDATE_FIELDS = frozenset(
-    {
-        "uut_instance_id",
-        "uut_id",
-        "operator_id",
-        "test_station_id",
-        "test_description_id",
-        "uut_instance",
-        "uut",
-        "operator",
-        "test_station",
-        "test_description",
-        "start_date_time",
-        "end_date_time",
-        "duration",
-        "outcome",
-        "status",
-        "error_information",
-        "link",
-        "keywords",
-        "extension",
-    }
-)
-_STEP_UPDATE_FIELDS = frozenset(
-    {
-        "test_id",
-        "test",
-        "notes",
-        "start_date_time",
-        "end_date_time",
-        "duration",
-        "outcome",
-        "status",
-        "error_information",
-        "link",
-        "keywords",
-        "extension",
-    }
-)
-_MEASUREMENT_UPDATE_FIELDS = frozenset(
-    {
-        "notes",
-        "outcome",
-        "error_information",
-        "extension",
-        "start_date_time",
-        "end_date_time",
-        "duration",
-    }
-)
-
-
-# Update fields that take a metadata model, such as Operator, and are sent as its protobuf.
-_METADATA_UPDATE_FIELDS = frozenset(
-    {"uut_instance", "uut", "operator", "test_station", "test_description", "test"}
-)
-
-
 def _read_mask(fields: Iterable[str]) -> FieldMask | None:
-    paths = string_list(fields, "read_fields")
+    # Send the field name of an enum member, not its str() representation.
+    paths = [
+        str(field.value) if isinstance(field, Enum) else field
+        for field in string_list(fields, "read_fields")
+    ]
     return FieldMask(paths=paths) if paths else None
 
 
-def _require_items(
-    updates: Mapping[str, Mapping[str, object]],
-) -> Mapping[str, Mapping[str, object]]:
-    if not updates:
-        raise ValueError("At least one update must be supplied for a batch update.")
-    return updates
-
-
 def _with_force(
-    ids: Iterable[str], force: bool | Iterable[bool], ids_name: str
+    resources: Iterable[TestResult | Step | str | UUID], force: bool | Iterable[bool], name: str
 ) -> list[tuple[str, bool]]:
-    id_list = string_list(ids, ids_name)
+    id_list = _resource_ids(resources, name)
     if isinstance(force, bool):
         return [(resource_id, force) for resource_id in id_list]
     force_list = list(force)
@@ -1011,34 +1160,99 @@ def _with_force(
     return list(zip(id_list, force_list))
 
 
-def _populate_update(
-    resource: TestResultProto | StepProto | MeasurementProto,
-    fields: Mapping[str, object],
-    allowed: frozenset[str],
-) -> FieldMask:
-    if not fields:
-        raise ValueError("At least one field must be supplied for an update.")
-    unknown_fields = fields.keys() - allowed
-    if unknown_fields:
-        raise ValueError(f"Fields cannot be updated: {', '.join(sorted(unknown_fields))}.")
+def _update_items(
+    updates: Mapping[str, Mapping[str, Any]] | Mapping[UUID, Mapping[str, Any]] | Iterable[_T],
+) -> list[tuple[_T | str | UUID, Mapping[str, Any]]]:
+    items: list[tuple[_T | str | UUID, Mapping[str, Any]]]
+    if isinstance(updates, Mapping):
+        items = [(resource_id, fields) for resource_id, fields in updates.items()]
+    else:
+        items = [(target, {}) for target in updates]
+    if not items:
+        raise ValueError("At least one update must be supplied for a batch update.")
+    return items
 
-    target = cast(Any, resource)
-    for name, value in fields.items():
-        if value is None:
-            target.ClearField(name)
-        elif name in {"start_date_time", "end_date_time"}:
-            getattr(target, name).CopyFrom(hightime_datetime_to_protobuf(cast(ht.datetime, value)))
-        elif name == "duration":
-            target.duration.CopyFrom(hightime_timedelta_to_protobuf(cast(ht.timedelta, value)))
-        elif name == "keywords":
-            target.keywords[:] = string_list(cast(Iterable[str], value), "keywords")
-        elif name == "extension":
-            json_format.ParseDict(dict(cast(Mapping[str, Any], value)), target.extension)
-        elif name == "error_information":
-            target.error_information.CopyFrom(cast(ErrorInformation, value).to_protobuf())
-        elif name in _METADATA_UPDATE_FIELDS:
-            getattr(target, name).CopyFrom(cast(Any, value).to_protobuf())
-        else:
-            setattr(target, name, value)
 
-    return FieldMask(paths=list(fields))
+def _test_result_update(
+    target: TestResult | TestResultUpdateBuilder | str | UUID, fields: Mapping[str, Any]
+) -> UpdateTestResultRequest:
+    if isinstance(target, TestResultUpdateBuilder):
+        _reject_builder_fields(fields)
+        return target.build_update()
+    if isinstance(target, TestResult) and not fields:
+        fields = resource_update_fields(
+            target,
+            TestResultProto.DESCRIPTOR,
+            TEST_RESULT_UPDATE_FIELDS,
+            TEST_RESULT_RELATIONSHIPS,
+        )
+    test_result = TestResultProto(id=_resource_id(target))
+    mask = populate_update(test_result, fields, TEST_RESULT_UPDATE_FIELDS)
+    return UpdateTestResultRequest(test_result=test_result, update_mask=mask)
+
+
+def _step_update(
+    target: Step | StepUpdateBuilder | str | UUID, fields: Mapping[str, Any]
+) -> UpdateStepRequest:
+    if isinstance(target, StepUpdateBuilder):
+        _reject_builder_fields(fields)
+        return target.build_update()
+    if isinstance(target, Step) and not fields:
+        fields = resource_update_fields(
+            target, StepProto.DESCRIPTOR, STEP_UPDATE_FIELDS, STEP_RELATIONSHIPS
+        )
+    step = StepProto(id=_resource_id(target))
+    mask = populate_update(step, fields, STEP_UPDATE_FIELDS)
+    return UpdateStepRequest(step=step, update_mask=mask)
+
+
+def _measurement_update(
+    target: Measurement | MeasurementUpdateBuilder | str | UUID, fields: Mapping[str, Any]
+) -> UpdateMeasurementRequest:
+    if isinstance(target, MeasurementUpdateBuilder):
+        _reject_builder_fields(fields)
+        return target.build_update()
+    if isinstance(target, Measurement) and not fields:
+        fields = resource_update_fields(
+            target, MeasurementProto.DESCRIPTOR, MEASUREMENT_UPDATE_FIELDS, {}
+        )
+    measurement = MeasurementProto(id=_resource_id(target))
+    mask = populate_update(measurement, fields, MEASUREMENT_UPDATE_FIELDS)
+    return UpdateMeasurementRequest(measurement=measurement, update_mask=mask)
+
+
+def _resource_id(target: TestResult | Step | Measurement | str | UUID) -> str:
+    return id_string(target) if isinstance(target, (str, UUID)) else target.id
+
+
+def _reject_builder_fields(fields: Mapping[str, Any]) -> None:
+    if fields:
+        raise TypeError(
+            "Keyword fields cannot be combined with an update builder. "
+            "Select the fields on the builder instead."
+        )
+
+
+def _resource_ids(
+    resources: Iterable[TestResult | Step | Measurement | str | UUID], name: str
+) -> list[str]:
+    # A str is itself an iterable of one-character strings.
+    if isinstance(resources, (str, UUID)):
+        raise TypeError(
+            f"{name} must be a list or other iterable of resources or IDs, "
+            f"not a single {type(resources).__name__}."
+        )
+    return [_resource_id(resource) for resource in resources]
+
+
+def _reject_model_fields(fields: Mapping[Any, Any], model: str, resource_name: str) -> None:
+    if fields:
+        raise TypeError(
+            f"Pass either {model} or the {resource_name} fields as arguments, not both."
+        )
+
+
+def _measurement_from_fields(
+    name: str, value: MeasurementValue, step_id: str | UUID, **fields: Any
+) -> Measurement:
+    return Measurement(name=name, value=value, step_id=step_id, **fields)

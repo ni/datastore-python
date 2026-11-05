@@ -20,36 +20,75 @@ from ni.datastore.data.v2 import (
 )
 
 with DataStoreClient() as client:
-    test_result_id = client.create_test_result(
+    test_result = client.create_test_result(
         TestResult("Power test", start_date_time=datetime.now(tz=timezone.utc))
     )
-    step_id = client.create_step(
-        Step("Measure voltage", test_result_id=test_result_id, status=Status.RUNNING)
+    step = client.create_step(
+        Step("Measure voltage", test_result_id=test_result.id, status=Status.RUNNING)
     )
     client.add_condition(
-        step_id, Condition("supply-voltage", 5.0, condition_type="Nominal", units="V")
+        step.id, Condition("supply-voltage", 5.0, condition_type="Nominal", units="V")
     )
-    measurement_id = client.create_measurement(
+    measurement = client.create_measurement(
         "voltage",
         5.02,
-        step_id,
+        step.id,
         units="V",
         outcome=Outcome.PASSED,
     )
-    measurement = client.get_measurement(measurement_id)
     voltage = client.read_measurement_value(measurement)
 ```
 
-The client also provides `get_test_result`, `get_step`, `query_test_results`,
-`query_steps`, `query_measurements`, and update methods for test results, steps,
-and measurements. These return the Python types, with timestamps as
-`hightime.datetime`, durations as `hightime.timedelta`, and extensions as
-dictionaries. Queries accept an OData expression and optional `read_fields`.
-Updates accept mutable fields as keyword arguments and build the protobuf field
-mask automatically. Empty updates and fields that the service does not allow to
-change raise `ValueError` before an RPC is made.
+Each create method accepts either the object or its fields as arguments, so
+`client.create_step("Measure voltage", test_result_id=test_result.id)` and
+`client.create_measurement(Measurement(name="voltage", value=5.02, step_id=step.id))`
+also work. `TestResultCreateFields` and `StepCreateFields` type the keyword fields.
+Create methods return the created object as saved by the service, including its
+generated ID. Nested resources, such as the steps of a test result, and expanded
+metadata are not included. The client also provides `get_test_result`, `get_step`,
+`query_test_results`, `query_steps`, `query_measurements`, and update methods for
+test results, steps, and measurements. These return the Python types, with
+timestamps as `hightime.datetime`, durations as `hightime.timedelta`, and
+extensions as dictionaries. Queries accept an OData expression and optional
+`read_fields`. Read fields are selected with `TestResultField`, `StepField`, or
+`MeasurementField`, for example `read_fields=[StepField.CONDITIONS]`; field names
+as strings are also accepted.
+
+Updates change only the fields named in the protobuf update mask, and the client
+builds the mask for you. Pass a `Step`, or its ID, with keyword fields, an update
+builder, or the whole object:
+
+```python
+from ni.datastore.data.v2 import Outcome, StepUpdateBuilder
+
+# Keyword fields: only these fields change. None clears a field.
+data_store_client.update_step(step, notes="Verified", outcome=Outcome.PASSED)
+
+# Update builder: each with_ call selects one field, like the .NET client builders.
+update = StepUpdateBuilder(step).with_notes("Verified").with_outcome(Outcome.PASSED)
+data_store_client.update_step(update)
+
+# Whole object: every updatable field is set from the object, so empty fields are cleared.
+step.notes = "Verified"
+data_store_client.update_step(step)
+```
+
+Keyword fields are typed by `TestResultUpdateFields`, `StepUpdateFields`, and
+`MeasurementUpdateFields`, so type checkers report unknown fields and wrong value
+types. `TestResultUpdateBuilder`, `StepUpdateBuilder`, and
+`MeasurementUpdateBuilder` follow the .NET builders: setting a relationship by ID,
+such as `with_operator_id`, replaces inline metadata set earlier, and inline
+metadata replaces an ID. A whole-object update sends Stage 2 fields (`keywords`,
+`duration`, and `uut_id`/`uut`) only when they have a value, and sends only the ID
+when a relationship has both an ID and inline metadata. Empty updates and fields
+that the service does not allow to change raise `ValueError` before an RPC is made.
+
+IDs can be passed as `str` or `uuid.UUID`, and reads return them as `str`.
+Test result, step, and measurement IDs must be UUIDs. Metadata ID fields, such as
+`operator_id` or `software_item_ids`, also accept registered aliases.
 
 `delete_test_result`, `delete_step`, and `delete_measurement` remove resources.
+They and the batch delete methods accept the objects or their IDs.
 Without `force=True`, deleting a test result with steps, or a step with
 measurements, fails with `FAILED_PRECONDITION`; with `force=True`, the owned
 children are deleted too. A step that has child steps cannot be deleted.
@@ -67,11 +106,13 @@ The client wraps every method of the V2 low-level client:
   unlink it from those measurements first.
 - `create_measurement` accepts `upper_limit` and `lower_limit` of any supported
   value type. The service stores the limits as given and does not compare them
-  with the value. `read_measurement_values` returns the value and both limits.
+  with the value. `read_measurement_values` returns the value and both limits;
+  select fields with `MeasurementValueField`. `read_measurement_value` and
+  `read_measurement_values` accept a `Measurement` or its ID.
 - `batch_create_*`, `batch_update_*`, and `batch_delete_*` handle many test
   results, steps, or measurements in one atomic call. Batch updates take a
-  dictionary of fields keyed by ID, and batch deletes accept one `force` flag or
-  one flag per ID.
+  dictionary of fields keyed by ID, or a list of builders and objects. Batch
+  deletes accept one `force` flag or one flag per ID.
 - `TestResult.steps`, `Step.children`, and `Step.measurements` create a whole
   tree in one call. Metadata objects such as `Operator` or `SoftwareItem` can be
   passed instead of IDs to find or create them.
@@ -106,7 +147,9 @@ The client wraps every method of the V2 low-level client:
   the Stage 2 New Resource Fields feature.
 - Measurement values are converted to scalar, vector, supported NI
   waveform-family, or JSON values; `read_measurement_value` converts them back to
-  Python or nitypes values. A single value is always read back as a `Scalar`,
+  Python or nitypes values. The `MeasurementValue` type lists the values that can
+  be written, and `MeasurementReadValue` lists the values that can be read. A
+  single value is always read back as a `Scalar`,
   with or without units, and a list of values as a `Vector`. When a `Scalar` is
   given and `units` is not, the measurement's `units` are taken from the
   `Scalar`. Conditions accept scalar or JSON values. A scalar condition value

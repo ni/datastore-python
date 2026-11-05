@@ -33,7 +33,7 @@ target, such as `[::1]:59606`, before starting Jupyter.
   condition, then query and read it back.
 - `query/publish_sample_data.ipynb`: Create sample data for the query notebook.
   Run this first.
-- `query/query_measurements.ipynb`: Query test results, steps, measurements, and
+- `query/query_data.ipynb`: Query test results, steps, measurements, and
   conditions with OData.
 - `batch-create/batch_create.ipynb`: Create test results, steps, and measurements in
   atomic batches, including nested steps and measurements.

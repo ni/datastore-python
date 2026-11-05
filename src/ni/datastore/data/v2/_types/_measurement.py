@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import Any, Iterable, Mapping, MutableMapping, MutableSequence, Sequence
+from uuid import UUID
 
 import hightime as ht
 from ni.measurements.data.v2.data_store_pb2 import Measurement as MeasurementProto
@@ -13,14 +14,16 @@ from ni.datastore.data.v2._grpc_conversion import (
     duration_to_protobuf,
     extension_from_protobuf,
     extension_to_protobuf,
+    id_list,
+    id_string,
     measurement_value_from_protobuf,
     measurement_value_to_protobuf,
-    string_list,
     timestamp_from_protobuf,
     timestamp_to_protobuf,
 )
 from ni.datastore.data.v2._types._condition import Condition
 from ni.datastore.data.v2._types._error_information import ErrorInformation
+from ni.datastore.data.v2._types._measurement_value import MeasurementValue
 from ni.datastore.data.v2._types._outcome import Outcome
 from ni.datastore.metadata import HardwareItem, SoftwareItem, TestAdapter
 
@@ -38,7 +41,7 @@ class Measurement:
         "test_result_id",
         "step_id",
         "name",
-        "value",
+        "_value",
         "upper_limit",
         "lower_limit",
         "value_type",
@@ -64,6 +67,8 @@ class Measurement:
         "created_by",
         "updated_by",
     )
+
+    units: str
 
     @property
     def extension(self) -> MutableMapping[str, Any]:
@@ -105,16 +110,30 @@ class Measurement:
         """Read-only output-only conditions copied from the owning step."""
         return self._conditions
 
+    @property
+    def value(self) -> MeasurementValue | None:
+        """The measured value.
+
+        Setting a Scalar value also sets units to the Scalar units when units is empty.
+        """
+        return self._value
+
+    @value.setter
+    def value(self, value: MeasurementValue | None) -> None:
+        self._value = value
+        if isinstance(value, Scalar) and not self.units:
+            self.units = value.units
+
     def __init__(
         self,
         *,
-        id: str = "",
-        test_result_id: str = "",
-        step_id: str = "",
+        id: str | UUID = "",
+        test_result_id: str | UUID = "",
+        step_id: str | UUID = "",
         name: str = "",
-        value: object = None,
-        upper_limit: object = None,
-        lower_limit: object = None,
+        value: MeasurementValue | None = None,
+        upper_limit: MeasurementValue | None = None,
+        lower_limit: MeasurementValue | None = None,
         value_type: str = "",
         units: str = "",
         notes: str = "",
@@ -125,9 +144,9 @@ class Measurement:
         error_information: ErrorInformation | None = None,
         extension: Mapping[str, Any] | None = None,
         schema_id: str = "",
-        software_item_ids: Iterable[str] | None = None,
-        hardware_item_ids: Iterable[str] | None = None,
-        test_adapter_ids: Iterable[str] | None = None,
+        software_item_ids: Iterable[str | UUID] | None = None,
+        hardware_item_ids: Iterable[str | UUID] | None = None,
+        test_adapter_ids: Iterable[str | UUID] | None = None,
         software_items: Iterable[SoftwareItem] | None = None,
         hardware_items: Iterable[HardwareItem] | None = None,
         test_adapters: Iterable[TestAdapter] | None = None,
@@ -186,15 +205,15 @@ class Measurement:
             created_by (optional): Output only. Who created the measurement.
             updated_by (optional): Output only. Who last updated the measurement.
         """
-        self.id = id
-        self.test_result_id = test_result_id
-        self.step_id = step_id
+        self.id = id_string(id)
+        self.test_result_id = id_string(test_result_id)
+        self.step_id = id_string(step_id)
         self.name = name
+        self.units = units
         self.value = value
         self.upper_limit = upper_limit
         self.lower_limit = lower_limit
         self.value_type = value_type
-        self.units = units
         self.notes = notes
         self.start_date_time = start_date_time
         self.end_date_time = end_date_time
@@ -203,15 +222,13 @@ class Measurement:
         self.error_information = error_information
         self._extension: MutableMapping[str, Any] = dict(extension) if extension is not None else {}
         self.schema_id = schema_id
-        self._software_item_ids: MutableSequence[str] = string_list(
+        self._software_item_ids: MutableSequence[str] = id_list(
             software_item_ids, "software_item_ids"
         )
-        self._hardware_item_ids: MutableSequence[str] = string_list(
+        self._hardware_item_ids: MutableSequence[str] = id_list(
             hardware_item_ids, "hardware_item_ids"
         )
-        self._test_adapter_ids: MutableSequence[str] = string_list(
-            test_adapter_ids, "test_adapter_ids"
-        )
+        self._test_adapter_ids: MutableSequence[str] = id_list(test_adapter_ids, "test_adapter_ids")
         self._software_items: MutableSequence[SoftwareItem] = (
             list(software_items) if software_items is not None else []
         )

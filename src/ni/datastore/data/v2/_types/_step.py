@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import Any, Iterable, Mapping, MutableMapping, MutableSequence
+from uuid import UUID
 
 import hightime as ht
 from ni.measurements.data.v2.data_store_pb2 import Step as StepProto
@@ -12,6 +13,7 @@ from ni.datastore.data.v2._grpc_conversion import (
     duration_to_protobuf,
     extension_from_protobuf,
     extension_to_protobuf,
+    id_string,
     string_list,
     timestamp_from_protobuf,
     timestamp_to_protobuf,
@@ -101,10 +103,10 @@ class Step:
         self,
         name: str,
         *,
-        id: str = "",
-        parent_step_id: str = "",
-        test_result_id: str = "",
-        test_id: str = "",
+        id: str | UUID = "",
+        parent_step_id: str | UUID = "",
+        test_result_id: str | UUID = "",
+        test_id: str | UUID = "",
         test: Test | None = None,
         step_type: str = "",
         notes: str = "",
@@ -162,10 +164,10 @@ class Step:
             updated_by (optional): Output only. Who last updated the step.
         """
         self.name = name
-        self.id = id
-        self.parent_step_id = parent_step_id
-        self.test_result_id = test_result_id
-        self.test_id = test_id
+        self.id = id_string(id)
+        self.parent_step_id = id_string(parent_step_id)
+        self.test_result_id = id_string(test_result_id)
+        self.test_id = id_string(test_id)
         self.test = test
         self.step_type = step_type
         self.notes = notes

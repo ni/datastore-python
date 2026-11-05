@@ -1805,7 +1805,7 @@ protobuf = ">=4.21"
 
 [[package]]
 name = "ni-datastore"
-version = "2.2.0.dev0"
+version = "3.0.0.dev0"
 description = "APIs for publishing and retrieving data from NI Measurement Data Services"
 optional = false
 python-versions = "^3.10"

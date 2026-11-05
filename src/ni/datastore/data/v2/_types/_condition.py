@@ -24,7 +24,7 @@ class Condition:
 
     __slots__ = (
         "name",
-        "value",
+        "_value",
         "condition_type",
         "value_label",
         "units",
@@ -53,10 +53,24 @@ class Condition:
                 units of a Scalar value.
         """
         self.name = name
-        self.value = value
         self.condition_type = condition_type
         self.value_label = value_label
         self.units = units
+        self.value = value
+
+    @property
+    def value(self) -> object:
+        """The condition value.
+
+        Setting a Scalar value also sets units to the Scalar units when units is empty.
+        """
+        return self._value
+
+    @value.setter
+    def value(self, value: object) -> None:
+        self._value = value
+        if isinstance(value, Scalar) and not self.units:
+            self.units = value.units
 
     @staticmethod
     def from_protobuf(condition_proto: ConditionProto) -> "Condition":

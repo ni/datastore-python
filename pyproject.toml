@@ -1,6 +1,6 @@
 [project]
 name = "ni.datastore"
-version = "2.2.0.dev0"
+version = "3.0.0.dev0"
 license = "MIT"
 description = "APIs for publishing and retrieving data from NI Measurement Data Services"
 authors = [{name = "NI", email = "opensource@ni.com"}]
@@ -114,4 +114,5 @@ testpaths = ["tests"]
 norecursedirs = [".venv"]
 filterwarnings = [
   "ignore:cannot collect test class.*because it has a __init__ constructor:pytest.PytestCollectionWarning",
+  "ignore:cannot collect test class.*because it has a __new__ constructor:pytest.PytestCollectionWarning",
 ]
