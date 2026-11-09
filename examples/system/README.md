@@ -6,7 +6,7 @@ NI Measurement Data Store.
 
 ## Required Software
 
-`system` requires Python 3.10 or greater and the
+`system` requires Python 3.11 or greater and the
 [NI System Configuration API](https://www.ni.com/en/support/downloads/drivers/download.system-configuration.html).
 Alternatively, install at least one NI driver like NI-DAQmx or NI-SCOPE.
 

@@ -26,7 +26,7 @@ NI created and supports this package.
 
 ## Python Version Support
 
-`ni.datastore` supports CPython 3.10+.
+`ni.datastore` supports CPython 3.11+.
 
 ## Installation
 

@@ -19,15 +19,15 @@ classifiers = [
   "Operating System :: Microsoft :: Windows",
   "Operating System :: POSIX",
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: 3.14",
+  "Programming Language :: Python :: 3.15",
   "Programming Language :: Python :: Implementation :: CPython",
 ]
 dynamic = ["dependencies"]
-requires-python = ">=3.10,<4.0"
+requires-python = ">=3.11,<4.0"
 
 [project.urls]
 repository = "https://github.com/ni/datastore-python"
@@ -74,5 +74,5 @@ module = [
 ignore_missing_imports = true  # no library stubs or py.typed marker
 
 [build-system]
-requires = ["poetry-core>=2.1.0,<3.0.0"]
+requires = ["poetry-core>=2.1.0,<3.0"]
 build-backend = "poetry.core.masonry.api"
