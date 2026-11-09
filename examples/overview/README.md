@@ -5,7 +5,7 @@ the NI Measurement Data Store.
 
 ## Required Software
 
-`overview` requires Python 3.10 or greater
+`overview` requires Python 3.11 or greater
 
 ## Usage
 
