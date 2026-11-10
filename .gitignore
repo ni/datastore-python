@@ -1,6 +1,9 @@
 #VS Code 
 .vscode/
 
+#VisualStudio
+.vs/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 
