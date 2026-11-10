@@ -9,7 +9,6 @@ from types import TracebackType
 from typing import Any, overload, Type, TYPE_CHECKING, TypeVar
 from uuid import UUID
 
-import hightime as ht
 from google.protobuf.field_mask_pb2 import FieldMask
 from grpc import Channel
 from ni.measurementlink.discovery.v1.client import DiscoveryClient
@@ -62,11 +61,14 @@ from ni.datastore.data.v2._grpc_conversion import (
     string_list,
 )
 from ni.datastore.data.v2._types._condition import Condition
-from ni.datastore.data.v2._types._create import StepCreateFields, TestResultCreateFields
-from ni.datastore.data.v2._types._error_information import ErrorInformation
+from ni.datastore.data.v2._types._create import (
+    ConditionCreateFields,
+    MeasurementCreateFields,
+    StepCreateFields,
+    TestResultCreateFields,
+)
 from ni.datastore.data.v2._types._measurement import Measurement
 from ni.datastore.data.v2._types._measurement_value import MeasurementReadValue, MeasurementValue
-from ni.datastore.data.v2._types._outcome import Outcome
 from ni.datastore.data.v2._types._query_results import QueryResults
 from ni.datastore.data.v2._types._read_fields import (
     MeasurementField,
@@ -93,7 +95,6 @@ from ni.datastore.data.v2._update_conversion import (
     TEST_RESULT_RELATIONSHIPS,
     TEST_RESULT_UPDATE_FIELDS,
 )
-from ni.datastore.metadata import HardwareItem, SoftwareItem, TestAdapter
 
 if TYPE_CHECKING:
     if sys.version_info >= (3, 11):
@@ -229,17 +230,55 @@ class DataStoreClient:
         create_request = CreateStepRequest(step=step.to_protobuf())
         return Step.from_protobuf(self._get_data_store_client().create_step(create_request))
 
-    def add_condition(self, step_id: str | UUID, condition: Condition) -> Step:
+    @overload
+    def add_condition(self, step_id: str | UUID, condition: Condition, /) -> Step: ...
+
+    @overload
+    def add_condition(
+        self,
+        step_id: str | UUID,
+        name: str,
+        value: object,
+        /,
+        **fields: Unpack[ConditionCreateFields],
+    ) -> Step: ...
+
+    def add_condition(
+        self,
+        step_id: str | UUID,
+        condition: Condition | str,
+        /,
+        *args: object,
+        **fields: Unpack[ConditionCreateFields],
+    ) -> Step:
         """Add a condition to a step, replacing any condition with the same name.
+
+        Pass either a Condition, or its name, value, and fields as arguments.
 
         Args:
             step_id: The ID of the step that owns the condition.
 
-            condition: The condition to add.
+            condition: The condition to add, or its name.
+
+            *args: The condition value, when a name is given. See Condition for
+                the supported value types.
+
+            **fields: The condition fields, when a name is given, such as units.
+                Each has the same meaning as the matching Condition argument.
 
         Returns:
             Step: The updated step.
+
+        Raises:
+            TypeError: If a value or fields are given with a Condition, or a name
+                is given without a value.
         """
+        if isinstance(condition, Condition):
+            _reject_model_fields({**fields, **dict(enumerate(args))}, "a Condition", "condition")
+        elif len(args) != 1:
+            raise TypeError("Pass the condition value after its name, or pass a Condition.")
+        else:
+            condition = Condition(condition, args[0], **fields)
         add_request = AddConditionRequest(
             step_id=id_string(step_id), condition=condition.to_protobuf()
         )
@@ -272,31 +311,14 @@ class DataStoreClient:
         name: str,
         value: MeasurementValue,
         step_id: str | UUID,
-        *,
-        units: str = "",
-        upper_limit: MeasurementValue | None = None,
-        lower_limit: MeasurementValue | None = None,
-        comparison_type: str = "",
-        notes: str = "",
-        start_date_time: ht.datetime | None = None,
-        end_date_time: ht.datetime | None = None,
-        duration: ht.timedelta | None = None,
-        outcome: Outcome = Outcome.UNSPECIFIED,
-        error_information: ErrorInformation | None = None,
-        extension: Mapping[str, Any] | None = None,
-        schema_id: str = "",
-        software_item_ids: Iterable[str | UUID] = (),
-        hardware_item_ids: Iterable[str | UUID] = (),
-        test_adapter_ids: Iterable[str | UUID] = (),
-        software_items: Iterable[SoftwareItem] = (),
-        hardware_items: Iterable[HardwareItem] = (),
-        test_adapters: Iterable[TestAdapter] = (),
+        **fields: Unpack[MeasurementCreateFields],
     ) -> Measurement: ...
 
     def create_measurement(self, *args: Any, **kwargs: Any) -> Measurement:
         """Create a measurement associated with a test step.
 
-        Pass either a Measurement, or the measurement fields as arguments.
+        Pass either a Measurement, or the measurement fields as arguments. The
+        fields after step_id are keyword arguments, typed by MeasurementCreateFields.
 
         Args:
             measurement: The measurement to create. It must include a step ID and

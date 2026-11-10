@@ -5,7 +5,7 @@ from __future__ import annotations
 import datetime as std_datetime
 import uuid
 from collections.abc import Callable
-from typing import Any, cast
+from typing import Any
 from unittest.mock import Mock
 
 import numpy as np
@@ -224,6 +224,54 @@ def test___add_condition___sends_condition_and_returns_step(
     assert step == Step("Measure voltage", id="step-id")
 
 
+def test___add_condition___name_value_and_fields___sends_same_request_as_model(
+    client: DataStoreClient, service_client: Any
+) -> None:
+    service_client.add_condition.return_value = data_store_service_pb2.AddConditionResponse()
+
+    client.add_condition("step-id", "supply-voltage", 5.0, condition_type="Nominal", units="V")
+
+    expected = Condition("supply-voltage", 5.0, condition_type="Nominal", units="V")
+    request = _sent(service_client.add_condition)
+    assert request.step_id == "step-id"
+    assert request.condition == expected.to_protobuf()
+
+
+@pytest.mark.parametrize(
+    "call",
+    [
+        pytest.param(
+            lambda client: client.add_condition("step-id", Condition("c", 1.0), units="V"),
+            id="keyword_field",
+        ),
+        pytest.param(
+            lambda client: client.add_condition("step-id", Condition("c", 1.0), 2.0),
+            id="positional_value",
+        ),
+    ],
+)
+def test___add_condition___condition_with_fields___raises_type_error_before_rpc(
+    client: DataStoreClient, service_client: Any, call: Callable[[DataStoreClient], object]
+) -> None:
+    with pytest.raises(TypeError, match="not both"):
+        call(client)
+
+    assert service_client.method_calls == []
+
+
+def test___add_condition___name_without_value___raises_type_error_before_rpc(
+    client: DataStoreClient, service_client: Any
+) -> None:
+    # Typed as Any to bypass the type checker, which already rejects a missing value, and
+    # test the runtime check.
+    add_condition: Any = client.add_condition
+
+    with pytest.raises(TypeError, match="value"):
+        add_condition("step-id", "supply-voltage")
+
+    assert service_client.method_calls == []
+
+
 def test___add_condition___rejects_unsupported_value_before_rpc(
     client: DataStoreClient, service_client: Any
 ) -> None:
@@ -341,8 +389,12 @@ def test___create_measurement___converts_analog_waveform(
 def test___create_measurement___rejects_unsupported_value_before_rpc(
     client: DataStoreClient, service_client: Any
 ) -> None:
+    # Typed as Any to bypass the type checker, which already rejects this value, and test
+    # the runtime check that protects callers who do not use a type checker.
+    unsupported_value: Any = object()
+
     with pytest.raises(TypeError, match="Unsupported measurement value type"):
-        client.create_measurement("measurement", object(), "step-id")  # type: ignore[call-overload]
+        client.create_measurement("measurement", unsupported_value, "step-id")
 
     service_client.create_measurement.assert_not_called()
 
@@ -650,12 +702,13 @@ def test___update_measurement___converts_error_information_and_extension(
     assert list(request.update_mask.paths) == ["error_information", "extension"]
 
 
-@pytest.mark.parametrize("field", ["start_date_time", "end_date_time"])
+@pytest.mark.parametrize("fields", [{"start_date_time": TIMESTAMP}, {"end_date_time": TIMESTAMP}])
 def test___update_measurement___converts_timestamp(
-    client: DataStoreClient, service_client: Any, field: str
+    client: DataStoreClient, service_client: Any, fields: MeasurementUpdateFields
 ) -> None:
-    client.update_measurement("m-id", **cast(MeasurementUpdateFields, {field: TIMESTAMP}))
+    client.update_measurement("m-id", **fields)
 
+    [field] = fields
     request = _sent(service_client.update_measurement)
     assert getattr(request.measurement, field) == hightime_datetime_to_protobuf(TIMESTAMP)
     assert list(request.update_mask.paths) == [field]
@@ -1644,10 +1697,14 @@ def test___deletes___uuid_ids___send_string_ids(
 def test___id_list___single_uuid___raises_type_error_before_rpc(
     client: DataStoreClient, service_client: Any
 ) -> None:
+    # Typed as Any to bypass the type checker, which already rejects a single ID, and test
+    # the runtime check.
+    single_id: Any = ID
+
     with pytest.raises(TypeError, match="^steps must be"):
-        client.batch_delete_steps(ID)  # type: ignore[arg-type]
+        client.batch_delete_steps(single_id)
     with pytest.raises(TypeError, match="^software_item_ids must be"):
-        client.add_test_result_metadata("tr-id", software_item_ids=ID)  # type: ignore[arg-type]
+        client.add_test_result_metadata("tr-id", software_item_ids=single_id)
 
     assert service_client.method_calls == []
 

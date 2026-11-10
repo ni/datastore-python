@@ -20,9 +20,11 @@ from nitypes.vector import Vector
 
 from ni.datastore.data.v2 import (
     Condition,
+    ConditionCreateFields,
     ErrorInformation,
     JsonValue,
     Measurement,
+    MeasurementCreateFields,
     MeasurementField,
     MeasurementValueField,
     Outcome,
@@ -317,8 +319,12 @@ def test___error_information___round_trips_through_protobuf() -> None:
 
 @pytest.mark.parametrize("enum_type", [Outcome, Status])
 def test___enums___reject_unknown_protobuf_values(enum_type: type[Outcome] | type[Status]) -> None:
+    # Typed as Any to bypass the type checker, which already rejects this value, and test
+    # the runtime check.
+    unknown_value: Any = 999
+
     with pytest.raises(ValueError):
-        enum_type.from_protobuf(999)  # type: ignore[arg-type]
+        enum_type.from_protobuf(unknown_value)
 
 
 @pytest.mark.parametrize(
@@ -487,8 +493,12 @@ def test___json_value___round_trips_attributes_and_schema() -> None:
 
 
 def test___json_value___rejects_unsupported_attribute() -> None:
+    # Typed as Any to bypass the type checker, which already rejects this attribute, and test
+    # the runtime check.
+    unsupported_attributes: Any = {"bad": [1]}
+
     with pytest.raises(TypeError):
-        JsonValue({}, attributes={"bad": [1]}).to_protobuf()  # type: ignore[dict-item]
+        JsonValue({}, attributes=unsupported_attributes).to_protobuf()
 
 
 def test___condition___json_value_with_attributes_round_trips() -> None:
@@ -544,6 +554,14 @@ _OUTPUT_ONLY_INIT_PARAMETERS = {"id", "created_at", "updated_at", "created_by", 
     [
         (TestResult, TestResultCreateFields, {"name"}),
         (Step, StepCreateFields, {"name", "path", "path_ids"}),
+        (
+            Measurement,
+            MeasurementCreateFields,
+            # name, value, and step_id are separate arguments. The service sets the
+            # test result ID from the step, and value_type and conditions are output only.
+            {"name", "value", "step_id", "test_result_id", "value_type", "conditions"},
+        ),
+        (Condition, ConditionCreateFields, {"name", "value"}),
     ],
 )
 def test___create_fields___match_model_constructor(
@@ -614,5 +632,9 @@ def test___measurement___uuid_ids___stored_as_strings() -> None:
 
 
 def test___model___single_uuid_for_id_list___raises_type_error() -> None:
+    # Typed as Any to bypass the type checker, which already rejects a single ID, and test
+    # the runtime check.
+    single_id: Any = _UUID
+
     with pytest.raises(TypeError, match="^software_item_ids must be"):
-        TestResult("t", software_item_ids=_UUID)  # type: ignore[arg-type]
+        TestResult("t", software_item_ids=single_id)

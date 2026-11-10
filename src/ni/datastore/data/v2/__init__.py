@@ -2,7 +2,12 @@
 
 from ni.datastore.data.v2._data_store_client import DataStoreClient
 from ni.datastore.data.v2._types._condition import Condition
-from ni.datastore.data.v2._types._create import StepCreateFields, TestResultCreateFields
+from ni.datastore.data.v2._types._create import (
+    ConditionCreateFields,
+    MeasurementCreateFields,
+    StepCreateFields,
+    TestResultCreateFields,
+)
 from ni.datastore.data.v2._types._error_information import ErrorInformation
 from ni.datastore.data.v2._types._json_value import JsonValue
 from ni.datastore.data.v2._types._measurement import Measurement
@@ -32,10 +37,12 @@ from ni.datastore.data.v2._types._update import (
 
 __all__ = [
     "Condition",
+    "ConditionCreateFields",
     "DataStoreClient",
     "ErrorInformation",
     "JsonValue",
     "Measurement",
+    "MeasurementCreateFields",
     "MeasurementField",
     "MeasurementReadValue",
     "MeasurementUpdateBuilder",
@@ -59,10 +66,12 @@ __all__ = [
 
 # Hide that it was not defined in this top-level package
 Condition.__module__ = __name__
+ConditionCreateFields.__module__ = __name__
 DataStoreClient.__module__ = __name__
 ErrorInformation.__module__ = __name__
 JsonValue.__module__ = __name__
 Measurement.__module__ = __name__
+MeasurementCreateFields.__module__ = __name__
 MeasurementField.__module__ = __name__
 MeasurementUpdateBuilder.__module__ = __name__
 MeasurementUpdateFields.__module__ = __name__

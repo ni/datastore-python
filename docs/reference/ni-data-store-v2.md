@@ -42,7 +42,10 @@ with DataStoreClient() as client:
 Each create method accepts either the object or its fields as arguments, so
 `client.create_step("Measure voltage", test_result_id=test_result.id)` and
 `client.create_measurement(Measurement(name="voltage", value=5.02, step_id=step.id))`
-also work. `TestResultCreateFields` and `StepCreateFields` type the keyword fields.
+also work. `add_condition` likewise accepts a `Condition`, or its name, value, and
+fields, such as `client.add_condition(step.id, "supply-voltage", 5.0, units="V")`.
+`TestResultCreateFields`, `StepCreateFields`, `MeasurementCreateFields`, and
+`ConditionCreateFields` type the keyword fields.
 Create methods return the created object as saved by the service, including its
 generated ID. Nested resources, such as the steps of a test result, and expanded
 metadata are not included. The client also provides `get_test_result`, `get_step`,
