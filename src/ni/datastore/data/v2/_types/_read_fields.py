@@ -72,6 +72,7 @@ class StepField(str, Enum):
     CONDITIONS = "conditions"
     MEASUREMENTS = "measurements"
     CHILDREN = "children"
+    HAS_CHILDREN = "has_children"
     TEST = "test"
 
 

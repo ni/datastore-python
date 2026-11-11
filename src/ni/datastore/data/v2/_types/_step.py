@@ -58,6 +58,7 @@ class Step:
         "_children",
         "_path",
         "_path_ids",
+        "has_children",
         "created_at",
         "updated_at",
         "created_by",
@@ -125,6 +126,7 @@ class Step:
         children: Iterable[Step] | None = None,
         path: Iterable[str] | None = None,
         path_ids: Iterable[str] | None = None,
+        has_children: bool = False,
         created_at: ht.datetime | None = None,
         updated_at: ht.datetime | None = None,
         created_by: str = "",
@@ -158,6 +160,7 @@ class Step:
             children (optional): Child steps created with the step.
             path (optional): Output only. The step-name path, including this step.
             path_ids (optional): Output only. The step-identifier path, including this step.
+            has_children (optional): Output only. Whether this step has ever had a child step.
             created_at (optional): Output only. When the step was created.
             updated_at (optional): Output only. When the step was last updated.
             created_by (optional): Output only. Who created the step.
@@ -190,6 +193,7 @@ class Step:
         self._children: MutableSequence[Step] = list(children) if children is not None else []
         self._path: MutableSequence[str] = string_list(path, "path")
         self._path_ids: MutableSequence[str] = string_list(path_ids, "path_ids")
+        self.has_children = has_children
         self.created_at = created_at
         self.updated_at = updated_at
         self.created_by = created_by
@@ -228,6 +232,7 @@ class Step:
             children=[Step.from_protobuf(child) for child in step_proto.children],
             path=step_proto.path,
             path_ids=step_proto.path_ids,
+            has_children=getattr(step_proto, "has_children", False),
             created_at=timestamp_from_protobuf(step_proto, "created_at"),
             updated_at=timestamp_from_protobuf(step_proto, "updated_at"),
             created_by=step_proto.created_by,
@@ -293,6 +298,7 @@ class Step:
             and self.children == other.children
             and self.path == other.path
             and self.path_ids == other.path_ids
+            and self.has_children == other.has_children
             and self.created_at == other.created_at
             and self.updated_at == other.updated_at
             and self.created_by == other.created_by

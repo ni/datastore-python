@@ -57,6 +57,12 @@ extensions as dictionaries. Queries accept an OData expression and optional
 `MeasurementField`, for example `read_fields=[StepField.CONDITIONS]`; field names
 as strings are also accepted.
 
+`Step.has_children` is output-only and can be requested with
+`read_fields=[StepField.HAS_CHILDREN]`. It becomes true after the step has had a
+committed direct child and remains true even if that child is later deleted.
+The installed V2 proto package must include the field for its value to be read;
+older generated packages report it as false.
+
 Updates change only the fields named in the protobuf update mask, and the client
 builds the mask for you. Pass a `Step`, or its ID, with keyword fields, an update
 builder, or the whole object:
