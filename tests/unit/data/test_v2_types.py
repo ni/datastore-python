@@ -7,7 +7,7 @@ import inspect
 import uuid
 from collections.abc import Callable
 from enum import Enum
-from typing import Any
+from typing import Any, cast
 
 import pytest
 from google.protobuf import json_format
@@ -135,6 +135,34 @@ def test___step___round_trips_through_protobuf_including_conditions() -> None:
     assert proto.step_type == "Measurement"
     assert proto.conditions[0].value.scalar.double_value == 25.0
     assert Step.from_protobuf(proto) == step
+
+
+def test___step___reads_has_children_from_protobuf() -> None:
+    class StepProtoWithHasChildren:
+        def __init__(self, step_proto: data_store_pb2.Step) -> None:
+            self._step_proto = step_proto
+
+        def __getattr__(self, name: str) -> Any:
+            if name == "has_children":
+                return True
+            return getattr(self._step_proto, name)
+
+    proto = cast(
+        data_store_pb2.Step,
+        StepProtoWithHasChildren(data_store_pb2.Step(name="parent")),
+    )
+
+    step = Step.from_protobuf(proto)
+
+    assert step.has_children is True
+
+
+def test___step___does_not_write_has_children_to_protobuf() -> None:
+    step = Step("parent", has_children=True)
+
+    proto = step.to_protobuf()
+
+    assert proto == data_store_pb2.Step(name="parent")
 
 
 def test___measurement___reads_metadata_and_conditions_from_protobuf() -> None:
@@ -340,8 +368,11 @@ def test___read_field_enums___match_protobuf_fields(
     field_type: type[Enum], message_type: Any
 ) -> None:
     field_names = sorted(field.value for field in field_type)
+    protobuf_field_names = sorted(field.name for field in message_type.DESCRIPTOR.fields)
+    if field_type is StepField and "has_children" not in protobuf_field_names:
+        field_names.remove(StepField.HAS_CHILDREN.value)
 
-    assert field_names == sorted(field.name for field in message_type.DESCRIPTOR.fields)
+    assert field_names == protobuf_field_names
 
 
 @pytest.mark.parametrize(
@@ -546,7 +577,14 @@ def test___client___wraps_every_low_level_method() -> None:
     assert sorted(low_level_methods - set(dir(DataStoreClient))) == []
 
 
-_OUTPUT_ONLY_INIT_PARAMETERS = {"id", "created_at", "updated_at", "created_by", "updated_by"}
+_OUTPUT_ONLY_INIT_PARAMETERS = {
+    "id",
+    "created_at",
+    "updated_at",
+    "created_by",
+    "updated_by",
+    "has_children",
+}
 
 
 @pytest.mark.parametrize(

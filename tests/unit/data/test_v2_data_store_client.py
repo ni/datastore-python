@@ -1225,9 +1225,15 @@ def test___get_step___sends_read_field_enums_as_field_names(
 ) -> None:
     service_client.get_step.return_value = data_store_pb2.Step(id="step-id")
 
-    client.get_step("step-id", read_fields=[StepField.NAME, StepField.CONDITIONS])
+    client.get_step(
+        "step-id", read_fields=[StepField.NAME, StepField.CONDITIONS, StepField.HAS_CHILDREN]
+    )
 
-    assert list(_sent(service_client.get_step).read_mask.paths) == ["name", "conditions"]
+    assert list(_sent(service_client.get_step).read_mask.paths) == [
+        "name",
+        "conditions",
+        "has_children",
+    ]
 
 
 def test___query_measurements___accepts_read_field_enums_and_plain_names(
