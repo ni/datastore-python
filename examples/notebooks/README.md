@@ -12,3 +12,7 @@ poetry install
 This creates one environment containing the dependencies used by all of the notebooks, including the local
 `ni.datastore` package and the notebook utilities. Select the environment that it creates as the kernel
 when executing any notebook in this directory.
+
+## Required Software
+
+Example notebooks require Python 3.11.5 or greater

@@ -9,7 +9,7 @@ published with `ni.datastore.data.v2`, and metadata is created with
 
 ## Required Software
 
-`overview-v2` requires Python 3.10 or greater, and a Measurement Data
+`overview-v2` requires Python 3.11 or greater, and a Measurement Data
 Services instance started in V2 mode.
 
 ## Usage
