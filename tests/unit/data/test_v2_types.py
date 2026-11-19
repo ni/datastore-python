@@ -405,6 +405,9 @@ def test___read_field_enums___match_protobuf_fields(
             id="measurement_software_item_ids",
         ),
         pytest.param(
+            "keywords", lambda: Measurement(keywords="voltage"), id="measurement_keywords"
+        ),
+        pytest.param(
             "hardware_item_ids",
             lambda: Measurement(hardware_item_ids="hw"),
             id="measurement_hardware_item_ids",
@@ -430,6 +433,7 @@ def test___measurement___round_trips_value_limits_and_metadata() -> None:
         value=Scalar(5.0, "V"),
         upper_limit=5.5,
         lower_limit=Vector([4.5, 4.6]),
+        keywords=["voltage", "supply"],
         schema_id="schema",
         software_items=[SoftwareItem(product="p", version="1")],
         hardware_items=[HardwareItem(manufacturer="m", model="x", serial_number="1")],
@@ -441,6 +445,7 @@ def test___measurement___round_trips_value_limits_and_metadata() -> None:
     assert proto.value.scalar.double_value == 5.0
     assert proto.upper_limit.scalar.double_value == 5.5
     assert proto.units == "V"
+    assert list(proto.keywords) == ["voltage", "supply"]
     assert proto.schema_id == "schema"
     assert proto.software_items[0].product == "p"
     round_tripped = Measurement.from_protobuf(proto)
@@ -448,6 +453,7 @@ def test___measurement___round_trips_value_limits_and_metadata() -> None:
     assert round_tripped.value == Scalar(5.0, "V")
     assert round_tripped.upper_limit == Scalar(5.5)
     assert round_tripped.lower_limit == Vector([4.5, 4.6])
+    assert round_tripped.keywords == ["voltage", "supply"]
     assert round_tripped.software_items == measurement.software_items
 
 

@@ -108,6 +108,7 @@ class MeasurementField(str, Enum):
     HARDWARE_ITEMS = "hardware_items"
     TEST_ADAPTERS = "test_adapters"
     COMPARISON_TYPE = "comparison_type"
+    KEYWORDS = "keywords"
 
 
 class MeasurementValueField(str, Enum):

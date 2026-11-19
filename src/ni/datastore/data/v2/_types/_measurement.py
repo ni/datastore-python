@@ -18,6 +18,7 @@ from ni.datastore.data.v2._grpc_conversion import (
     id_string,
     measurement_value_from_protobuf,
     measurement_value_to_protobuf,
+    string_list,
     timestamp_from_protobuf,
     timestamp_to_protobuf,
 )
@@ -61,6 +62,7 @@ class Measurement:
         "_hardware_items",
         "_test_adapters",
         "comparison_type",
+        "_keywords",
         "_conditions",
         "created_at",
         "updated_at",
@@ -111,6 +113,11 @@ class Measurement:
         return self._conditions
 
     @property
+    def keywords(self) -> MutableSequence[str]:
+        """Labels used to classify the measurement."""
+        return self._keywords
+
+    @property
     def value(self) -> MeasurementValue | None:
         """The measured value.
 
@@ -151,6 +158,7 @@ class Measurement:
         hardware_items: Iterable[HardwareItem] | None = None,
         test_adapters: Iterable[TestAdapter] | None = None,
         comparison_type: str = "",
+        keywords: Iterable[str] | None = None,
         conditions: Iterable[Condition] | None = None,
         created_at: ht.datetime | None = None,
         updated_at: ht.datetime | None = None,
@@ -198,6 +206,7 @@ class Measurement:
             test_adapters (optional): Test adapters to find or create on create. Each
                 item must already be linked to the owning test result.
             comparison_type (optional): The publisher-defined comparison operation.
+            keywords (optional): Labels used to classify the measurement.
             conditions (optional): Output only. Read-only conditions copied from the
                 owning step.
             created_at (optional): Output only. When the measurement was created.
@@ -239,6 +248,7 @@ class Measurement:
             list(test_adapters) if test_adapters is not None else []
         )
         self.comparison_type = comparison_type
+        self._keywords = string_list(keywords, "keywords")
         self._conditions: tuple[Condition, ...] = (
             tuple(conditions) if conditions is not None else ()
         )
@@ -285,6 +295,7 @@ class Measurement:
                 TestAdapter.from_protobuf(adapter) for adapter in measurement_proto.test_adapters
             ],
             comparison_type=measurement_proto.comparison_type,
+            keywords=measurement_proto.keywords,
             conditions=[
                 Condition.from_protobuf(condition) for condition in measurement_proto.conditions
             ],
@@ -326,6 +337,7 @@ class Measurement:
             hardware_items=[item.to_protobuf() for item in self.hardware_items],
             test_adapters=[adapter.to_protobuf() for adapter in self.test_adapters],
             comparison_type=self.comparison_type,
+            keywords=self.keywords,
         )
 
     def __eq__(self, other: object) -> bool:
@@ -357,6 +369,7 @@ class Measurement:
             and self.hardware_items == other.hardware_items
             and self.test_adapters == other.test_adapters
             and self.comparison_type == other.comparison_type
+            and self.keywords == other.keywords
             and self.conditions == other.conditions
             and self.created_at == other.created_at
             and self.updated_at == other.updated_at

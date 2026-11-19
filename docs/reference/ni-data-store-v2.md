@@ -57,6 +57,22 @@ extensions as dictionaries. Queries accept an OData expression and optional
 `MeasurementField`, for example `read_fields=[StepField.CONDITIONS]`; field names
 as strings are also accepted.
 
+Measurements also accept optional classification labels through `keywords`; use
+`read_fields=[MeasurementField.KEYWORDS]` to request them from a query or get.
+
+Queries support pagination with `page_size` and `page_token`. A zero `page_size`
+uses the service default. Pass the previous result's `next_page_token` to fetch
+the following page:
+
+```python
+page = client.query_steps(page_size=100)
+if page.next_page_token:
+  next_page = client.query_steps(page_size=100, page_token=page.next_page_token)
+```
+
+`QueryResults.next_link` remains as a compatibility alias; new code should use
+`next_page_token`.
+
 `Step.has_children` is output-only and can be requested with
 `read_fields=[StepField.HAS_CHILDREN]`. It becomes true after the step has had a
 committed direct child and remains true even if that child is later deleted.
@@ -127,7 +143,7 @@ The client wraps every method of the V2 low-level client:
   passed instead of IDs to find or create them.
 - `create_measurement` accepts `SoftwareItem`, `HardwareItem`, and
   `TestAdapter` objects for inline find-or-create, in addition to their IDs.
-- `query_*` methods return `QueryResults`, a list with a `next_link` attribute
+- `query_*` methods return `QueryResults`, a list with a `next_page_token` attribute
   that is set when the service has more results.
 - JSON values and conditions accept a plain dictionary, or `JsonValue` when the
   value needs attributes. Reads return a `JsonValue` only when attributes are
@@ -152,8 +168,9 @@ The client wraps every method of the V2 low-level client:
   Timestamps must use `datetime.timezone.utc`; other time zones are rejected.
   Round trips are exact to about 1 ns; finer precision is not preserved.
 - Test results and steps accept `keywords`, and test results accept `uut_id`
-  updates. Keywords, duration, and `uut_id` are stored once the service delivers
-  the Stage 2 New Resource Fields feature.
+  updates. Those Stage 2 fields are stored once the service delivers the New
+  Resource Fields feature. Measurements accept their own optional classification
+  `keywords` on create and read.
 - Measurement values are converted to scalar, vector, supported NI
   waveform-family, or JSON values; `read_measurement_value` converts them back to
   Python or nitypes values. The `MeasurementValue` type lists the values that can

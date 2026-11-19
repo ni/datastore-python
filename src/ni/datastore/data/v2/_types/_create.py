@@ -103,6 +103,7 @@ class MeasurementCreateFields(TypedDict, total=False):
     upper_limit: MeasurementValue | None
     lower_limit: MeasurementValue | None
     comparison_type: str
+    keywords: Iterable[str] | None
     notes: str
     start_date_time: ht.datetime | None
     end_date_time: ht.datetime | None

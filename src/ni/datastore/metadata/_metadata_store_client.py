@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 import sys
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from pathlib import Path
 from threading import Lock
 from types import TracebackType
@@ -28,6 +28,27 @@ from ni.measurements.metadata.v1.metadata_store_service_pb2 import (
     CreateUutInstanceRequest,
     CreateUutRequest,
     DeleteAliasRequest,
+    BatchDeleteAliasesRequest,
+    BatchDeleteHardwareItemsRequest,
+    BatchDeleteOperatorsRequest,
+    BatchDeleteSchemasRequest,
+    BatchDeleteSoftwareItemsRequest,
+    BatchDeleteTestAdaptersRequest,
+    BatchDeleteTestDescriptionsRequest,
+    BatchDeleteTestStationsRequest,
+    BatchDeleteTestsRequest,
+    BatchDeleteUutInstancesRequest,
+    BatchDeleteUutsRequest,
+    DeleteHardwareItemRequest,
+    DeleteOperatorRequest,
+    DeleteSchemaRequest,
+    DeleteSoftwareItemRequest,
+    DeleteTestAdapterRequest,
+    DeleteTestDescriptionRequest,
+    DeleteTestRequest,
+    DeleteTestStationRequest,
+    DeleteUutInstanceRequest,
+    DeleteUutRequest,
     GetAliasRequest,
     GetHardwareItemRequest,
     GetOperatorRequest,
@@ -627,6 +648,166 @@ class MetadataStoreClient:
         delete_request = DeleteAliasRequest(alias_name=alias_name)
         delete_response = self._get_metadata_store_client().delete_alias(delete_request)
         return delete_response.unregistered
+
+    def delete_uut_instance(self, uut_instance_id: str, *, force: bool = False) -> None:
+        """Delete a UUT instance by ID, optionally removing references that block deletion."""
+        request = DeleteUutInstanceRequest(uut_instance_id=uut_instance_id, force=force)
+        self._get_metadata_store_client().delete_uut_instance(request)
+
+    def batch_delete_uut_instances(
+        self, uut_instance_ids: Iterable[str], *, force: bool = False
+    ) -> None:
+        """Delete UUT instances by ID; force applies to every requested ID."""
+        request = BatchDeleteUutInstancesRequest(
+            requests=[
+                DeleteUutInstanceRequest(uut_instance_id=uut_instance_id, force=force)
+                for uut_instance_id in uut_instance_ids
+            ]
+        )
+        self._get_metadata_store_client().batch_delete_uut_instances(request)
+
+    def delete_uut(self, uut_id: str, *, force: bool = False) -> None:
+        """Delete a UUT by ID, optionally deleting its instances and references."""
+        request = DeleteUutRequest(uut_id=uut_id, force=force)
+        self._get_metadata_store_client().delete_uut(request)
+
+    def batch_delete_uuts(self, uut_ids: Iterable[str], *, force: bool = False) -> None:
+        """Delete UUTs by ID; force applies to every requested ID."""
+        request = BatchDeleteUutsRequest(
+            requests=[DeleteUutRequest(uut_id=uut_id, force=force) for uut_id in uut_ids]
+        )
+        self._get_metadata_store_client().batch_delete_uuts(request)
+
+    def delete_operator(self, operator_id: str, *, force: bool = False) -> None:
+        """Delete an operator by ID, optionally removing references that block deletion."""
+        request = DeleteOperatorRequest(operator_id=operator_id, force=force)
+        self._get_metadata_store_client().delete_operator(request)
+
+    def batch_delete_operators(self, operator_ids: Iterable[str], *, force: bool = False) -> None:
+        """Delete operators by ID; force applies to every requested ID."""
+        request = BatchDeleteOperatorsRequest(
+            requests=[
+                DeleteOperatorRequest(operator_id=operator_id, force=force)
+                for operator_id in operator_ids
+            ]
+        )
+        self._get_metadata_store_client().batch_delete_operators(request)
+
+    def delete_test_description(self, test_description_id: str, *, force: bool = False) -> None:
+        """Delete a test description by ID, optionally removing references."""
+        request = DeleteTestDescriptionRequest(test_description_id=test_description_id, force=force)
+        self._get_metadata_store_client().delete_test_description(request)
+
+    def batch_delete_test_descriptions(
+        self, test_description_ids: Iterable[str], *, force: bool = False
+    ) -> None:
+        """Delete test descriptions by ID; force applies to every requested ID."""
+        request = BatchDeleteTestDescriptionsRequest(
+            requests=[
+                DeleteTestDescriptionRequest(test_description_id=test_description_id, force=force)
+                for test_description_id in test_description_ids
+            ]
+        )
+        self._get_metadata_store_client().batch_delete_test_descriptions(request)
+
+    def delete_test(self, test_id: str, *, force: bool = False) -> None:
+        """Delete a test by ID, optionally removing references that block deletion."""
+        request = DeleteTestRequest(test_id=test_id, force=force)
+        self._get_metadata_store_client().delete_test(request)
+
+    def batch_delete_tests(self, test_ids: Iterable[str], *, force: bool = False) -> None:
+        """Delete tests by ID; force applies to every requested ID."""
+        request = BatchDeleteTestsRequest(
+            requests=[DeleteTestRequest(test_id=test_id, force=force) for test_id in test_ids]
+        )
+        self._get_metadata_store_client().batch_delete_tests(request)
+
+    def delete_test_station(self, test_station_id: str, *, force: bool = False) -> None:
+        """Delete a test station by ID, optionally removing references."""
+        request = DeleteTestStationRequest(test_station_id=test_station_id, force=force)
+        self._get_metadata_store_client().delete_test_station(request)
+
+    def batch_delete_test_stations(
+        self, test_station_ids: Iterable[str], *, force: bool = False
+    ) -> None:
+        """Delete test stations by ID; force applies to every requested ID."""
+        request = BatchDeleteTestStationsRequest(
+            requests=[
+                DeleteTestStationRequest(test_station_id=test_station_id, force=force)
+                for test_station_id in test_station_ids
+            ]
+        )
+        self._get_metadata_store_client().batch_delete_test_stations(request)
+
+    def delete_hardware_item(self, hardware_item_id: str, *, force: bool = False) -> None:
+        """Delete a hardware item by ID, optionally removing references."""
+        request = DeleteHardwareItemRequest(hardware_item_id=hardware_item_id, force=force)
+        self._get_metadata_store_client().delete_hardware_item(request)
+
+    def batch_delete_hardware_items(
+        self, hardware_item_ids: Iterable[str], *, force: bool = False
+    ) -> None:
+        """Delete hardware items by ID; force applies to every requested ID."""
+        request = BatchDeleteHardwareItemsRequest(
+            requests=[
+                DeleteHardwareItemRequest(hardware_item_id=hardware_item_id, force=force)
+                for hardware_item_id in hardware_item_ids
+            ]
+        )
+        self._get_metadata_store_client().batch_delete_hardware_items(request)
+
+    def delete_software_item(self, software_item_id: str, *, force: bool = False) -> None:
+        """Delete a software item by ID, optionally removing references."""
+        request = DeleteSoftwareItemRequest(software_item_id=software_item_id, force=force)
+        self._get_metadata_store_client().delete_software_item(request)
+
+    def batch_delete_software_items(
+        self, software_item_ids: Iterable[str], *, force: bool = False
+    ) -> None:
+        """Delete software items by ID; force applies to every requested ID."""
+        request = BatchDeleteSoftwareItemsRequest(
+            requests=[
+                DeleteSoftwareItemRequest(software_item_id=software_item_id, force=force)
+                for software_item_id in software_item_ids
+            ]
+        )
+        self._get_metadata_store_client().batch_delete_software_items(request)
+
+    def delete_test_adapter(self, test_adapter_id: str, *, force: bool = False) -> None:
+        """Delete a test adapter by ID, optionally removing references."""
+        request = DeleteTestAdapterRequest(test_adapter_id=test_adapter_id, force=force)
+        self._get_metadata_store_client().delete_test_adapter(request)
+
+    def batch_delete_test_adapters(
+        self, test_adapter_ids: Iterable[str], *, force: bool = False
+    ) -> None:
+        """Delete test adapters by ID; force applies to every requested ID."""
+        request = BatchDeleteTestAdaptersRequest(
+            requests=[
+                DeleteTestAdapterRequest(test_adapter_id=test_adapter_id, force=force)
+                for test_adapter_id in test_adapter_ids
+            ]
+        )
+        self._get_metadata_store_client().batch_delete_test_adapters(request)
+
+    def delete_schema(self, schema_id: str) -> None:
+        """Delete a schema by ID and clear its metadata associations."""
+        request = DeleteSchemaRequest(schema_id=schema_id)
+        self._get_metadata_store_client().delete_schema(request)
+
+    def batch_delete_schemas(self, schema_ids: Iterable[str]) -> None:
+        """Delete schemas by ID and clear their metadata associations."""
+        request = BatchDeleteSchemasRequest(
+            requests=[DeleteSchemaRequest(schema_id=schema_id) for schema_id in schema_ids]
+        )
+        self._get_metadata_store_client().batch_delete_schemas(request)
+
+    def batch_delete_aliases(self, alias_names: Iterable[str]) -> None:
+        """Delete aliases by name without deleting their target metadata."""
+        request = BatchDeleteAliasesRequest(
+            requests=[DeleteAliasRequest(alias_name=alias_name) for alias_name in alias_names]
+        )
+        self._get_metadata_store_client().batch_delete_aliases(request)
 
     def create_from_json_file(self, metadata_file_path: Path | str) -> MetadataItems:
         """Create metadata items from a JSON file.
