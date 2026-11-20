@@ -12,6 +12,8 @@ min-release-age-exclude = [
     "ni-measurements-data-v1-proto",
     "ni-measurements-data-v2-client",
     "ni-measurements-data-v2-proto",
+    "ni-measurements-metadata-v1-client",
+    "ni-measurements-metadata-v1-proto",
     "ni-protobuf-types",
     "nitypes"
 ]

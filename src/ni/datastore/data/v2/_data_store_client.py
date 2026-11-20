@@ -591,7 +591,12 @@ class DataStoreClient:
         return Measurement.from_protobuf(self._get_data_store_client().get_measurement(get_request))
 
     def query_test_results(
-        self, odata_query: str = "", *, read_fields: Iterable[TestResultField | str] = ()
+        self,
+        odata_query: str = "",
+        *,
+        read_fields: Iterable[TestResultField | str] = (),
+        page_size: int = 0,
+        page_token: str = "",
     ) -> QueryResults[TestResult]:
         """Query test results using OData query syntax.
 
@@ -602,21 +607,34 @@ class DataStoreClient:
             read_fields: Optional fields to return for each test result, such as
                 TestResultField.NAME. Field names as strings are also accepted.
 
+            page_size: Maximum number of test results to return. Zero uses the service default.
+
+            page_token: Token from a previous response used to retrieve the next page. An empty
+                string (the default) requests the first page.
+
         Returns:
-            QueryResults[TestResult]: The matching test results, with next_link
-                set when more results are available.
+            QueryResults[TestResult]: The matching test results, with next_page_token set when
+                more results are available.
         """
         query_request = QueryTestResultsRequest(
-            odata_query=odata_query, read_mask=_read_mask(read_fields)
+            odata_query=odata_query,
+            read_mask=_read_mask(read_fields),
+            page_size=page_size,
+            page_token=page_token,
         )
         query_response = self._get_data_store_client().query_test_results(query_request)
         return QueryResults(
             (TestResult.from_protobuf(proto) for proto in query_response.test_results),
-            query_response.next_link,
+            next_page_token=query_response.next_page_token,
         )
 
     def query_steps(
-        self, odata_query: str = "", *, read_fields: Iterable[StepField | str] = ()
+        self,
+        odata_query: str = "",
+        *,
+        read_fields: Iterable[StepField | str] = (),
+        page_size: int = 0,
+        page_token: str = "",
     ) -> QueryResults[Step]:
         """Query steps using OData query syntax.
 
@@ -627,21 +645,34 @@ class DataStoreClient:
             read_fields: Optional fields to return for each step, such as
                 StepField.CONDITIONS. Field names as strings are also accepted.
 
+            page_size: Maximum number of steps to return. Zero uses the service default.
+
+            page_token: Token from a previous response used to retrieve the next page. An empty
+                string (the default) requests the first page.
+
         Returns:
-            QueryResults[Step]: The matching steps, with next_link set when more
+            QueryResults[Step]: The matching steps, with next_page_token set when more
                 results are available.
         """
         query_request = QueryStepsRequest(
-            odata_query=odata_query, read_mask=_read_mask(read_fields)
+            odata_query=odata_query,
+            read_mask=_read_mask(read_fields),
+            page_size=page_size,
+            page_token=page_token,
         )
         query_response = self._get_data_store_client().query_steps(query_request)
         return QueryResults(
             (Step.from_protobuf(proto) for proto in query_response.steps),
-            query_response.next_link,
+            next_page_token=query_response.next_page_token,
         )
 
     def query_measurements(
-        self, odata_query: str = "", *, read_fields: Iterable[MeasurementField | str] = ()
+        self,
+        odata_query: str = "",
+        *,
+        read_fields: Iterable[MeasurementField | str] = (),
+        page_size: int = 0,
+        page_token: str = "",
     ) -> QueryResults[Measurement]:
         """Query measurements using OData query syntax.
 
@@ -653,17 +684,25 @@ class DataStoreClient:
             read_fields: Optional fields to return for each measurement, such as
                 MeasurementField.CONDITIONS. Field names as strings are also accepted.
 
+            page_size: Maximum number of measurements to return. Zero uses the service default.
+
+            page_token: Token from a previous response used to retrieve the next page. An empty
+                string (the default) requests the first page.
+
         Returns:
-            QueryResults[Measurement]: The matching measurements, with next_link
+            QueryResults[Measurement]: The matching measurements, with next_page_token
                 set when more results are available.
         """
         query_request = QueryMeasurementsRequest(
-            odata_query=odata_query, read_mask=_read_mask(read_fields)
+            odata_query=odata_query,
+            read_mask=_read_mask(read_fields),
+            page_size=page_size,
+            page_token=page_token,
         )
         query_response = self._get_data_store_client().query_measurements(query_request)
         return QueryResults(
             (Measurement.from_protobuf(proto) for proto in query_response.measurements),
-            query_response.next_link,
+            next_page_token=query_response.next_page_token,
         )
 
     @overload

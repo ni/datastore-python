@@ -616,13 +616,14 @@ def test___query___returns_next_link(
     response_type: str,
 ) -> None:
     getattr(service_client, method).return_value = getattr(data_store_service_pb2, response_type)(
-        next_link="https://next"
+        next_page_token="next-page-token"
     )
 
     results = getattr(client, method)()
 
     assert isinstance(results, QueryResults)
-    assert (list(results), results.next_link) == ([], "https://next")
+    assert (list(results), results.next_page_token) == ([], "next-page-token")
+    assert results.next_link == "next-page-token"
 
 
 def test___query___next_link_is_empty_on_last_page(
@@ -633,6 +634,27 @@ def test___query___next_link_is_empty_on_last_page(
     results = client.query_steps()
 
     assert results.next_link == ""
+    assert results.next_page_token == ""
+
+
+@pytest.mark.parametrize(
+    ("method", "response_type"),
+    [
+        ("query_test_results", "QueryTestResultsResponse"),
+        ("query_steps", "QueryStepsResponse"),
+        ("query_measurements", "QueryMeasurementsResponse"),
+    ],
+)
+def test___query___forwards_page_size_and_token(
+    client: DataStoreClient, service_client: Any, method: str, response_type: str
+) -> None:
+    getattr(service_client, method).return_value = getattr(data_store_service_pb2, response_type)()
+
+    getattr(client, method)(page_size=25, page_token="cursor-token")
+
+    request = _sent(getattr(service_client, method))
+    assert request.page_size == 25
+    assert request.page_token == "cursor-token"
 
 
 def test___json_value_measurement___sends_and_reads_attributes(
@@ -1223,11 +1245,18 @@ def test___get_test_result___sends_read_field_enums_as_field_names(
 def test___get_step___sends_read_field_enums_as_field_names(
     client: DataStoreClient, service_client: Any
 ) -> None:
-    service_client.get_step.return_value = data_store_pb2.Step(id="step-id")
+    service_client.get_step.return_value = data_store_pb2.Step(id="step-id", has_children=True)
 
-    client.get_step("step-id", read_fields=[StepField.NAME, StepField.CONDITIONS])
+    step = client.get_step(
+        "step-id", read_fields=[StepField.NAME, StepField.CONDITIONS, StepField.HAS_CHILDREN]
+    )
 
-    assert list(_sent(service_client.get_step).read_mask.paths) == ["name", "conditions"]
+    assert step.has_children is True
+    assert list(_sent(service_client.get_step).read_mask.paths) == [
+        "name",
+        "conditions",
+        "has_children",
+    ]
 
 
 def test___query_measurements___accepts_read_field_enums_and_plain_names(
