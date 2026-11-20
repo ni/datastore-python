@@ -9,21 +9,33 @@ T = TypeVar("T")
 
 
 class QueryResults(list[T]):
-    """One page of query results with a continuation link when more results exist.
+    """One page of query results with a continuation token when more results exist."""
 
-    Page size is not configured by this class; it contains the items and link
-    returned by the query.
-    """
+    next_page_token: str
+    """Opaque token for retrieving the next page, or an empty string when there is none."""
 
-    next_link: str
-    """The link for retrieving the next page, or an empty string when there is none."""
-
-    def __init__(self, items: Iterable[T] = (), next_link: str = "") -> None:
+    def __init__(
+        self,
+        items: Iterable[T] = (),
+        next_link: str = "",
+        *,
+        next_page_token: str | None = None,
+    ) -> None:
         """Initialize a QueryResults instance.
 
         Args:
             items: The results on this page.
-            next_link: The OData link to the next page, or an empty string.
+            next_link: Legacy name for the continuation token.
+            next_page_token: Token returned by the service for retrieving the next page.
         """
         super().__init__(items)
-        self.next_link = next_link
+        self.next_page_token = next_page_token if next_page_token is not None else next_link
+
+    @property
+    def next_link(self) -> str:
+        """Legacy alias for next_page_token."""
+        return self.next_page_token
+
+    @next_link.setter
+    def next_link(self, value: str) -> None:
+        self.next_page_token = value

@@ -137,6 +137,14 @@ def test___step___round_trips_through_protobuf_including_conditions() -> None:
     assert Step.from_protobuf(proto) == step
 
 
+def test___step___does_not_write_has_children_to_protobuf() -> None:
+    step = Step("parent", has_children=True)
+
+    proto = step.to_protobuf()
+
+    assert proto == data_store_pb2.Step(name="parent")
+
+
 def test___measurement___reads_metadata_and_conditions_from_protobuf() -> None:
     proto = data_store_pb2.Measurement(
         id="measurement-id",
@@ -340,8 +348,11 @@ def test___read_field_enums___match_protobuf_fields(
     field_type: type[Enum], message_type: Any
 ) -> None:
     field_names = sorted(field.value for field in field_type)
+    protobuf_field_names = sorted(field.name for field in message_type.DESCRIPTOR.fields)
+    if field_type is StepField and "has_children" not in protobuf_field_names:
+        field_names.remove(StepField.HAS_CHILDREN.value)
 
-    assert field_names == sorted(field.name for field in message_type.DESCRIPTOR.fields)
+    assert field_names == protobuf_field_names
 
 
 @pytest.mark.parametrize(
@@ -374,6 +385,9 @@ def test___read_field_enums___match_protobuf_fields(
             id="measurement_software_item_ids",
         ),
         pytest.param(
+            "keywords", lambda: Measurement(keywords="voltage"), id="measurement_keywords"
+        ),
+        pytest.param(
             "hardware_item_ids",
             lambda: Measurement(hardware_item_ids="hw"),
             id="measurement_hardware_item_ids",
@@ -399,6 +413,7 @@ def test___measurement___round_trips_value_limits_and_metadata() -> None:
         value=Scalar(5.0, "V"),
         upper_limit=5.5,
         lower_limit=Vector([4.5, 4.6]),
+        keywords=["voltage", "supply"],
         schema_id="schema",
         software_items=[SoftwareItem(product="p", version="1")],
         hardware_items=[HardwareItem(manufacturer="m", model="x", serial_number="1")],
@@ -410,6 +425,7 @@ def test___measurement___round_trips_value_limits_and_metadata() -> None:
     assert proto.value.scalar.double_value == 5.0
     assert proto.upper_limit.scalar.double_value == 5.5
     assert proto.units == "V"
+    assert list(proto.keywords) == ["voltage", "supply"]
     assert proto.schema_id == "schema"
     assert proto.software_items[0].product == "p"
     round_tripped = Measurement.from_protobuf(proto)
@@ -417,6 +433,7 @@ def test___measurement___round_trips_value_limits_and_metadata() -> None:
     assert round_tripped.value == Scalar(5.0, "V")
     assert round_tripped.upper_limit == Scalar(5.5)
     assert round_tripped.lower_limit == Vector([4.5, 4.6])
+    assert round_tripped.keywords == ["voltage", "supply"]
     assert round_tripped.software_items == measurement.software_items
 
 
@@ -546,7 +563,14 @@ def test___client___wraps_every_low_level_method() -> None:
     assert sorted(low_level_methods - set(dir(DataStoreClient))) == []
 
 
-_OUTPUT_ONLY_INIT_PARAMETERS = {"id", "created_at", "updated_at", "created_by", "updated_by"}
+_OUTPUT_ONLY_INIT_PARAMETERS = {
+    "id",
+    "created_at",
+    "updated_at",
+    "created_by",
+    "updated_by",
+    "has_children",
+}
 
 
 @pytest.mark.parametrize(

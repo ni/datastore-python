@@ -417,6 +417,40 @@ This comprehensive metadata foundation enables powerful queries such as:
 - "Find all tests using outdated software versions"
 - "Correlate test failures with specific test descriptions or procedures"
 
+## Deleting Metadata
+
+`MetadataStoreClient` supports deleting individual metadata entries and deleting multiple entries
+with one batch request:
+
+| Entry | Delete one | Delete a batch |
+| --- | --- | --- |
+| UUT instance | `delete_uut_instance` | `batch_delete_uut_instances` |
+| UUT | `delete_uut` | `batch_delete_uuts` |
+| Operator | `delete_operator` | `batch_delete_operators` |
+| Test description | `delete_test_description` | `batch_delete_test_descriptions` |
+| Test | `delete_test` | `batch_delete_tests` |
+| Test station | `delete_test_station` | `batch_delete_test_stations` |
+| Hardware item | `delete_hardware_item` | `batch_delete_hardware_items` |
+| Software item | `delete_software_item` | `batch_delete_software_items` |
+| Test adapter | `delete_test_adapter` | `batch_delete_test_adapters` |
+| Schema | `delete_schema` | `batch_delete_schemas` |
+| Alias | `delete_alias` | `batch_delete_aliases` |
+
+Single-item methods accept the corresponding ID or alias name. Batch methods accept an iterable
+of IDs or alias names. Methods return `None` after a successful deletion, except `delete_alias`,
+which returns whether the alias was unregistered. Service errors, including errors for missing or
+referenced entries, are propagated to the caller.
+
+Entity deletion methods that support `force` default to `False`; for batch methods, the option
+applies to each requested entry. Force behavior depends on the entity type. For example, forcing
+UUT deletion also deletes its UUT instances. Schema deletion clears schema associations but retains
+the metadata and extension attributes; alias deletion only removes the alias, not its target.
+
+```python
+metadata_store_client.delete_software_item("software-item-id")
+metadata_store_client.batch_delete_tests(["test-id-1", "test-id-2"], force=True)
+```
+
 ## **Extensibility**
 All metadata entities support custom extensions through:
 - **Extension fields** - Custom key-value pairs for entity-specific data

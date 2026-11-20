@@ -72,6 +72,7 @@ class StepField(str, Enum):
     CONDITIONS = "conditions"
     MEASUREMENTS = "measurements"
     CHILDREN = "children"
+    HAS_CHILDREN = "has_children"
     TEST = "test"
 
 
@@ -107,6 +108,7 @@ class MeasurementField(str, Enum):
     HARDWARE_ITEMS = "hardware_items"
     TEST_ADAPTERS = "test_adapters"
     COMPARISON_TYPE = "comparison_type"
+    KEYWORDS = "keywords"
 
 
 class MeasurementValueField(str, Enum):
