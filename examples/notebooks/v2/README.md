@@ -7,6 +7,10 @@ companions of the notebooks in the parent directory.
 V2 reuses the V1 Metadata API, so these notebooks create and read metadata with
 `ni.datastore.metadata`, as the V1 notebooks do.
 
+## Required Software
+
+V2 example notebooks require Python 3.11.5 or greater
+
 ## Setup
 
 These notebooks use the dedicated Python environment configured for the
