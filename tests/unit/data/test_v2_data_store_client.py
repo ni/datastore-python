@@ -1245,12 +1245,13 @@ def test___get_test_result___sends_read_field_enums_as_field_names(
 def test___get_step___sends_read_field_enums_as_field_names(
     client: DataStoreClient, service_client: Any
 ) -> None:
-    service_client.get_step.return_value = data_store_pb2.Step(id="step-id")
+    service_client.get_step.return_value = data_store_pb2.Step(id="step-id", has_children=True)
 
-    client.get_step(
+    step = client.get_step(
         "step-id", read_fields=[StepField.NAME, StepField.CONDITIONS, StepField.HAS_CHILDREN]
     )
 
+    assert step.has_children is True
     assert list(_sent(service_client.get_step).read_mask.paths) == [
         "name",
         "conditions",

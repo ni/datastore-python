@@ -249,3 +249,13 @@ def test___delete_metadata___forwards_request(
         expected_request
     )
     assert result is None
+
+
+def test___batch_delete_aliases___rejects_a_single_string(
+    metadata_store_client: MetadataStoreClient,
+    mocked_metadata_store_service_client: NonCallableMock,
+) -> None:
+    with pytest.raises(TypeError):
+        metadata_store_client.batch_delete_aliases("alias-name")
+
+    mocked_metadata_store_service_client.batch_delete_aliases.assert_not_called()

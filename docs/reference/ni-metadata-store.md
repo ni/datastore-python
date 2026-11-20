@@ -436,7 +436,7 @@ with one batch request:
 | Schema | `delete_schema` | `batch_delete_schemas` |
 | Alias | `delete_alias` | `batch_delete_aliases` |
 
-Single-item methods accept the corresponding ID, or alias name. Batch methods accept an iterable
+Single-item methods accept the corresponding ID or alias name. Batch methods accept an iterable
 of IDs or alias names. Methods return `None` after a successful deletion, except `delete_alias`,
 which returns whether the alias was unregistered. Service errors, including errors for missing or
 referenced entries, are propagated to the caller.

@@ -7,7 +7,7 @@ import inspect
 import uuid
 from collections.abc import Callable
 from enum import Enum
-from typing import Any, cast
+from typing import Any
 
 import pytest
 from google.protobuf import json_format
@@ -135,26 +135,6 @@ def test___step___round_trips_through_protobuf_including_conditions() -> None:
     assert proto.step_type == "Measurement"
     assert proto.conditions[0].value.scalar.double_value == 25.0
     assert Step.from_protobuf(proto) == step
-
-
-def test___step___reads_has_children_from_protobuf() -> None:
-    class StepProtoWithHasChildren:
-        def __init__(self, step_proto: data_store_pb2.Step) -> None:
-            self._step_proto = step_proto
-
-        def __getattr__(self, name: str) -> Any:
-            if name == "has_children":
-                return True
-            return getattr(self._step_proto, name)
-
-    proto = cast(
-        data_store_pb2.Step,
-        StepProtoWithHasChildren(data_store_pb2.Step(name="parent")),
-    )
-
-    step = Step.from_protobuf(proto)
-
-    assert step.has_children is True
 
 
 def test___step___does_not_write_has_children_to_protobuf() -> None:

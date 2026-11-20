@@ -609,7 +609,8 @@ class DataStoreClient:
 
             page_size: Maximum number of test results to return. Zero uses the service default.
 
-            page_token: Token from a previous response used to retrieve the next page.
+            page_token: Token from a previous response used to retrieve the next page. An empty
+                string (the default) requests the first page.
 
         Returns:
             QueryResults[TestResult]: The matching test results, with next_page_token set when
@@ -646,7 +647,8 @@ class DataStoreClient:
 
             page_size: Maximum number of steps to return. Zero uses the service default.
 
-            page_token: Token from a previous response used to retrieve the next page.
+            page_token: Token from a previous response used to retrieve the next page. An empty
+                string (the default) requests the first page.
 
         Returns:
             QueryResults[Step]: The matching steps, with next_page_token set when more
@@ -684,7 +686,8 @@ class DataStoreClient:
 
             page_size: Maximum number of measurements to return. Zero uses the service default.
 
-            page_token: Token from a previous response used to retrieve the next page.
+            page_token: Token from a previous response used to retrieve the next page. An empty
+                string (the default) requests the first page.
 
         Returns:
             QueryResults[Measurement]: The matching measurements, with next_page_token
