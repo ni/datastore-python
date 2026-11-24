@@ -101,6 +101,12 @@ can also install the Measurement Data Services installer on a test machine. If t
 is not running, these tests will fail. To run the acceptance tests, run this command:
 `poetry run pytest tests\acceptance`
 
+The V2 acceptance tests are separate because they require a DataStore service running in V2 mode.
+Run them with:
+`poetry run pytest tests\acceptance_v2`
+The V2 API currently has no condition-batch publishing or standalone condition-query operations;
+the corresponding V1 acceptance cases are not included in the V2 suite.
+
 > Warning! Running the acceptance tests will publish data and metadata to the default global
 > MDS data store location in the Documents folder.
 
