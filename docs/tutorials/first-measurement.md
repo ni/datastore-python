@@ -49,7 +49,7 @@ system is responsible for evaluating the result and setting an outcome. The
 
 * Read [MDS concepts](../concepts/data-model.md) for the model behind these
   resources.
-* Use the :doc:`how-to guides <../how-to/index>` for installation, measurement
+* Use the {doc}`how-to guides <../how-to/index>` for installation, measurement
   value choices, and queries.
-* Explore :doc:`runnable V2 notebooks <../examples/index>` for waveforms, batch
+* Explore {doc}`runnable V2 notebooks <../examples/index>` for waveforms, batch
   operations, metadata, structured extensions, and updates.
