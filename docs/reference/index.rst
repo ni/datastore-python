@@ -9,5 +9,6 @@ This section provides comprehensive documentation for the NI Data Store system c
 
    ni-data-store
    ni-data-store-v2
+   ni-data-store-concepts
    ni-metadata-store
    using-measurement-data-services
