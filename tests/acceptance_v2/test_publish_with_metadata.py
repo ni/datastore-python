@@ -202,9 +202,15 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         assert sorted(found_measurement.software_item_ids) == [software_item_id]
         assert sorted(found_measurement.hardware_item_ids) == [hardware_item_id]
         assert found_measurement.test_adapter_ids == [test_adapter_id]
-        assert found_measurement.software_items == [software_item]
-        assert found_measurement.hardware_items == [hardware_item]
-        assert found_measurement.test_adapters == [test_adapter]
+        assert found_measurement.software_items == [
+            metadata_store_client.get_software_item(software_item_id)
+        ]
+        assert found_measurement.hardware_items == [
+            metadata_store_client.get_hardware_item(hardware_item_id)
+        ]
+        assert found_measurement.test_adapters == [
+            metadata_store_client.get_test_adapter(test_adapter_id)
+        ]
         assert found_measurement.error_information == error_information
         assert found_measurement.outcome == Outcome.PASSED
         assert isinstance(found_measurement.start_date_time, ht.datetime)
