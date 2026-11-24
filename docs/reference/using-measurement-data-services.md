@@ -2,7 +2,7 @@
 
 The NI Measurement Data Services provide a comprehensive solution for storing, organizing, and querying test data and metadata. This document explains the typical workflow for using these services, from initial setup through data analysis.
 
-This workflow guide demonstrates the V1 Data Store API. For a conceptual introduction to the V2 data model, see [Understanding Measurement Data Services](ni-data-store-concepts.md); for V2 client details, see [NI Data Store V2 Python API](ni-data-store-v2.md).
+This workflow guide demonstrates the V1 Data Store API. For a conceptual introduction to the V2 data model, see [Understanding Measurement Data Services](../concepts/data-model.md); for V2 client details, see [NI Data Store V2 Python API](ni-data-store-v2.md).
 
 **Services Overview:**
 - **MetadataStoreService** - Manages test context metadata (who, what, where, how)

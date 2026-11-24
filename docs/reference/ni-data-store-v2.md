@@ -1,7 +1,7 @@
 # NI Data Store V2 Python API
 
-Use the separate V2 client when you need the V2 service model. Like the V1
-client, it uses Python types (`TestResult`, `Step`, `Measurement`, `Condition`,
+Use the V2 client when you need the V2 service model. It uses Python types
+(`TestResult`, `Step`, `Measurement`, `Condition`,
 `ErrorInformation`, `Outcome`, and `Status`) and constructs the gRPC request
 messages internally.
 
@@ -149,20 +149,8 @@ The client wraps every method of the V2 low-level client:
   value needs attributes. Reads return a `JsonValue` only when attributes are
   present.
 
-## V1 Convenience Differences
+## Service behavior and constraints
 
-- V1 `publish_condition` and `publish_condition_batch` do not have direct V2
-  equivalents. V2 conditions belong to a step; use `add_condition(step_id, ...)`
-  to add or replace one. Read conditions through the containing step returned
-  by `get_step` or `query_steps`; there are no standalone V2 condition get/query
-  methods in this high-level API.
-- V1 `publish_measurement_batch` is shaped for parametric sweeps. In V2, use
-  `batch_create_measurements` with `Measurement` objects; each item can target a
-  different step, and the whole batch is atomic.
-- V2 has its own `TestResult`, `Step`, `Measurement`, `Condition`, and
-  `ErrorInformation` types in `ni.datastore.data.v2`, because the V2 resource
-  fields differ from V1. They follow the V1 style: create methods take them,
-  and get/query/update methods return them instead of protobuf messages.
 - V2 create and update methods accept `hightime.datetime` timestamps and
   `hightime.timedelta` durations, converted with the NI precision converters.
   Timestamps must use `datetime.timezone.utc`; other time zones are rejected.
@@ -191,11 +179,7 @@ The client wraps every method of the V2 low-level client:
 - Discovery, channel configuration, and cleanup are delegated to the low-level
   V2 client. Its gRPC transport exceptions pass through unchanged; invalid
   wrapper values and update fields fail locally with `TypeError` or
-  `ValueError`. As in V1, calling a method after `close()` raises
-  `RuntimeError`.
-- V1 and V2 hosts both register the metadata store interface. When both run in
-  the same discovery cluster, `MetadataStoreClient()` cannot choose between
-  them; pass a `grpc_channel` for the intended host.
+  `ValueError`. Calling a method after `close()` raises `RuntimeError`.
 - `status` and `outcome` are separate, but the service requires status `DONE`
   (or no status) whenever a test result or step has an outcome other than
   `UNSPECIFIED`. For example, `status=Status.RUNNING` with

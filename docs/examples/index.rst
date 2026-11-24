@@ -1,52 +1,41 @@
-########
-Examples
-########
+####################
+Runnable V2 examples
+####################
 
-This section contains Jupyter notebook and Python script examples demonstrating how to use the NI Data Store.
+These Jupyter notebooks demonstrate the V2 Data Store API with complete,
+executable workflows. They are supporting examples rather than prerequisites
+for the tutorial. See the
+`V2 notebook setup guide <https://github.com/ni/datastore-python/blob/main/examples/notebooks/v2/README.md>`_
+for dependencies and service connection details.
 
-All example notebooks are located in the ``examples/notebooks/`` directory of the repository.
+The notebooks use a dedicated Poetry environment. From the repository root:
 
-Each example script has its own project folder under ``examples/``.
+.. code-block:: powershell
 
-OData Query Example Notebooks
-=============================
+   cd examples\notebooks
+   poetry install
 
-These notebooks demonstrate how to query data and metadata using OData syntax:
+Select that environment as the notebook kernel. The notebooks require NI
+Measurement Data Services running in V2 mode.
 
-**Setup and Sample Data:**
-
-* `publish_sample_data.ipynb <https://github.com/ni/datastore-python/blob/main/examples/notebooks/query/publish_sample_data.ipynb>`_ - Creates comprehensive sample data for query examples
-
-**Query Examples:**
-
-* `query_metadata.ipynb <https://github.com/ni/datastore-python/blob/main/examples/notebooks/query/query_metadata.ipynb>`_ - Demonstrates metadata queries (operators, hardware, UUTs, etc.)
-* `query_measurements.ipynb <https://github.com/ni/datastore-python/blob/main/examples/notebooks/query/query_measurements.ipynb>`_ - Demonstrates measurement and condition queries
-
-Other Example Notebooks
-=======================
-
-Additional examples for various use cases:
-
-* `publish_measurement.ipynb <https://github.com/ni/datastore-python/blob/main/examples/notebooks/overview/publish_measurement.ipynb>`_ - Basic measurement publishing
-* `alias.ipynb <https://github.com/ni/datastore-python/blob/main/examples/notebooks/alias/alias.ipynb>`_ - Working with aliases
-* `extension_attributes.ipynb <https://github.com/ni/datastore-python/blob/main/examples/notebooks/extension-attributes/extension_attributes.ipynb>`_ - Extension attributes examples
-* `publish_waveforms.ipynb <https://github.com/ni/datastore-python/blob/main/examples/notebooks/voltage-regulator/publish_waveforms.ipynb>`_ - Publishing waveform data
-
-Getting Started with Notebooks
-==============================
-
-1. **Run the setup notebook first:** Start with ``publish_sample_data.ipynb`` to create sample data
-2. **Explore queries:** Try the OData query examples to learn filtering and data retrieval
-3. **Adapt for your use case:** Use the other examples as templates for your specific needs
-
-All notebooks include detailed explanations and can be run in any Jupyter environment with the ``ni.datastore`` package installed.
-
-Python Example Scripts
+Publishing and reading
 ======================
 
-These Python scripts demonstrate how to publish and query both data and metadata.
+* `Publish and read a measurement <https://github.com/ni/datastore-python/blob/main/examples/notebooks/v2/overview/publish_measurement.ipynb>`_
+  creates a waveform measurement with a condition, then queries and reads it.
+* `Measurement value types <https://github.com/ni/datastore-python/blob/main/examples/notebooks/v2/measurement-values/measurement_values.ipynb>`_
+  demonstrates scalar and non-scalar values and limits.
+* `Batch creation <https://github.com/ni/datastore-python/blob/main/examples/notebooks/v2/batch-create/batch_create.ipynb>`_
+  creates test results, steps, and measurements in atomic batches.
 
-* `overview.py <https://github.com/ni/datastore-python/blob/main/examples/overview>`_ - Publishing and querying measurement data
-* `system.py <https://github.com/ni/datastore-python/blob/main/examples/system>`_ - Publishing and querying system metadata
+Querying and managing data
+==========================
 
-Each has a ``README.md`` file that describes its runtime requirements and usage.
+* `Publish query sample data <https://github.com/ni/datastore-python/blob/main/examples/notebooks/v2/query/publish_sample_data.ipynb>`_
+  creates data for the query notebook. Run it first.
+* `Query V2 data <https://github.com/ni/datastore-python/blob/main/examples/notebooks/v2/query/query_data.ipynb>`_
+  queries test results, steps, measurements, and conditions with OData.
+* `Update and delete resources <https://github.com/ni/datastore-python/blob/main/examples/notebooks/v2/update-delete/update_delete.ipynb>`_
+  updates fields, changes conditions, links metadata, and deletes data.
+* `Structured extensions <https://github.com/ni/datastore-python/blob/main/examples/notebooks/v2/structured-extensions/structured_extensions.ipynb>`_
+  stores nested JSON data in extensions.
