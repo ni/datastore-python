@@ -24,6 +24,7 @@ def test___query_steps___follows_page_tokens_until_all_matches_are_returned(
         seen_tokens = set()
 
         while True:
+            assert len(page) <= 1
             queried_ids.extend(step.id for step in page)
             if not page.next_page_token:
                 break
