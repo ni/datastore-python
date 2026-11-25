@@ -32,6 +32,61 @@ from ni.datastore.metadata import (
 from tests.acceptance._utils import append_hashed_time
 
 
+def test___metadata_mutations___link_read_and_unlink_metadata(
+    acceptance_test_context: DataStoreContext,
+) -> None:
+    description = append_hashed_time("v2 metadata mutations")
+
+    with MetadataStoreClient() as metadata_store_client, DataStoreClient() as data_store_client:
+        software_item_id = metadata_store_client.create_software_item(
+            SoftwareItem(product="Acceptance test software", version="1.0")
+        )
+        test_result = data_store_client.create_test_result(f"{description} test result")
+        step = data_store_client.create_step(f"{description} step", test_result_id=test_result.id)
+        measurement = data_store_client.create_measurement(
+            f"{description} measurement", 1.0, step.id
+        )
+
+        data_store_client.add_test_result_metadata(
+            test_result.id, software_item_ids=[software_item_id]
+        )
+        data_store_client.add_measurement_metadata(
+            measurement.id, software_item_ids=[software_item_id]
+        )
+
+        found_test_result = data_store_client.get_test_result(
+            test_result.id, read_fields=[TestResultField.SOFTWARE_ITEM_IDS]
+        )
+        found_measurement = data_store_client.get_measurement(
+            measurement.id,
+            read_fields=[
+                MeasurementField.ID,
+                MeasurementField.NAME,
+                MeasurementField.SOFTWARE_ITEM_IDS,
+            ],
+        )
+        assert found_test_result.software_item_ids == [software_item_id]
+        assert found_measurement.id == measurement.id
+        assert found_measurement.name == measurement.name
+        assert found_measurement.software_item_ids == [software_item_id]
+
+        data_store_client.remove_measurement_metadata(
+            measurement.id, software_item_ids=[software_item_id]
+        )
+        data_store_client.remove_test_result_metadata(
+            test_result.id, software_item_ids=[software_item_id]
+        )
+
+        found_test_result = data_store_client.get_test_result(
+            test_result.id, read_fields=[TestResultField.SOFTWARE_ITEM_IDS]
+        )
+        found_measurement = data_store_client.get_measurement(
+            measurement.id, read_fields=[MeasurementField.SOFTWARE_ITEM_IDS]
+        )
+        assert not found_test_result.software_item_ids
+        assert not found_measurement.software_item_ids
+
+
 def test___waveform_with_all_metadata___publish___query_read_returns_correct_data(
     acceptance_test_context: DataStoreContext,
 ) -> None:
@@ -132,7 +187,6 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
                 test_adapter_ids=[test_adapter_id],
                 link="Test Result Link",
                 extension={"tr1": "one", "tr2": "two"},
-                schema_id=schema_id,
             )
         )
         test = Test(
@@ -153,7 +207,6 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
             notes="Step Notes",
             link="Step Link",
             extension={"s1": "one", "s2": "two"},
-            schema_id=schema_id,
         )
         expected_waveform = AnalogWaveform(
             sample_count=3,
@@ -181,15 +234,14 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         queried_measurements = data_store_client.query_measurements(
             odata_query=f"$filter=id eq {measurement.id}",
             read_fields=[
+                MeasurementField.ID,
                 MeasurementField.TEST_RESULT_ID,
                 MeasurementField.STEP_ID,
+                MeasurementField.NAME,
                 MeasurementField.NOTES,
                 MeasurementField.SOFTWARE_ITEM_IDS,
                 MeasurementField.HARDWARE_ITEM_IDS,
                 MeasurementField.TEST_ADAPTER_IDS,
-                MeasurementField.SOFTWARE_ITEMS,
-                MeasurementField.HARDWARE_ITEMS,
-                MeasurementField.TEST_ADAPTERS,
                 MeasurementField.ERROR_INFORMATION,
                 MeasurementField.OUTCOME,
                 MeasurementField.START_DATE_TIME,
@@ -202,15 +254,6 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         assert sorted(found_measurement.software_item_ids) == [software_item_id]
         assert sorted(found_measurement.hardware_item_ids) == [hardware_item_id]
         assert found_measurement.test_adapter_ids == [test_adapter_id]
-        assert found_measurement.software_items == [
-            metadata_store_client.get_software_item(software_item_id)
-        ]
-        assert found_measurement.hardware_items == [
-            metadata_store_client.get_hardware_item(hardware_item_id)
-        ]
-        assert found_measurement.test_adapters == [
-            metadata_store_client.get_test_adapter(test_adapter_id)
-        ]
         assert found_measurement.error_information == error_information
         assert found_measurement.outcome == Outcome.PASSED
         assert isinstance(found_measurement.start_date_time, ht.datetime)
@@ -228,14 +271,6 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
                 TestResultField.UUT_INSTANCE_ID,
                 TestResultField.UUT_ID,
                 TestResultField.EXTENSION,
-                TestResultField.UUT_INSTANCE,
-                TestResultField.UUT,
-                TestResultField.OPERATOR,
-                TestResultField.TEST_STATION,
-                TestResultField.TEST_DESCRIPTION,
-                TestResultField.SOFTWARE_ITEMS,
-                TestResultField.HARDWARE_ITEMS,
-                TestResultField.TEST_ADAPTERS,
             ],
         )
         assert found_test_result.name == description
@@ -247,15 +282,6 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         assert found_test_result.uut_instance_id == uut_instance_id
         assert found_test_result.uut_id == uut_id
         assert found_test_result.extension == test_result.extension
-        assert found_test_result.uut_instance == uut_instance
-        assert found_test_result.uut == uut
-        assert found_test_result.operator == operator
-        assert found_test_result.test_station == test_station
-        assert found_test_result.test_description == test_description
-        assert found_test_result.software_items == [software_item]
-        assert found_test_result.hardware_items == [hardware_item]
-        assert found_test_result.test_adapters == [test_adapter]
-
         found_step = data_store_client.get_step(
             found_measurement.step_id,
             read_fields=[
@@ -267,7 +293,6 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
                 StepField.NOTES,
                 StepField.LINK,
                 StepField.EXTENSION,
-                StepField.TEST,
             ],
         )
         assert found_step.parent_step_id == step.parent_step_id
@@ -278,7 +303,6 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         assert found_step.notes == step.notes
         assert found_step.link == step.link
         assert found_step.extension == step.extension
-        assert found_step.test == test
 
         found_test = metadata_store_client.get_test(found_step.test_id)
         assert found_test.description == test.description
