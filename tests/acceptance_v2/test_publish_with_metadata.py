@@ -6,7 +6,6 @@ import os
 import hightime as ht
 import numpy as np
 from nitypes.waveform import AnalogWaveform, NoneScaleMode, SampleIntervalMode, Timing
-from utilities import DataStoreContext
 
 from ni.datastore.data.v2 import (
     DataStoreClient,
@@ -33,11 +32,11 @@ from tests.acceptance._utils import append_hashed_time
 
 
 def test___metadata_mutations___link_read_and_unlink_metadata(
-    acceptance_test_context: DataStoreContext,
+    metadata_store_client: MetadataStoreClient,
 ) -> None:
     description = append_hashed_time("v2 metadata mutations")
 
-    with MetadataStoreClient() as metadata_store_client, DataStoreClient() as data_store_client:
+    with DataStoreClient() as data_store_client:
         software_item_id = metadata_store_client.create_software_item(
             SoftwareItem(product="Acceptance test software", version="1.0")
         )
@@ -88,9 +87,9 @@ def test___metadata_mutations___link_read_and_unlink_metadata(
 
 
 def test___waveform_with_all_metadata___publish___query_read_returns_correct_data(
-    acceptance_test_context: DataStoreContext,
+    metadata_store_client: MetadataStoreClient,
 ) -> None:
-    with MetadataStoreClient() as metadata_store_client, DataStoreClient() as data_store_client:
+    with DataStoreClient() as data_store_client:
         current_directory = os.path.dirname(os.path.abspath(__file__))
         schema_id = metadata_store_client.register_schema_from_file(
             os.path.join(
