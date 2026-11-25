@@ -5,8 +5,9 @@ from typing import Generator
 import grpc
 import pytest
 from ni.measurementlink.discovery.v1.client import DiscoveryClient
-from ni.datastore.metadata import MetadataStoreClient
 from utilities import DataStoreContext
+
+from ni.datastore.metadata import MetadataStoreClient
 
 
 @pytest.fixture(scope="module")
