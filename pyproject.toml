@@ -106,9 +106,10 @@ include = ["src/", "tests/"]
 exclude = ["**/*_pb2_grpc.py", "**/*_pb2_grpc.pyi", "**/*_pb2.py", "**/*_pb2.pyi", "src/ni/measurements/data/v1/**/__init__.py*"]
 
 [tool.pytest.ini_options]
-addopts = "--doctest-modules --doctest-plus --strict-markers"
+addopts = '--doctest-modules --doctest-plus --strict-markers -m "not acceptance_v2"'
 testpaths = ["tests"]
 norecursedirs = [".venv"]
+markers = ["acceptance_v2: tests that require the Data Store service in V2 mode"]
 filterwarnings = [
   "ignore:cannot collect test class.*because it has a __init__ constructor:pytest.PytestCollectionWarning",
   "ignore:cannot collect test class.*because it has a __new__ constructor:pytest.PytestCollectionWarning",
