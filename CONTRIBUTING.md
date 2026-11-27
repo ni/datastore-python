@@ -101,14 +101,26 @@ can also install the Measurement Data Services installer on a test machine. If t
 is not running, these tests will fail. To run the acceptance tests, run this command:
 `poetry run pytest tests\acceptance`
 
-The V2 acceptance tests are separate because they require a DataStore service running in V2 mode.
-Run them with:
-`poetry run pytest tests\acceptance_v2`
+The V2 acceptance tests require a DataStore service running in V2 mode. By default, pytest
+excludes this suite so it does not run against a V1 service. The V2 fixture sets
+`NIDATASTORE_APIMODE=v2` and uses a unique temporary database and data-files directory before
+resolving the service through Discovery. It does not install or start the service; a V2 service
+must be available in the test cluster. Run the V2 suite explicitly with:
+`poetry run pytest tests\acceptance_v2 -m acceptance_v2`
+
+If starting the service manually, configure these variables in the service process before launch,
+using a scratch directory in place of `<scratch>`:
+```powershell
+$env:NIDATASTORE_APIMODE = "v2"
+$env:NIDATASTORE_V2DATASTORESETTINGS__SQLITEDATABASEPATH = "<scratch>\DataStore.db"
+$env:NIDATASTORE_V2DATASTORESETTINGS__DATAFILESDIRECTORY = "<scratch>\DataFiles"
+```
+
 The V2 API currently has no condition-batch publishing or standalone condition-query operations;
 the corresponding V1 acceptance cases are not included in the V2 suite.
 
-> Warning! Running the acceptance tests will publish data and metadata to the default global
-> MDS data store location in the Documents folder.
+> Warning! The V1 acceptance tests publish data and metadata to the default global MDS data store
+> location in the Documents folder. The V2 acceptance fixture uses a temporary isolated location.
 
 # Publishing on PyPI
 

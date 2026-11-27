@@ -13,7 +13,7 @@ from utilities import DataStoreContext
 
 from ni.datastore.data.v2 import DataStoreClient, Measurement
 from tests.acceptance._utils import append_hashed_time
-from tests.acceptance_v2._utils import create_step
+from tests.acceptance_v2._utils import create_test_result_and_step
 
 
 def test___publish_batch_floats___read_measurement_value_returns_vector(
@@ -23,7 +23,7 @@ def test___publish_batch_floats___read_measurement_value_returns_vector(
     expected_vector = Vector(values=[1.0, 2.0, 3.0, 4.0])
 
     with DataStoreClient() as data_store_client:
-        step = create_step(data_store_client, description)
+        step = create_test_result_and_step(data_store_client, description)
         measurement = data_store_client.create_measurement(
             description, [1.0, 2.0, 3.0, 4.0], step.id
         )
@@ -39,7 +39,7 @@ def test___publish_batch_vector___read_measurement_value_returns_vector(
     expected_vector = Vector(values=[1, 2, 3], units="Volts")
 
     with DataStoreClient() as data_store_client:
-        step = create_step(data_store_client, description)
+        step = create_test_result_and_step(data_store_client, description)
         measurement = data_store_client.create_measurement(description, expected_vector, step.id)
         vector = data_store_client.read_measurement_value(measurement.id, Vector)
 
@@ -66,7 +66,7 @@ def test___publish_batch_double_analog_waveforms___reads_each_waveform(
     ]
 
     with DataStoreClient() as data_store_client:
-        step = create_step(data_store_client, description)
+        step = create_test_result_and_step(data_store_client, description)
         measurements = data_store_client.batch_create_measurements(
             [
                 Measurement(name=description, value=waveform, step_id=step.id)
@@ -93,7 +93,7 @@ def test___publish_batch_vectors___reads_each_vector(
     ]
 
     with DataStoreClient() as data_store_client:
-        step = create_step(data_store_client, description)
+        step = create_test_result_and_step(data_store_client, description)
         measurements = data_store_client.batch_create_measurements(
             [
                 Measurement(name=description, value=vector, step_id=step.id)

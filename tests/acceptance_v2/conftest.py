@@ -11,10 +11,20 @@ from ni.datastore.metadata import MetadataStoreClient
 
 
 @pytest.fixture(scope="module")
-def acceptance_test_context() -> Generator[DataStoreContext, None, None]:
+def acceptance_test_context(
+    tmp_path_factory: pytest.TempPathFactory,
+) -> Generator[DataStoreContext, None, None]:
     """Set up isolated discovery and storage settings for the V2 service tests."""
-    with DataStoreContext() as data_store_context:
+    base_directory = tmp_path_factory.mktemp("v2-data-store")
+    with DataStoreContext(base_directory, api_mode="v2") as data_store_context:
         yield data_store_context
+
+
+def pytest_collection_modifyitems(items: list[pytest.Item]) -> None:
+    """Mark V2 tests so default pytest runs can exclude this suite."""
+    for item in items:
+        if "tests/acceptance_v2/" in item.nodeid.replace("\\", "/"):
+            item.add_marker(pytest.mark.acceptance_v2)
 
 
 @pytest.fixture

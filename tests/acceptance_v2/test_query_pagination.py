@@ -37,6 +37,7 @@ def test___query_steps___follows_page_tokens_until_all_matches_are_returned(
 
     assert set(queried_ids) == expected_ids
     assert len(queried_ids) == len(expected_ids)
+    assert len(seen_tokens) == len(expected_ids) - 1
 
 
 def test___query_test_results___follows_page_tokens_until_all_matches_are_returned(
@@ -55,6 +56,7 @@ def test___query_test_results___follows_page_tokens_until_all_matches_are_return
         seen_tokens = set()
 
         while True:
+            assert len(page) <= 1
             queried_ids.extend(test_result.id for test_result in page)
             if not page.next_page_token:
                 break
@@ -67,3 +69,4 @@ def test___query_test_results___follows_page_tokens_until_all_matches_are_return
 
     assert set(queried_ids) == expected_ids
     assert len(queried_ids) == len(expected_ids)
+    assert len(seen_tokens) == len(expected_ids) - 1

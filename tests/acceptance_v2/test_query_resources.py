@@ -10,7 +10,7 @@ from ni.datastore.data.v2 import (
     TestResultField,
 )
 from tests.acceptance._utils import append_hashed_time
-from tests.acceptance_v2._utils import create_step
+from tests.acceptance_v2._utils import create_test_result_and_step
 
 
 def test___query_measurements___filter_by_id___single_measurement_returned(
@@ -19,7 +19,7 @@ def test___query_measurements___filter_by_id___single_measurement_returned(
     description = append_hashed_time("v2 query measurement by id")
 
     with DataStoreClient() as data_store_client:
-        step = create_step(data_store_client, description)
+        step = create_test_result_and_step(data_store_client, description)
         measurement = data_store_client.create_measurement(
             "query filter by id measurement", 123.45, step.id
         )
@@ -42,7 +42,7 @@ def test___query_measurements___filter_by_name___correct_measurements_returned(
     name_base = f"{description} measurement"
 
     with DataStoreClient() as data_store_client:
-        step = create_step(data_store_client, description)
+        step = create_test_result_and_step(data_store_client, description)
         expected_names = {f"{name_base} {index}" for index in range(3)}
         for index, name in enumerate(sorted(expected_names)):
             data_store_client.create_measurement(name, index, step.id)
@@ -68,7 +68,7 @@ def test___query_steps___filter_by_id___single_step_returned(
     description = append_hashed_time("v2 query step by id")
 
     with DataStoreClient() as data_store_client:
-        step = create_step(data_store_client, description)
+        step = create_test_result_and_step(data_store_client, description)
         queried_steps = data_store_client.query_steps(
             odata_query=f"$filter=id eq {step.id}", read_fields=[StepField.NAME]
         )

@@ -6,7 +6,7 @@ from utilities import DataStoreContext
 
 from ni.datastore.data.v2 import Condition, DataStoreClient, StepField
 from tests.acceptance._utils import append_hashed_time
-from tests.acceptance_v2._utils import create_step
+from tests.acceptance_v2._utils import create_test_result_and_step
 
 
 @pytest.mark.parametrize(
@@ -29,7 +29,7 @@ def test___add_condition___read_condition_value_returns_expected_scalar(
     description = append_hashed_time("v2 condition value")
 
     with DataStoreClient() as data_store_client:
-        step = create_step(data_store_client, description)
+        step = create_test_result_and_step(data_store_client, description)
         data_store_client.add_condition(
             step.id,
             "Python condition",
@@ -53,7 +53,7 @@ def test___add_condition___replaces_same_name_and_remove_clears_condition(
     description = append_hashed_time("v2 condition replacement")
 
     with DataStoreClient() as data_store_client:
-        step = create_step(data_store_client, description)
+        step = create_test_result_and_step(data_store_client, description)
         data_store_client.add_condition(step.id, Condition("Supply Voltage", 3.3, units="V"))
         replaced_step = data_store_client.add_condition(
             step.id,
@@ -75,7 +75,7 @@ def test___add_condition___reads_json_mapping_value(
     expected_value = {"ambient": {"temperature": 23.0, "units": "degC"}}
 
     with DataStoreClient() as data_store_client:
-        step = create_step(data_store_client, description)
+        step = create_test_result_and_step(data_store_client, description)
         data_store_client.add_condition(
             step.id,
             Condition("Environment", expected_value, condition_type="Setup"),

@@ -81,6 +81,7 @@ def test___query_measurements___uses_page_token_to_return_all_matches(
         seen_tokens = set()
 
         while True:
+            assert len(page) <= 1
             queried_ids.extend(measurement.id for measurement in page)
             if not page.next_page_token:
                 break
@@ -93,3 +94,4 @@ def test___query_measurements___uses_page_token_to_return_all_matches(
 
         assert set(queried_ids) == expected_ids
         assert len(queried_ids) == len(expected_ids)
+        assert len(seen_tokens) == len(expected_ids) - 1

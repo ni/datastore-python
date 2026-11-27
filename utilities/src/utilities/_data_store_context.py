@@ -3,6 +3,7 @@ import os
 import sys
 from pathlib import Path
 from types import TracebackType
+from typing import Literal
 
 if sys.version_info >= (3, 11):
     from typing import Self
@@ -10,6 +11,7 @@ else:
     from typing_extensions import Self
 
 DISCOVERY_SERVICE_CLUSTER_ID_ENV_VAR = "NIDISCOVERY_CLUSTERID"
+DATA_STORE_API_MODE_ENV_VAR = "NIDATASTORE_APIMODE"
 
 # Environment variables controlling files created or used by the Data Store service
 DATA_STORE_DATABASE_PATH_ENV_VAR = "NIDATASTORE_DATASTORESETTINGS__SQLITEDATABASEPATH"
@@ -21,6 +23,10 @@ DATA_STORE_FAILED_INGEST_DIRECTORY_PATH_ENV_VAR = (
 DATA_STORE_TDMS_EXPIRATION_SECONDS_ENV_NAME = (
     "NIDATASTORE_DATASTORESETTINGS__TDMSFILECACHEEXPIRATIONSECONDS"
 )
+V2_DATA_STORE_DATABASE_PATH_ENV_VAR = "NIDATASTORE_V2DATASTORESETTINGS__SQLITEDATABASEPATH"
+V2_DATA_STORE_DATA_FILES_DIRECTORY_PATH_ENV_VAR = (
+    "NIDATASTORE_V2DATASTORESETTINGS__DATAFILESDIRECTORY"
+)
 
 DEFAULT_FOLDER_NAME = "temp_data"
 
@@ -28,16 +34,23 @@ DEFAULT_FOLDER_NAME = "temp_data"
 class DataStoreContext:
     """A context manager for running a data store in an isolated environment."""
 
-    __slots__ = "_base_directory_path", "_original_environment"
+    __slots__ = "_api_mode", "_base_directory_path", "_original_environment"
 
-    def __init__(self, base_directory_path: Path | None = None) -> None:
+    def __init__(
+        self,
+        base_directory_path: Path | None = None,
+        api_mode: Literal["v1", "v2"] | None = None,
+    ) -> None:
         """Initialize the DataStoreContext.
 
         Args:
             base_directory_path: An optional base directory path specifying where
             the data store files will be located. If not provided, a default path
             in the repository directory will be used.
+            api_mode: The Data Store API mode to configure. If not provided, the
+                existing API mode environment setting is preserved.
         """
+        self._api_mode = api_mode
         self._base_directory_path = base_directory_path
         self._original_environment: dict[str, str | None] = {}
 
@@ -72,11 +85,14 @@ class DataStoreContext:
         # Save the original values (or None if not set)
         for environment_variable in [
             DISCOVERY_SERVICE_CLUSTER_ID_ENV_VAR,
+            DATA_STORE_API_MODE_ENV_VAR,
             DATA_STORE_DATABASE_PATH_ENV_VAR,
             DATA_STORE_DATA_FILES_DIRECTORY_PATH_ENV_VAR,
             DATA_STORE_INGEST_DIRECTORY_PATH_ENV_VAR,
             DATA_STORE_FAILED_INGEST_DIRECTORY_PATH_ENV_VAR,
             DATA_STORE_TDMS_EXPIRATION_SECONDS_ENV_NAME,
+            V2_DATA_STORE_DATABASE_PATH_ENV_VAR,
+            V2_DATA_STORE_DATA_FILES_DIRECTORY_PATH_ENV_VAR,
         ]:
             self._original_environment[environment_variable] = os.environ.get(environment_variable)
 
@@ -86,6 +102,18 @@ class DataStoreContext:
 
     def _initialize_data_store_paths(self) -> None:
         base_directory_path = self._get_base_directory_path()
+
+        if self._api_mode is not None:
+            os.environ[DATA_STORE_API_MODE_ENV_VAR] = self._api_mode
+
+        if self._api_mode == "v2":
+            os.environ[V2_DATA_STORE_DATABASE_PATH_ENV_VAR] = str(
+                base_directory_path / "DataStore.db"
+            )
+            os.environ[V2_DATA_STORE_DATA_FILES_DIRECTORY_PATH_ENV_VAR] = str(
+                base_directory_path / "DataFiles"
+            )
+            return
 
         metadata_db_path = base_directory_path / "MetadataStore.db"
         data_files_dir = base_directory_path / "DataFiles"

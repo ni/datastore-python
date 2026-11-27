@@ -17,7 +17,7 @@ from utilities import DataStoreContext
 
 from ni.datastore.data.v2 import DataStoreClient, JsonValue, MeasurementValue
 from tests.acceptance._utils import append_hashed_time
-from tests.acceptance_v2._utils import create_step
+from tests.acceptance_v2._utils import create_test_result_and_step
 
 
 @pytest.mark.parametrize(
@@ -166,7 +166,7 @@ def test___publish_measurement___read_measurement_value_returns_expected_type(
     description = append_hashed_time("v2 measurement value")
 
     with DataStoreClient() as data_store_client:
-        step = create_step(data_store_client, description)
+        step = create_test_result_and_step(data_store_client, description)
         measurement = data_store_client.create_measurement(description, value, step.id)
         read_value = data_store_client.read_measurement_value(measurement.id)
 

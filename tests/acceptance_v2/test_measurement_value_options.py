@@ -5,7 +5,7 @@ from utilities import DataStoreContext
 
 from ni.datastore.data.v2 import DataStoreClient, MeasurementValueField
 from tests.acceptance._utils import append_hashed_time
-from tests.acceptance_v2._utils import create_step
+from tests.acceptance_v2._utils import create_test_result_and_step
 
 
 def test___read_measurement_values___returns_value_and_limits(
@@ -17,7 +17,7 @@ def test___read_measurement_values___returns_value_and_limits(
     expected_upper_limit = Scalar(10.0, "V")
 
     with DataStoreClient() as data_store_client:
-        step = create_step(data_store_client, description)
+        step = create_test_result_and_step(data_store_client, description)
         measurement = data_store_client.create_measurement(
             description,
             expected_value,

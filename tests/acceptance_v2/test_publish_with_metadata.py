@@ -256,7 +256,7 @@ def test___waveform_with_all_metadata___publish___query_read_returns_correct_dat
         assert found_measurement.error_information == error_information
         assert found_measurement.outcome == Outcome.PASSED
         assert isinstance(found_measurement.start_date_time, ht.datetime)
-        assert found_measurement.start_date_time.day == timestamp.day
+        assert abs(found_measurement.start_date_time - timestamp) < ht.timedelta(milliseconds=1)
 
         found_test_result = data_store_client.get_test_result(
             found_measurement.test_result_id,
